@@ -1,0 +1,29 @@
+@use '../../scss/main.scss' as *;
+@use '../../scss/breakpoints/breakpoints.scss' as *;
+
+.continueWithGoogle {
+    padding: 20px 0 0 0;
+
+    button {
+        padding: 12px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: center;
+        transition: .3s ease-in-out;
+        color: var(--Color, #25292B);
+        text-align: center;
+        cursor: pointer;
+        font-size: 18px;
+        border: 1px solid rgba(0, 0, 0, 0.10);
+        background: #FFF;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+
+        &:hover {
+            border: 1px solid #0B56DB;
+        }
+    }
+}

@@ -1,0 +1,49 @@
+@use '../../scss/main.scss' as *;
+@use '../../scss/breakpoints/breakpoints.scss' as *;
+
+.header {
+    position: absolute;
+    top: 20px;
+    width: 100%;
+
+    .headerAlignment {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        border: 1px solid #D8D8D8;
+        background: #FFF;
+        box-shadow: 0 2px 26.5px 0 rgba(0, 0, 0, 0.10);
+
+        .logo {
+            img {
+                display: block;
+                max-width: 180px;
+                cursor: pointer;
+            }
+        }
+
+        .menuAlignment {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            a {
+                display: block;
+                cursor: pointer;
+                color: #5F5F5F;
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
+                padding: 6px 16px;
+                transition: .3s ease-in-out;
+
+                &:hover {
+                    background: linear-gradient(180deg, rgba(11, 86, 219, 0.10) 0%, rgba(255, 255, 255, 0.10) 49.65%, rgba(11, 86, 219, 0.10) 100%);
+                    color: #0B56DB;
+                }
+            }
+        }
+    }
+}

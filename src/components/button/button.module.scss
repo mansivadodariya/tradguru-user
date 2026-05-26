@@ -1,0 +1,42 @@
+@use '../../scss/main.scss' as *;
+@use '../../scss/breakpoints/breakpoints.scss' as *;
+
+.button {
+    button {
+        padding: 6px 29px 6px 6px;
+        background: #0B56DB;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        position: relative;
+        color: #FFF;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 500;
+        border: 1px solid #0B56DB;
+        cursor: pointer;
+        line-height: normal;
+
+        &:hover {
+            .icon {
+                img {
+                    transform: rotate(45deg);
+                }
+            }
+        }
+
+        .icon {
+            width: 38px;
+            height: 38px;
+            background: #FFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            img {
+                display: block;
+                transition: .3s ease-in-out;
+            }
+        }
+    }
+}

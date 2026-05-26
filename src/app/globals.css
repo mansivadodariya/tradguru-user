@@ -1,0 +1,51 @@
+body,
+input,
+::placeholder,
+button,
+textarea {
+  font-family: var(--font-roboto);
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+
+p:last-child {
+  margin: 0;
+}
+
+.heading {
+  font-family: var(--font-plus-jakarta);
+}
+
+.container-xs {
+  max-width: calc(1360px + 40px);
+  padding: 0 20px;
+  margin: 0 auto;
+}
+
+.container-xs2 {
+  max-width: calc(1240px + 40px);
+  padding: 0 20px;
+  margin: 0 auto;
+}

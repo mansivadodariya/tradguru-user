@@ -1,0 +1,32 @@
+@use '../../scss/main.scss' as *;
+@use '../../scss/breakpoints/breakpoints.scss' as *;
+
+
+.lineText {
+    display: flex;
+    justify-content: center;
+
+    button {
+        border: none;
+        background: linear-gradient(90deg, rgba(11, 86, 219, 0.24) 0%, rgba(255, 255, 255, 0.00) 49.15%, rgba(11, 86, 219, 0.24) 100%);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #0B56DB;
+        text-align: center;
+        font-size: 16px;
+        font-style: normal;
+        padding: 7px 26px;
+        border-left: 3px solid #0B56DB;
+        border-right: 3px solid #0B56DB;
+        font-weight: 500;
+        line-height: normal;
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #0B56DB;
+            border-radius: 8px;
+        }
+    }
+}
