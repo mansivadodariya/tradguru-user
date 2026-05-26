@@ -2,8 +2,9 @@
 import React, { useRef } from 'react';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import styles from './button.module.scss';
+import classNames from 'classnames';
 
-export default function Button({ text, icon }) {
+export default function Button({ text, icon, light }) {
     const ref = useRef(null);
     const x = useMotionValue(0);
     const y = useMotionValue(0);
@@ -33,18 +34,18 @@ export default function Button({ text, icon }) {
     };
 
     return (
-        <div className={styles.button} style={{ perspective: 1200 }}>
+        <div className={classNames(styles.button, light ? styles.light : "")} style={{ perspective: 1200 }}>
             <motion.button
                 ref={ref}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
                 style={{ rotateX, rotateY }}
-                whileHover={{ 
-                    scale: 1.05, 
+                whileHover={{
+                    scale: 1.05,
                     boxShadow: "0px 15px 30px -5px rgba(11, 86, 219, 0.4)",
                     y: -5
                 }}
-                whileTap={{ 
+                whileTap={{
                     scale: 0.95,
                     boxShadow: "0px 5px 15px -5px rgba(11, 86, 219, 0.4)",
                     y: 0

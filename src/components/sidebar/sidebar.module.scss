@@ -1,0 +1,186 @@
+@use '../../scss/main.scss' as *;
+@use '../../scss/breakpoints/breakpoints.scss' as *;
+
+.sidebar {
+    height: calc(100dvh - 0px);
+    border: 1px solid #DFDFDF;
+    background: #FFF;
+    position: sticky;
+    top: 0;
+
+    .logo {
+        padding: 20px;
+        border-bottom: 1px solid #E4E4E4;
+
+        img {
+            display: block;
+            cursor: pointer;
+            max-width: 177px;
+        }
+    }
+
+    .sidebarmenu {
+        padding: 20px;
+        height: calc(100dvh - 286px);
+        overflow: auto;
+        scrollbar-width: none;
+
+        p {
+            color: #656363;
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: normal;
+            text-transform: capitalize;
+        }
+
+        .line {
+            padding: 10px 0 0 0;
+            margin: 0 0 20px 0;
+            border-bottom: 1px solid #DFDFDF;
+        }
+
+        .menu {
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 10px 0;
+            transition: .3s ease-in-out;
+            cursor: pointer;
+            position: relative;
+
+            &::before {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                right: 0;
+                width: 12px;
+                height: 80%;
+                background: #FFF;
+                filter: blur(9px);
+                content: '';
+                opacity: 0;
+                transition: .3s ease-in-out;
+            }
+
+            &:hover {
+                background: #0B56DB;
+
+                &::before {
+                    opacity: 1;
+                }
+
+                .icon {
+                    background-color: #fff;
+
+                    svg {
+                        path {
+                            stroke: #0B56DB;
+                        }
+                    }
+                }
+
+                span {
+                    color: #fff;
+                }
+            }
+
+            .icon {
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                transition: .3s ease-in-out;
+
+                justify-content: center;
+            }
+
+            span {
+                display: block;
+                color: #656363;
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: normal;
+                transition: .3s ease-in-out;
+
+            }
+        }
+    }
+
+    .sidebarBody {
+        padding: 20px;
+
+        .box {
+            background: #0B56DB;
+            padding: 20px;
+            position: relative;
+
+            &::before {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                width: 60px;
+                height: 60px;
+                content: '';
+                background: #A2D6F2;
+                filter: blur(23.899999618530273px);
+            }
+
+            &::after {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 30px;
+                height: 30px;
+                content: '';
+                background: #A2D6F2;
+                filter: blur(23.899999618530273px);
+            }
+
+            .contentRelative {
+                position: relative;
+                z-index: 1;
+            }
+
+            p {
+                color: rgba(255, 255, 255, 0.70);
+                font-size: 12px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 18px;
+                margin: 0 0 20px 0;
+            }
+
+            button {
+                border: none;
+                cursor: pointer;
+                width: 100%;
+                background: #FFF;
+                color: #0B56DB;
+                font-size: 14px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: normal;
+                padding: 8px;
+            }
+
+            .iconText {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 0 0 10px 0;
+
+                h3 {
+                    color: #FFF;
+                    font-size: 18px;
+                    font-style: normal;
+                    font-weight: 600;
+                    line-height: normal;
+                }
+            }
+        }
+    }
+}

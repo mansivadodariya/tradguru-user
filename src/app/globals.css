@@ -49,3 +49,19 @@ p:last-child {
   padding: 0 20px;
   margin: 0 auto;
 }
+
+.user-layout {
+  display: flex;
+}
+
+.sidebar-wrapper {
+  width: 270px;
+}
+
+.children-wrapper {
+  width: calc(100% - 270px);
+}
+
+.children-spacing {
+  padding: 16px;
+}

@@ -1,0 +1,90 @@
+@use '../../scss/main.scss' as *;
+@use '../../scss/breakpoints/breakpoints.scss' as *;
+
+.topbar {
+    border-bottom: 1px solid #E4E4E4;
+    background: #FFF;
+    padding: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 99;
+
+    .left {
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .right {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+
+        .bell {
+            border: 1px solid #D5E1F8;
+            background: #F5F8FE;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .line {
+            width: 1px;
+            height: 23px;
+            background: #E4E4E4;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+
+            .content {
+                display: flex;
+                align-items: center;
+                gap: 18px;
+
+                p {
+                    color: #1A1A1A;
+                    font-size: 16px;
+                    font-weight: 600;
+                    line-height: normal;
+                    text-transform: capitalize;
+                    margin: 0 0 4px 0;
+                }
+
+                .down {
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                }
+
+                span {
+                    display: block;
+                    color: rgba(26, 26, 26, 0.70);
+                    font-size: 14px;
+                    font-style: normal;
+                    font-weight: 400;
+                    line-height: normal;
+                    text-transform: capitalize;
+                }
+            }
+
+            .image {
+                width: 42px;
+                height: 42px;
+
+                img {
+                    display: block;
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+            }
+        }
+    }
+}

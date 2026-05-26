@@ -1,9 +1,21 @@
-import React from 'react'
+import Sidebar from '@/components/sidebar';
+import Topbar from '@/components/topbar';
+import React from 'react';
 
-export default function layout({ children }) {
+const layout = ({ children }) => {
     return (
-        <div>
-            {children}
+        <div className='user-layout'>
+            <div className='sidebar-wrapper'>
+                <Sidebar />
+            </div>
+            <div className='children-wrapper'>
+                <Topbar />
+                <div className='children-spacing'>
+                    {children}
+                </div>
+            </div>
         </div>
-    )
+    );
 }
+
+export default layout;

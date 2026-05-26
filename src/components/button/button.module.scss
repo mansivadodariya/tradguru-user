@@ -2,6 +2,14 @@
 @use '../../scss/breakpoints/breakpoints.scss' as *;
 
 .button {
+    &.light {
+        button {
+            background: #F1F5FC;
+            border: 1px solid #F1F5FC;
+            color: #0B56DB;
+        }
+    }
+
     button {
         padding: 6px 29px 6px 6px;
         background: #0B56DB;

@@ -1,0 +1,127 @@
+@use '../../scss/main.scss' as *;
+@use '../../scss/breakpoints/breakpoints.scss' as *;
+
+.tradeSnap {
+    .title {
+        padding: 0 0 32px 0;
+
+        h2 {
+            color: #1A1A1A;
+            font-size: 22px;
+            margin: 0 0 5px 0;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+            text-transform: capitalize;
+        }
+
+        p {
+            color: #8D8D8D;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: normal;
+            text-transform: capitalize;
+        }
+    }
+
+    .upload {
+        padding: 70px;
+        border: 1.5px dashed #1C64DE;
+        background: #FDFDFE;
+
+        .iconCenter {
+            display: flex;
+            justify-content: center;
+            padding: 0 0 10px 0;
+
+            img {
+                display: block;
+            }
+        }
+
+        .textstyle {
+            h2 {
+                color: #1A1A1A;
+                text-align: center;
+                font-size: 18px;
+                font-weight: 600;
+                line-height: normal;
+                text-transform: capitalize;
+                margin: 0 0 10px 0;
+                text-align: center;
+            }
+
+            .centerAlignment {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 24px 0 0 0;
+                justify-content: center;
+            }
+
+            p {
+                color: #8D8D8D;
+                text-align: center;
+                font-size: 16px;
+                font-weight: 500;
+                line-height: 22px;
+                max-width: 387px;
+                margin: 0 auto;
+            }
+        }
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        padding: 28px 0 0 0;
+
+        .items {
+            padding: 16px;
+            border: 1px solid #DFDFDF;
+            background: #FFF;
+
+            .icontext {
+                display: flex;
+                align-items: center;
+                padding: 0 0 24px 0;
+                gap: 12px;
+
+                h3 {
+                    color: #121212;
+                    font-size: 18px;
+                    font-style: normal;
+                    font-weight: 600;
+                    line-height: normal;
+                }
+            }
+
+            .bottom {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                p {
+                    color: #8D8D8D;
+                    font-size: 16px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: normal;
+                }
+
+                button {
+                    padding: 4px 14px;
+                    background: #E0F9EA;
+                    color: #121212;
+                    font-size: 12px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: normal;
+                    border: none;
+                }
+            }
+        }
+    }
+}
