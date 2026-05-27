@@ -17,7 +17,7 @@ const EyeClosed = () => (
     </svg>
 );
 
-const Input = ({ label, placeholder, type = 'text', value, onChange, name, icon, error }) => {
+const Input = ({ label, placeholder, type = 'text', value, onChange, name, icon, error, ...rest }) => {
     const [showPassword, setShowPassword] = useState(false);
     const isPassword = type === 'password';
     const resolvedType = isPassword ? (showPassword ? 'text' : 'password') : type;
@@ -36,6 +36,7 @@ const Input = ({ label, placeholder, type = 'text', value, onChange, name, icon,
                     onChange={onChange}
                     aria-invalid={!!error}
                     aria-describedby={error ? `${name}-error` : undefined}
+                    {...rest}
                 />
                 {isPassword && (
                     <button

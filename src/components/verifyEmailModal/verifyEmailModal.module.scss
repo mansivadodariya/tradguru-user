@@ -15,7 +15,7 @@
     max-width: 497px;
     width: 100%;
     position: relative;
-    padding: 90px 24px 24px 24px;
+    padding: 90px 24px 24px;
     border-radius: 24px;
     overflow: hidden;
     border: 1px solid rgba(26, 26, 26, 0.14);
@@ -54,18 +54,19 @@
     z-index: 1;
 
     .icon {
-        padding: 0 0 24px 0;
+        padding: 0 0 24px;
         display: flex;
         justify-content: center;
+        cursor: pointer;
     }
 
     .text {
-        padding: 0 0 24px 0;
+        padding: 0 0 24px;
 
         h2 {
             color: #1A1A1A;
             font-size: 24px;
-            margin: 0 0 10px 0;
+            margin: 0 0 10px;
             text-align: center;
             font-weight: 700;
             line-height: normal;

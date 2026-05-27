@@ -1,0 +1,58 @@
+@use "../../scss/main.scss" as *;
+@use "../../scss/breakpoints/breakpoints.scss" as *;
+
+.economicCalendar {
+  padding: 8px 0 0;
+
+  .header {
+    margin-bottom: 20px;
+
+    h1 {
+      margin: 0 0 6px;
+      color: #1a1a1a;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 15px;
+      line-height: 1.6;
+      max-width: 760px;
+    }
+  }
+
+  .widgetCard {
+    width: 100%;
+    border: 1px solid rgba(18, 18, 18, 0.12);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    padding: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+
+    :global(.tradingview-widget-container) {
+      width: 100%;
+      min-height: 640px;
+
+      :global(.tradingview-widget-container__widget) {
+        width: 100%;
+      }
+
+      :global(.tradingview-widget-copyright) {
+        display: none !important;
+      }
+    }
+  }
+}
+
+@include respond-to("tab") {
+  .economicCalendar {
+    .header {
+      h1 {
+        font-size: 24px;
+      }
+    }
+  }
+}

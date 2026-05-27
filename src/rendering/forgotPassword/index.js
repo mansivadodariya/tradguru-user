@@ -6,29 +6,28 @@ import Input from '@/components/input';
 import Button from '@/components/button';
 import { authApi } from '@/lib/api';
 import { validateForgotPassword } from '@/lib/validation';
+import { useToast } from '@/components/toast';
 
 const LineImage = '/assets/images/line.png';
 const AuthIcon = '/assets/icons/auth.svg';
 const ArrowIcon = '/assets/icons/arrow.svg';
 
 const ForgotPassword = () => {
+    const toast = useToast();
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
     const [sent, setSent] = useState(false);
 
     const handleEmailChange = (e) => {
         const val = e.target.value.trimStart();
         setEmail(val);
         if (emailError) setEmailError('');
-        if (error) setError('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        
+
         const fieldError = validateForgotPassword(email);
         if (fieldError) {
             setEmailError(fieldError);
@@ -40,7 +39,7 @@ const ForgotPassword = () => {
             await authApi.forgotPassword(email);
             setSent(true);
         } catch (err) {
-            setError(err.message);
+            toast(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -54,7 +53,7 @@ const ForgotPassword = () => {
                     <img src={LineImage} alt="" aria-hidden="true" />
                 </div>
                 <div className={styles.relative}>
-                    <div className={styles.icon}>
+                    <div className={styles.icon} onClick={() => router.push("/")}>
                         <img src={AuthIcon} alt="" aria-hidden="true" />
                     </div>
                     <div className={styles.text}>
@@ -73,7 +72,6 @@ const ForgotPassword = () => {
                         <form onSubmit={handleSubmit} noValidate>
                             <div className={styles.spacingGrid}>
                                 <Input label="Email" placeholder=" johnfrans@gmail.com" type="email" name="email" value={email} onChange={handleEmailChange} error={emailError} />
-                                {error && <p className={styles.error} role="alert">{error}</p>}
                                 <Button text={loading ? 'Sending...' : 'Send Reset Link'} icon={ArrowIcon} disabled={loading} />
                             </div>
                         </form>

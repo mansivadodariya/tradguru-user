@@ -9,6 +9,7 @@ import Button from '@/components/button';
 import ContinueWithGoogle from '@/components/continueWithGoogle';
 import { authApi } from '@/lib/api';
 import { validateSignup } from '@/lib/validation';
+import { useToast } from '@/components/toast';
 
 const LineImage = '/assets/images/line.png';
 const AuthIcon = '/assets/icons/auth.svg';
@@ -20,16 +21,17 @@ const Lock = '/assets/icons/lock.svg';
 
 const Signup = () => {
     const router = useRouter();
+    const toast = useToast();
     const [form, setForm] = useState({
         first_name: '', last_name: '', email: '', phone_number: '', password: '', confirmPassword: ''
     });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
-    const [apiError, setApiError] = useState('');
     const [success, setSuccess] = useState(false);
 
     const set = (field) => (e) => {
-        const val = e.target.value.trimStart();
+        let val = e.target.value.trimStart();
+        if (field === 'phone_number') val = val.replace(/\D/g, '');
         setForm((f) => ({ ...f, [field]: val }));
         // clear field error on change
         if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }));
@@ -37,7 +39,6 @@ const Signup = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setApiError('');
         const fieldErrors = validateSignup(form);
         if (Object.keys(fieldErrors).length > 0) {
             setErrors(fieldErrors);
@@ -49,7 +50,7 @@ const Signup = () => {
             await authApi.signup(payload);
             setSuccess(true);
         } catch (err) {
-            setApiError(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
+            toast(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -62,7 +63,7 @@ const Signup = () => {
                     <div className={styles.layer}></div>
                     <div className={styles.relative}>
                         <div className={styles.icon}>
-                            <img src={AuthIcon} alt="" aria-hidden="true" />
+                            <img src={AuthIcon} alt="" aria-hidden="true" onClick={() => router.push("/")} />
                         </div>
                         <div className={styles.text}>
                             <h2>Check your email</h2>
@@ -86,7 +87,7 @@ const Signup = () => {
                 </div>
                 <div className={styles.relative}>
                     <div className={styles.icon}>
-                        <img src={AuthIcon} alt="" aria-hidden="true" />
+                        <img src={AuthIcon} alt="" aria-hidden="true" onClick={() => router.push("/")} />
                     </div>
                     <div className={styles.text}>
                         <h2>Sign Up</h2>
@@ -99,12 +100,11 @@ const Signup = () => {
                                 <Input icon={Profile} placeholder="Last Name" name="last_name" value={form.last_name} onChange={set('last_name')} error={errors.last_name} />
                             </div>
                             <Input icon={EmailIcon} placeholder="Email" type="email" name="email" value={form.email} onChange={set('email')} error={errors.email} />
-                            <Input icon={Call} placeholder="Phone no" name="phone_number" value={form.phone_number} onChange={set('phone_number')} error={errors.phone_number} />
+                            <Input icon={Call} placeholder="Phone no" name="phone_number" value={form.phone_number} onChange={set('phone_number')} error={errors.phone_number} inputMode="numeric" maxLength={15} />
                             <div className={styles.twoCol}>
                                 <Input icon={Lock} placeholder="Password" type="password" name="password" value={form.password} onChange={set('password')} error={errors.password} />
                                 <Input icon={Lock} placeholder="Confirm Password" type="password" name="confirmPassword" value={form.confirmPassword} onChange={set('confirmPassword')} error={errors.confirmPassword} />
                             </div>
-                            {apiError && <p className={styles.error} role="alert">{apiError}</p>}
                             <Button text={loading ? 'Signing up...' : 'Sign up'} icon={ArrowIcon} />
                         </div>
                     </form>

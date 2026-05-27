@@ -2,9 +2,11 @@ import React from 'react'
 import Link from 'next/link';
 import styles from './header.module.scss';
 import Button from '../button';
+import { useRouter } from 'next/navigation';
 const Logo = '/assets/logo/logo.svg';
 const ArrowIcon = '/assets/icons/arrow.svg';
 export default function Header() {
+    const router = useRouter()
     return (
         <div className={styles.header}>
             <div className='container-xs'>
@@ -23,7 +25,7 @@ export default function Header() {
                         <Link href="/#about" aria-label='About'>About</Link>
                     </div>
                     <div>
-                        <Button text="Get Started" icon={ArrowIcon} href="/signup" />
+                        <Button text="Get Started" icon={ArrowIcon} onClick={() => router.push("/signup")} />
                     </div>
                 </div>
             </div>

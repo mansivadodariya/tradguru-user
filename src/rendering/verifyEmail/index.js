@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { authApi } from '@/lib/api';
 import styles from './verifyEmail.module.scss';
 
@@ -11,6 +11,7 @@ const LineImage = '/assets/images/line.png';
 const STATUS = { LOADING: 'loading', SUCCESS: 'success', ERROR: 'error' };
 
 export default function VerifyEmail() {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get('token') || '';
     const [status, setStatus] = useState(STATUS.LOADING);
@@ -39,7 +40,7 @@ export default function VerifyEmail() {
                 </div>
                 <div className={styles.relative}>
                     <div className={styles.icon}>
-                        <img src={AuthIcon} alt="" aria-hidden="true" />
+                        <img src={AuthIcon} alt="" aria-hidden="true" onClick={()=>router.push("/")}/>
                     </div>
 
                     {status === STATUS.LOADING && (

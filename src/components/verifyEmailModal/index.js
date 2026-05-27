@@ -23,7 +23,7 @@ export default function VerifyEmailModal({ onVerify, onClose, loading, error }) 
                     <img src={LineImage} alt='' aria-hidden="true" />
                 </div>
                 <div className={styles.relative}>
-                    <div className={styles.icon}>
+                    <div className={styles.icon} onClick={()=>router.push("/")}>
                         <img src={AuthIcon} alt='' aria-hidden="true" />
                     </div>
                     <div className={styles.text}>

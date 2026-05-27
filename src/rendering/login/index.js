@@ -8,6 +8,7 @@ import Button from '@/components/button';
 import ContinueWithGoogle from '@/components/continueWithGoogle';
 import { authApi } from '@/lib/api';
 import { validateLogin } from '@/lib/validation';
+import { useToast } from '@/components/toast';
 
 const LineImage = '/assets/images/line.png';
 const AuthIcon = '/assets/icons/auth.svg';
@@ -17,10 +18,10 @@ const Lock = '/assets/icons/lock.svg';
 
 const Login = () => {
     const router = useRouter();
+    const toast = useToast();
     const [form, setForm] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
-    const [apiError, setApiError] = useState('');
 
     const set = (field) => (e) => {
         const val = e.target.value.trimStart();
@@ -30,7 +31,6 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setApiError('');
         const fieldErrors = validateLogin(form);
         if (Object.keys(fieldErrors).length > 0) {
             setErrors(fieldErrors);
@@ -39,15 +39,31 @@ const Login = () => {
         setLoading(true);
         try {
             const data = await authApi.login(form.email, form.password);
-            if (data.access_token) {
-                localStorage.setItem('access_token', data.access_token);
-                // Set cookie so proxy can verify auth on every request
-                document.cookie = `auth_token=${data.access_token}; path=/; SameSite=Lax`;
+            const payload = data?.data || data;
+            const token = payload?.access_token;
+            const refreshToken = payload?.refresh_token;
+
+            if (token) {
+                localStorage.setItem('access_token', token);
+                document.cookie = `auth_token=${token}; path=/; SameSite=Lax`;
             }
-            if (data.refresh_token) localStorage.setItem('refresh_token', data.refresh_token);
+            if (refreshToken) {
+                localStorage.setItem('refresh_token', refreshToken);
+            }
+
+            // Store user info for the topbar
+            const user = payload?.user || {};
+            localStorage.setItem('user', JSON.stringify({
+                id: user.id || user.user_id || '',
+                first_name: user.first_name || '',
+                last_name: user.last_name || '',
+                email: user.email || form.email,
+                picture: user.picture || user.profile_picture || '',
+            }));
+
             router.push('/dashboard');
         } catch (err) {
-            setApiError(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
+            toast(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -61,7 +77,7 @@ const Login = () => {
                     <img src={LineImage} alt="" aria-hidden="true" />
                 </div>
                 <div className={styles.relative}>
-                    <div className={styles.icon}>
+                    <div className={styles.icon} onClick={() => router.push("/")}>
                         <img src={AuthIcon} alt="" aria-hidden="true" />
                     </div>
                     <div className={styles.text}>
@@ -75,7 +91,6 @@ const Login = () => {
                             <div className={styles.forgotRow}>
                                 <Link href="/forgot-password">Forgot password?</Link>
                             </div>
-                            {apiError && <p className={styles.error} role="alert">{apiError}</p>}
                             <Button text={loading ? 'Logging in...' : 'Log in'} icon={ArrowIcon} disabled={loading} />
                         </div>
                     </form>

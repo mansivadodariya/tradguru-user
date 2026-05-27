@@ -11,7 +11,7 @@
         max-width: 497px;
         margin: 0 auto;
         position: relative;
-        padding: 90px 24px 24px 24px;
+        padding: 90px 24px 24px;
         border-radius: 24px;
         width: 100%;
         overflow: hidden;
@@ -57,9 +57,10 @@
         }
 
         .icon {
-            padding: 0 0 24px 0;
+            padding: 0 0 24px;
             display: flex;
             justify-content: center;
+            cursor: pointer;
         }
 
         .spacingGrid {
@@ -81,7 +82,7 @@
         }
 
         .accountText {
-            padding: 12px 0 24px 0;
+            padding: 12px 0 24px;
 
             p {
                 color: rgba(26, 26, 26, 0.72);
@@ -126,12 +127,12 @@
         }
 
         .text {
-            padding: 0 0 24px 0;
+            padding: 0 0 24px;
 
             h2 {
                 color: #1A1A1A;
                 font-size: 24px;
-                margin: 0 0 10px 0;
+                margin: 0 0 10px;
                 text-align: center;
                 font-style: normal;
                 font-weight: 700;

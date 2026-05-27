@@ -5,7 +5,7 @@ import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import styles from './button.module.scss';
 import classNames from 'classnames';
 
-export default function Button({ text, icon, href, light }) {
+export default function Button({ text, icon, href, light, onClick }) {
     const ref = useRef(null);
     const x = useMotionValue(0);
     const y = useMotionValue(0);
@@ -78,6 +78,7 @@ export default function Button({ text, icon, href, light }) {
                         boxShadow: "0px 5px 15px -5px rgba(11, 86, 219, 0.4)",
                         y: 0
                     }}
+                    onClick={onClick}
                 >
                     {icon && (
                         <div className={styles.icon}>

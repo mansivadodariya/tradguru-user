@@ -27,7 +27,7 @@
 
         p {
             color: #656363;
-            margin: 0 0 10px 0;
+            margin: 0 0 10px;
             font-size: 14px;
             font-style: normal;
             font-weight: 500;
@@ -36,8 +36,8 @@
         }
 
         .line {
-            padding: 10px 0 0 0;
-            margin: 0 0 20px 0;
+            padding: 10px 0 0;
+            margin: 0 0 20px;
             border-bottom: 1px solid #DFDFDF;
         }
 
@@ -46,10 +46,11 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            margin: 0 0 10px 0;
-            transition: .3s ease-in-out;
+            margin: 0 0 10px;
+            transition: 0.3s ease-in-out;
             cursor: pointer;
             position: relative;
+            text-decoration: none;
 
             &::before {
                 position: absolute;
@@ -62,10 +63,11 @@
                 filter: blur(9px);
                 content: '';
                 opacity: 0;
-                transition: .3s ease-in-out;
+                transition: 0.3s ease-in-out;
             }
 
-            &:hover {
+            &:hover,
+            &.active {
                 background: #0B56DB;
 
                 &::before {
@@ -92,7 +94,7 @@
                 height: 32px;
                 display: flex;
                 align-items: center;
-                transition: .3s ease-in-out;
+                transition: 0.3s ease-in-out;
 
                 justify-content: center;
             }
@@ -104,7 +106,7 @@
                 font-style: normal;
                 font-weight: 500;
                 line-height: normal;
-                transition: .3s ease-in-out;
+                transition: 0.3s ease-in-out;
 
             }
         }
@@ -151,7 +153,7 @@
                 font-style: normal;
                 font-weight: 500;
                 line-height: 18px;
-                margin: 0 0 20px 0;
+                margin: 0 0 20px;
             }
 
             button {
@@ -171,7 +173,7 @@
                 display: flex;
                 align-items: center;
                 gap: 12px;
-                padding: 0 0 10px 0;
+                padding: 0 0 10px;
 
                 h3 {
                     color: #FFF;

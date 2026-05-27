@@ -5,6 +5,7 @@ import styles from './herobanner.module.scss';
 import Header from '@/components/header';
 import LineText from '@/components/lineText';
 import Button from '@/components/button';
+import { useRouter } from 'next/navigation';
 const ArrowIcon = '/assets/icons/arrow.svg';
 const HeroTextImage = '/assets/images/hero-text.png';
 
@@ -50,6 +51,7 @@ const imageVariants = {
 };
 
 export default function Herobanner() {
+    const router = useRouter()
     return (
         <div className={styles.herobanner}>
             <Header />
@@ -74,7 +76,7 @@ export default function Herobanner() {
                     </motion.p>
 
                     <motion.div className={styles.buttonCenter} variants={itemVariants}>
-                        <Button icon={ArrowIcon} text="Get Started" href="/signup" />
+                        <Button icon={ArrowIcon} text="Get Started" onClick={() => router.push("/signup")} />
                     </motion.div>
 
                     <motion.div className={styles.centerImage} variants={imageVariants}>

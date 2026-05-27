@@ -7,6 +7,7 @@ import Input from '@/components/input';
 import Button from '@/components/button';
 import { authApi } from '@/lib/api';
 import { validateResetPassword } from '@/lib/validation';
+import { useToast } from '@/components/toast';
 
 const LineImage = '/assets/images/line.png';
 const AuthIcon = '/assets/icons/auth.svg';
@@ -14,27 +15,25 @@ const ArrowIcon = '/assets/icons/arrow.svg';
 
 const ResetPassword = () => {
     const router = useRouter();
+    const toast = useToast();
     const searchParams = useSearchParams();
     const token = searchParams.get('token') || '';
 
     const [form, setForm] = useState({ new_password: '', confirm_password: '' });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
     const [done, setDone] = useState(false);
 
     const set = (field) => (e) => {
         setForm((f) => ({ ...f, [field]: e.target.value }));
         if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }));
-        if (error) setError('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        
+
         if (!token) {
-            setError('Reset token is missing or invalid.');
+            toast('Reset token is missing or invalid.');
             return;
         }
 
@@ -49,7 +48,7 @@ const ResetPassword = () => {
             await authApi.resetPassword(token, form.new_password);
             setDone(true);
         } catch (err) {
-            setError(err.message);
+            toast(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -63,7 +62,7 @@ const ResetPassword = () => {
                     <img src={LineImage} alt="" aria-hidden="true" />
                 </div>
                 <div className={styles.relative}>
-                    <div className={styles.icon}>
+                    <div className={styles.icon} onClick={() => router.push("/")}>
                         <img src={AuthIcon} alt="" aria-hidden="true" />
                     </div>
                     <div className={styles.text}>
@@ -80,12 +79,11 @@ const ResetPassword = () => {
                             <div className={styles.spacingGrid}>
                                 <Input label="New Password" placeholder=" Enter new password" type="password" name="new_password" value={form.new_password} onChange={set('new_password')} error={errors.new_password} />
                                 <Input label="Confirm Password" placeholder=" Confirm new password" type="password" name="confirm_password" value={form.confirm_password} onChange={set('confirm_password')} error={errors.confirm_password} />
-                                {error && <p className={styles.error} role="alert">{error}</p>}
                                 <Button text={loading ? 'Resetting...' : 'Reset Password'} icon={ArrowIcon} disabled={loading} />
                             </div>
                         </form>
                     )}
-                  
+
                 </div>
             </div>
         </div>

@@ -28,6 +28,17 @@ const ContinueWithGoogle = () => {
                 localStorage.setItem('refresh_token', result.data.refresh_token);
                 // Set cookie so proxy can verify auth on every request
                 document.cookie = `auth_token=${result.data.access_token}; path=/; SameSite=Lax`;
+
+                // Store user info for the topbar
+                const user = result.data.user || {};
+                localStorage.setItem('user', JSON.stringify({
+                    id: user.id || user.user_id || '',
+                    first_name: user.first_name || '',
+                    last_name: user.last_name || '',
+                    email: user.email || '',
+                    picture: user.picture || user.profile_picture || '',
+                }));
+
                 router.push('/dashboard');
             } else {
                 // Case B: new user awaiting admin approval
