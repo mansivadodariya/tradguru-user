@@ -1,0 +1,74 @@
+'use client';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { authApi } from '@/lib/api';
+import styles from './verifyEmail.module.scss';
+
+const AuthIcon = '/assets/icons/auth.svg';
+const LineImage = '/assets/images/line.png';
+
+const STATUS = { LOADING: 'loading', SUCCESS: 'success', ERROR: 'error' };
+
+export default function VerifyEmail() {
+    const searchParams = useSearchParams();
+    const token = searchParams.get('token') || '';
+    const [status, setStatus] = useState(STATUS.LOADING);
+    const [errorMsg, setErrorMsg] = useState('');
+
+    useEffect(() => {
+        if (!token) {
+            setErrorMsg('No verification token found.');
+            setStatus(STATUS.ERROR);
+            return;
+        }
+        authApi.verifyEmail(token)
+            .then(() => setStatus(STATUS.SUCCESS))
+            .catch((err) => {
+                setErrorMsg(typeof err.message === 'string' ? err.message : 'Verification failed.');
+                setStatus(STATUS.ERROR);
+            });
+    }, [token]);
+
+    return (
+        <div className={styles.page}>
+            <div className={styles.box}>
+                <div className={styles.layer}></div>
+                <div className={styles.lineimage}>
+                    <img src={LineImage} alt="" aria-hidden="true" />
+                </div>
+                <div className={styles.relative}>
+                    <div className={styles.icon}>
+                        <img src={AuthIcon} alt="" aria-hidden="true" />
+                    </div>
+
+                    {status === STATUS.LOADING && (
+                        <div className={styles.text}>
+                            <h2>Verifying your email</h2>
+                            <p>Please wait a moment...</p>
+                            <div className={styles.spinner} aria-label="Loading" />
+                        </div>
+                    )}
+
+                    {status === STATUS.SUCCESS && (
+                        <div className={styles.text}>
+                            <div className={styles.checkmark} aria-hidden="true">✓</div>
+                            <h2>Email verified</h2>
+                            <p>Your account is active. You can now log in.</p>
+                            <Link href="/login" className={styles.cta}>Go to Log In</Link>
+                        </div>
+                    )}
+
+                    {status === STATUS.ERROR && (
+                        <div className={styles.text}>
+                            <div className={styles.errorIcon} aria-hidden="true">✕</div>
+                            <h2>Verification failed</h2>
+                            <p>{errorMsg}</p>
+                            <Link href="/signup" className={styles.cta}>Back to Sign Up</Link>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}

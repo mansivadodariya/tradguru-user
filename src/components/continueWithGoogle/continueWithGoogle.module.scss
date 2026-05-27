@@ -2,10 +2,26 @@
 @use '../../scss/breakpoints/breakpoints.scss' as *;
 
 .continueWithGoogle {
-    padding: 20px 0 0 0;
+    padding: 20px 0 0;
 
-    button {
-        padding: 12px;
+    .error {
+        color: #d32f2f;
+        font-size: 13px;
+        text-align: center;
+        margin: 0 0 10px;
+    }
+
+    .pending {
+        color: #1a6b2a;
+        background: #e8f5e9;
+        border-radius: 6px;
+        font-size: 13px;
+        text-align: center;
+        padding: 10px 12px;
+        margin: 0 0 10px;
+    }
+
+    .googleBtnWrapper {
         width: 100%;
         display: flex;
         align-items: center;
@@ -22,8 +38,7 @@
         font-weight: 500;
         line-height: normal;
 
-        &:hover {
-            border: 1px solid #0B56DB;
-        }
+
     }
 }
+

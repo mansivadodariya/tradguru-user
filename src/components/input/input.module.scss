@@ -2,40 +2,114 @@
 @use '../../scss/breakpoints/breakpoints.scss' as *;
 
 .input {
+    width: 100%;
+
     label {
         display: block;
         color: #1A1A1A;
         font-size: 16px;
-        font-style: normal;
         font-weight: 400;
         line-height: 24px;
-        padding: 0 0 10px 0;
+        padding: 0 0 10px;
     }
 
-    input {
+    .inputWrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
         width: 100%;
-        border: 1px solid rgba(26, 26, 26, 0.14);
-        background: #FFF;
-        height: 50px;
-        padding: 0 16px;
-        color: #1A1A1A;
-        font-size: 16px;
-        font-style: normal;
-        font-weight: 400;
-        line-height: 24px;
-        outline: none;
-        transition: .3s ease-in-out;
 
-        &:focus {
-            border: 1px solid #0B56DB;
+        .iconLeft {
+            position: absolute;
+            left: 14px;
+            pointer-events: none;
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+        }
+
+        input {
+            width: 100%;
+            border: 1px solid rgba(26, 26, 26, 0.14);
+            background: #FFF;
+            height: 50px;
+            padding: 0 16px; // base padding: 16px left/right
+            color: #1A1A1A;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 24px;
+            outline: none;
+            border-radius: 8px;
+            transition: all 0.2s ease-in-out;
+
+            &:focus {
+                border-color: #0B56DB;
+                box-shadow: 0 0 0 3px rgba(11, 86, 219, 0.15);
+            }
+        }
+
+        .iconLeft ~ input {
+            padding-left: 42px; // dynamic padding if there is a left icon
+        }
+
+        input:has(~ .eyeBtn) {
+            padding-right: 42px; // dynamic padding if there is an eye button
+        }
+
+        button.eyeBtn {
+            position: absolute !important;
+            right: 14px !important;
+            width: 20px !important;
+            height: 20px !important;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            color: rgba(26, 26, 26, 0.4) !important;
+            transition: color 0.2s ease-in-out !important;
+            outline: none !important;
+            box-shadow: none !important;
+
+            &:hover {
+                color: #0B56DB !important;
+            }
+
+            svg {
+                display: block !important;
+                width: 18px !important;
+                height: 18px !important;
+            }
+        }
+
+        &.hasError {
+            input {
+                border-color: #d32f2f;
+
+                &:focus {
+                    border-color: #d32f2f;
+                    box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.15);
+                }
+            }
         }
     }
 
+    .errorMsg {
+        color: #d32f2f;
+        font-size: 12px;
+        font-weight: 400;
+        margin: 5px 0 0;
+        line-height: 1.4;
+    }
+
     ::placeholder {
-        color: #626060;
+        color: #1a1a1a;
+        opacity: 1; /* Firefox */
         font-size: 16px;
-        font-style: normal;
         font-weight: 400;
         line-height: 24px;
     }
 }
+

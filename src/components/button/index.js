@@ -1,10 +1,11 @@
 "use client";
 import React, { useRef } from 'react';
+import Link from 'next/link';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import styles from './button.module.scss';
 import classNames from 'classnames';
 
-export default function Button({ text, icon, light }) {
+export default function Button({ text, icon, href, light }) {
     const ref = useRef(null);
     const x = useMotionValue(0);
     const y = useMotionValue(0);
@@ -35,31 +36,57 @@ export default function Button({ text, icon, light }) {
 
     return (
         <div className={classNames(styles.button, light ? styles.light : "")} style={{ perspective: 1200 }}>
-            <motion.button
-                ref={ref}
-                onMouseMove={handleMouseMove}
-                onMouseLeave={handleMouseLeave}
-                style={{ rotateX, rotateY }}
-                whileHover={{
-                    scale: 1.05,
-                    boxShadow: "0px 15px 30px -5px rgba(11, 86, 219, 0.4)",
-                    y: -5
-                }}
-                whileTap={{
-                    scale: 0.95,
-                    boxShadow: "0px 5px 15px -5px rgba(11, 86, 219, 0.4)",
-                    y: 0
-                }}
-            >
-                {
-                    icon && (
+            {href ? (
+                <Link href={href}>
+                    <motion.button
+                        ref={ref}
+                        onMouseMove={handleMouseMove}
+                        onMouseLeave={handleMouseLeave}
+                        style={{ rotateX, rotateY }}
+                        whileHover={{
+                            scale: 1.05,
+                            boxShadow: "0px 15px 30px -5px rgba(11, 86, 219, 0.4)",
+                            y: -5
+                        }}
+                        whileTap={{
+                            scale: 0.95,
+                            boxShadow: "0px 5px 15px -5px rgba(11, 86, 219, 0.4)",
+                            y: 0
+                        }}
+                    >
+                        {icon && (
+                            <div className={styles.icon}>
+                                <img src={icon} alt={icon} />
+                            </div>
+                        )}
+                        {text}
+                    </motion.button>
+                </Link>
+            ) : (
+                <motion.button
+                    ref={ref}
+                    onMouseMove={handleMouseMove}
+                    onMouseLeave={handleMouseLeave}
+                    style={{ rotateX, rotateY }}
+                    whileHover={{
+                        scale: 1.05,
+                        boxShadow: "0px 15px 30px -5px rgba(11, 86, 219, 0.4)",
+                        y: -5
+                    }}
+                    whileTap={{
+                        scale: 0.95,
+                        boxShadow: "0px 5px 15px -5px rgba(11, 86, 219, 0.4)",
+                        y: 0
+                    }}
+                >
+                    {icon && (
                         <div className={styles.icon}>
                             <img src={icon} alt={icon} />
                         </div>
-                    )
-                }
-                {text}
-            </motion.button>
+                    )}
+                    {text}
+                </motion.button>
+            )}
         </div>
     );
 }

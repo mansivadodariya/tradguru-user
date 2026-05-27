@@ -23,6 +23,7 @@
         font-weight: 500;
         border: 1px solid #0B56DB;
         cursor: pointer;
+        text-decoration: none;
         line-height: normal;
 
         &:hover {
@@ -43,7 +44,7 @@
 
             img {
                 display: block;
-                transition: .3s ease-in-out;
+                transition: 0.3s ease-in-out;
             }
         }
     }

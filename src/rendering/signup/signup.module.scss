@@ -73,6 +73,13 @@
             }
         }
 
+        .error {
+            color: #d32f2f;
+            font-size: 14px;
+            text-align: center;
+            margin: 0;
+        }
+
         .accountText {
             padding: 12px 0 24px 0;
 
@@ -86,7 +93,7 @@
 
                 a {
                     color: #0B56DB;
-                    text-decoration-line: underline;
+                    text-decoration-line: none;
                     text-decoration-style: solid;
                     text-decoration-skip-ink: none;
                     text-decoration-thickness: auto;

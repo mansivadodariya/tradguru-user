@@ -1,0 +1,118 @@
+@use '../../scss/main.scss' as *;
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.box {
+    max-width: 497px;
+    width: 100%;
+    position: relative;
+    padding: 90px 24px 24px 24px;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(26, 26, 26, 0.14);
+    background: #FFF;
+    box-shadow: 0 0 84.9px 0 rgba(0, 0, 0, 0.08);
+
+    .layer {
+        border-radius: 442px;
+        background: #0B56DB;
+        filter: blur(46.8px);
+        width: 90%;
+        height: 20px;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .lineimage {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+
+        img {
+            display: block;
+            max-width: 312px;
+        }
+    }
+}
+
+.relative {
+    position: relative;
+    z-index: 1;
+
+    .icon {
+        padding: 0 0 24px 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .text {
+        padding: 0 0 24px 0;
+
+        h2 {
+            color: #1A1A1A;
+            font-size: 24px;
+            margin: 0 0 10px 0;
+            text-align: center;
+            font-weight: 700;
+            line-height: normal;
+        }
+
+        p {
+            color: rgba(26, 26, 26, 0.70);
+            text-align: center;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0 auto;
+            line-height: 24px;
+            max-width: 388px;
+        }
+    }
+
+    .spacingGrid {
+        display: grid;
+        gap: 20px;
+
+        button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    .error {
+        color: #d32f2f;
+        font-size: 14px;
+        text-align: center;
+        margin: 0;
+    }
+}
+
+.closeBtn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: rgba(26, 26, 26, 0.5);
+    z-index: 2;
+    line-height: 1;
+
+    &:hover {
+        color: #1A1A1A;
+    }
+}
