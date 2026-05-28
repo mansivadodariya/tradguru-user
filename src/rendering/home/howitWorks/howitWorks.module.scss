@@ -1,0 +1,208 @@
+@use '../../../scss/main.scss' as *;
+@use '../../../scss/breakpoints/breakpoints.scss' as *;
+
+.howitWorks {
+    background: var(--Color-2nd, #F5F8FE);
+    padding: 100px 0;
+    overflow: hidden;
+
+    .title {
+        padding: 24px 0 60px 0;
+
+        h2 {
+            color: #1A1A1A;
+            font-size: 42px;
+            font-weight: 700;
+            line-height: normal;
+            letter-spacing: 1.26px;
+            text-transform: capitalize;
+            text-align: center;
+            margin: 0 0 16px 0;
+            font-family: var(--font-plus-jakarta);
+        }
+
+        p {
+            color: #5F5F5F;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 28px;
+            max-width: 488px;
+            margin: 0 auto;
+        }
+    }
+
+    .allStepAlignment {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        max-width: 1100px;
+        margin: 0 auto;
+
+        .timelineLine {
+            position: absolute;
+            top: 70px;
+            bottom: 70px;
+            left: 116px;
+            width: 2px;
+            border-left: 2px dashed rgba(11, 86, 219, 0.3);
+            z-index: 1;
+            pointer-events: none;
+
+        }
+
+        .stepCard {
+            background: #FFF;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(11, 86, 219, 0.05);
+            display: flex;
+            align-items: center;
+            padding: 30px 40px;
+            position: relative;
+            z-index: 2;
+
+
+            .stepLeft {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                min-width: 140px;
+
+
+
+                .stepNumber {
+                    color: #0B56DB;
+                    font-size: 44px;
+                    font-weight: 700;
+                    font-family: var(--font-plus-jakarta);
+                    line-height: 1;
+                    width: 50px;
+
+                }
+
+                .stepDotContainer {
+                    position: relative;
+                    z-index: 3;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    .pulseRing {
+                        position: absolute;
+                        width: 26px;
+                        height: 26px;
+                        border-radius: 50%;
+                        background: rgba(11, 86, 219, 0.2);
+                        z-index: -1;
+                    }
+
+                    .stepDot {
+                        width: 26px;
+                        height: 26px;
+                        border-radius: 50%;
+                        background: #FFF;
+                        border: 2px solid #0B56DB;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 0 10px rgba(11, 86, 219, 0.2);
+
+                        &::after {
+                            content: '';
+                            width: 10px;
+                            height: 10px;
+                            border-radius: 50%;
+                            background: #0B56DB;
+                        }
+                    }
+                }
+            }
+
+            .stepContent {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 50px;
+                flex: 1;
+                padding: 0 20px;
+
+
+
+
+                &.reverse {
+                    flex-direction: row-reverse;
+
+                }
+
+                .stepImageWrapper {
+                    flex: 1;
+                    max-width: 340px;
+                    display: flex;
+                    justify-content: center;
+
+
+
+                    .stepImage {
+                        width: 100%;
+                        max-height: 200px;
+                        object-fit: contain;
+                    }
+                }
+
+                .stepText {
+                    flex: 1.2;
+                    max-width: 440px;
+
+
+
+                    h3 {
+                        color: #1A1A1A;
+                        font-size: 24px;
+                        font-weight: 700;
+                        margin: 0 0 12px 0;
+                        line-height: 1.2;
+
+
+                    }
+
+                    p {
+                        color: #5F5F5F;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+
+                    }
+                }
+            }
+
+            .stepRight {
+                display: flex;
+                justify-content: flex-end;
+                min-width: 80px;
+
+
+
+                .iconCircle {
+                    width: 56px;
+                    height: 56px;
+                    border-radius: 50%;
+                    background: #F0F4FD;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 4px 10px rgba(11, 86, 219, 0.05);
+
+
+                    img {
+                        width: 24px;
+                        height: 24px;
+
+
+                    }
+                }
+            }
+        }
+    }
+}

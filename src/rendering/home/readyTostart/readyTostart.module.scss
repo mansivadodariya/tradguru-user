@@ -1,0 +1,63 @@
+@use '../../../scss/main.scss' as *;
+@use '../../../scss/breakpoints/breakpoints.scss' as *;
+
+.readyTostart {
+    padding: 0 0 100px 0;
+
+    .box {
+        background: linear-gradient(270deg, rgba(11, 86, 219, 0.10) 0%, rgba(255, 255, 255, 0.00) 48.72%, rgba(11, 86, 219, 0.10) 100%);
+        position: relative;
+        padding: 80px;
+
+        .round {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+
+            img {
+                max-width: 600px;
+                width: 100%;
+                display: block;
+            }
+        }
+
+        .buttonCenter {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .title {
+            padding: 24px 0 32px 0;
+            position: relative;
+            z-index: 1;
+
+            h2 {
+                color: #1A1A1A;
+                font-size: 42px;
+                font-weight: 700;
+                max-width: 576px;
+                line-height: normal;
+                letter-spacing: 1.26px;
+                text-transform: capitalize;
+                text-align: center;
+                margin: 0 auto 16px auto;
+                font-family: var(--font-plus-jakarta);
+
+            }
+
+            p {
+                color: #5F5F5F;
+                text-align: center;
+                font-size: 18px;
+                font-weight: 500;
+                line-height: 28px;
+                max-width: 520px;
+                margin: 0 auto;
+
+            }
+        }
+    }
+}
