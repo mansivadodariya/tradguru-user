@@ -936,3 +936,39 @@
         transform: translateX(100%);
     }
 }
+
+.modalText {
+    color: rgba(18, 18, 18, 0.75);
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.modalCancelBtn,
+.modalDeleteBtn {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modalCancelBtn {
+    background: #eef2f7;
+    color: rgba(18, 18, 18, 0.75);
+
+    &:hover {
+        background: #e2e8f0;
+    }
+}
+
+.modalDeleteBtn {
+    background: #ef4444;
+    color: #fff;
+
+    &:hover {
+        background: #dc2626;
+    }
+}

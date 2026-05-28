@@ -106,26 +106,26 @@ export default function AnalysisResultItem({ trade, index, onViewDetails }) {
                             <div className={styles.detailBox}>
                                 <span>Support</span>
                                 <strong>
-                                    {typeof trade.Support_price === 'string'
-                                        ? trade.Support_price.split('-')[0].trim()
-                                        : trade.Support_price || 'N/A'}
+                                    {typeof trade.support_price === 'string'
+                                        ? trade.support_price.split('-')[0].trim()
+                                        : trade.support_price || 'N/A'}
                                 </strong>
                             </div>
                             <div className={styles.detailBox}>
                                 <span>Resistance</span>
-                                <strong>{trade.Resistance_price || 'N/A'}</strong>
+                                <strong>{trade.resistance_price || 'N/A'}</strong>
                             </div>
                         </div>
                     </div>
                 </div>
             )}
 
-            {trade.rationale && (
+            {/* {trade.rationale && (
                 <button type="button" className={styles.viewDetailsBtn} onClick={() => onViewDetails(trade)}>
                     <EyeIcon />
                     View Detailed Analysis
                 </button>
-            )}
+            )} */}
         </motion.article>
     );
 }

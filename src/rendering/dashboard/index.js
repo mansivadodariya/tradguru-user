@@ -280,20 +280,27 @@ export default function Dashboard() {
             </section>
 
             <section className={styles.statsGrid}>
-                {statsData.map((item) => (
-                    <div className={styles.statCard} key={item.id}>
-                        <img src={item.icon} alt={item.label} />
-                        <div className={styles.stat}>
-                            <div className={styles.statLabel}>
-                                {item.label}
+                {loading ? (
+                    [...Array(4)].map((_, i) => (
+                        <div className={`${styles.statCard} ${styles.skeletonCard}`} key={i}>
+                            <div className={`${styles.skeletonIcon} ${styles.shimmer}`} />
+                            <div className={styles.stat}>
+                                <div className={`${styles.skeletonLabel} ${styles.shimmer}`} />
+                                <div className={`${styles.skeletonValue} ${styles.shimmer}`} />
                             </div>
-                            <div className={styles.statValue}>
-                                {item.value}
-                            </div>
-
                         </div>
-                    </div>
-                ))}
+                    ))
+                ) : (
+                    statsData.map((item) => (
+                        <div className={styles.statCard} key={item.id}>
+                            <img src={item.icon} alt={item.label} />
+                            <div className={styles.stat}>
+                                <div className={styles.statLabel}>{item.label}</div>
+                                <div className={styles.statValue}>{item.value}</div>
+                            </div>
+                        </div>
+                    ))
+                )}
             </section>
 
             <section className={styles.section}>
@@ -336,8 +343,27 @@ export default function Dashboard() {
 
                 <div className={styles.recentCard}>
                     {loading ? (
-                        <div className={styles.recentEmpty}>
-                            Loading recent activity…
+                        <div className={styles.tableWrapper}>
+                            <table className={styles.recentTable}>
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Title</th>
+                                        <th>Summary</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {[...Array(5)].map((_, i) => (
+                                        <tr key={i} className={styles.skeletonRow}>
+                                            <td><div className={`${styles.skeletonBadge} ${styles.shimmer}`} /></td>
+                                            <td><div className={`${styles.skeletonText} ${styles.shimmer}`} /></td>
+                                            <td><div className={`${styles.skeletonTextWide} ${styles.shimmer}`} /></td>
+                                            <td><div className={`${styles.skeletonTextShort} ${styles.shimmer}`} /></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     ) : recents.length === 0 ? (
                         <div className={styles.recentEmpty}>

@@ -4,7 +4,10 @@ import styles from './aiAssistant.module.scss';
 import Button from '@/components/button';
 import RemoveIcon from '@/icons/removeIcon';
 import DownIcon from '@/icons/downIcon';
+import { useToast } from '@/components/toast';
 import { fxApi } from '@/lib/api';
+import { historyDeletes } from '@/lib/historyDeletes';
+import Modal from '@/rendering/tradeSnap/Modal';
 
 const UploadIcon = '/assets/icons/upload-xs.svg';
 
@@ -22,6 +25,7 @@ const MAJOR_PAIRS = [
 ];
 
 const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
+    const toast = useToast();
     // Authentication & Identification
     const [userId, setUserId] = useState('94f3a4a6-540b-4c0d-b6b8-4376f0e75d9f');
 
@@ -45,6 +49,8 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     // Loading & Network state
     const [loadingHistory, setLoadingHistory] = useState(true);
     const [pendingRequest, setPendingRequest] = useState(false);
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+    const [pendingDeleteItem, setPendingDeleteItem] = useState(null);
 
     // Refs
     const dropdownRef = useRef(null);
@@ -184,22 +190,61 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         setSelectedBlog(item);
     };
 
-    const handleDeleteChat = (e, index, item) => {
+    const getHistoryItemId = (item, index) => item?.id || item?.created_at || item?.createdAt || index;
+
+    const openDeleteConfirm = (e, type, index, item) => {
         e.stopPropagation();
-        const itemId = item.id || item.created_at || index;
-        setChatHistory(prev => prev.filter((ch, idx) => (ch.id || ch.created_at || idx) !== itemId));
-        if (selectedChat && (selectedChat.id || selectedChat.created_at || index) === itemId) {
+        setPendingDeleteItem({
+            type,
+            item,
+            index,
+            itemId: getHistoryItemId(item, index),
+        });
+        setConfirmDeleteOpen(true);
+    };
+
+    const closeDeleteConfirm = () => {
+        setConfirmDeleteOpen(false);
+        setPendingDeleteItem(null);
+    };
+
+    const removeChatFromState = (itemId) => {
+        setChatHistory(prev => prev.filter((ch, idx) => getHistoryItemId(ch, idx) !== itemId));
+        if (selectedChat && getHistoryItemId(selectedChat) === itemId) {
             setSelectedChat(null);
             setChatMessages([]);
         }
     };
 
-    const handleDeleteBlog = (e, index, item) => {
-        e.stopPropagation();
-        const itemId = item.id || item.created_at || index;
-        setBlogHistory(prev => prev.filter((b, idx) => (b.id || b.created_at || idx) !== itemId));
-        if (selectedBlog && (selectedBlog.id || selectedBlog.created_at || index) === itemId) {
+    const removeBlogFromState = (itemId) => {
+        setBlogHistory(prev => prev.filter((b, idx) => getHistoryItemId(b, idx) !== itemId));
+        if (selectedBlog && getHistoryItemId(selectedBlog) === itemId) {
             setSelectedBlog(null);
+        }
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!pendingDeleteItem) return;
+        const { type, item, itemId } = pendingDeleteItem;
+        const deleteId = item?.id || item?.history_id || item?.question_id || item?.blog_id;
+        if (!deleteId) {
+            toast('Unable to delete this history item.');
+            closeDeleteConfirm();
+            return;
+        }
+
+        try {
+            if (type === 'chat') {
+                await historyDeletes.deleteQuestionHistoryItem({ userId, id: deleteId });
+                removeChatFromState(itemId);
+            } else {
+                await historyDeletes.deleteBlogHistoryItem({ userId, id: deleteId });
+                removeBlogFromState(itemId);
+            }
+        } catch (err) {
+            toast(err?.message || 'Failed to delete history item.');
+        } finally {
+            closeDeleteConfirm();
         }
     };
 
@@ -451,7 +496,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                             </p>
                                             <div
                                                 className={styles.icon}
-                                                onClick={(e) => handleDeleteChat(e, index, item)}
+                                                onClick={(e) => openDeleteConfirm(e, 'chat', index, item)}
                                             >
                                                 <RemoveIcon />
                                             </div>
@@ -473,7 +518,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                             </p>
                                             <div
                                                 className={styles.icon}
-                                                onClick={(e) => handleDeleteBlog(e, index, item)}
+                                                onClick={(e) => openDeleteConfirm(e, 'blog', index, item)}
                                             >
                                                 <RemoveIcon />
                                             </div>
@@ -746,6 +791,26 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                     )}
                 </div>
             </div>
+            <Modal
+                open={confirmDeleteOpen}
+                onClose={closeDeleteConfirm}
+                title="Delete history item?"
+                description="This action cannot be undone."
+                footer={
+                    <>
+                        <button type="button" className={styles.modalCancelBtn} onClick={closeDeleteConfirm}>
+                            Cancel
+                        </button>
+                        <button type="button" className={styles.modalDeleteBtn} onClick={handleConfirmDelete}>
+                            Delete
+                        </button>
+                    </>
+                }
+            >
+                <p className={styles.modalText}>
+                    Are you sure you want to delete this {pendingDeleteItem?.type === 'chat' ? 'chat' : 'blog'} history item?
+                </p>
+            </Modal>
         </div>
     );
 }

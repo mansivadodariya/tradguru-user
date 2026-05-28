@@ -93,6 +93,18 @@ export const fxApi = {
         request(`/users/${user_id}/question-history`, {
             headers: getAuthHeaders(),
         }),
+
+    deleteQuestionHistoryItem: (user_id, history_id) =>
+        request(`/users/${user_id}/question-history/${history_id}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+        }),
+
+    deleteBlogHistoryItem: (user_id, history_id) =>
+        request(`/users/${user_id}/blog-history/${history_id}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+        }),
 };
 
 export const dashboardApi = {
@@ -110,6 +122,12 @@ export const dashboardApi = {
 export const tradeSnapApi = {
     getAnalysisHistory: (user_id) =>
         request(`/users/${user_id}/analysis-history`, {
+            headers: getAuthHeaders(),
+        }),
+
+    deleteAnalysisHistoryItem: (user_id, history_id) =>
+        request(`/users/${user_id}/analysis-history/${history_id}`, {
+            method: 'DELETE',
             headers: getAuthHeaders(),
         }),
 };
