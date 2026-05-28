@@ -96,7 +96,7 @@ $success: #10b981;
         grid-template-columns: 1fr;
         gap: 24px;
 
-        @media (min-width: 1200px) {
+        @media(min-width: 1200px) {
             grid-template-columns: 2fr 2fr;
         }
 
@@ -119,7 +119,7 @@ $success: #10b981;
         flex-direction: column;
         gap: 20px;
 
-        @media (min-width: 900px) {
+        @media(min-width: 900px) {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
@@ -704,69 +704,6 @@ $success: #10b981;
         }
     }
 
-    .modalOverlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.45);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        z-index: 1100;
-    }
-
-    .modalBox {
-        width: 100%;
-        max-width: 560px;
-        max-height: 90vh;
-        overflow-y: auto;
-        background: #fff;
-        border-radius: 16px;
-        border: 1px solid $border;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    }
-
-    .modalHeader {
-        position: relative;
-        padding: 24px 24px 12px;
-
-        h2 {
-            margin: 0 0 6px;
-            font-size: 20px;
-            font-weight: 700;
-            color: $text;
-        }
-
-        p {
-            margin: 0;
-            color: $muted;
-            font-size: 14px;
-        }
-    }
-
-    .modalClose {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        border: none;
-        background: #f3f4f6;
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 14px;
-    }
-
-    .modalBody {
-        padding: 0 24px 24px;
-    }
-
-    .modalFooter {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        padding: 0 24px 24px;
-    }
 
     .riskReward {
         display: flex;
@@ -869,4 +806,69 @@ $success: #10b981;
             color: $primary;
         }
     }
+}
+
+// Modal sot level so they work outside .tradeSnap context
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1100;
+}
+
+.modalBox {
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid rgba(18, 18, 18, 0.12);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.modalHeader {
+    position: relative;
+    padding: 24px 24px 12px;
+
+    h2 {
+        margin: 0 0 6px;
+        font-size: 20px;
+        font-weight: 700;
+        color: #1A1A1A;
+    }
+
+    p {
+        margin: 0;
+        color: #8D8D8D;
+        font-size: 14px;
+    }
+}
+
+.modalClose {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    border: none;
+    background: #f3f4f6;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.modalBody {
+    padding: 0 24px 24px;
+}
+
+.modalFooter {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 0 24px 24px;
 }

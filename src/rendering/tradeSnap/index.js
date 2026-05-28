@@ -5,6 +5,7 @@ import styles from './tradeSnap.module.scss';
 import { analyzeTradeScreenshots, dataUrlToBlob } from '@/lib/tradeSnapApi';
 import { useToast } from '@/components/toast';
 import { tradeSnapApi } from '@/lib/api';
+import { historyDeletes } from '@/lib/historyDeletes';
 import AnalysisResultItem from './AnalysisResultItem';
 import NextScreenshotTimer from './NextScreenshotTimer';
 import Modal from './Modal';
@@ -85,6 +86,8 @@ export default function TradeSnap() {
     const [historyOpen, setHistoryOpen] = useState(false);
     const [historyLoading, setHistoryLoading] = useState(false);
     const [historyItems, setHistoryItems] = useState([]);
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+    const [pendingDeleteHistory, setPendingDeleteHistory] = useState(null);
     const [showTabSwitchConfirm, setShowTabSwitchConfirm] = useState(false);
     const [pendingTab, setPendingTab] = useState(null);
     const [isDesktop, setIsDesktop] = useState(true);
@@ -115,6 +118,7 @@ export default function TradeSnap() {
             const trades = Array.isArray(ai) ? ai : [ai];
             return {
                 id: item?.id || item?.analysis_id || item?.history_id || ts || idx,
+                deleteId: item?.id || item?.analysis_id || item?.history_id || null,
                 timestamp: ts,
                 data: trades,
             };
@@ -137,6 +141,45 @@ export default function TradeSnap() {
             setHistoryItems([]);
         } finally {
             setHistoryLoading(false);
+        }
+    };
+
+    const requestDeleteHistory = (item) => {
+        setPendingDeleteHistory(item);
+        setConfirmDeleteOpen(true);
+    };
+
+    const closeDeleteHistoryModal = () => {
+        setConfirmDeleteOpen(false);
+        setPendingDeleteHistory(null);
+    };
+
+    const confirmDeleteHistory = async () => {
+        if (!pendingDeleteHistory) return;
+        if (!pendingDeleteHistory.deleteId) {
+            toast('Unable to delete this history item.', 'error');
+            closeDeleteHistoryModal();
+            return;
+        }
+
+        const userId = getUserId();
+        if (!userId) {
+            toast('User not found. Please login again.', 'error');
+            closeDeleteHistoryModal();
+            return;
+        }
+
+        try {
+            await historyDeletes.deleteAnalysisHistoryItem({
+                userId,
+                id: pendingDeleteHistory.deleteId,
+            });
+            setHistoryItems((prev) => prev.filter((item) => item.id !== pendingDeleteHistory.id));
+            toast('History deleted successfully.', 'success');
+        } catch (e) {
+            toast(e?.message || 'Failed to delete history item.', 'error');
+        } finally {
+            closeDeleteHistoryModal();
         }
     };
 
@@ -908,7 +951,14 @@ export default function TradeSnap() {
                                     <div className={styles.historyTime}>
                                         <ClockIcon /> {formatted}
                                     </div>
-                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 10 }}>
+                                        <button
+                                            type="button"
+                                            className={styles.btnDanger}
+                                            onClick={() => requestDeleteHistory(h)}
+                                        >
+                                            Delete
+                                        </button>
                                         <button
                                             type="button"
                                             className={styles.btnSecondary}
@@ -938,6 +988,27 @@ export default function TradeSnap() {
                         })}
                     </div>
                 )}
+            </Modal>
+
+            <Modal
+                open={confirmDeleteOpen}
+                onClose={closeDeleteHistoryModal}
+                title="Delete analysis history?"
+                description="This action cannot be undone."
+                footer={
+                    <>
+                        <button type="button" className={styles.btnGhost} onClick={closeDeleteHistoryModal}>
+                            Cancel
+                        </button>
+                        <button type="button" className={styles.btnDanger} onClick={confirmDeleteHistory}>
+                            Delete
+                        </button>
+                    </>
+                }
+            >
+                <div className={styles.recentEmpty}>
+                    Are you sure you want to delete this history item?
+                </div>
             </Modal>
 
             <Modal

@@ -9,8 +9,10 @@ const ContinueWithGoogle = () => {
     const [error, setError] = useState('');
     const [pending, setPending] = useState(false);
     const initialized = useRef(false);
+    // Keep a stable ref to the latest handler so the Google SDK always calls current logic
+    const callbackRef = useRef(null);
 
-    const handleCredentialResponse = async (response) => {
+    callbackRef.current = async (response) => {
         // response.credential is the Google ID token
         if (!response?.credential) {
             setError('Google sign-in failed.');
@@ -60,7 +62,8 @@ const ContinueWithGoogle = () => {
             // Use ID token flow — sends `credential` (JWT) to the backend
             window.google.accounts.id.initialize({
                 client_id: clientId,
-                callback: handleCredentialResponse,
+                // Delegate to ref so the latest router/state is always used
+                callback: (response) => callbackRef.current(response),
             });
 
             window.google.accounts.id.renderButton(
