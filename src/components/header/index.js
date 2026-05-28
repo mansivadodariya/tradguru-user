@@ -25,7 +25,7 @@ export default function Header() {
                         <Link href="/#about" aria-label='About'>About</Link>
                     </div>
                     <div>
-                        <Button text="Get Started" icon={ArrowIcon} onClick={() => router.push("/signup")} />
+                        <Button text="Get Started" icon={ArrowIcon} onClick={() => router.push("/login")} />
                     </div>
                 </div>
             </div>

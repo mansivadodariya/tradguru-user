@@ -21,7 +21,7 @@ const MAJOR_PAIRS = [
     'GBP/JPY'
 ];
 
-const AiAssistant = () => {
+const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     // Authentication & Identification
     const [userId, setUserId] = useState('94f3a4a6-540b-4c0d-b6b8-4376f0e75d9f');
 
@@ -120,6 +120,32 @@ const AiAssistant = () => {
             fetchBlogHistory(userId);
         }
     }, [activeTab, userId]);
+
+    // Deep-link support from dashboard (passed in from page wrapper):
+    // /ai-assistant?tab=chat&open=<id> OR /ai-assistant?tab=blog&open=<id>
+    useEffect(() => {
+        if (initialTab === 'chat' || initialTab === 'blog') {
+            setActiveTab(initialTab);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialTab]);
+
+    useEffect(() => {
+        if (!initialOpenId) return;
+        const tab = initialTab || activeTab;
+        const matchId = (item, index) =>
+            String(item?.id || item?.created_at || item?.createdAt || index) === String(initialOpenId);
+
+        if (tab === 'chat' && chatHistory.length > 0) {
+            const found = chatHistory.find((it, idx) => matchId(it, idx));
+            if (found) handleSelectChat(found);
+        }
+        if (tab === 'blog' && blogHistory.length > 0) {
+            const found = blogHistory.find((it, idx) => matchId(it, idx));
+            if (found) handleSelectBlog(found);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialOpenId, initialTab, chatHistory, blogHistory]);
 
     // Actions
     const handleTabChange = (tab) => {

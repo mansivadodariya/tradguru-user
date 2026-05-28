@@ -1,0 +1,419 @@
+'use client';
+import React, { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import styles from './dashboard.module.scss';
+import CommonSearch from '@/components/commonSearch';
+import { dashboardApi } from '@/lib/api';
+const CardIcon = '/assets/icons/dashboardCard.svg'
+const iconOne = '/assets/icons/iconOne.svg'
+const iconTwo = '/assets/icons/iconTwo.svg'
+const iconThree = '/assets/icons/iconThree.svg'
+const iconFour = '/assets/icons/iconFour.svg'
+const ArrowIcon = '/assets/icons/arrow.svg';
+const state1 = '/assets/icons/state1.svg';
+const state2 = '/assets/icons/state2.svg';
+const state3 = '/assets/icons/state3.svg';
+const state4 = '/assets/icons/state4.svg';
+
+function getUserIdFromLocalStorage() {
+    try {
+        const stored = localStorage.getItem('user');
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            return parsed.id || parsed.user_id || '';
+        }
+    } catch {
+        // ignore
+    }
+    return '';
+}
+
+function getUserNameFromLocalStorage() {
+    try {
+        const stored = localStorage.getItem('user');
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            const name = [parsed.first_name, parsed.last_name].filter(Boolean).join(' ');
+            return name || parsed.email || 'Trader';
+        }
+    } catch {
+        // ignore
+    }
+    return 'Trader';
+}
+
+function timeAgo(dateLike) {
+    const d = dateLike ? new Date(dateLike) : null;
+    if (!d || Number.isNaN(d.getTime())) return '';
+    const diff = Date.now() - d.getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return 'just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+}
+
+export default function Dashboard() {
+    const router = useRouter();
+    const [userId, setUserId] = useState('');
+    const [stats, setStats] = useState(null);
+    const [recentActivity, setRecentActivity] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        setUserId(getUserIdFromLocalStorage());
+    }, []);
+
+    useEffect(() => {
+        if (!userId) return;
+        let mounted = true;
+        const load = async () => {
+            setLoading(true);
+            try {
+                const [statsRes, recentRes] = await Promise.allSettled([
+                    dashboardApi.getStats(userId),
+                    dashboardApi.getRecentActivity(userId),
+                ]);
+
+                if (!mounted) return;
+
+                const statsPayload =
+                    statsRes.status === 'fulfilled' ? (statsRes.value?.data ?? statsRes.value) : null;
+                setStats(statsPayload);
+
+                const recentPayload =
+                    recentRes.status === 'fulfilled' ? (recentRes.value?.data?.recent_activity ?? recentRes.value) : [];
+                setRecentActivity(Array.isArray(recentPayload) ? recentPayload : (recentPayload?.items || []));
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+        load();
+        return () => {
+            mounted = false;
+        };
+    }, [userId]);
+
+    const name = getUserNameFromLocalStorage();
+
+    const quickActions = useMemo(
+        () => [
+            {
+                title: 'Upload Trade Screenshot',
+                desc: 'Upload any chart screenshot and get AI analysis instantly.',
+                cta: 'Upload Now',
+                href: '/trade-snap',
+                accent: styles.qaBlue,
+                icon: iconOne
+            },
+            {
+                title: 'Ask AI Assistant',
+                desc: 'Ask any trading or finance related question to AI.',
+                cta: 'Ask Now',
+                href: '/ai-assistant?tab=chat',
+                accent: styles.qaPurple,
+                icon: iconTwo
+
+            },
+            {
+                title: 'Generate Blog',
+                desc: 'Generate outlines or full forex content in seconds.',
+                cta: 'Write Now',
+                href: '/ai-assistant?tab=blog',
+                accent: styles.qaGreen,
+                icon: iconThree
+
+            },
+            {
+                title: 'Economic Calendar',
+                desc: 'Track high-impact news and plan trades around events.',
+                cta: 'Open Calendar',
+                href: '/economic-calendar',
+                accent: styles.qaOrange,
+                icon: iconFour
+
+            },
+        ],
+        []
+    );
+
+    const recents = useMemo(() => {
+        const normalize = (item, index) => {
+
+            const type = item?.type || item?.activity_type || item?.kind || "";
+
+            const normalizedType = String(type)
+                .toLowerCase()
+                .includes("blog")
+                ? "blog"
+                : "chat";
+
+            // Extract short_response from summary JSON
+            let summary = "";
+
+            // safer summary extraction
+            if (typeof item?.summary === "string") {
+
+                // try parse json
+                try {
+                    const parsed = JSON.parse(item.summary);
+                    summary = parsed?.short_response || "";
+                } catch {
+
+                    // fallback raw string cleanup
+                    summary = item.summary
+                        .replace('{"short_response":"', "")
+                        .replace('{"short_response": "', "")
+                        .replace(/"}$/, "")
+                        .replace(/\\"/g, '"');
+                }
+
+            } else if (item?.summary?.short_response) {
+                summary = item.summary.short_response;
+            }
+
+
+            return {
+                type: normalizedType,
+                id:
+                    item?.id ||
+                    item?.activity_id ||
+                    item?.chat_id ||
+                    item?.created_at ||
+                    index,
+
+                title:
+                    item?.title ||
+                    item?.question ||
+                    item?.message ||
+                    "Recent item",
+
+                summary,
+
+                pair: item?.pair || item?.symbol || "",
+
+                created_at:
+                    item?.created_at ||
+                    item?.createdAt ||
+                    item?.time ||
+                    "",
+            };
+        };
+
+        return (Array.isArray(recentActivity)
+            ? recentActivity
+            : []
+        )
+            .map(normalize)
+            .sort(
+                (a, b) =>
+                    new Date(b.created_at || 0).getTime() -
+                    new Date(a.created_at || 0).getTime()
+            )
+            .slice(0, 8);
+    }, [recentActivity]);
+
+    const openRecent = (item) => {
+        const params = new URLSearchParams();
+        params.set('tab', item.type);
+        params.set('open', String(item.id));
+        router.push(`/ai-assistant?${params.toString()}`);
+    };
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+
+        if (hour < 12) {
+            return "Good Morning";
+        } else if (hour < 17) {
+            return "Good Afternoon";
+        } else if (hour < 21) {
+            return "Good Evening";
+        } else {
+            return "Good Night";
+        }
+    };
+    const statsData = [
+        {
+            id: 1,
+            label: "Total Analysis",
+            value: stats?.total_analysis_history ?? "—",
+            delta: "Analysis History",
+            icon: state1,
+        },
+        {
+            id: 2,
+            label: "Total Chats",
+            value: stats?.total_chat_history ?? "—",
+            delta: "Chat History",
+            icon: state2,
+        },
+        {
+            id: 3,
+            label: "Available Credits",
+            value: stats?.available_credits ?? "—",
+            delta: `Total Credits: ${stats?.total_credits ?? 0}`,
+            icon: state3,
+        },
+        {
+            id: 4,
+            label: "Total Blogs",
+            value: stats?.total_blog_history ?? "—",
+            delta: "Blog History",
+            icon: state4,
+        },
+    ];
+    return (
+        <div className={styles.dashboard}>
+
+            <section className={styles.hero}>
+                <div className={styles.heroText}>
+                    <div className={styles.heroKicker}>AI Powered insights ready</div>
+                    <h1>
+                        {getGreeting()}, <span>{name}</span>
+                    </h1>
+                    {/* <p>Your Edge is Up 3.2% This Month. 4 new high confidence signals waiting for review.</p> */}
+                </div>
+
+            </section>
+
+            <section className={styles.statsGrid}>
+                {statsData.map((item) => (
+                    <div className={styles.statCard} key={item.id}>
+                        <img src={item.icon} alt={item.label} />
+                        <div className={styles.stat}>
+                            <div className={styles.statLabel}>
+                                {item.label}
+                            </div>
+                            <div className={styles.statValue}>
+                                {item.value}
+                            </div>
+
+                        </div>
+                    </div>
+                ))}
+            </section>
+
+            <section className={styles.section}>
+                <div className={styles.sectionHeader}>
+                    <h2>Quick Actions</h2>
+                </div>
+                <div className={styles.quickGrid}>
+                    {quickActions.map((qa) => (
+                        <div key={qa.title} className={`${styles.qaCard} `}>
+
+                            <div className={styles.qaBody}>
+                                <img src={qa.icon} alt={qa.label} />
+                                <h3>{qa.title}</h3>
+                                <p>{qa.desc}</p>
+                                <div className={styles.dividerLine}></div>
+                                <Link href={qa.href} className={styles.qaFooter} aria-label={qa.cta}>
+                                    <div className={styles.icon}>
+                                        <img src={ArrowIcon} alt={ArrowIcon} />
+
+                                    </div>
+                                    <span>{qa.cta}</span>
+                                </Link>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            <section className={styles.section}>
+                <div className={styles.sectionHeader}>
+                    <h2>Recent</h2>
+
+                    <Link
+                        href="/ai-assistant"
+                        className={styles.viewAll}
+                    >
+                        View All
+                    </Link>
+                </div>
+
+                <div className={styles.recentCard}>
+                    {loading ? (
+                        <div className={styles.recentEmpty}>
+                            Loading recent activity…
+                        </div>
+                    ) : recents.length === 0 ? (
+                        <div className={styles.recentEmpty}>
+                            No recent chats or blogs yet.
+                        </div>
+                    ) : (
+                        <div className={styles.tableWrapper}>
+                            <table className={styles.recentTable}>
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Title</th>
+                                        <th>Summary</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {recents.map((item) => (
+                                        <tr
+                                            key={`${item.type}-${item.id}`}
+                                            onClick={() => openRecent(item)}
+                                            className={styles.tableRow}
+                                        >
+                                            <td>
+                                                <span
+                                                    className={`${styles.badge} ${item.type === "chat"
+                                                        ? styles.badgeChat
+                                                        : styles.badgeBlog
+                                                        }`}
+                                                >
+                                                    {item.type === "chat"
+                                                        ? "Chat"
+                                                        : "Blog"}
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <div
+                                                    className={styles.recentTitle}
+                                                    title={item.title}
+                                                >
+                                                    {item.title}
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <div
+                                                    className={styles.recentSummary}
+                                                >
+                                                    {item.summary ? (
+                                                        <div
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: item.summary,
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        "-"
+                                                    )}
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <div className={styles.recentTime}>
+                                                    {timeAgo(item.created_at)}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            </section>
+        </div>
+    );
+}
+

@@ -95,3 +95,22 @@ export const fxApi = {
         }),
 };
 
+export const dashboardApi = {
+    getStats: (user_id) =>
+        request(`/users/${user_id}/dashboard/stats`, {
+            headers: getAuthHeaders(),
+        }),
+
+    getRecentActivity: (user_id) =>
+        request(`/users/${user_id}/dashboard/recent-activity`, {
+            headers: getAuthHeaders(),
+        }),
+};
+
+export const tradeSnapApi = {
+    getAnalysisHistory: (user_id) =>
+        request(`/users/${user_id}/analysis-history`, {
+            headers: getAuthHeaders(),
+        }),
+};
+

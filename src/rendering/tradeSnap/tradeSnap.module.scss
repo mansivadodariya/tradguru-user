@@ -12,6 +12,29 @@ $success: #10b981;
     .title {
         padding: 0 0 24px;
 
+        .titleRow {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .historyBtn {
+            border: 1px solid rgba(11, 86, 219, 0.18);
+            background: rgba(11, 86, 219, 0.06);
+            color: $primary;
+            font-weight: 700;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s ease;
+            white-space: nowrap;
+
+            &:hover {
+                background: rgba(11, 86, 219, 0.10);
+            }
+        }
+
         h2 {
             color: $text;
             font-size: 22px;
@@ -792,6 +815,12 @@ $success: #10b981;
         font-size: 12px;
         color: $muted;
         font-style: italic;
+    }
+
+    .historyList {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
     }
 
     .mobileNotice {

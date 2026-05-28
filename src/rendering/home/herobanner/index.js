@@ -76,7 +76,7 @@ export default function Herobanner() {
                     </motion.p>
 
                     <motion.div className={styles.buttonCenter} variants={itemVariants}>
-                        <Button icon={ArrowIcon} text="Get Started" onClick={() => router.push("/signup")} />
+                        <Button icon={ArrowIcon} text="Get Started" onClick={() => router.push("/login")} />
                     </motion.div>
 
                     <motion.div className={styles.centerImage} variants={imageVariants}>

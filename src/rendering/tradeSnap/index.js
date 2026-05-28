@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import styles from './tradeSnap.module.scss';
 import { analyzeTradeScreenshots, dataUrlToBlob } from '@/lib/tradeSnapApi';
 import { useToast } from '@/components/toast';
+import { tradeSnapApi } from '@/lib/api';
 import AnalysisResultItem from './AnalysisResultItem';
 import NextScreenshotTimer from './NextScreenshotTimer';
 import Modal from './Modal';
@@ -81,6 +82,9 @@ export default function TradeSnap() {
 
     const [selectedAnalysis, setSelectedAnalysis] = useState(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [historyOpen, setHistoryOpen] = useState(false);
+    const [historyLoading, setHistoryLoading] = useState(false);
+    const [historyItems, setHistoryItems] = useState([]);
     const [showTabSwitchConfirm, setShowTabSwitchConfirm] = useState(false);
     const [pendingTab, setPendingTab] = useState(null);
     const [isDesktop, setIsDesktop] = useState(true);
@@ -103,6 +107,39 @@ export default function TradeSnap() {
         }
     }, [error, toast]);
 
+    const normalizeHistory = (payload) => {
+        const list = Array.isArray(payload) ? payload : (payload?.data || payload?.items || []);
+        return (Array.isArray(list) ? list : []).map((item, idx) => {
+            const ts = item?.created_at || item?.createdAt || item?.timestamp || item?.time || item?.date || new Date().toISOString();
+            const ai = item?.ai_response || item?.analysis || item?.result || item?.data || item;
+            const trades = Array.isArray(ai) ? ai : [ai];
+            return {
+                id: item?.id || item?.analysis_id || item?.history_id || ts || idx,
+                timestamp: ts,
+                data: trades,
+            };
+        });
+    };
+
+    const openHistory = async () => {
+        const userId = getUserId();
+        if (!userId) {
+            setError('User not found. Please login again.');
+            return;
+        }
+        setHistoryOpen(true);
+        setHistoryLoading(true);
+        try {
+            const res = await tradeSnapApi.getAnalysisHistory(userId);
+            setHistoryItems(normalizeHistory(res));
+        } catch (e) {
+            setError(e?.message || 'Failed to load history');
+            setHistoryItems([]);
+        } finally {
+            setHistoryLoading(false);
+        }
+    };
+
     const stopScreenShare = useCallback(() => {
         if (stream) {
             stream.getTracks().forEach((t) => t.stop());
@@ -111,6 +148,11 @@ export default function TradeSnap() {
         if (videoRef.current) videoRef.current.srcObject = null;
         setIsSharing(false);
         setCapturedImage(null);
+        // Multi: ensure old lower timeframe snapshot never lingers
+        setCapturedImage1(null);
+        setShowSnapshot1(false);
+        setAutoCaptureInterval1(null);
+        setNextScreenshotEndTime1(null);
         setAllAnalyses([]);
         setShowAnalysis(false);
         setShowSnapshot(false);
@@ -120,6 +162,16 @@ export default function TradeSnap() {
 
     const startScreenShare = useCallback(async () => {
         try {
+            // Clear prior captures (prevents reusing old screenshots)
+            setCapturedImage(null);
+            setShowSnapshot(false);
+            setCapturedImage1(null);
+            setShowSnapshot1(false);
+            setAutoCaptureInterval(null);
+            setAutoCaptureInterval1(null);
+            setNextScreenshotEndTime(null);
+            setNextScreenshotEndTime1(null);
+
             if (!navigator.mediaDevices?.getDisplayMedia) {
                 throw new Error('Screen sharing is not supported in this browser');
             }
@@ -158,12 +210,21 @@ export default function TradeSnap() {
         }
         if (videoRef2.current) videoRef2.current.srcObject = null;
         setIsSharing2(false);
+        // Multi: ensure old higher timeframe snapshot never lingers
+        setCapturedImage2(null);
+        setShowSnapshot2(false);
         setAutoCaptureInterval2(null);
         setNextScreenshotEndTime2(null);
     }, [stream2]);
 
     const startScreenShare2 = useCallback(async () => {
         try {
+            // Clear prior higher timeframe captures (prevents reusing old screenshots)
+            setCapturedImage2(null);
+            setShowSnapshot2(false);
+            setAutoCaptureInterval2(null);
+            setNextScreenshotEndTime2(null);
+
             if (!navigator.mediaDevices?.getDisplayMedia) {
                 throw new Error('Screen sharing is not supported in this browser');
             }
@@ -459,11 +520,18 @@ export default function TradeSnap() {
     return (
         <div className={styles.tradeSnap}>
             <div className={styles.title}>
-                <h2>Trade Snap</h2>
-                <p>
-                    Capture your screen, analyze chart movements, and get AI trade insights with single or multi-timeframe
-                    views.
-                </p>
+                <div className={styles.titleRow}>
+                    <div>
+                        <h2>Trade Snap</h2>
+                        <p>
+                            Capture your screen, analyze chart movements, and get AI trade insights with single or multi-timeframe
+                            views.
+                        </p>
+                    </div>
+                    <button type="button" className={styles.historyBtn} onClick={openHistory}>
+                        History
+                    </button>
+                </div>
             </div>
 
             <canvas ref={canvasRef} className={styles.hiddenCanvas} aria-hidden="true" />
@@ -512,7 +580,7 @@ export default function TradeSnap() {
                                         setAutoCaptureInterval,
                                         AUTO_CAPTURE_OPTIONS
                                     )}
-                            </div>
+                </div>
                             <div className={styles.videoFrame}>
                                 {isSharing && stream ? (
                                     <video
@@ -526,7 +594,7 @@ export default function TradeSnap() {
                                 ) : (
                                     renderVideoPlaceholder(isSharing, 'Loading screen share...')
                                 )}
-                            </div>
+                    </div>
                             <div className={styles.panelActions}>
                                 {isSharing ? (
                                     <>
@@ -553,8 +621,8 @@ export default function TradeSnap() {
                                         Start Sharing
                                     </button>
                                 )}
-                            </div>
-                        </div>
+                </div>
+            </div>
                     ) : (
                         <div className={styles.multiGrid}>
                             <div className={styles.panel}>
@@ -568,7 +636,7 @@ export default function TradeSnap() {
                                                 Lower Timeframe
                                             </>
                                         )}
-                                    </h3>
+                        </h3>
                                     {isSharing &&
                                         renderAutoCaptureSelect(
                                             'auto-capture-1',
@@ -586,7 +654,7 @@ export default function TradeSnap() {
                                     ) : (
                                         renderVideoPlaceholder(false, '')
                                     )}
-                                </div>
+                    </div>
                                 <div className={styles.panelActions}>
                                     {isSharing ? (
                                         <>
@@ -611,10 +679,10 @@ export default function TradeSnap() {
                                         <button type="button" className={styles.btnPrimary} onClick={startScreenShare}>
                                             <PlayIcon />
                                             Start Sharing
-                                        </button>
+                        </button>
                                     )}
-                                </div>
-                            </div>
+                    </div>
+                </div>
 
                             <div className={styles.panel}>
                                 <div className={styles.panelHeader}>
@@ -627,7 +695,7 @@ export default function TradeSnap() {
                                                 Higher Timeframe
                                             </>
                                         )}
-                                    </h3>
+                        </h3>
                                     {isSharing2 &&
                                         renderAutoCaptureSelect(
                                             'auto-capture-2',
@@ -660,7 +728,7 @@ export default function TradeSnap() {
                                                     endTime={nextScreenshotEndTime2}
                                                 />
                                             ) : (
-                                                <button type="button" className={styles.btnSecondary} onClick={captureScreenshot2}>
+                                                <button type="button" className={styles.btnPrimary} onClick={captureScreenshot2}>
                                                     <CameraIcon />
                                                     Capture
                                                 </button>
@@ -673,9 +741,9 @@ export default function TradeSnap() {
                                         </button>
                                     )}
                                 </div>
-                            </div>
+                    </div>
 
-                            {isSharing && (showSnapshot1 || showSnapshot2) && (
+                            {(isSharing || isSharing2) && (showSnapshot1 || showSnapshot2) && (
                                 <div className={`${styles.panel} ${styles.snapshotPanel}`}>
                                     <div className={styles.snapshotHeader}>
                                         <h3>
@@ -689,8 +757,8 @@ export default function TradeSnap() {
                                             disabled={isAnalyzingMulti || !capturedImage1 || !capturedImage2}
                                         >
                                             {isAnalyzingMulti ? 'Analyzing...' : 'Analyze'}
-                                        </button>
-                                    </div>
+                        </button>
+                    </div>
                                     <div className={styles.dualSnapshot}>
                                         <div>
                                             {capturedImage1 ? (
@@ -720,7 +788,7 @@ export default function TradeSnap() {
                                 <h3>
                                     <CameraIcon />
                                     Latest Snapshot
-                                </h3>
+                        </h3>
                                 <button
                                     type="button"
                                     className={styles.btnAnalyze}
@@ -806,6 +874,69 @@ export default function TradeSnap() {
                 )}
                 {selectedAnalysis?.entry?.includes('(') && (
                     <p className={styles.entryNote}>{selectedAnalysis.entry.match(/\(([^)]+)\)/)?.[1]}</p>
+                )}
+            </Modal>
+
+            <Modal
+                open={historyOpen}
+                onClose={() => setHistoryOpen(false)}
+                title="Trade Snap History"
+                description="Your past Trade Snap analyses"
+                footer={
+                    <button type="button" className={styles.btnGhost} onClick={() => setHistoryOpen(false)}>
+                        Close
+                    </button>
+                }
+            >
+                {historyLoading ? (
+                    <div className={styles.recentEmpty}>Loading history…</div>
+                ) : historyItems.length === 0 ? (
+                    <div className={styles.recentEmpty}>No history yet.</div>
+                ) : (
+                    <div className={styles.historyList}>
+                        {historyItems.map((h, i) => {
+                            const formatted = new Date(h.timestamp).toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true,
+                            });
+                            return (
+                                <div key={`${h.id}-${i}`} className={styles.historyGroup}>
+                                    <div className={styles.historyTime}>
+                                        <ClockIcon /> {formatted}
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
+                                        <button
+                                            type="button"
+                                            className={styles.btnSecondary}
+                                            onClick={() => {
+                                                // load this history into results view
+                                                setAllAnalyses([{ data: h.data, timestamp: h.timestamp }]);
+                                                setShowAnalysis(true);
+                                                setHistoryOpen(false);
+                                            }}
+                                        >
+                                            Open
+                                        </button>
+                                    </div>
+                                    {h.data.map((trade, idx) => (
+                                        <AnalysisResultItem
+                                            key={`${h.id}-trade-${idx}`}
+                                            trade={trade}
+                                            index={idx}
+                                            onViewDetails={(t) => {
+                                                setSelectedAnalysis(t);
+                                                setIsDetailModalOpen(true);
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            );
+                        })}
+                    </div>
                 )}
             </Modal>
 

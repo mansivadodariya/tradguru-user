@@ -31,6 +31,7 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (loading) return;
         const fieldErrors = validateLogin(form);
         if (Object.keys(fieldErrors).length > 0) {
             setErrors(fieldErrors);

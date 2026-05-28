@@ -1,11 +1,5 @@
-import React from 'react';
+import Dashboard from '@/rendering/dashboard';
 
-const page = () => {
-    return (
-        <div>
-            
-        </div>
-    );
+export default function DashboardPage() {
+    return <Dashboard />;
 }
-
-export default page;
