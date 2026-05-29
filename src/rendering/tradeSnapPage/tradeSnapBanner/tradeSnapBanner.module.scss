@@ -1,0 +1,86 @@
+@use '../../../scss/main.scss' as *;
+@use '../../../scss/breakpoints/breakpoints.scss' as *;
+
+.tradeSnapBanner {
+    background-image: url('/assets/images/hero.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 100%;
+    background-attachment: fixed;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-position: bottom;
+
+    .widthFull {
+        width: 100%;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: center;
+
+        .buttonAlignment {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 0 0 32px 0;
+        }
+
+        .image {
+            img {
+                display: block;
+                width: 100%;
+            }
+        }
+
+        .tagAlignment {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+
+            button {
+                border: 1px solid rgba(11, 86, 219, 0.10);
+                background: rgba(11, 86, 219, 0.04);
+                backdrop-filter: blur(18.299999237060547px);
+                display: flex;
+                align-items: center;
+                color: var(--P-Color, #0B56DB);
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 28px;
+                gap: 8px;
+                padding: 6px 12px;
+            }
+
+        }
+
+        .title {
+            padding: 24px 0 32px 0;
+
+            p {
+                max-width: 644px;
+                color: #5F5F5F;
+                font-size: 20px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 30px;
+            }
+
+            h1 {
+                color: #1A1A1A;
+                font-size: 62px;
+                font-style: normal;
+                font-weight: 700;
+                line-height: normal;
+                letter-spacing: 1.86px;
+                font-family: var(--font-plus-jakarta);
+                text-transform: uppercase;
+            }
+        }
+    }
+}

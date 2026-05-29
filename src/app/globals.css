@@ -62,6 +62,12 @@ p:last-child {
   margin: 0 auto;
 }
 
+.container-xs3 {
+  max-width: calc(1588px + 40px);
+  padding: 0 20px;
+  margin: 0 auto;
+}
+
 .user-layout {
   display: flex;
 }
