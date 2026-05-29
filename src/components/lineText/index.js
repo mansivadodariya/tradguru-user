@@ -1,8 +1,9 @@
 import React from 'react'
 import styles from './lineText.module.scss';
-export default function LineText({ text }) {
+import classNames from 'classnames';
+export default function LineText({ text, start }) {
     return (
-        <div className={styles.lineText}>
+        <div className={classNames(styles.lineText, start ? styles.start : "")}>
             <button aria-label={text}>
                 <div className={styles.dot}></div>
                 {text}

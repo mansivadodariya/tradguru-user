@@ -54,7 +54,6 @@ export default function Herobanner() {
     const router = useRouter()
     return (
         <div className={styles.herobanner}>
-            <Header />
             <div className='container-xs2'>
                 <motion.div
                     className={styles.topContentAlignment}

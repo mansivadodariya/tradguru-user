@@ -1,0 +1,160 @@
+@use '../../../scss/main.scss' as *;
+@use '../../../scss/breakpoints/breakpoints.scss' as *;
+
+.tradeSetup {
+    padding: 100px 0;
+
+    .title {
+        padding: 24px 0 60px 0;
+
+        h2 {
+            color: #1A1A1A;
+            font-size: 42px;
+            font-weight: 700;
+            line-height: normal;
+            letter-spacing: 1.26px;
+            text-transform: capitalize;
+            text-align: center;
+            margin: 0 0 16px 0;
+            font-family: var(--font-plus-jakarta);
+
+        }
+
+        p {
+            color: #5F5F5F;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 28px;
+            max-width: 645px;
+            margin: 0 auto;
+
+        }
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 140px 1fr 140px 1fr;
+        gap: 0px;
+        padding: 0 0 50px 0;
+        align-items: center;
+
+        .items {
+            border: 1px solid rgba(0, 0, 0, 0.10);
+            background: rgba(255, 255, 255, 0.50);
+            box-shadow: 0 0 34.4px 0 rgba(0, 0, 0, 0.04);
+            padding: 24px;
+            position: relative;
+
+            .line {
+                display: flex;
+                align-items: center;
+
+                img {
+                    display: block;
+                }
+            }
+
+            .counter {
+                position: absolute;
+                top: 0;
+                right: 0;
+
+                h4 {
+                    font-size: 95.86px;
+                    font-style: normal;
+                    font-weight: 700;
+                    line-height: normal;
+                    opacity: 0.07;
+                    background: linear-gradient(180deg, #0B56DB 0%, #FFF 100%);
+                    background-clip: text;
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                }
+            }
+
+            p {
+                margin: 16px 0 0 0;
+                color: rgba(26, 26, 26, 0.70);
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: 28px;
+            }
+
+            .icontext {
+                display: flex;
+                align-items: center;
+                padding: 0 0 16px 0;
+                border-bottom: 1px solid #E7E4E2;
+                gap: 18px;
+
+                h3 {
+                    color: #1A1A1A;
+                    font-size: 20px;
+                    font-style: normal;
+                    font-weight: 700;
+                    line-height: normal;
+                }
+            }
+        }
+    }
+
+    .box {
+        background: linear-gradient(270deg, rgba(11, 86, 219, 0.20) 0%, rgba(255, 255, 255, 0.00) 48.72%, rgba(11, 86, 219, 0.20) 100%);
+        padding: 80px;
+        display: grid;
+        grid-template-columns: 1fr 740px;
+        gap: 20px;
+        position: relative;
+
+        .round {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+
+            img {
+                max-width: 400px;
+                display: block;
+            }
+        }
+
+
+        h3 {
+            color: #1A1A1A;
+            font-size: 42px;
+            max-width: 640px;
+            font-weight: 700;
+            line-height: normal;
+            margin: 0 0 16px 0;
+            letter-spacing: 1.26px;
+            text-transform: capitalize;
+            margin: 24px 0 16px 0;
+            font-family: var(--font-plus-jakarta);
+
+        }
+
+        p {
+            color: #5F5F5F;
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 28px;
+            margin: 0 0 32px 0;
+            max-width: 347px;
+
+        }
+
+        .image {
+            background: rgba(255, 255, 255, 0.30);
+            box-shadow: 0 0 41.5px 0 rgba(11, 86, 219, 0.20);
+            backdrop-filter: blur(8.399999618530273px);
+            position: relative;
+            z-index: 1;
+
+            img {
+                display: block;
+            }
+        }
+    }
+}

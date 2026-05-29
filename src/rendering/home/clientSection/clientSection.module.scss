@@ -1,0 +1,180 @@
+@use '../../../scss/main.scss' as *;
+@use '../../../scss/breakpoints/breakpoints.scss' as *;
+
+.clientSection {
+    padding: 100px 0;
+    background: #FFF;
+    overflow: hidden;
+
+    .title {
+        padding: 24px 0 60px 0;
+
+        h2 {
+            color: #1A1A1A;
+            font-size: 42px;
+            font-weight: 700;
+            line-height: normal;
+            letter-spacing: 1.26px;
+            text-transform: capitalize;
+            text-align: center;
+            margin: 0 0 16px 0;
+            font-family: var(--font-plus-jakarta);
+        }
+
+        p {
+            color: #5F5F5F;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 28px;
+            max-width: 386px;
+            margin: 0 auto;
+        }
+    }
+
+    .sliderWrapper {
+        position: relative;
+    }
+
+    .sliderContainer {
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .sliderTrack {
+        display: flex;
+        gap: 24px;
+        width: 100%;
+    }
+
+    .slide {
+        flex: 0 0 calc((100% - 48px) / 3);
+        box-sizing: border-box;
+
+    }
+
+    .testimonialCard {
+        border-radius: 24px;
+        border: 1px solid rgba(0, 0, 0, 0.10);
+        background: rgba(255, 255, 255, 0.50);
+        box-shadow: 0 0 34.4px 0 rgba(0, 0, 0, 0.04);
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+        transition: border-color 0.3s, box-shadow 0.3s;
+
+        .cardHeader {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+
+            .stars {
+                display: flex;
+                gap: 5px;
+            }
+        }
+
+        .quoteText {
+            color: rgba(26, 26, 26, 0.70);
+            font-size: 18px;
+            height: 96px;
+            font-weight: 400;
+            line-height: 32px;
+            margin: 0 0 24px 0;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+        }
+
+        .divider {
+            border-top: 1px solid rgba(26, 26, 26, 0.08);
+            margin: 0 0 24px 0;
+            width: 100%;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+
+            .avatar {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid rgba(11, 86, 219, 0.1);
+            }
+
+            .info {
+                display: flex;
+                flex-direction: column;
+
+                .name {
+                    color: #1A1A1A;
+                    font-size: 18px;
+                    font-style: normal;
+                    font-weight: 700;
+                    line-height: normal;
+                }
+
+                .role {
+                    color: rgba(26, 26, 26, 0.70);
+                    font-size: 16px;
+                    font-style: normal;
+                    font-weight: 400;
+                    line-height: normal;
+                }
+            }
+        }
+    }
+
+    .navigation {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 48px;
+
+        .navBtn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1px solid rgba(26, 26, 26, 0.1);
+            background: #FFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+
+            svg {
+                width: 20px;
+                height: 20px;
+                fill: none;
+                stroke: #1A1A1A;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                transition: stroke 0.3s ease;
+            }
+
+            &:hover:not(:disabled) {
+                background: #0B56DB;
+                border-color: #0B56DB;
+                box-shadow: 0 8px 20px rgba(11, 86, 219, 0.2);
+
+                svg {
+                    path {
+                        stroke: #FFF;
+                    }
+                }
+            }
+
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+        }
+    }
+}
