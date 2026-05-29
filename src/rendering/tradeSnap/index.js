@@ -3,12 +3,13 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import styles from './tradeSnap.module.scss';
 import { analyzeTradeScreenshots, dataUrlToBlob } from '@/lib/tradeSnapApi';
-import { useToast } from '@/components/toast';
+import { toast } from '@/components/toast';
 import { tradeSnapApi } from '@/lib/api';
 import { historyDeletes } from '@/lib/historyDeletes';
 import AnalysisResultItem from './AnalysisResultItem';
 import NextScreenshotTimer from './NextScreenshotTimer';
 import Modal from './Modal';
+import Loader from '@/components/loader';
 import {
     MonitorIcon,
     MonitorOffIcon,
@@ -50,7 +51,6 @@ function getUserId() {
 }
 
 export default function TradeSnap() {
-    const toast = useToast();
 
     const [activeTab, setActiveTab] = useState('single');
     const [error, setError] = useState(null);
@@ -105,7 +105,7 @@ export default function TradeSnap() {
 
     useEffect(() => {
         if (error) {
-            toast(error, 'error');
+            toast.error(error);
             setError(null);
         }
     }, [error, toast]);
@@ -157,14 +157,14 @@ export default function TradeSnap() {
     const confirmDeleteHistory = async () => {
         if (!pendingDeleteHistory) return;
         if (!pendingDeleteHistory.deleteId) {
-            toast('Unable to delete this history item.', 'error');
+            toast.error('Unable to delete this history item.');
             closeDeleteHistoryModal();
             return;
         }
 
         const userId = getUserId();
         if (!userId) {
-            toast('User not found. Please login again.', 'error');
+            toast.error('User not found. Please login again.');
             closeDeleteHistoryModal();
             return;
         }
@@ -175,9 +175,9 @@ export default function TradeSnap() {
                 id: pendingDeleteHistory.deleteId,
             });
             setHistoryItems((prev) => prev.filter((item) => item.id !== pendingDeleteHistory.id));
-            toast('History deleted successfully.', 'success');
+            toast.success('History deleted successfully.');
         } catch (e) {
-            toast(e?.message || 'Failed to delete history item.', 'error');
+            toast.error(e?.message || 'Failed to delete history item.');
         } finally {
             closeDeleteHistoryModal();
         }
@@ -623,7 +623,7 @@ export default function TradeSnap() {
                                         setAutoCaptureInterval,
                                         AUTO_CAPTURE_OPTIONS
                                     )}
-                </div>
+                            </div>
                             <div className={styles.videoFrame}>
                                 {isSharing && stream ? (
                                     <video
@@ -637,7 +637,7 @@ export default function TradeSnap() {
                                 ) : (
                                     renderVideoPlaceholder(isSharing, 'Loading screen share...')
                                 )}
-                    </div>
+                            </div>
                             <div className={styles.panelActions}>
                                 {isSharing ? (
                                     <>
@@ -664,8 +664,8 @@ export default function TradeSnap() {
                                         Start Sharing
                                     </button>
                                 )}
-                </div>
-            </div>
+                            </div>
+                        </div>
                     ) : (
                         <div className={styles.multiGrid}>
                             <div className={styles.panel}>
@@ -679,7 +679,7 @@ export default function TradeSnap() {
                                                 Lower Timeframe
                                             </>
                                         )}
-                        </h3>
+                                    </h3>
                                     {isSharing &&
                                         renderAutoCaptureSelect(
                                             'auto-capture-1',
@@ -697,7 +697,7 @@ export default function TradeSnap() {
                                     ) : (
                                         renderVideoPlaceholder(false, '')
                                     )}
-                    </div>
+                                </div>
                                 <div className={styles.panelActions}>
                                     {isSharing ? (
                                         <>
@@ -722,10 +722,10 @@ export default function TradeSnap() {
                                         <button type="button" className={styles.btnPrimary} onClick={startScreenShare}>
                                             <PlayIcon />
                                             Start Sharing
-                        </button>
+                                        </button>
                                     )}
-                    </div>
-                </div>
+                                </div>
+                            </div>
 
                             <div className={styles.panel}>
                                 <div className={styles.panelHeader}>
@@ -738,7 +738,7 @@ export default function TradeSnap() {
                                                 Higher Timeframe
                                             </>
                                         )}
-                        </h3>
+                                    </h3>
                                     {isSharing2 &&
                                         renderAutoCaptureSelect(
                                             'auto-capture-2',
@@ -784,7 +784,7 @@ export default function TradeSnap() {
                                         </button>
                                     )}
                                 </div>
-                    </div>
+                            </div>
 
                             {(isSharing || isSharing2) && (showSnapshot1 || showSnapshot2) && (
                                 <div className={`${styles.panel} ${styles.snapshotPanel}`}>
@@ -800,8 +800,8 @@ export default function TradeSnap() {
                                             disabled={isAnalyzingMulti || !capturedImage1 || !capturedImage2}
                                         >
                                             {isAnalyzingMulti ? 'Analyzing...' : 'Analyze'}
-                        </button>
-                    </div>
+                                        </button>
+                                    </div>
                                     <div className={styles.dualSnapshot}>
                                         <div>
                                             {capturedImage1 ? (
@@ -831,7 +831,7 @@ export default function TradeSnap() {
                                 <h3>
                                     <CameraIcon />
                                     Latest Snapshot
-                        </h3>
+                                </h3>
                                 <button
                                     type="button"
                                     className={styles.btnAnalyze}
@@ -859,7 +859,7 @@ export default function TradeSnap() {
                             <div className={styles.resultsBody}>
                                 {isAnalyzing && (
                                     <div className={styles.spinnerWrap}>
-                                        <div className={styles.spinner} />
+                                        <Loader centered />
                                     </div>
                                 )}
                                 {allAnalyses.map((analysis, analysisIndex) => {
@@ -932,7 +932,7 @@ export default function TradeSnap() {
                 }
             >
                 {historyLoading ? (
-                    <div className={styles.recentEmpty}>Loading history…</div>
+                    <Loader centered />
                 ) : historyItems.length === 0 ? (
                     <div className={styles.recentEmpty}>No history yet.</div>
                 ) : (

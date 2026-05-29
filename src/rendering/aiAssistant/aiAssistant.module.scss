@@ -853,6 +853,28 @@
     }
 }
 
+.mdChartBlock {
+    margin-top: 8px;
+    border: 1px solid rgba(15, 92, 242, 0.15);
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.mdChartTitle {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f5cf2;
+    background: #eff6ff;
+    border-bottom: 1px solid rgba(15, 92, 242, 0.12);
+    padding: 8px 12px;
+}
+
+.chartCanvas {
+    width: 100%;
+    min-height: 280px;
+}
+
 // Keyframes & Animations
 @keyframes dotPulse {
     0%,

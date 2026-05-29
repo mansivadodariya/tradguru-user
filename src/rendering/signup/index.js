@@ -9,7 +9,7 @@ import Button from '@/components/button';
 import ContinueWithGoogle from '@/components/continueWithGoogle';
 import { authApi } from '@/lib/api';
 import { validateSignup } from '@/lib/validation';
-import { useToast } from '@/components/toast';
+import { toast } from '@/components/toast';
 
 const LineImage = '/assets/images/line.png';
 const AuthIcon = '/assets/icons/auth.svg';
@@ -21,7 +21,6 @@ const Lock = '/assets/icons/lock.svg';
 
 const Signup = () => {
     const router = useRouter();
-    const toast = useToast();
     const [form, setForm] = useState({
         first_name: '', last_name: '', email: '', phone_number: '', password: '', confirmPassword: ''
     });
@@ -50,7 +49,8 @@ const Signup = () => {
             await authApi.signup(payload);
             setSuccess(true);
         } catch (err) {
-            toast(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
+            toast.dismiss();
+            toast.error(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -105,7 +105,7 @@ const Signup = () => {
                                 <Input icon={Lock} placeholder="Password" type="password" name="password" value={form.password} onChange={set('password')} error={errors.password} />
                                 <Input icon={Lock} placeholder="Confirm Password" type="password" name="confirmPassword" value={form.confirmPassword} onChange={set('confirmPassword')} error={errors.confirmPassword} />
                             </div>
-                            <Button text={loading ? 'Signing up...' : 'Sign up'} icon={ArrowIcon} />
+                            <Button text={loading ? 'Signing up...' : 'Sign up'} type="submit" icon={ArrowIcon} />
                         </div>
                     </form>
                     <div className={styles.accountText}>

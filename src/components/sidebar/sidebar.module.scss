@@ -7,6 +7,8 @@
     background: #FFF;
     position: sticky;
     top: 0;
+    display: flex;
+    flex-direction: column;
 
     .logo {
         padding: 20px;
@@ -21,7 +23,7 @@
 
     .sidebarmenu {
         padding: 20px;
-        height: calc(100dvh - 286px);
+        flex: 1;
         overflow: auto;
         scrollbar-width: none;
 
@@ -112,6 +114,39 @@
         }
     }
 
+    .sidebarFooter {
+        padding: 16px 20px;
+        border-top: 1px solid #E4E4E4;
+    }
+
+    .logoutBtn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 8px 6px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #656363;
+        font-size: 16px;
+        font-weight: 500;
+        transition: 0.2s ease-in-out;
+
+        &:hover {
+            color: #e53e3e;
+
+            svg {
+                stroke: #e53e3e;
+            }
+        }
+
+        svg {
+            flex-shrink: 0;
+            transition: 0.2s ease-in-out;
+        }
+    }
+
     .sidebarBody {
         padding: 20px;
 
@@ -185,4 +220,66 @@
             }
         }
     }
+}
+
+.confirmOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirmBox {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 32px;
+    min-width: 320px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+
+    h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1A1A1A;
+        margin: 0 0 8px;
+    }
+
+    p {
+        font-size: 14px;
+        color: rgba(26, 26, 26, 0.65);
+        margin: 0 0 24px;
+    }
+}
+
+.confirmActions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+
+    button {
+        padding: 9px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        font-family: inherit;
+        transition: opacity 0.15s ease;
+
+        &:hover {
+            opacity: 0.85;
+        }
+    }
+}
+
+.cancelBtn {
+    background: #F1F5FC;
+    color: #0B56DB;
+}
+
+.confirmLogoutBtn {
+    background: #E74C3C;
+    color: #fff;
 }

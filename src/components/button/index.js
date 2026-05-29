@@ -5,7 +5,7 @@ import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import styles from './button.module.scss';
 import classNames from 'classnames';
 
-export default function Button({ text, icon, href, light, onClick }) {
+export default function Button({ text, icon, href, light, onClick, type = 'button', disabled = false }) {
     const ref = useRef(null);
     const x = useMotionValue(0);
     const y = useMotionValue(0);
@@ -35,14 +35,14 @@ export default function Button({ text, icon, href, light, onClick }) {
     };
 
     return (
-        <div className={classNames(styles.button, light ? styles.light : "")} style={{ perspective: 1200 }}>
+        <div className={classNames(styles.button, light ? styles.light : "")} style={{ perspective: 1200, pointerEvents: 'none' }}>
             {href ? (
                 <Link href={href}>
                     <motion.button
                         ref={ref}
                         onMouseMove={handleMouseMove}
                         onMouseLeave={handleMouseLeave}
-                        style={{ rotateX, rotateY }}
+                        style={{ rotateX, rotateY, pointerEvents: 'auto' }}
                         whileHover={{
                             scale: 1.05,
                             boxShadow: "0px 15px 30px -5px rgba(11, 86, 219, 0.4)",
@@ -65,15 +65,17 @@ export default function Button({ text, icon, href, light, onClick }) {
             ) : (
                 <motion.button
                     ref={ref}
+                    type={type}
+                    disabled={disabled}
                     onMouseMove={handleMouseMove}
                     onMouseLeave={handleMouseLeave}
-                    style={{ rotateX, rotateY }}
-                    whileHover={{
+                    style={{ rotateX, rotateY, pointerEvents: 'auto' }}
+                    whileHover={disabled ? {} : {
                         scale: 1.05,
                         boxShadow: "0px 15px 30px -5px rgba(11, 86, 219, 0.4)",
                         y: -5
                     }}
-                    whileTap={{
+                    whileTap={disabled ? {} : {
                         scale: 0.95,
                         boxShadow: "0px 5px 15px -5px rgba(11, 86, 219, 0.4)",
                         y: 0

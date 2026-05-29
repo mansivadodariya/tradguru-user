@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import styles from './dashboard.module.scss';
 import CommonSearch from '@/components/commonSearch';
 import { dashboardApi } from '@/lib/api';
+import Loader from '@/components/loader';
 const CardIcon = '/assets/icons/dashboardCard.svg'
 const iconOne = '/assets/icons/iconOne.svg'
 const iconTwo = '/assets/icons/iconTwo.svg'
@@ -46,25 +47,33 @@ function getUserNameFromLocalStorage() {
 function timeAgo(dateLike) {
     const d = dateLike ? new Date(dateLike) : null;
     if (!d || Number.isNaN(d.getTime())) return '';
-    const diff = Date.now() - d.getTime();
-    const minutes = Math.floor(diff / 60000);
-    if (minutes < 1) return 'just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    return `${days}d ago`;
-}
 
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+
+    let hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+
+    hours = hours % 12 || 12;
+    hours = String(hours).padStart(2, '0');
+
+    return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
+}
 export default function Dashboard() {
     const router = useRouter();
     const [userId, setUserId] = useState('');
     const [stats, setStats] = useState(null);
     const [recentActivity, setRecentActivity] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [greeting, setGreeting] = useState('');
+    const [name, setName] = useState('');
 
     useEffect(() => {
         setUserId(getUserIdFromLocalStorage());
+        setName(getUserNameFromLocalStorage());
+        setGreeting(getGreeting());
     }, []);
 
     useEffect(() => {
@@ -96,8 +105,6 @@ export default function Dashboard() {
             mounted = false;
         };
     }, [userId]);
-
-    const name = getUserNameFromLocalStorage();
 
     const quickActions = useMemo(
         () => [
@@ -238,7 +245,7 @@ export default function Dashboard() {
     const statsData = [
         {
             id: 1,
-            label: "Total Analysis",
+            label: "Total Trade Analysis",
             value: stats?.total_analysis_history ?? "—",
             delta: "Analysis History",
             icon: state1,
@@ -272,7 +279,7 @@ export default function Dashboard() {
                 <div className={styles.heroText}>
                     <div className={styles.heroKicker}>AI Powered insights ready</div>
                     <h1>
-                        {getGreeting()}, <span>{name}</span>
+                        {greeting}, <span>{name}</span>
                     </h1>
                     {/* <p>Your Edge is Up 3.2% This Month. 4 new high confidence signals waiting for review.</p> */}
                 </div>
@@ -374,10 +381,10 @@ export default function Dashboard() {
                             <table className={styles.recentTable}>
                                 <thead>
                                     <tr>
+                                        <th>Time</th>
                                         <th>Type</th>
                                         <th>Title</th>
                                         <th>Summary</th>
-                                        <th>Time</th>
                                     </tr>
                                 </thead>
 
@@ -388,6 +395,11 @@ export default function Dashboard() {
                                             onClick={() => openRecent(item)}
                                             className={styles.tableRow}
                                         >
+                                            <td>
+                                                <div className={styles.recentTime}>
+                                                    {timeAgo(item.created_at)}
+                                                </div>
+                                            </td>
                                             <td>
                                                 <span
                                                     className={`${styles.badge} ${item.type === "chat"
@@ -426,11 +438,7 @@ export default function Dashboard() {
                                                 </div>
                                             </td>
 
-                                            <td>
-                                                <div className={styles.recentTime}>
-                                                    {timeAgo(item.created_at)}
-                                                </div>
-                                            </td>
+
                                         </tr>
                                     ))}
                                 </tbody>

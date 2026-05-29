@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authApi } from '@/lib/api';
 import styles from './verifyEmail.module.scss';
+import Loader from '@/components/loader';
 
 const AuthIcon = '/assets/icons/auth.svg';
 const LineImage = '/assets/images/line.png';
@@ -40,14 +41,14 @@ export default function VerifyEmail() {
                 </div>
                 <div className={styles.relative}>
                     <div className={styles.icon}>
-                        <img src={AuthIcon} alt="" aria-hidden="true" onClick={()=>router.push("/")}/>
+                        <img src={AuthIcon} alt="" aria-hidden="true" onClick={() => router.push("/")} />
                     </div>
 
                     {status === STATUS.LOADING && (
                         <div className={styles.text}>
                             <h2>Verifying your email</h2>
                             <p>Please wait a moment...</p>
-                            <div className={styles.spinner} aria-label="Loading" />
+                            <Loader centered />
                         </div>
                     )}
 

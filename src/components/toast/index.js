@@ -1,36 +1,39 @@
 'use client';
-import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
-import styles from './toast.module.scss';
+import { Toaster } from 'react-hot-toast';
 
-const ToastContext = createContext(null);
+export { default as toast } from 'react-hot-toast';
 
-export const useToast = () => useContext(ToastContext);
-
-export const ToastProvider = ({ children }) => {
-    const [toasts, setToasts] = useState([]);
-    const idRef = useRef(0);
-
-    const show = useCallback((message, type = 'error') => {
-        const id = ++idRef.current;
-        setToasts((prev) => [...prev, { id, message, type }]);
-        setTimeout(() => {
-            setToasts((prev) => prev.filter((t) => t.id !== id));
-        }, 4000);
-    }, []);
-
-    const remove = (id) => setToasts((prev) => prev.filter((t) => t.id !== id));
-
+export function ToastProvider({ children }) {
     return (
-        <ToastContext.Provider value={show}>
+        <>
             {children}
-            <div className={styles.container} aria-live="polite" aria-atomic="false">
-                {toasts.map((t) => (
-                    <div key={t.id} className={`${styles.toast} ${styles[t.type]}`} role="alert">
-                        <span>{t.message}</span>
-                        <button type="button" onClick={() => remove(t.id)} aria-label="Dismiss" className={styles.close}>✕</button>
-                    </div>
-                ))}
-            </div>
-        </ToastContext.Provider>
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    duration: 4000,
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        maxWidth: '360px',
+                    },
+                    success: {
+                        style: {
+                            background: '#f0fdf4',
+                            color: '#15803d',
+                            border: '1px solid #bbf7d0',
+                        },
+                        iconTheme: { primary: '#15803d', secondary: '#f0fdf4' },
+                    },
+                    error: {
+                        style: {
+                            background: '#fef2f2',
+                            color: '#b91c1c',
+                            border: '1px solid #fecaca',
+                        },
+                        iconTheme: { primary: '#b91c1c', secondary: '#fef2f2' },
+                    },
+                }}
+            />
+        </>
     );
-};
+}

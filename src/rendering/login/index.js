@@ -8,7 +8,7 @@ import Button from '@/components/button';
 import ContinueWithGoogle from '@/components/continueWithGoogle';
 import { authApi } from '@/lib/api';
 import { validateLogin } from '@/lib/validation';
-import { useToast } from '@/components/toast';
+import { toast } from '@/components/toast';
 
 const LineImage = '/assets/images/line.png';
 const AuthIcon = '/assets/icons/auth.svg';
@@ -18,7 +18,6 @@ const Lock = '/assets/icons/lock.svg';
 
 const Login = () => {
     const router = useRouter();
-    const toast = useToast();
     const [form, setForm] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
@@ -64,7 +63,8 @@ const Login = () => {
 
             router.push('/dashboard');
         } catch (err) {
-            toast(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
+            toast.dismiss();
+            toast.error(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -92,7 +92,7 @@ const Login = () => {
                             <div className={styles.forgotRow}>
                                 <Link href="/forgot-password">Forgot password?</Link>
                             </div>
-                            <Button text={loading ? 'Logging in...' : 'Log in'} icon={ArrowIcon} disabled={loading} />
+                            <Button text={loading ? 'Logging in...' : 'Log in'} icon={ArrowIcon} disabled={loading} type="submit" />
                         </div>
                     </form>
                     <div className={styles.accountText}>

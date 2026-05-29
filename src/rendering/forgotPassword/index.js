@@ -1,19 +1,20 @@
 'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import styles from './forgotPassword.module.scss';
 import Input from '@/components/input';
 import Button from '@/components/button';
 import { authApi } from '@/lib/api';
 import { validateForgotPassword } from '@/lib/validation';
-import { useToast } from '@/components/toast';
+import { toast } from '@/components/toast';
 
 const LineImage = '/assets/images/line.png';
 const AuthIcon = '/assets/icons/auth.svg';
 const ArrowIcon = '/assets/icons/arrow.svg';
 
 const ForgotPassword = () => {
-    const toast = useToast();
+    const router = useRouter();
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -39,7 +40,8 @@ const ForgotPassword = () => {
             await authApi.forgotPassword(email);
             setSent(true);
         } catch (err) {
-            toast(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
+            toast.dismiss();
+            toast.error(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }

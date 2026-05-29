@@ -1,13 +1,15 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import styles from './aiAssistant.module.scss';
 import Button from '@/components/button';
 import RemoveIcon from '@/icons/removeIcon';
 import DownIcon from '@/icons/downIcon';
-import { useToast } from '@/components/toast';
+import { toast } from '@/components/toast';
 import { fxApi } from '@/lib/api';
 import { historyDeletes } from '@/lib/historyDeletes';
 import Modal from '@/rendering/tradeSnap/Modal';
+import Loader from '@/components/loader';
+import { createChart, CrosshairMode, CandlestickSeries } from 'lightweight-charts';
 
 const UploadIcon = '/assets/icons/upload-xs.svg';
 
@@ -24,10 +26,152 @@ const MAJOR_PAIRS = [
     'GBP/JPY'
 ];
 
+const normalizeAssetSymbol = (symbol = '') => String(symbol).replace('/', '').toUpperCase();
+
+const parseAssistantResponse = (raw) => {
+    const payload = raw?.response || raw?.message || raw?.answer || raw || '';
+    const isObjectPayload = payload && typeof payload === 'object' && !Array.isArray(payload);
+    if (!isObjectPayload) {
+        return {
+            content: typeof payload === 'string' ? payload : String(payload || ''),
+            visualData: null,
+            visualConfigs: []
+        };
+    }
+
+    return {
+        content: payload.full_report || payload.short_response || payload.response || JSON.stringify(payload),
+        visualData: payload.visual_data || payload.visualData || raw?.visual_data || raw?.visualData || null,
+        visualConfigs: Array.isArray(payload.visual_configs)
+            ? payload.visual_configs
+            : (Array.isArray(payload.visualConfigs) ? payload.visualConfigs : [])
+    };
+};
+
+const buildChartMeta = (visualData, visualConfigs) => {
+    const assets = visualData?.assets || {};
+    const assetKeys = Object.keys(assets);
+
+    const configSymbols = (Array.isArray(visualConfigs) ? visualConfigs : [])
+        .map((cfg) => cfg?.asset || cfg?.symbol || cfg?.pair || cfg?.currency_pair)
+        .filter(Boolean);
+
+    const symbols = [...new Set([...configSymbols, ...assetKeys])];
+
+    return symbols
+        .map((symbol) => {
+            const normalized = normalizeAssetSymbol(symbol);
+            const assetData =
+                assets[symbol] ||
+                assets[normalized] ||
+                Object.entries(assets).find(([key]) => normalizeAssetSymbol(key) === normalized)?.[1];
+            const ohlc = assetData?.ohlc_data?.ohlc_1h || assetData?.ohlc_data?.ohlc_4h || assetData?.ohlc_data?.ohlc_daily || [];
+            return {
+                symbol,
+                ohlc: Array.isArray(ohlc) ? ohlc : []
+            };
+        })
+        .filter((entry) => entry.ohlc.length > 0);
+};
+
+const CandlestickChart = ({ symbol, ohlc }) => {
+    const chartRef = useRef(null);
+    const containerRef = useRef(null);
+
+    const chartData = useMemo(() => {
+        return (Array.isArray(ohlc) ? ohlc : [])
+            .map((row) => {
+                const rawTimestamp = row?.timestamp || row?.time || row?.date;
+                const ts = typeof rawTimestamp === 'number'
+                    ? rawTimestamp
+                    : Math.floor(new Date(rawTimestamp).getTime() / 1000);
+                return {
+                    time: Number(ts),
+                    open: Number(row?.open),
+                    high: Number(row?.high),
+                    low: Number(row?.low),
+                    close: Number(row?.close)
+                };
+            })
+            .filter((row) =>
+                Number.isFinite(row.time) &&
+                Number.isFinite(row.open) &&
+                Number.isFinite(row.high) &&
+                Number.isFinite(row.low) &&
+                Number.isFinite(row.close)
+            )
+            .sort((a, b) => a.time - b.time);
+    }, [ohlc]);
+
+    useEffect(() => {
+        if (!containerRef.current || chartData.length === 0) return;
+
+        const chart = createChart(containerRef.current, {
+            width: containerRef.current.clientWidth || 500,
+            height: 280,
+            layout: {
+                background: { color: '#ffffff' },
+                textColor: '#475569'
+            },
+            grid: {
+                vertLines: { color: '#f1f5f9' },
+                horzLines: { color: '#f1f5f9' }
+            },
+            crosshair: {
+                mode: CrosshairMode.Normal
+            },
+            rightPriceScale: {
+                borderColor: '#e2e8f0'
+            },
+            timeScale: {
+                borderColor: '#e2e8f0',
+                timeVisible: true
+            }
+        });
+
+        const series = chart.addSeries(CandlestickSeries, {
+            upColor: '#10b981',
+            downColor: '#ef4444',
+            wickUpColor: '#10b981',
+            wickDownColor: '#ef4444',
+            borderVisible: false
+        });
+        series.setData(chartData);
+        chart.timeScale().fitContent();
+        chartRef.current = chart;
+
+        const resizeObserver = new ResizeObserver((entries) => {
+            const width = entries?.[0]?.contentRect?.width;
+            if (width && chartRef.current) {
+                chartRef.current.applyOptions({ width });
+                chartRef.current.timeScale().fitContent();
+            }
+        });
+        resizeObserver.observe(containerRef.current);
+
+        return () => {
+            resizeObserver.disconnect();
+            if (chartRef.current) {
+                chartRef.current.remove();
+                chartRef.current = null;
+            }
+        };
+    }, [chartData]);
+
+    if (chartData.length === 0) return null;
+
+    return (
+        <div className={styles.mdChartBlock}>
+            <div className={styles.mdChartTitle}>{symbol} Price Chart</div>
+            <div className={styles.chartCanvas} ref={containerRef}></div>
+        </div>
+    );
+};
+
 const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
-    const toast = useToast();
+
     // Authentication & Identification
-    const [userId, setUserId] = useState('94f3a4a6-540b-4c0d-b6b8-4376f0e75d9f');
+    const [userId, setUserId] = useState(null);
 
     // Tab State: "chat" or "blog"
     const [activeTab, setActiveTab] = useState('chat');
@@ -121,9 +265,9 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
 
     useEffect(() => {
         if (activeTab === 'chat') {
-            fetchChatHistory(userId);
+            if (userId) fetchChatHistory(userId);
         } else {
-            fetchBlogHistory(userId);
+            if (userId) fetchBlogHistory(userId);
         }
     }, [activeTab, userId]);
 
@@ -173,12 +317,23 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     const handleSelectChat = (item) => {
         setSelectedChat(item);
         const question = item.question || item.message || '';
-        const answer = item.response || item.answer || '';
+        const rawResponse = item.response || item.answer || item;
+        // History items may store the response as a JSON string — parse it first
+        let resolvedResponse = rawResponse;
+        if (typeof rawResponse === 'string') {
+            try { resolvedResponse = JSON.parse(rawResponse); } catch { resolvedResponse = rawResponse; }
+        }
+        const parsed = parseAssistantResponse(resolvedResponse);
         const pair = item.pair || '';
 
         setChatMessages([
             { role: 'user', content: question, pair: pair },
-            { role: 'assistant', content: answer }
+            {
+                role: 'assistant',
+                content: parsed.content,
+                visualData: parsed.visualData,
+                visualConfigs: parsed.visualConfigs
+            }
         ]);
 
         if (pair && MAJOR_PAIRS.includes(pair)) {
@@ -259,12 +414,16 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
 
         try {
             const result = await fxApi.chat(selectedPair, msg, userId);
-            // API returns { response: { short_response, full_report, visual_configs, visual_data, ... } }
-            const responsePayload = result.response || result.message || result.answer || '';
-            const responseText = typeof responsePayload === 'object'
-                ? (responsePayload.full_report || responsePayload.short_response || JSON.stringify(responsePayload))
-                : responsePayload;
-            setChatMessages(prev => [...prev, { role: 'assistant', content: responseText }]);
+            const parsed = parseAssistantResponse(result);
+            setChatMessages(prev => [
+                ...prev,
+                {
+                    role: 'assistant',
+                    content: parsed.content,
+                    visualData: parsed.visualData,
+                    visualConfigs: parsed.visualConfigs
+                }
+            ]);
             fetchChatHistory(userId);
         } catch (err) {
             console.error("Error sending chat message:", err);
@@ -321,7 +480,16 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     // Helper functions for safe rendering
     const getQuestionText = (item) => item.question || item.message || item.input_data || 'Untitled interaction';
     const getBlogTopicText = (item) => item.input_data || item.topic || item.title || 'Untitled Blog';
-    const getBlogContentText = (item) => item.response || item.content || item.blog_content || '';
+    const getBlogContentText = (item) => {
+        const raw = item.response || item.content || item.blog_content || '';
+        if (typeof raw === 'string') {
+            try {
+                const parsed = JSON.parse(raw);
+                return parsed?.response || parsed?.content || parsed?.blog_content || raw;
+            } catch { return raw; }
+        }
+        return raw?.response || raw?.content || raw?.blog_content || String(raw || '');
+    };
 
     const formatResponse = (text) => {
         // Guard: must be a non-empty string
@@ -480,7 +648,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                         </div>
                         <div className={styles.allMessage}>
                             {loadingHistory ? (
-                                renderHistorySkeletons()
+                                <Loader centered />
                             ) : activeTab === 'chat' ? (
                                 chatHistory.length === 0 ? (
                                     <div className={styles.noHistory}>No past questions found</div>
@@ -572,17 +740,35 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                         </div>
                                     ) : (
                                         chatMessages.map((msg, index) => (
-                                            <div
-                                                key={index}
-                                                className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''}`}
-                                            >
-                                                {msg.role === 'user' && msg.pair && (
-                                                    <span className={styles.pairBadge}>{msg.pair}</span>
-                                                )}
-                                                <div className={msg.role === 'user' ? styles.userMessage : styles.assistantMessage}>
-                                                    {msg.role === 'user' ? msg.content : formatResponse(msg.content)}
-                                                </div>
-                                            </div>
+                                            (() => {
+                                                const chartMeta = msg.visualData ? buildChartMeta(msg.visualData, msg.visualConfigs) : [];
+                                                return (
+                                                    <div
+                                                        key={index}
+                                                        className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''}`}
+                                                    >
+                                                        {msg.role === 'user' && msg.pair && (
+                                                            <span className={styles.pairBadge}>{msg.pair}</span>
+                                                        )}
+                                                        <div className={msg.role === 'user' ? styles.userMessage : styles.assistantMessage}>
+                                                            {msg.role === 'user' ? msg.content : (
+                                                                <>
+                                                                    {formatResponse(msg.content)}
+                                                                    {chartMeta.length > 0 ? (
+                                                                        chartMeta.map((entry) => (
+                                                                            <CandlestickChart
+                                                                                key={`${entry.symbol}-${entry.ohlc.length}`}
+                                                                                symbol={entry.symbol}
+                                                                                ohlc={entry.ohlc}
+                                                                            />
+                                                                        ))
+                                                                    ) : null}
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()
                                         ))
                                     )}
                                     {pendingRequest && (
@@ -728,7 +914,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                             <div className={styles.blogContent}>
                                                 {selectedBlog.isLoading ? (
                                                     <div className={styles.blogLoadingState}>
-                                                        <div className={styles.spinner}></div>
+                                                        <Loader size="lg" />
                                                         <p>Drafting your blog post, please wait...</p>
                                                     </div>
                                                 ) : (

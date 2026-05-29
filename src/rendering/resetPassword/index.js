@@ -7,7 +7,7 @@ import Input from '@/components/input';
 import Button from '@/components/button';
 import { authApi } from '@/lib/api';
 import { validateResetPassword } from '@/lib/validation';
-import { useToast } from '@/components/toast';
+import { toast } from '@/components/toast';
 
 const LineImage = '/assets/images/line.png';
 const AuthIcon = '/assets/icons/auth.svg';
@@ -15,7 +15,6 @@ const ArrowIcon = '/assets/icons/arrow.svg';
 
 const ResetPassword = () => {
     const router = useRouter();
-    const toast = useToast();
     const searchParams = useSearchParams();
     const token = searchParams.get('token') || '';
 
@@ -33,7 +32,7 @@ const ResetPassword = () => {
         e.preventDefault();
 
         if (!token) {
-            toast('Reset token is missing or invalid.');
+            toast.error('Reset token is missing or invalid.');
             return;
         }
 
@@ -48,7 +47,7 @@ const ResetPassword = () => {
             await authApi.resetPassword(token, form.new_password);
             setDone(true);
         } catch (err) {
-            toast(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
+            toast.error(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }
