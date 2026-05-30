@@ -6,8 +6,20 @@
     padding: 100px 0;
     overflow: hidden;
 
+    @include respond-to('md') {
+        padding: 80px 0;
+    }
+
+    @include respond-to('sm') {
+        padding: 60px 0;
+    }
+
     .title {
         padding: 24px 0 60px 0;
+
+        @include respond-to('sm') {
+            padding: 16px 0 40px 0;
+        }
 
         h2 {
             color: #1A1A1A;
@@ -19,6 +31,14 @@
             text-align: center;
             margin: 0 0 16px 0;
             font-family: var(--font-plus-jakarta);
+
+            @include respond-to('md') {
+                font-size: 36px;
+            }
+
+            @include respond-to('sm') {
+                font-size: 28px;
+            }
         }
 
         p {
@@ -29,6 +49,11 @@
             line-height: 28px;
             max-width: 488px;
             margin: 0 auto;
+
+            @include respond-to('sm') {
+                font-size: 16px;
+                line-height: 24px;
+            }
         }
     }
 
@@ -50,6 +75,9 @@
             z-index: 1;
             pointer-events: none;
 
+            @include respond-to('md') {
+                display: none;
+            }
         }
 
         .stepCard {
@@ -63,6 +91,11 @@
             position: relative;
             z-index: 2;
 
+            @include respond-to('md') {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 24px;
+            }
 
             .stepLeft {
                 display: flex;
@@ -70,7 +103,11 @@
                 gap: 20px;
                 min-width: 140px;
 
-
+                @include respond-to('md') {
+                    margin-bottom: 20px;
+                    width: 100%;
+                    min-width: 100%;
+                }
 
                 .stepNumber {
                     color: #0B56DB;
@@ -80,6 +117,9 @@
                     line-height: 1;
                     width: 50px;
 
+                    @include respond-to('sm') {
+                        font-size: 36px;
+                    }
                 }
 
                 .stepDotContainer {
@@ -88,6 +128,10 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
+
+                    @include respond-to('md') {
+                        display: none;
+                    }
 
                     .pulseRing {
                         position: absolute;
@@ -128,12 +172,19 @@
                 flex: 1;
                 padding: 0 20px;
 
-
-
+                @include respond-to('md') {
+                    flex-direction: column;
+                    gap: 24px;
+                    padding: 0;
+                    width: 100%;
+                }
 
                 &.reverse {
                     flex-direction: row-reverse;
 
+                    @include respond-to('md') {
+                        flex-direction: column;
+                    }
                 }
 
                 .stepImageWrapper {
@@ -142,7 +193,9 @@
                     display: flex;
                     justify-content: center;
 
-
+                    @include respond-to('md') {
+                        max-width: 100%;
+                    }
 
                     .stepImage {
                         width: 100%;
@@ -155,7 +208,10 @@
                     flex: 1.2;
                     max-width: 440px;
 
-
+                    @include respond-to('md') {
+                        max-width: 100%;
+                        text-align: center;
+                    }
 
                     h3 {
                         color: #1A1A1A;
@@ -164,7 +220,9 @@
                         margin: 0 0 12px 0;
                         line-height: 1.2;
 
-
+                        @include respond-to('sm') {
+                            font-size: 20px;
+                        }
                     }
 
                     p {
@@ -172,7 +230,6 @@
                         font-size: 16px;
                         line-height: 26px;
                         margin: 0;
-
                     }
                 }
             }
@@ -182,7 +239,9 @@
                 justify-content: flex-end;
                 min-width: 80px;
 
-
+                @include respond-to('md') {
+                    display: none;
+                }
 
                 .iconCircle {
                     width: 56px;

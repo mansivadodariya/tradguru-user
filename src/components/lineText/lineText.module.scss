@@ -8,6 +8,10 @@
 
     &.start {
         justify-content: flex-start;
+
+        @include respond-to("sm") {
+            justify-content: center;
+        }
     }
 
     button {
@@ -25,6 +29,13 @@
         border-right: 3px solid #0B56DB;
         font-weight: 500;
         line-height: normal;
+
+        @include respond-to("sm") {
+            border-left: 2px solid #0B56DB;
+            border-right: 2px solid #0B56DB;
+            padding: 7px 20px;
+            font-size: 14px;
+        }
 
         .dot {
             width: 8px;

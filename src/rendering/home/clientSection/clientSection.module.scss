@@ -6,8 +6,20 @@
     background: #FFF;
     overflow: hidden;
 
+    @include respond-to('md') {
+        padding: 80px 0;
+    }
+
+    @include respond-to('sm') {
+        padding: 0 0 60px 0;
+    }
+
     .title {
         padding: 24px 0 60px 0;
+
+        @include respond-to('sm') {
+            padding: 16px 0 40px 0;
+        }
 
         h2 {
             color: #1A1A1A;
@@ -19,6 +31,14 @@
             text-align: center;
             margin: 0 0 16px 0;
             font-family: var(--font-plus-jakarta);
+
+            @include respond-to('md') {
+                font-size: 36px;
+            }
+
+            @include respond-to('sm') {
+                font-size: 28px;
+            }
         }
 
         p {
@@ -29,6 +49,11 @@
             line-height: 28px;
             max-width: 386px;
             margin: 0 auto;
+
+            @include respond-to('sm') {
+                font-size: 16px;
+                line-height: 24px;
+            }
         }
     }
 
@@ -51,6 +76,13 @@
         flex: 0 0 calc((100% - 48px) / 3);
         box-sizing: border-box;
 
+        @include respond-to('md') {
+            flex: 0 0 calc((100% - 24px) / 2);
+        }
+
+        @include respond-to('sm') {
+            flex: 0 0 100%;
+        }
     }
 
     .testimonialCard {
@@ -85,6 +117,12 @@
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 3;
             overflow: hidden;
+
+            @include respond-to('sm') {
+                font-size: 16px;
+                line-height: 26px;
+                height: 78px;
+            }
         }
 
         .divider {
@@ -116,6 +154,10 @@
                     font-style: normal;
                     font-weight: 700;
                     line-height: normal;
+
+                    @include respond-to('sm') {
+                        font-size: 16px;
+                    }
                 }
 
                 .role {

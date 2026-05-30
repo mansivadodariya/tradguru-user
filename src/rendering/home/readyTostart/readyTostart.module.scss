@@ -4,10 +4,33 @@
 .readyTostart {
     padding: 0 0 100px 0;
 
+    @include respond-to('md') {
+        padding: 0 0 80px 0;
+    }
+
+    @include respond-to('sm') {
+        padding: 0 0 60px 0;
+    }
+
+    :global(.container) {
+        @include respond-to('sm') {
+            padding: 0;
+        }
+    }
+
     .box {
         background: linear-gradient(270deg, rgba(11, 86, 219, 0.10) 0%, rgba(255, 255, 255, 0.00) 48.72%, rgba(11, 86, 219, 0.10) 100%);
         position: relative;
         padding: 80px;
+        overflow: hidden;
+
+        @include respond-to('md') {
+            padding: 60px 40px;
+        }
+
+        @include respond-to('sm') {
+            padding: 40px 24px;
+        }
 
         .round {
             position: absolute;
@@ -19,6 +42,14 @@
                 max-width: 600px;
                 width: 100%;
                 display: block;
+
+                @include respond-to('md') {
+                    max-width: 450px;
+                }
+
+                @include respond-to('sm') {
+                    max-width: 300px;
+                }
             }
         }
 
@@ -34,6 +65,10 @@
             position: relative;
             z-index: 1;
 
+            @include respond-to('sm') {
+                padding: 16px 0 24px 0;
+            }
+
             h2 {
                 color: #1A1A1A;
                 font-size: 42px;
@@ -46,6 +81,13 @@
                 margin: 0 auto 16px auto;
                 font-family: var(--font-plus-jakarta);
 
+                @include respond-to('md') {
+                    font-size: 36px;
+                }
+
+                @include respond-to('sm') {
+                    font-size: 28px;
+                }
             }
 
             p {
@@ -57,6 +99,10 @@
                 max-width: 520px;
                 margin: 0 auto;
 
+                @include respond-to('sm') {
+                    font-size: 16px;
+                    line-height: 24px;
+                }
             }
         }
     }

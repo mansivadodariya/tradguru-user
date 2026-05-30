@@ -10,6 +10,14 @@
     padding: 100px 0 50px 0;
     color: #FFF;
 
+    @include respond-to('md') {
+        padding: 80px 0 40px 0;
+    }
+
+    @include respond-to('sm') {
+        padding: 60px 0 30px 0;
+    }
+
     .topSection {
         display: grid;
         grid-template-columns: 495px 1fr;
@@ -17,13 +25,27 @@
         padding: 0 0 60px 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.20);
 
+        @include respond-to('md') {
+            grid-template-columns: 1fr;
+            gap: 60px;
+            padding: 0 0 40px 0;
+        }
+
+        @include respond-to('sm') {
+            gap: 40px;
+            padding: 0 0 32px 0;
+        }
+
         .linkcol {
             display: flex;
             justify-content: space-between;
             gap: 40px;
+
+            @include respond-to('sm') {
+                flex-direction: column;
+                gap: 32px;
+            }
         }
-
-
 
         .brandCol {
 
@@ -33,18 +55,16 @@
                 gap: 12px;
                 text-decoration: none;
 
-                img {
-                    height: 36px;
-                    width: auto;
-                    filter: brightness(0) invert(1); // Force logo to be white
-                }
-
                 span {
                     font-size: 22px;
                     font-weight: 700;
                     color: #FFF;
                     letter-spacing: 0.5px;
                     font-family: var(--font-plus-jakarta);
+
+                    @include respond-to('sm') {
+                        font-size: 20px;
+                    }
                 }
             }
 
@@ -55,6 +75,16 @@
                 font-weight: 400;
                 line-height: 28px;
                 margin: 30px 0;
+
+                @include respond-to('md') {
+                    margin: 20px 0;
+                }
+
+                @include respond-to('sm') {
+                    font-size: 16px;
+                    line-height: 24px;
+                    margin: 16px 0;
+                }
             }
 
             .newsletter {
@@ -120,6 +150,10 @@
                 font-weight: 700;
                 margin: 0 0 24px 0;
                 font-family: var(--font-plus-jakarta);
+
+                @include respond-to('sm') {
+                    margin: 0 0 16px 0;
+                }
             }
 
             ul {
@@ -130,6 +164,10 @@
                 flex-direction: column;
                 gap: 16px;
 
+                @include respond-to('sm') {
+                    gap: 12px;
+                }
+
                 a {
                     color: rgba(255, 255, 255, 0.7);
                     font-size: 16px;
@@ -137,6 +175,10 @@
                     font-weight: 500;
                     transition: color 0.3s, padding-left 0.3s;
                     display: inline-block;
+
+                    @include respond-to('sm') {
+                        font-size: 15px;
+                    }
 
                     &:hover {
                         color: #FFF;
@@ -151,6 +193,14 @@
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         margin: 60px 0 40px 0;
         width: 100%;
+
+        @include respond-to('md') {
+            margin: 40px 0 30px 0;
+        }
+
+        @include respond-to('sm') {
+            margin: 30px 0 20px 0;
+        }
     }
 
     .bottomSection {
@@ -159,6 +209,16 @@
         justify-content: space-between;
         gap: 30px;
         padding: 60px 0 0 0;
+
+        @include respond-to('md') {
+            padding: 40px 0 0 0;
+        }
+
+        @include respond-to('sm') {
+            flex-direction: column;
+            gap: 24px;
+            padding: 30px 0 0 0;
+        }
 
         .warningBlock {
             h5 {
@@ -177,6 +237,16 @@
                 font-weight: 400;
                 line-height: 28px;
                 max-width: 800px;
+
+                @include respond-to('md') {
+                    font-size: 14px;
+                    line-height: 24px;
+                }
+
+                @include respond-to('sm') {
+                    font-size: 14px;
+                    line-height: 22px;
+                }
             }
         }
 
@@ -197,10 +267,20 @@
                 transition: all 0.3s ease;
                 color: #FFF;
 
+                @include respond-to('sm') {
+                    width: 40px;
+                    height: 40px;
+                }
+
                 svg {
                     width: 20px;
                     height: 20px;
                     fill: currentColor;
+
+                    @include respond-to('sm') {
+                        width: 18px;
+                        height: 18px;
+                    }
                 }
 
                 &:hover {

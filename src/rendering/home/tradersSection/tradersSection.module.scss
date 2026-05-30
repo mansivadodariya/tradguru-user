@@ -4,8 +4,20 @@
 .tradersSection {
     padding: 100px 0;
 
+    @include respond-to('md') {
+        padding: 80px 0;
+    }
+
+    @include respond-to('sm') {
+        padding: 60px 0;
+    }
+
     .title {
         padding: 24px 0 60px 0;
+
+        @include respond-to('sm') {
+            padding: 16px 0 40px 0;
+        }
 
         h2 {
             color: #1A1A1A;
@@ -18,6 +30,13 @@
             margin: 0 0 16px 0;
             font-family: var(--font-plus-jakarta);
 
+            @include respond-to('md') {
+                font-size: 36px;
+            }
+
+            @include respond-to('sm') {
+                font-size: 28px;
+            }
         }
 
         p {
@@ -29,6 +48,10 @@
             max-width: 645px;
             margin: 0 auto;
 
+            @include respond-to('sm') {
+                font-size: 16px;
+                line-height: 24px;
+            }
         }
     }
 
@@ -37,6 +60,14 @@
         grid-template-columns: repeat(3, 1fr);
         gap: 20px;
 
+        @include respond-to('md') {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @include respond-to('sm') {
+            grid-template-columns: 1fr;
+        }
+
         .items {
             border: 1px solid rgba(26, 26, 26, 0.12);
             background: #FFF;
@@ -44,6 +75,10 @@
             padding: 30px;
             position: relative;
             overflow: hidden;
+
+            @include respond-to('sm') {
+                padding: 24px;
+            }
 
             &::before {
                 position: absolute;
@@ -66,11 +101,19 @@
                 img {
                     display: block;
                     max-width: 160px;
+
+                    @include respond-to('sm') {
+                        max-width: 130px;
+                    }
                 }
             }
 
             .icon {
                 padding: 0 0 40px 0;
+
+                @include respond-to('sm') {
+                    padding: 0 0 30px 0;
+                }
 
                 img {
                     display: block;
@@ -83,6 +126,8 @@
                 align-items: center;
                 gap: 8px;
                 cursor: pointer;
+                position: relative;
+                z-index: 10;
 
                 span {
                     display: block;
@@ -103,6 +148,13 @@
                 margin: 0 0 30px 0;
                 font-weight: 400;
                 line-height: 28px;
+                position: relative;
+                z-index: 10;
+
+                @include respond-to('sm') {
+                    font-size: 15px;
+                    line-height: 24px;
+                }
             }
 
             h3 {
@@ -112,6 +164,12 @@
                 font-style: normal;
                 font-weight: 700;
                 line-height: normal;
+                position: relative;
+                z-index: 10;
+
+                @include respond-to('sm') {
+                    font-size: 20px;
+                }
             }
         }
     }

@@ -5,7 +5,7 @@ import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import styles from './button.module.scss';
 import classNames from 'classnames';
 
-export default function Button({ text, icon, href, light, onClick, type = 'button', disabled = false }) {
+export default function Button({ text, icon, href, light, outline, onClick, type = 'button', disabled = false }) {
     const ref = useRef(null);
     const x = useMotionValue(0);
     const y = useMotionValue(0);
@@ -35,7 +35,7 @@ export default function Button({ text, icon, href, light, onClick, type = 'butto
     };
 
     return (
-        <div className={classNames(styles.button, light ? styles.light : "")} style={{ perspective: 1200, pointerEvents: 'none' }}>
+        <div className={classNames(styles.button, light ? styles.light : "", outline ? styles.outline : "")} style={{ perspective: 1200, pointerEvents: 'none' }}>
             {href ? (
                 <Link href={href}>
                     <motion.button

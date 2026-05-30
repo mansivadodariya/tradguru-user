@@ -4,15 +4,46 @@
 .tradingDesk {
     padding: 0 0 100px 0;
 
+    @include respond-to('md') {
+        padding: 0 0 80px 0;
+    }
+
+    @include respond-to('sm') {
+        padding: 0 0 60px 0;
+    }
+
+    :global(.container) {
+        @include respond-to('sm') {
+            padding: 0;
+        }
+    }
+
     .box {
         padding: 60px;
         background: linear-gradient(270deg, rgba(11, 86, 219, 0.20) 0%, rgba(255, 255, 255, 0.00) 48.72%, rgba(11, 86, 219, 0.20) 100%);
+
+        @include respond-to('md') {
+            padding: 40px;
+        }
+
+        @include respond-to('sm') {
+            padding: 60px 20px;
+        }
 
         .grid {
             display: grid;
             grid-template-columns: 645px 1fr;
             gap: 20px;
             align-items: center;
+
+            @include respond-to('xl') {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            @include respond-to('md') {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
 
             .image {
                 img {
@@ -23,6 +54,10 @@
 
             .allBoxAlignment {
                 max-width: 490px;
+
+                @include respond-to('md') {
+                    max-width: 100%;
+                }
 
                 .boxDesign {
                     border: 1px solid rgba(255, 255, 255, 0.10);
@@ -54,12 +89,25 @@
                         margin: 0 0 4px 0;
                         font-weight: 700;
                         line-height: normal;
+
+                        @include respond-to('sm') {
+                            font-size: 16px;
+                        }
                     }
                 }
             }
 
             .content {
                 padding: 24px 0 60px 0;
+
+                @include respond-to('md') {
+                    padding: 0 0 40px 0;
+                    text-align: center;
+                }
+
+                @include respond-to('sm') {
+                    padding: 16px 0 40px 0;
+                }
 
                 h2 {
                     color: #1A1A1A;
@@ -70,6 +118,14 @@
                     margin: 0 0 16px 0;
                     letter-spacing: 1.26px;
                     text-transform: capitalize;
+
+                    @include respond-to('md') {
+                        font-size: 36px;
+                    }
+
+                    @include respond-to('sm') {
+                        font-size: 28px;
+                    }
                 }
 
                 p {
@@ -79,6 +135,15 @@
                     font-weight: 500;
                     line-height: 28px;
                     max-width: 488px;
+
+                    @include respond-to('md') {
+                        margin: 0 auto;
+                    }
+
+                    @include respond-to('sm') {
+                        font-size: 16px;
+                        line-height: 24px;
+                    }
                 }
             }
         }
