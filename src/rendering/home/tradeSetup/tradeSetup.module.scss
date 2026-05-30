@@ -151,6 +151,11 @@
         position: relative;
         align-items: center;
 
+        @include respond-to('xl') {
+            grid-template-columns: 1fr 1fr;
+
+        }
+
         @include respond-to('md') {
             grid-template-columns: 1fr;
             padding: 40px;

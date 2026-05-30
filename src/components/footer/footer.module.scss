@@ -50,20 +50,17 @@
         .brandCol {
 
             .logo {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                text-decoration: none;
+                img {
+                    display: block;
+                    max-width: 165px;
+                    cursor: pointer;
 
-                span {
-                    font-size: 22px;
-                    font-weight: 700;
-                    color: #FFF;
-                    letter-spacing: 0.5px;
-                    font-family: var(--font-plus-jakarta);
+                    @include respond-to('md') {
+                        max-width: 140px;
+                    }
 
                     @include respond-to('sm') {
-                        font-size: 20px;
+                        max-width: 140px;
                     }
                 }
             }
