@@ -60,7 +60,7 @@ const Sidebar = () => {
   return (
     <>
       <aside className={styles.sidebar}>
-        <div className={styles.logo}>
+        <div className={styles.logo} onClick={() => router.push('/')}>
           <img src={SidebarLogo} alt="SidebarLogo" />
         </div>
         <div className={styles.sidebarmenu}>

@@ -163,6 +163,34 @@
             border-radius: 12px;
             padding: 20px;
             position: relative;
+            min-width: 0;
+
+            &.rightSideSplit {
+                padding: 16px;
+            }
+
+            .chatSingleBody,
+            .chatSplitBody {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                min-height: 0;
+                gap: 12px;
+            }
+
+            .chatSplitBody {
+                display: grid;
+                grid-template-columns: minmax(260px, 36%) minmax(0, 1fr);
+                gap: 16px;
+            }
+
+            .chatColumn {
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                min-width: 0;
+                gap: 12px;
+            }
 
             // Premium segmented control
             .tabContainer {
@@ -873,6 +901,218 @@
 .chartCanvas {
     width: 100%;
     min-height: 280px;
+}
+
+.chatMarkdown {
+    font-size: 14px;
+    line-height: 1.6;
+
+    :global(p) {
+        margin: 0 0 8px;
+    }
+
+    :global(h2),
+    :global(h3) {
+        font-size: 14px;
+        font-weight: 700;
+        margin: 8px 0 4px;
+        color: #121212;
+    }
+
+    :global(ul),
+    :global(ol) {
+        margin: 0 0 8px;
+        padding-left: 18px;
+    }
+}
+
+.viewReportBtn {
+    margin-top: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #0f5cf2;
+    background: #ebf2fc;
+    border: 1px solid rgba(15, 92, 242, 0.25);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: #dbeafe;
+        border-color: rgba(15, 92, 242, 0.45);
+    }
+}
+
+.reportPanel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: #fff;
+    border: 1px solid rgba(18, 18, 18, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.reportPanelHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0f4f9;
+    flex-shrink: 0;
+
+    h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: #121212;
+    }
+}
+
+.reportDownloadBtn {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    background: #0f5cf2;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+
+    &:hover {
+        background: #0b57e3;
+    }
+}
+
+.reportPanelBody {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    min-height: 0;
+
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(15, 92, 242, 0.2);
+        border-radius: 4px;
+    }
+}
+
+.reportContent {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.reportMarkdown {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #2b303b;
+
+    :global(h2) {
+        font-size: 18px;
+        font-weight: 700;
+        color: #121212;
+        margin: 20px 0 10px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid rgba(15, 92, 242, 0.12);
+    }
+
+    :global(h3) {
+        font-size: 15px;
+        font-weight: 700;
+        color: #2b303b;
+        margin: 14px 0 8px;
+    }
+
+    :global(p) {
+        margin: 0 0 10px;
+    }
+
+    :global(ul),
+    :global(ol) {
+        margin: 0 0 12px;
+        padding-left: 22px;
+    }
+
+    :global(table) {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        margin: 12px 0;
+    }
+
+    :global(th),
+    :global(td) {
+        border: 1px solid rgba(18, 18, 18, 0.1);
+        padding: 8px 10px;
+        text-align: left;
+    }
+
+    :global(th) {
+        background: #f1f5f9;
+        font-weight: 700;
+    }
+}
+
+.reportWidget {
+    margin: 12px 0;
+    padding: 12px;
+    border: 1px solid rgba(15, 92, 242, 0.12);
+    border-radius: 8px;
+    background: #fafbff;
+}
+
+.reportWidgetTitle {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f5cf2;
+}
+
+.reportWidgetMissing {
+    margin: 12px 0;
+    padding: 16px;
+    text-align: center;
+    font-size: 13px;
+    color: rgba(18, 18, 18, 0.55);
+    border: 1px dashed rgba(18, 18, 18, 0.15);
+    border-radius: 8px;
+}
+
+.reportRadar,
+.reportGauge {
+    width: 100%;
+}
+
+.reportEmpty {
+    text-align: center;
+    padding: 48px 24px;
+    color: rgba(18, 18, 18, 0.55);
+
+    p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+}
+
+.reportEmptyTitle {
+    font-size: 18px !important;
+    font-weight: 700;
+    color: #64748b !important;
+    margin-bottom: 8px !important;
+}
+
+.reportLoading {
+    text-align: center;
+    padding: 40px;
+    color: rgba(18, 18, 18, 0.5);
+    font-size: 14px;
 }
 
 // Keyframes & Animations

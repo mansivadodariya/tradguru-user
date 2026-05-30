@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './aiAssistant.module.scss';
 import Button from '@/components/button';
 import RemoveIcon from '@/icons/removeIcon';
@@ -9,7 +9,10 @@ import { fxApi } from '@/lib/api';
 import { historyDeletes } from '@/lib/historyDeletes';
 import Modal from '@/rendering/tradeSnap/Modal';
 import Loader from '@/components/loader';
-import { createChart, CrosshairMode, CandlestickSeries } from 'lightweight-charts';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import ReportPanel from './ReportPanel';
 
 const UploadIcon = '/assets/icons/upload-xs.svg';
 
@@ -26,147 +29,52 @@ const MAJOR_PAIRS = [
     'GBP/JPY'
 ];
 
-const normalizeAssetSymbol = (symbol = '') => String(symbol).replace('/', '').toUpperCase();
-
 const parseAssistantResponse = (raw) => {
-    const payload = raw?.response || raw?.message || raw?.answer || raw || '';
-    const isObjectPayload = payload && typeof payload === 'object' && !Array.isArray(payload);
-    if (!isObjectPayload) {
-        return {
-            content: typeof payload === 'string' ? payload : String(payload || ''),
-            visualData: null,
-            visualConfigs: []
-        };
+    const envelope = raw?.data || raw;
+    let payload = envelope?.response ?? envelope?.message ?? envelope?.answer ?? envelope;
+
+    if (typeof payload === 'string') {
+        try {
+            payload = JSON.parse(payload);
+        } catch {
+            return {
+                shortContent: payload,
+                fullReport: null,
+                visualData: null
+            };
+        }
     }
 
+    const isObjectPayload = payload && typeof payload === 'object' && !Array.isArray(payload);
+    if (!isObjectPayload) {
+        const text = typeof payload === 'string' ? payload : String(payload || '');
+        return { shortContent: text, fullReport: null, visualData: null };
+    }
+
+    const shortContent = payload.short_response || payload.shortResponse || '';
+    const fullReport = payload.full_report || payload.fullReport || null;
+    const visualData =
+        payload.visual_data ||
+        payload.visualData ||
+        envelope?.visual_data ||
+        envelope?.visualData ||
+        raw?.visual_data ||
+        raw?.visualData ||
+        null;
+
     return {
-        content: payload.full_report || payload.short_response || payload.response || JSON.stringify(payload),
-        visualData: payload.visual_data || payload.visualData || raw?.visual_data || raw?.visualData || null,
-        visualConfigs: Array.isArray(payload.visual_configs)
-            ? payload.visual_configs
-            : (Array.isArray(payload.visualConfigs) ? payload.visualConfigs : [])
+        shortContent: shortContent || fullReport || payload.response || JSON.stringify(payload),
+        fullReport: fullReport || shortContent || null,
+        visualData
     };
 };
 
-const buildChartMeta = (visualData, visualConfigs) => {
-    const assets = visualData?.assets || {};
-    const assetKeys = Object.keys(assets);
-
-    const configSymbols = (Array.isArray(visualConfigs) ? visualConfigs : [])
-        .map((cfg) => cfg?.asset || cfg?.symbol || cfg?.pair || cfg?.currency_pair)
-        .filter(Boolean);
-
-    const symbols = [...new Set([...configSymbols, ...assetKeys])];
-
-    return symbols
-        .map((symbol) => {
-            const normalized = normalizeAssetSymbol(symbol);
-            const assetData =
-                assets[symbol] ||
-                assets[normalized] ||
-                Object.entries(assets).find(([key]) => normalizeAssetSymbol(key) === normalized)?.[1];
-            const ohlc = assetData?.ohlc_data?.ohlc_1h || assetData?.ohlc_data?.ohlc_4h || assetData?.ohlc_data?.ohlc_daily || [];
-            return {
-                symbol,
-                ohlc: Array.isArray(ohlc) ? ohlc : []
-            };
-        })
-        .filter((entry) => entry.ohlc.length > 0);
-};
-
-const CandlestickChart = ({ symbol, ohlc }) => {
-    const chartRef = useRef(null);
-    const containerRef = useRef(null);
-
-    const chartData = useMemo(() => {
-        return (Array.isArray(ohlc) ? ohlc : [])
-            .map((row) => {
-                const rawTimestamp = row?.timestamp || row?.time || row?.date;
-                const ts = typeof rawTimestamp === 'number'
-                    ? rawTimestamp
-                    : Math.floor(new Date(rawTimestamp).getTime() / 1000);
-                return {
-                    time: Number(ts),
-                    open: Number(row?.open),
-                    high: Number(row?.high),
-                    low: Number(row?.low),
-                    close: Number(row?.close)
-                };
-            })
-            .filter((row) =>
-                Number.isFinite(row.time) &&
-                Number.isFinite(row.open) &&
-                Number.isFinite(row.high) &&
-                Number.isFinite(row.low) &&
-                Number.isFinite(row.close)
-            )
-            .sort((a, b) => a.time - b.time);
-    }, [ohlc]);
-
-    useEffect(() => {
-        if (!containerRef.current || chartData.length === 0) return;
-
-        const chart = createChart(containerRef.current, {
-            width: containerRef.current.clientWidth || 500,
-            height: 280,
-            layout: {
-                background: { color: '#ffffff' },
-                textColor: '#475569'
-            },
-            grid: {
-                vertLines: { color: '#f1f5f9' },
-                horzLines: { color: '#f1f5f9' }
-            },
-            crosshair: {
-                mode: CrosshairMode.Normal
-            },
-            rightPriceScale: {
-                borderColor: '#e2e8f0'
-            },
-            timeScale: {
-                borderColor: '#e2e8f0',
-                timeVisible: true
-            }
-        });
-
-        const series = chart.addSeries(CandlestickSeries, {
-            upColor: '#10b981',
-            downColor: '#ef4444',
-            wickUpColor: '#10b981',
-            wickDownColor: '#ef4444',
-            borderVisible: false
-        });
-        series.setData(chartData);
-        chart.timeScale().fitContent();
-        chartRef.current = chart;
-
-        const resizeObserver = new ResizeObserver((entries) => {
-            const width = entries?.[0]?.contentRect?.width;
-            if (width && chartRef.current) {
-                chartRef.current.applyOptions({ width });
-                chartRef.current.timeScale().fitContent();
-            }
-        });
-        resizeObserver.observe(containerRef.current);
-
-        return () => {
-            resizeObserver.disconnect();
-            if (chartRef.current) {
-                chartRef.current.remove();
-                chartRef.current = null;
-            }
-        };
-    }, [chartData]);
-
-    if (chartData.length === 0) return null;
-
-    return (
-        <div className={styles.mdChartBlock}>
-            <div className={styles.mdChartTitle}>{symbol} Price Chart</div>
-            <div className={styles.chartCanvas} ref={containerRef}></div>
-        </div>
-    );
-};
+const buildAssistantMessage = (parsed) => ({
+    role: 'assistant',
+    content: parsed.shortContent,
+    fullReport: parsed.fullReport,
+    visualData: parsed.visualData
+});
 
 const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
 
@@ -195,6 +103,9 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     const [pendingRequest, setPendingRequest] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [pendingDeleteItem, setPendingDeleteItem] = useState(null);
+    const [selectedReport, setSelectedReport] = useState(null);
+    const [selectedVisualData, setSelectedVisualData] = useState(null);
+    const [reportScrollKey, setReportScrollKey] = useState(0);
 
     // Refs
     const dropdownRef = useRef(null);
@@ -308,6 +219,8 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
             setSelectedChat(null);
             setChatMessages([]);
             setChatInput('');
+            setSelectedReport(null);
+            setSelectedVisualData(null);
         } else {
             setSelectedBlog(null);
             setBlogInput('');
@@ -328,13 +241,11 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
 
         setChatMessages([
             { role: 'user', content: question, pair: pair },
-            {
-                role: 'assistant',
-                content: parsed.content,
-                visualData: parsed.visualData,
-                visualConfigs: parsed.visualConfigs
-            }
+            buildAssistantMessage(parsed)
         ]);
+        setSelectedReport(parsed.fullReport);
+        setSelectedVisualData(parsed.visualData);
+        setReportScrollKey((k) => k + 1);
 
         if (pair && MAJOR_PAIRS.includes(pair)) {
             setSelectedPair(pair);
@@ -368,6 +279,8 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         if (selectedChat && getHistoryItemId(selectedChat) === itemId) {
             setSelectedChat(null);
             setChatMessages([]);
+            setSelectedReport(null);
+            setSelectedVisualData(null);
         }
     };
 
@@ -476,6 +389,27 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         }
         setChatInput(suggestion);
     };
+
+    const handleViewReport = (fullReport, visualData) => {
+        setSelectedReport(fullReport);
+        setSelectedVisualData(visualData);
+        setReportScrollKey((k) => k + 1);
+    };
+
+    const handleDownloadReport = () => {
+        if (!selectedReport) return;
+        const blob = new Blob([selectedReport], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'market-analysis-report.md';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    const showReportPanel = activeTab === 'chat' && chatMessages.some((m) => m.role === 'assistant');
 
     // Helper functions for safe rendering
     const getQuestionText = (item) => item.question || item.message || item.input_data || 'Untitled interaction';
@@ -699,7 +633,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                 </div>
 
                 {/* Right Side Pane: Chat View / Blog generation */}
-                <div className={`${styles.items} ${styles.rightSide}`}>
+                <div className={`${styles.items} ${styles.rightSide} ${showReportPanel ? styles.rightSideSplit : ''}`}>
                     {/* Premium tab control */}
                     <div className={styles.tabContainer}>
                         <button
@@ -717,7 +651,8 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                     </div>
 
                     {activeTab === 'chat' ? (
-                        <>
+                        <div className={showReportPanel ? styles.chatSplitBody : styles.chatSingleBody}>
+                            <div className={styles.chatColumn}>
                             {/* Chat interaction card */}
                             <div className={styles.chatCard}>
                                 <div className={styles.chatHeader}>
@@ -740,35 +675,36 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                         </div>
                                     ) : (
                                         chatMessages.map((msg, index) => (
-                                            (() => {
-                                                const chartMeta = msg.visualData ? buildChartMeta(msg.visualData, msg.visualConfigs) : [];
-                                                return (
-                                                    <div
-                                                        key={index}
-                                                        className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''}`}
-                                                    >
-                                                        {msg.role === 'user' && msg.pair && (
-                                                            <span className={styles.pairBadge}>{msg.pair}</span>
-                                                        )}
-                                                        <div className={msg.role === 'user' ? styles.userMessage : styles.assistantMessage}>
-                                                            {msg.role === 'user' ? msg.content : (
-                                                                <>
-                                                                    {formatResponse(msg.content)}
-                                                                    {chartMeta.length > 0 ? (
-                                                                        chartMeta.map((entry) => (
-                                                                            <CandlestickChart
-                                                                                key={`${entry.symbol}-${entry.ohlc.length}`}
-                                                                                symbol={entry.symbol}
-                                                                                ohlc={entry.ohlc}
-                                                                            />
-                                                                        ))
-                                                                    ) : null}
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })()
+                                            <div
+                                                key={index}
+                                                className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''}`}
+                                            >
+                                                {msg.role === 'user' && msg.pair && (
+                                                    <span className={styles.pairBadge}>{msg.pair}</span>
+                                                )}
+                                                <div className={msg.role === 'user' ? styles.userMessage : styles.assistantMessage}>
+                                                    {msg.role === 'user' ? (
+                                                        msg.content
+                                                    ) : (
+                                                        <>
+                                                            <div className={styles.chatMarkdown}>
+                                                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                                                                    {msg.content}
+                                                                </ReactMarkdown>
+                                                            </div>
+                                                            {msg.fullReport ? (
+                                                                <button
+                                                                    type="button"
+                                                                    className={styles.viewReportBtn}
+                                                                    onClick={() => handleViewReport(msg.fullReport, msg.visualData)}
+                                                                >
+                                                                    View Report
+                                                                </button>
+                                                            ) : null}
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
                                         ))
                                     )}
                                     {pendingRequest && (
@@ -882,7 +818,17 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                     </button>
                                 </div>
                             </div>
-                        </>
+                            </div>
+                            {showReportPanel ? (
+                                <ReportPanel
+                                    fullReport={selectedReport}
+                                    visualData={selectedVisualData}
+                                    isLoading={pendingRequest}
+                                    scrollToTopSignal={reportScrollKey}
+                                    onDownload={handleDownloadReport}
+                                />
+                            ) : null}
+                        </div>
                     ) : (
                         <>
                             {/* Blog Generator Card */}
