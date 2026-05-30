@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './login.module.scss';
 import Input from '@/components/input';
 import Button from '@/components/button';
@@ -18,6 +18,8 @@ const Lock = '/assets/icons/lock.svg';
 
 const Login = () => {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get('redirect') || '/dashboard';
     const [form, setForm] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
@@ -61,7 +63,7 @@ const Login = () => {
                 picture: user.picture || user.profile_picture || '',
             }));
 
-            router.push('/dashboard');
+            router.push(redirectTo);
         } catch (err) {
             toast.dismiss();
             toast.error(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');

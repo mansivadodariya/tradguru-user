@@ -9,7 +9,7 @@ import AssistantIcon from "@/icons/assistantIcon";
 import PricingIcon from "@/icons/pricingIcon";
 import SettingsIcon from "@/icons/settingsIcon";
 
-const SidebarLogo = "/assets/logo/sidebar-logo.svg";
+const SidebarLogo = "/assets/logo/logo.svg";
 
 const mainNav = [
   { label: "Dashboard", href: "/dashboard", icon: DashboardIcon },

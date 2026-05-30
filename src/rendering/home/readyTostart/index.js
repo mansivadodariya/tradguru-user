@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
 import { useRouter } from 'next/navigation';
+import { authNavigate } from '@/lib/authRedirect';
 import styles from './readyTostart.module.scss';
 import LineText from '@/components/lineText';
 import Button from '@/components/button';
@@ -25,7 +26,7 @@ export default function ReadyTostart() {
                         </p>
                     </div>
                     <div className={styles.buttonCenter}>
-                        <Button icon={ArrowIcon} text="Get Started" onClick={() => router.push('/login')} />
+                        <Button icon={ArrowIcon} text="Get Started" onClick={() => authNavigate(router, '/dashboard')} />
                     </div>
                     <div className={styles.round}>
                         <img src={RoundImage} alt="RoundImage" />

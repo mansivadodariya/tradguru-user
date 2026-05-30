@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
 import { useRouter } from 'next/navigation';
+import { authNavigate } from '@/lib/authRedirect';
 import { motion } from 'framer-motion';
 import styles from './tradeSetup.module.scss';
 import LineText from '@/components/lineText';
@@ -223,7 +224,7 @@ export default function TradeSetup() {
                         <p>
                             Upload a chart and let AI uncover the setup behind the price action.
                         </p>
-                        <Button icon={ArrowIcon} text="Try Trade Snap Now" onClick={() => router.push('/tradesnap')} />
+                        <Button icon={ArrowIcon} text="Try Trade Snap Now" onClick={() => authNavigate(router, '/trade-snap')} />
                     </div>
                     <div className={styles.image}>
                         <img src={SnapImage} alt='SnapImage' />

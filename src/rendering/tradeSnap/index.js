@@ -19,6 +19,7 @@ import {
     ChartIcon,
     ClockIcon,
     LiveIcon,
+    UploadIcon,
 } from './icons';
 
 const AUTO_CAPTURE_OPTIONS = [
@@ -83,6 +84,12 @@ export default function TradeSnap() {
 
     const [selectedAnalysis, setSelectedAnalysis] = useState(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+    // Upload mode
+    const [uploadedImages, setUploadedImages] = useState([]);
+    const [uploadPreviews, setUploadPreviews] = useState([]);
+    const [isAnalyzingUpload, setIsAnalyzingUpload] = useState(false);
+    const uploadInputRef = useRef(null);
     const [historyOpen, setHistoryOpen] = useState(false);
     const [historyLoading, setHistoryLoading] = useState(false);
     const [historyItems, setHistoryItems] = useState([]);
@@ -493,6 +500,53 @@ export default function TradeSnap() {
         }
     }, [shouldAutoAnalyzeMulti, capturedImage1, capturedImage2, isAnalyzingMulti]);
 
+    const handleUploadFileChange = (e) => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+        const limited = files.slice(0, 2);
+        setUploadedImages(limited);
+        const previews = limited.map((f) => URL.createObjectURL(f));
+        setUploadPreviews(previews);
+    };
+
+    const handleUploadDrop = (e) => {
+        e.preventDefault();
+        const files = Array.from(e.dataTransfer.files || []).filter((f) => f.type.startsWith('image/'));
+        if (!files.length) return;
+        const limited = files.slice(0, 2);
+        setUploadedImages(limited);
+        const previews = limited.map((f) => URL.createObjectURL(f));
+        setUploadPreviews(previews);
+    };
+
+    const clearUpload = () => {
+        uploadPreviews.forEach((url) => URL.revokeObjectURL(url));
+        setUploadedImages([]);
+        setUploadPreviews([]);
+        if (uploadInputRef.current) uploadInputRef.current.value = '';
+    };
+
+    const analyzeUpload = async () => {
+        if (!uploadedImages.length) {
+            setError('Please upload at least one chart image');
+            return;
+        }
+        setIsAnalyzingUpload(true);
+        try {
+            const result = await analyzeTradeScreenshots(uploadedImages, getUserId());
+            if (result.ai_response?.error) {
+                setError(result.ai_response.raw || 'No valid chart found in the image');
+                return;
+            }
+            pushAnalysis(result.ai_response);
+            clearUpload();
+        } catch (err) {
+            setError(err?.message || 'Failed to analyze uploaded image');
+        } finally {
+            setIsAnalyzingUpload(false);
+        }
+    };
+
     const requestTabSwitch = (tab) => {
         if ((isSharing || isSharing2) && activeTab !== tab) {
             setPendingTab(tab);
@@ -596,11 +650,72 @@ export default function TradeSnap() {
                     <ChartIcon />
                     Multi Timeframe
                 </button>
+                <button
+                    type="button"
+                    className={activeTab === 'upload' ? styles.tabActive : ''}
+                    onClick={() => requestTabSwitch('upload')}
+                >
+                    <UploadIcon />
+                    Upload Chart
+                </button>
             </div>
 
             <div className={`${styles.workspace} ${activeTab === 'multi' ? styles.workspaceMulti : ''}`}>
                 <div className={styles.mainColumn}>
-                    {activeTab === 'single' ? (
+                    {activeTab === 'upload' ? (
+                        <div className={styles.panel}>
+                            <div className={styles.panelHeader}>
+                                <h3><UploadIcon /> Upload Chart</h3>
+                            </div>
+                            <div
+                                className={styles.uploadDropzone}
+                                onDragOver={(e) => e.preventDefault()}
+                                onDrop={handleUploadDrop}
+                                onClick={() => uploadInputRef.current?.click()}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => e.key === 'Enter' && uploadInputRef.current?.click()}
+                                aria-label="Upload chart image"
+                            >
+                                <input
+                                    ref={uploadInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    className={styles.uploadInput}
+                                    onChange={handleUploadFileChange}
+                                />
+                                {uploadPreviews.length === 0 ? (
+                                    <div className={styles.uploadPlaceholder}>
+                                        <UploadIcon className={styles.uploadPlaceholderIcon} />
+                                        <p>Drag &amp; drop chart images here, or click to browse</p>
+                                        <span>Supports PNG, JPG, WEBP — up to 2 images</span>
+                                    </div>
+                                ) : (
+                                    <div className={styles.uploadPreviews}>
+                                        {uploadPreviews.map((src, i) => (
+                                            <img key={i} src={src} alt={`Chart ${i + 1}`} className={styles.uploadPreviewImg} />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            <div className={styles.panelActions}>
+                                {uploadPreviews.length > 0 && (
+                                    <button type="button" className={styles.btnGhost} onClick={(e) => { e.stopPropagation(); clearUpload(); }}>
+                                        Clear
+                                    </button>
+                                )}
+                                <button
+                                    type="button"
+                                    className={styles.btnPrimary}
+                                    onClick={analyzeUpload}
+                                    disabled={isAnalyzingUpload || uploadedImages.length === 0}
+                                >
+                                    {isAnalyzingUpload ? 'Analyzing...' : 'Analyze Chart'}
+                                </button>
+                            </div>
+                        </div>
+                    ) : activeTab === 'single' ? (
                         <div className={styles.panel}>
                             <div className={styles.panelHeader}>
                                 <h3>

@@ -6,6 +6,7 @@ import Header from '@/components/header';
 import LineText from '@/components/lineText';
 import Button from '@/components/button';
 import { useRouter } from 'next/navigation';
+import { authNavigate } from '@/lib/authRedirect';
 const ArrowIcon = '/assets/icons/arrow.svg';
 const HeroTextImage = '/assets/images/hero-text.png';
 
@@ -75,7 +76,7 @@ export default function Herobanner() {
                     </motion.p>
 
                     <motion.div className={styles.buttonCenter} variants={itemVariants}>
-                        <Button icon={ArrowIcon} text="Get Started" onClick={() => router.push("/login")} />
+                        <Button icon={ArrowIcon} text="Get Started" onClick={() => authNavigate(router, '/dashboard')} />
                     </motion.div>
 
                     <motion.div className={styles.centerImage} variants={imageVariants}>
