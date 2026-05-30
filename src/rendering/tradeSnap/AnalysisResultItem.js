@@ -106,14 +106,16 @@ export default function AnalysisResultItem({ trade, index, onViewDetails }) {
                             <div className={styles.detailBox}>
                                 <span>Support</span>
                                 <strong>
-                                    {typeof trade.support_price === 'string'
-                                        ? trade.support_price.split('-')[0].trim()
-                                        : trade.support_price || 'N/A'}
+                                    {(() => {
+                                        const sp = trade.Support_price || trade.support_price;
+                                        if (!sp) return 'N/A';
+                                        return typeof sp === 'string' ? sp.split('-')[0].trim() : sp;
+                                    })()}
                                 </strong>
                             </div>
                             <div className={styles.detailBox}>
                                 <span>Resistance</span>
-                                <strong>{trade.resistance_price || 'N/A'}</strong>
+                                <strong>{trade.Resistance_price || trade.resistance_price || 'N/A'}</strong>
                             </div>
                         </div>
                     </div>

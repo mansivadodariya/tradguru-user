@@ -243,7 +243,6 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
             { role: 'user', content: question, pair: pair },
             buildAssistantMessage(parsed)
         ]);
-        setSelectedReport(parsed.fullReport);
         setSelectedVisualData(parsed.visualData);
         setReportScrollKey((k) => k + 1);
 
@@ -328,15 +327,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         try {
             const result = await fxApi.chat(selectedPair, msg, userId);
             const parsed = parseAssistantResponse(result);
-            setChatMessages(prev => [
-                ...prev,
-                {
-                    role: 'assistant',
-                    content: parsed.content,
-                    visualData: parsed.visualData,
-                    visualConfigs: parsed.visualConfigs
-                }
-            ]);
+            setChatMessages(prev => [...prev, buildAssistantMessage(parsed)]);
             fetchChatHistory(userId);
         } catch (err) {
             console.error("Error sending chat message:", err);
@@ -409,7 +400,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         URL.revokeObjectURL(url);
     };
 
-    const showReportPanel = activeTab === 'chat' && chatMessages.some((m) => m.role === 'assistant');
+    const showReportPanel = activeTab === 'chat' && selectedReport !== null;
 
     // Helper functions for safe rendering
     const getQuestionText = (item) => item.question || item.message || item.input_data || 'Untitled interaction';
@@ -653,171 +644,171 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                     {activeTab === 'chat' ? (
                         <div className={showReportPanel ? styles.chatSplitBody : styles.chatSingleBody}>
                             <div className={styles.chatColumn}>
-                            {/* Chat interaction card */}
-                            <div className={styles.chatCard}>
-                                <div className={styles.chatHeader}>
-                                    <div className={styles.avatar}>
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12 3L3 20H8.5L12 12L15.5 20H21L12 3Z" fill="#0f5cf2" />
-                                        </svg>
-                                    </div>
-                                    <div className={styles.headerInfo}>
-                                        <h3>FX Guru Copilot</h3>
-                                        <span>Active Pair: {selectedPair}</span>
-                                    </div>
-                                </div>
-                                <div className={styles.chatBody}>
-                                    {chatMessages.length === 0 ? (
-                                        <div className={styles.welcomeContainer}>
-                                            <div className={styles.welcomeIcon}></div>
-                                            <h2>Welcome to FX Guru Copilot</h2>
-                                            <p>Select a major pair below, ask a question, and get deep insights on forex market movement and trends instantly.</p>
+                                {/* Chat interaction card */}
+                                <div className={styles.chatCard}>
+                                    <div className={styles.chatHeader}>
+                                        <div className={styles.avatar}>
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M12 3L3 20H8.5L12 12L15.5 20H21L12 3Z" fill="#0f5cf2" />
+                                            </svg>
                                         </div>
-                                    ) : (
-                                        chatMessages.map((msg, index) => (
-                                            <div
-                                                key={index}
-                                                className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''}`}
-                                            >
-                                                {msg.role === 'user' && msg.pair && (
-                                                    <span className={styles.pairBadge}>{msg.pair}</span>
-                                                )}
-                                                <div className={msg.role === 'user' ? styles.userMessage : styles.assistantMessage}>
-                                                    {msg.role === 'user' ? (
-                                                        msg.content
-                                                    ) : (
-                                                        <>
-                                                            <div className={styles.chatMarkdown}>
-                                                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
-                                                                    {msg.content}
-                                                                </ReactMarkdown>
-                                                            </div>
-                                                            {msg.fullReport ? (
-                                                                <button
-                                                                    type="button"
-                                                                    className={styles.viewReportBtn}
-                                                                    onClick={() => handleViewReport(msg.fullReport, msg.visualData)}
-                                                                >
-                                                                    View Report
-                                                                </button>
-                                                            ) : null}
-                                                        </>
+                                        <div className={styles.headerInfo}>
+                                            <h3>FX Guru Copilot</h3>
+                                            <span>Active Pair: {selectedPair}</span>
+                                        </div>
+                                    </div>
+                                    <div className={styles.chatBody}>
+                                        {chatMessages.length === 0 ? (
+                                            <div className={styles.welcomeContainer}>
+                                                <div className={styles.welcomeIcon}></div>
+                                                <h2>Welcome to FX Guru Copilot</h2>
+                                                <p>Select a major pair below, ask a question, and get deep insights on forex market movement and trends instantly.</p>
+                                            </div>
+                                        ) : (
+                                            chatMessages.map((msg, index) => (
+                                                <div
+                                                    key={index}
+                                                    className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''}`}
+                                                >
+                                                    {msg.role === 'user' && msg.pair && (
+                                                        <span className={styles.pairBadge}>{msg.pair}</span>
                                                     )}
+                                                    <div className={msg.role === 'user' ? styles.userMessage : styles.assistantMessage}>
+                                                        {msg.role === 'user' ? (
+                                                            msg.content
+                                                        ) : (
+                                                            <>
+                                                                <div className={styles.chatMarkdown}>
+                                                                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                                                                        {msg.content}
+                                                                    </ReactMarkdown>
+                                                                </div>
+                                                                {msg.fullReport ? (
+                                                                    <button
+                                                                        type="button"
+                                                                        className={styles.viewReportBtn}
+                                                                        onClick={() => handleViewReport(msg.fullReport, msg.visualData)}
+                                                                    >
+                                                                        View Report
+                                                                    </button>
+                                                                ) : null}
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))
-                                    )}
-                                    {pendingRequest && (
-                                        <div className={styles.messageRow}>
-                                            <div className={styles.assistantMessage}>
-                                                <div className={styles.loadingDots}>
-                                                    <span></span>
-                                                    <span></span>
-                                                    <span></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                    <div ref={chatEndRef} />
-                                </div>
-                            </div>
-
-                            {/* Suggestions Chips Row */}
-                            {chatMessages.length === 0 && (
-                                <div className={styles.chipsRow}>
-                                    <button
-                                        className={styles.chip}
-                                        onClick={() => handleSuggestionClick("Is EUR/USD a buy at current level on H4?", "EUR/USD")}
-                                    >
-                                        Analyze EUR/USD on H4
-                                    </button>
-                                    <button
-                                        className={styles.chip}
-                                        onClick={() => handleSuggestionClick("What is the current technical trend for GBP/USD?", "GBP/USD")}
-                                    >
-                                        GBP/USD Trend Analysis
-                                    </button>
-                                    <button
-                                        className={styles.chip}
-                                        onClick={() => handleSuggestionClick("Explain USD/JPY breakout patterns", "USD/JPY")}
-                                    >
-                                        USD/JPY Breakouts
-                                    </button>
-                                    <button
-                                        className={styles.chip}
-                                        onClick={() => handleSuggestionClick("Give me a scalping strategy for AUD/USD", "AUD/USD")}
-                                    >
-                                        AUD/USD Strategy
-                                    </button>
-                                </div>
-                            )}
-
-                            {/* Chat input box */}
-                            <div className={styles.inputArea}>
-                                <textarea
-                                    placeholder="Ask anything about forex trading, chart and strategies.."
-                                    className={styles.textarea}
-                                    value={chatInput}
-                                    onChange={(e) => setChatInput(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && !e.shiftKey) {
-                                            e.preventDefault();
-                                            handleSendChatMessage();
-                                        }
-                                    }}
-                                />
-                                <div className={styles.inputFooter}>
-                                    {/* Custom Dropdown Trigger */}
-                                    <div className={styles.dropdownContainer} ref={dropdownRef}>
-                                        <button
-                                            className={styles.dropdownTrigger}
-                                            onClick={() => setDropdownOpen(!dropdownOpen)}
-                                            type="button"
-                                        >
-                                            <span>{selectedPair}</span>
-                                            <span className={`${styles.chevron} ${dropdownOpen ? styles.rotated : ''}`}>
-                                                <DownIcon />
-                                            </span>
-                                        </button>
-                                        {dropdownOpen && (
-                                            <div className={styles.dropdownMenu}>
-                                                <div className={styles.dropdownHeader}>Major Pairs</div>
-                                                <div className={styles.dropdownList}>
-                                                    {MAJOR_PAIRS.map(pair => (
-                                                        <button
-                                                            key={pair}
-                                                            className={`${styles.dropdownItem} ${selectedPair === pair ? styles.activePair : ''}`}
-                                                            onClick={() => {
-                                                                setSelectedPair(pair);
-                                                                setDropdownOpen(false);
-                                                            }}
-                                                            type="button"
-                                                        >
-                                                            {selectedPair === pair && <span className={styles.checkmark}>✓</span>}
-                                                            <span className={styles.pairText}>{pair}</span>
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                                <div className={styles.dropdownScrollArrow}>
-                                                    <DownIcon />
+                                            ))
+                                        )}
+                                        {pendingRequest && (
+                                            <div className={styles.messageRow}>
+                                                <div className={styles.assistantMessage}>
+                                                    <div className={styles.loadingDots}>
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}
+                                        <div ref={chatEndRef} />
                                     </div>
-
-                                    {/* Send trigger */}
-                                    <button
-                                        className={styles.sendBtn}
-                                        onClick={handleSendChatMessage}
-                                        disabled={pendingRequest || !chatInput.trim()}
-                                    >
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                            <line x1="12" y1="19" x2="12" y2="5"></line>
-                                            <polyline points="5 12 12 5 19 12"></polyline>
-                                        </svg>
-                                    </button>
                                 </div>
-                            </div>
+
+                                {/* Suggestions Chips Row */}
+                                {chatMessages.length === 0 && (
+                                    <div className={styles.chipsRow}>
+                                        <button
+                                            className={styles.chip}
+                                            onClick={() => handleSuggestionClick("Is EUR/USD a buy at current level on H4?", "EUR/USD")}
+                                        >
+                                            Analyze EUR/USD on H4
+                                        </button>
+                                        <button
+                                            className={styles.chip}
+                                            onClick={() => handleSuggestionClick("What is the current technical trend for GBP/USD?", "GBP/USD")}
+                                        >
+                                            GBP/USD Trend Analysis
+                                        </button>
+                                        <button
+                                            className={styles.chip}
+                                            onClick={() => handleSuggestionClick("Explain USD/JPY breakout patterns", "USD/JPY")}
+                                        >
+                                            USD/JPY Breakouts
+                                        </button>
+                                        <button
+                                            className={styles.chip}
+                                            onClick={() => handleSuggestionClick("Give me a scalping strategy for AUD/USD", "AUD/USD")}
+                                        >
+                                            AUD/USD Strategy
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* Chat input box */}
+                                <div className={styles.inputArea}>
+                                    <textarea
+                                        placeholder="Ask anything about forex trading, chart and strategies.."
+                                        className={styles.textarea}
+                                        value={chatInput}
+                                        onChange={(e) => setChatInput(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault();
+                                                handleSendChatMessage();
+                                            }
+                                        }}
+                                    />
+                                    <div className={styles.inputFooter}>
+                                        {/* Custom Dropdown Trigger */}
+                                        <div className={styles.dropdownContainer} ref={dropdownRef}>
+                                            <button
+                                                className={styles.dropdownTrigger}
+                                                onClick={() => setDropdownOpen(!dropdownOpen)}
+                                                type="button"
+                                            >
+                                                <span>{selectedPair}</span>
+                                                <span className={`${styles.chevron} ${dropdownOpen ? styles.rotated : ''}`}>
+                                                    <DownIcon />
+                                                </span>
+                                            </button>
+                                            {dropdownOpen && (
+                                                <div className={styles.dropdownMenu}>
+                                                    <div className={styles.dropdownHeader}>Major Pairs</div>
+                                                    <div className={styles.dropdownList}>
+                                                        {MAJOR_PAIRS.map(pair => (
+                                                            <button
+                                                                key={pair}
+                                                                className={`${styles.dropdownItem} ${selectedPair === pair ? styles.activePair : ''}`}
+                                                                onClick={() => {
+                                                                    setSelectedPair(pair);
+                                                                    setDropdownOpen(false);
+                                                                }}
+                                                                type="button"
+                                                            >
+                                                                {selectedPair === pair && <span className={styles.checkmark}>✓</span>}
+                                                                <span className={styles.pairText}>{pair}</span>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                    <div className={styles.dropdownScrollArrow}>
+                                                        <DownIcon />
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Send trigger */}
+                                        <button
+                                            className={styles.sendBtn}
+                                            onClick={handleSendChatMessage}
+                                            disabled={pendingRequest || !chatInput.trim()}
+                                        >
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <line x1="12" y1="19" x2="12" y2="5"></line>
+                                                <polyline points="5 12 12 5 19 12"></polyline>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             {showReportPanel ? (
                                 <ReportPanel

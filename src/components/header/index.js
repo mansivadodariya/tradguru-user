@@ -24,12 +24,12 @@ export default function Header() {
                             </Link>
                         </div>
                         <div className={styles.menuAlignment}>
-                            <Link href="/#home" aria-label='Home'>Home</Link>
-                            <Link href="/#trade-snap" aria-label='AI Trade'>AI Trade</Link>
-                            <Link href="/#fx-guru" aria-label='AI Chat'>AI Chat</Link>
-                            <Link href="/#ai-strategy" aria-label='AI Strategy'>AI Strategy</Link>
-                            <Link href="/#pricing" aria-label='Education'>Education</Link>
-                            <Link href="/#about" aria-label='Funded Master'>Funded Master</Link>
+                            <Link href="/" aria-label='Home'>Home</Link>
+                            <Link href="/tradesnap" aria-label='AI Trade'>AI Trade</Link>
+                            <Link href="/ai-chat" aria-label='AI Chat'>AI Chat</Link>
+                            <Link href="/ai-chat" aria-label='AI Strategy'>AI Strategy</Link>
+                            <Link href="/login" aria-label='Education'>Education</Link>
+                            <Link href="/login" aria-label='Funded Master'>Funded Master</Link>
                         </div>
                         <div className={styles.buttonHide}>
                             <Button text="Get Started" icon={ArrowIcon} onClick={() => router.push("/login")} />
@@ -41,10 +41,10 @@ export default function Header() {
                     </div>
                 </div>
             </div>
-            
+
             <AnimatePresence>
                 {isMobileMenuOpen && (
-                    <motion.div 
+                    <motion.div
                         className={styles.mobileHeader}
                         initial={{ x: "100%" }}
                         animate={{ x: 0 }}
@@ -62,12 +62,12 @@ export default function Header() {
                             </svg>
                         </div>
                         <div className={styles.body}>
-                            <Link href="/#home" aria-label='Home' onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
-                            <Link href="/#trade-snap" aria-label='AI Trade' onClick={() => setIsMobileMenuOpen(false)}>AI Trade</Link>
-                            <Link href="/#fx-guru" aria-label='AI Chat' onClick={() => setIsMobileMenuOpen(false)}>AI Chat</Link>
-                            <Link href="/#ai-strategy" aria-label='AI Strategy' onClick={() => setIsMobileMenuOpen(false)}>AI Strategy</Link>
-                            <Link href="/#pricing" aria-label='Education' onClick={() => setIsMobileMenuOpen(false)}>Education</Link>
-                            <Link href="/#about" aria-label='Funded Master' onClick={() => setIsMobileMenuOpen(false)}>Funded Master</Link>
+                            <Link href="/" aria-label='Home' onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+                            <Link href="/tradesnap" aria-label='AI Trade' onClick={() => setIsMobileMenuOpen(false)}>AI Trade</Link>
+                            <Link href="/ai-chat" aria-label='AI Chat' onClick={() => setIsMobileMenuOpen(false)}>AI Chat</Link>
+                            <Link href="/ai-chat" aria-label='AI Strategy' onClick={() => setIsMobileMenuOpen(false)}>AI Strategy</Link>
+                            <Link href="/login" aria-label='Education' onClick={() => setIsMobileMenuOpen(false)}>Education</Link>
+                            <Link href="/login" aria-label='Funded Master' onClick={() => setIsMobileMenuOpen(false)}>Funded Master</Link>
                         </div>
                         <div className={styles.headerFooter}>
                             <Button text="Get Started" icon={ArrowIcon} onClick={() => { router.push("/login"); setIsMobileMenuOpen(false); }} />

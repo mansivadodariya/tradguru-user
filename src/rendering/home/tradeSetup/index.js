@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import styles from './tradeSetup.module.scss';
 import LineText from '@/components/lineText';
@@ -14,6 +15,7 @@ const RoundImage = '/assets/images/round-vec.svg';
 const ArrowIcon = '/assets/icons/arrow.svg';
 
 export default function TradeSetup() {
+    const router = useRouter();
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -221,7 +223,7 @@ export default function TradeSetup() {
                         <p>
                             Upload a chart and let AI uncover the setup behind the price action.
                         </p>
-                        <Button icon={ArrowIcon} text="Try Trade Snap Now" />
+                        <Button icon={ArrowIcon} text="Try Trade Snap Now" onClick={() => router.push('/tradesnap')} />
                     </div>
                     <div className={styles.image}>
                         <img src={SnapImage} alt='SnapImage' />

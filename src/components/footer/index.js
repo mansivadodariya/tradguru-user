@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import Link from 'next/link';
 import styles from './footer.module.scss';
 
 const FooterLogo = '/assets/logo/logo.svg';
@@ -77,27 +78,27 @@ export default function Footer() {
                         <div className={styles.linkCol}>
                             <h4>Product</h4>
                             <ul>
-                                <li><a href="#">Trade Snap</a></li>
-                                <li><a href="#">FX Guru</a></li>
-                                <li><a href="#">AI Strategy</a></li>
-                                <li><a href="#">Pricing</a></li>
+                                <li><Link href="/tradesnap">Trade Snap</Link></li>
+                                <li><Link href="/ai-chat">FX Guru</Link></li>
+                                <li><Link href="/ai-chat">AI Strategy</Link></li>
+                                <li><Link href="/login">Pricing</Link></li>
                             </ul>
                         </div>
 
                         <div className={styles.linkCol}>
                             <h4>Company</h4>
                             <ul>
-                                <li><a href="#">How It Works</a></li>
-                                <li><a href="#">FAQ</a></li>
-                                <li><a href="#">Contact</a></li>
+                                <li><Link href="/#how-it-works">How It Works</Link></li>
+                                <li><Link href="/#faq">FAQ</Link></li>
+                                <li><Link href="/#about">Contact</Link></li>
                             </ul>
                         </div>
 
                         <div className={styles.linkCol}>
                             <h4>Legal</h4>
                             <ul>
-                                <li><a href="#">Privacy</a></li>
-                                <li><a href="#">Terms</a></li>
+                                <li><Link href="/privacy-policy">Privacy</Link></li>
+                                <li><Link href="/terms-and-conditions">Terms</Link></li>
                             </ul>
                         </div>
                     </div>

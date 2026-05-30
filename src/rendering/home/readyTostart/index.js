@@ -1,4 +1,6 @@
+'use client'
 import React from 'react'
+import { useRouter } from 'next/navigation';
 import styles from './readyTostart.module.scss';
 import LineText from '@/components/lineText';
 import Button from '@/components/button';
@@ -7,6 +9,7 @@ const RoundImage = '/assets/images/round-vec.svg';
 
 
 export default function ReadyTostart() {
+    const router = useRouter();
     return (
         <div className={styles.readyTostart}>
             <div className='container'>
@@ -22,9 +25,9 @@ export default function ReadyTostart() {
                         </p>
                     </div>
                     <div className={styles.buttonCenter}>
-                        <Button icon={ArrowIcon} text="Get Started" />
+                        <Button icon={ArrowIcon} text="Get Started" onClick={() => router.push('/login')} />
                     </div>
-                       <div className={styles.round}>
+                    <div className={styles.round}>
                         <img src={RoundImage} alt="RoundImage" />
                     </div>
                 </div>
