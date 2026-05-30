@@ -2,13 +2,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import styles from './sliderSection.module.scss';
-const MetaIcon = '/assets/icons/meta.svg';
+const MetaIcon = '/assets/icons/Img2.svg';
 const EdufinsIcon = '/assets/icons/edufins.svg';
-const MatchIcon = '/assets/icons/Match.svg';
+const MatchIcon = '/assets/icons/Img1.svg';
 const AsicIcon = '/assets/icons/asic.svg';
 const AlgomaticIcon = '/assets/icons/algomatic.svg';
 
-const images = [ EdufinsIcon,   AlgomaticIcon];
+const images = [ EdufinsIcon, MetaIcon , MatchIcon,AlgomaticIcon];
 // Duplicate array 4 times to ensure it covers large screens and loops seamlessly
 const duplicatedImages = [...images, ...images, ...images, ...images];
 

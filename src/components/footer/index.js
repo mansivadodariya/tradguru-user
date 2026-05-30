@@ -88,9 +88,29 @@ export default function Footer() {
                         <div className={styles.linkCol}>
                             <h4>Company</h4>
                             <ul>
-                                <li><Link href="/#how-it-works">How It Works</Link></li>
-                                <li><Link href="/#faq">FAQ</Link></li>
-                                <li><Link href="/#about">Contact</Link></li>
+                                <li>
+                                    <Link
+                                        href="https://www.edufins.com/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label="Education"
+                                    >
+                                        Education
+                                    </Link>
+                                </li>
+                                <li>
+
+
+                                    <Link
+                                        href="https://fundedmaster.com/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label="Funded Master"
+                                    >
+                                        Funded Master
+                                    </Link>
+                                </li>
+
                             </ul>
                         </div>
 
