@@ -1,11 +1,11 @@
 import Login from '@/rendering/login';
-import React from 'react';
+import React, { Suspense } from 'react';
 
 const page = () => {
     return (
-        <div>
+        <Suspense>
             <Login />
-        </div>
+        </Suspense>
     );
 }
 
