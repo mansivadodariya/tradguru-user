@@ -78,12 +78,8 @@
 
                 .icon {
                     background-color: #fff;
-
-                    svg {
-                        path {
-                            stroke: #0B56DB;
-                        }
-                    }
+                    border-radius: 6px;
+                    color: #0B56DB;
                 }
 
                 span {
@@ -96,9 +92,10 @@
                 height: 32px;
                 display: flex;
                 align-items: center;
-                transition: 0.3s ease-in-out;
-
                 justify-content: center;
+                transition: 0.3s ease-in-out;
+                border-radius: 6px;
+                color: #656363;
             }
 
             span {

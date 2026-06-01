@@ -181,7 +181,6 @@ export default function Profile() {
                     <div className={styles.field}>
                         <label className={styles.label}>Email</label>
                         <div className={styles.emailDisplay}>{form.email || '—'}</div>
-                        <p className={styles.hint}>Email cannot be changed.</p>
                     </div>
 
                     <Input

@@ -58,11 +58,11 @@ $success: #10b981;
 
     .tabSwitcher {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 4px;
         padding: 6px;
         background: #F1F5FC;
-        max-width: 520px;
+        max-width: 720px;
         margin-bottom: 24px;
 
         button {

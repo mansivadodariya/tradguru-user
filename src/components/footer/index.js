@@ -3,7 +3,7 @@ import React from 'react'
 import Link from 'next/link';
 import styles from './footer.module.scss';
 
-const FooterLogo = '/assets/logo/logo.svg';
+const FooterLogo = '/assets/logo/logoWhite.svg';
 
 const ArrowUpIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -81,7 +81,6 @@ export default function Footer() {
                                 <li><Link href="/tradesnap">Trade Snap</Link></li>
                                 <li><Link href="/ai-chat">FX Guru</Link></li>
                                 <li><Link href="/ai-chat">AI Strategy</Link></li>
-                                <li><Link href="/login">Pricing</Link></li>
                             </ul>
                         </div>
 
@@ -117,8 +116,8 @@ export default function Footer() {
                         <div className={styles.linkCol}>
                             <h4>Legal</h4>
                             <ul>
-                                <li><Link href="/privacy-policy">Privacy</Link></li>
-                                <li><Link href="/terms-and-conditions">Terms</Link></li>
+                                <li><Link href="/privacy-policy">Privacy Policy</Link></li>
+                                <li><Link href="/terms-and-conditions">Terms & Conditions</Link></li>
                             </ul>
                         </div>
                     </div>
@@ -128,9 +127,8 @@ export default function Footer() {
 
                 <div className={styles.bottomSection}>
                     <div className={styles.warningBlock}>
-                        <h5>@2026 FX Guru. All rights reserved.</h5>
-                        <p>
-                            Risk warning: Forex trading carries substantial risk. FX Guru provides analytical
+                        <h5>© {new Date().getFullYear()} Trade Guru. All rights reserved.</h5>                        <p>
+                            Risk warning: Forex trading carries substantial risk. Trader Master provides analytical
                             tools and does not handle deposits or withdrawals. All funds are managed by Newera.
                         </p>
                     </div>

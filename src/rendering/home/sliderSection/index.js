@@ -6,7 +6,7 @@ const MetaIcon = '/assets/icons/Img2.svg';
 const EdufinsIcon = '/assets/icons/edufins.svg';
 const MatchIcon = '/assets/icons/Img1.svg';
 const AsicIcon = '/assets/icons/asic.svg';
-const AlgomaticIcon = '/assets/icons/algomatic.svg';
+const AlgomaticIcon = '/assets/icons/algomaticIcon.svg';
 
 const images = [ EdufinsIcon, MetaIcon , MatchIcon,AlgomaticIcon];
 // Duplicate array 4 times to ensure it covers large screens and loops seamlessly
