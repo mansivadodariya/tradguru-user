@@ -7,6 +7,8 @@ import styles from './signup.module.scss';
 import Input from '@/components/input';
 import Button from '@/components/button';
 import ContinueWithGoogle from '@/components/continueWithGoogle';
+import { getAuthRedirectTarget } from '@/lib/authSession';
+import { useSearchParams } from 'next/navigation';
 import { authApi } from '@/lib/api';
 import { validateSignup } from '@/lib/validation';
 import { toast } from '@/components/toast';
@@ -21,6 +23,8 @@ const Lock = '/assets/icons/lock.svg';
 
 const Signup = () => {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectTo = getAuthRedirectTarget(searchParams);
     const [form, setForm] = useState({
         first_name: '', last_name: '', email: '', phone_number: '', password: '', confirmPassword: ''
     });
@@ -118,7 +122,7 @@ const Signup = () => {
                         <p>Already have an account? <Link href="/login">Log in</Link></p>
                     </div>
                     <div className={styles.orText}><span>or</span></div>
-                    <ContinueWithGoogle />
+                    <ContinueWithGoogle redirectTo={redirectTo} />
                 </div>
             </div>
         </div>

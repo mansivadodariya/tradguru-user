@@ -2,6 +2,45 @@
  * Shared auth session helpers — login, Google login, and API calls must use the same shape.
  */
 
+/** Read access_token from login / google-login API bodies (nested or flat). */
+export function extractAccessToken(payload) {
+    if (!payload || typeof payload !== 'object') return null;
+
+    const candidates = [
+        payload?.data?.access_token,
+        payload?.data?.token,
+        payload?.access_token,
+        payload?.token,
+    ];
+
+    for (const token of candidates) {
+        if (typeof token === 'string' && token.trim()) return token.trim();
+    }
+    return null;
+}
+
+/** True when API indicates a new Google user waiting for admin approval (no tokens). */
+export function isGooglePendingApproval(payload) {
+    if (extractAccessToken(payload)) return false;
+
+    const data = payload?.data ?? payload ?? {};
+    if (data.pending_approval || data.requires_approval || data.is_approved === false) {
+        return true;
+    }
+
+    const message = String(payload?.message || data?.message || '');
+    return /awaiting|approval|pending|admin/i.test(message);
+}
+
+export function getAuthRedirectTarget(searchParams) {
+    if (!searchParams) return '/dashboard';
+    return (
+        searchParams.get('redirect') ||
+        searchParams.get('from') ||
+        '/dashboard'
+    );
+}
+
 export function getStoredUserId() {
     if (typeof window === 'undefined') return '';
     try {

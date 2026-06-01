@@ -7,7 +7,7 @@ import Input from '@/components/input';
 import Button from '@/components/button';
 import ContinueWithGoogle from '@/components/continueWithGoogle';
 import { authApi } from '@/lib/api';
-import { persistAuthSession } from '@/lib/authSession';
+import { persistAuthSession, getAuthRedirectTarget } from '@/lib/authSession';
 import { validateLogin } from '@/lib/validation';
 import { toast } from '@/components/toast';
 
@@ -20,7 +20,7 @@ const Lock = '/assets/icons/lock.svg';
 const Login = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const redirectTo = searchParams.get('redirect') || '/dashboard';
+    const redirectTo = getAuthRedirectTarget(searchParams);
     const [form, setForm] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
@@ -43,7 +43,7 @@ const Login = () => {
         try {
             const data = await authApi.login(form.email, form.password);
             persistAuthSession(data);
-            router.push(redirectTo);
+            window.location.assign(redirectTo);
         } catch (err) {
             toast.dismiss();
             toast.error(typeof err.message === 'string' ? err.message : 'Something went wrong. Please try again.');
@@ -81,7 +81,7 @@ const Login = () => {
                         <p>Don&apos;t have an account? <Link href="/signup">Sign up</Link></p>
                     </div>
                     <div className={styles.orText}><span>or</span></div>
-                    <ContinueWithGoogle />
+                    <ContinueWithGoogle redirectTo={redirectTo} />
                 </div>
             </div>
         </div>
