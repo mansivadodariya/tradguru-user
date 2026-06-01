@@ -327,7 +327,13 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         try {
             const result = await fxApi.chat(selectedPair, msg, userId);
             const parsed = parseAssistantResponse(result);
-            setChatMessages(prev => [...prev, buildAssistantMessage(parsed)]);
+            const assistantMsg = buildAssistantMessage(parsed);
+            setChatMessages(prev => [...prev, assistantMsg]);
+            if (parsed.fullReport) {
+                setSelectedReport(parsed.fullReport);
+                setSelectedVisualData(parsed.visualData);
+                setReportScrollKey((k) => k + 1);
+            }
             fetchChatHistory(userId);
         } catch (err) {
             console.error("Error sending chat message:", err);

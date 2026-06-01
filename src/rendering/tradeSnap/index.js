@@ -650,72 +650,12 @@ export default function TradeSnap() {
                     <ChartIcon />
                     Multi Timeframe
                 </button>
-                <button
-                    type="button"
-                    className={activeTab === 'upload' ? styles.tabActive : ''}
-                    onClick={() => requestTabSwitch('upload')}
-                >
-                    <UploadIcon />
-                    Upload Chart
-                </button>
+
             </div>
 
             <div className={`${styles.workspace} ${activeTab === 'multi' ? styles.workspaceMulti : ''}`}>
                 <div className={styles.mainColumn}>
-                    {activeTab === 'upload' ? (
-                        <div className={styles.panel}>
-                            <div className={styles.panelHeader}>
-                                <h3><UploadIcon /> Upload Chart</h3>
-                            </div>
-                            <div
-                                className={styles.uploadDropzone}
-                                onDragOver={(e) => e.preventDefault()}
-                                onDrop={handleUploadDrop}
-                                onClick={() => uploadInputRef.current?.click()}
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(e) => e.key === 'Enter' && uploadInputRef.current?.click()}
-                                aria-label="Upload chart image"
-                            >
-                                <input
-                                    ref={uploadInputRef}
-                                    type="file"
-                                    accept="image/*"
-                                    multiple
-                                    className={styles.uploadInput}
-                                    onChange={handleUploadFileChange}
-                                />
-                                {uploadPreviews.length === 0 ? (
-                                    <div className={styles.uploadPlaceholder}>
-                                        <UploadIcon className={styles.uploadPlaceholderIcon} />
-                                        <p>Drag &amp; drop chart images here, or click to browse</p>
-                                        <span>Supports PNG, JPG, WEBP — up to 2 images</span>
-                                    </div>
-                                ) : (
-                                    <div className={styles.uploadPreviews}>
-                                        {uploadPreviews.map((src, i) => (
-                                            <img key={i} src={src} alt={`Chart ${i + 1}`} className={styles.uploadPreviewImg} />
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            <div className={styles.panelActions}>
-                                {uploadPreviews.length > 0 && (
-                                    <button type="button" className={styles.btnGhost} onClick={(e) => { e.stopPropagation(); clearUpload(); }}>
-                                        Clear
-                                    </button>
-                                )}
-                                <button
-                                    type="button"
-                                    className={styles.btnPrimary}
-                                    onClick={analyzeUpload}
-                                    disabled={isAnalyzingUpload || uploadedImages.length === 0}
-                                >
-                                    {isAnalyzingUpload ? 'Analyzing...' : 'Analyze Chart'}
-                                </button>
-                            </div>
-                        </div>
-                    ) : activeTab === 'single' ? (
+                    {activeTab === 'single' ? (
                         <div className={styles.panel}>
                             <div className={styles.panelHeader}>
                                 <h3>

@@ -6,6 +6,7 @@ import Input from '@/components/input';
 import Button from '@/components/button';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from '@/components/toast';
+const ArrowIcon = '/assets/icons/arrow.svg';
 
 const PHONE_RE = /^\+?[0-9\s\-().]{7,20}$/;
 
@@ -200,6 +201,7 @@ export default function Profile() {
                             text={saving ? 'Saving...' : 'Save Changes'}
                             type="submit"
                             disabled={saving}
+                            icon={ArrowIcon}
                         />
                     </div>
                 </form>
