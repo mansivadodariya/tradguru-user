@@ -336,8 +336,8 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
             }
             fetchChatHistory(userId);
         } catch (err) {
-            console.error("Error sending chat message:", err);
-            setChatMessages(prev => [...prev, { role: 'assistant', content: "I apologize, but the FX Copilot API is currently unavailable. Please verify the endpoint or try again later." }]);
+            const errorMessage = err?.message || "I apologize, but the FX Copilot API is currently unavailable. Please verify the endpoint or try again later.";
+            setChatMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
         } finally {
             setPendingRequest(false);
         }

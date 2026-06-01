@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import styles from './tradeSnap.module.scss';
-import { analyzeTradeScreenshots, dataUrlToBlob } from '@/lib/tradeSnapApi';
+import { analyzeTradeScreenshots, dataUrlToBlob, extractTradesFromPayload } from '@/lib/tradeSnapApi';
 import { toast } from '@/components/toast';
 import { tradeSnapApi } from '@/lib/api';
 import { historyDeletes } from '@/lib/historyDeletes';
@@ -121,8 +121,7 @@ export default function TradeSnap() {
         const list = Array.isArray(payload) ? payload : (payload?.data || payload?.items || []);
         return (Array.isArray(list) ? list : []).map((item, idx) => {
             const ts = item?.created_at || item?.createdAt || item?.timestamp || item?.time || item?.date || new Date().toISOString();
-            const ai = item?.ai_response || item?.analysis || item?.result || item?.data || item;
-            const trades = Array.isArray(ai) ? ai : [ai];
+            const trades = extractTradesFromPayload(item);
             return {
                 id: item?.id || item?.analysis_id || item?.history_id || ts || idx,
                 deleteId: item?.id || item?.analysis_id || item?.history_id || null,
@@ -356,11 +355,32 @@ export default function TradeSnap() {
     }, [captureFromVideo]);
 
     const pushAnalysis = (analysisData) => {
+        const trades = Array.isArray(analysisData)
+            ? analysisData
+            : extractTradesFromPayload({ ai_response: analysisData });
+        if (!trades.length) return;
+
         setAllAnalyses((prev) => [
-            { data: [analysisData], timestamp: new Date().toISOString() },
+            { data: trades, timestamp: new Date().toISOString() },
             ...prev,
         ]);
         setShowAnalysis(true);
+    };
+
+    const applyAnalyzeResult = (result, { onInvalidChart } = {}) => {
+        const trades = extractTradesFromPayload(result);
+        if (trades[0]?.error) {
+            setError(trades[0].raw || 'No valid chart found in the image');
+            onInvalidChart?.();
+            return false;
+        }
+        if (!trades.length) {
+            setError('No analysis data in response');
+            onInvalidChart?.();
+            return false;
+        }
+        pushAnalysis(trades);
+        return true;
     };
 
     const analyzeImage = async () => {
@@ -372,13 +392,9 @@ export default function TradeSnap() {
         try {
             const blob = await dataUrlToBlob(capturedImage);
             const result = await analyzeTradeScreenshots([blob], getUserId());
-            if (result.ai_response?.error) {
-                setError(result.ai_response.raw || 'No valid chart found in the image');
-                setShowSnapshot(true);
-                return;
+            if (applyAnalyzeResult(result, { onInvalidChart: () => setShowSnapshot(true) })) {
+                setShowSnapshot(false);
             }
-            pushAnalysis(result.ai_response);
-            setShowSnapshot(false);
         } catch (err) {
             setError(err?.message || 'Failed to analyze image');
         } finally {
@@ -396,13 +412,10 @@ export default function TradeSnap() {
             const blob1 = await dataUrlToBlob(capturedImage1);
             const blob2 = await dataUrlToBlob(capturedImage2);
             const result = await analyzeTradeScreenshots([blob1, blob2], getUserId());
-            if (result.ai_response?.error) {
-                setError(result.ai_response.raw || 'No valid chart found in the image');
-                return;
+            if (applyAnalyzeResult(result)) {
+                setShowSnapshot1(false);
+                setShowSnapshot2(false);
             }
-            pushAnalysis(result.ai_response);
-            setShowSnapshot1(false);
-            setShowSnapshot2(false);
         } catch (err) {
             setError(err?.message || 'Failed to analyze images');
         } finally {
@@ -534,12 +547,9 @@ export default function TradeSnap() {
         setIsAnalyzingUpload(true);
         try {
             const result = await analyzeTradeScreenshots(uploadedImages, getUserId());
-            if (result.ai_response?.error) {
-                setError(result.ai_response.raw || 'No valid chart found in the image');
-                return;
+            if (applyAnalyzeResult(result)) {
+                clearUpload();
             }
-            pushAnalysis(result.ai_response);
-            clearUpload();
         } catch (err) {
             setError(err?.message || 'Failed to analyze uploaded image');
         } finally {

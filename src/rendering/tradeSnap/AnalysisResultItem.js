@@ -9,12 +9,28 @@ function formatSymbol(symbol) {
     return String(symbol).split(' - ')[0].split(' LTD')[0];
 }
 
+/** e.g. future_sell → Future Sell, no_trade → No Trade */
+function formatTradeCall(tradeCall) {
+    if (!tradeCall) return '—';
+    const raw = String(tradeCall).trim();
+    if (!raw) return '—';
+
+    return raw
+        .replace(/[_-]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .split(' ')
+        .filter(Boolean)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+}
+
 export default function AnalysisResultItem({ trade, index, onViewDetails }) {
+    if (!trade) return null;
     const call = (trade.trade_call || '').toLowerCase();
     const isBuy = call.includes('buy');
     const isSell = call.includes('sell');
     const isNoTrade = call === 'no_trade';
-    const confidence = parseInt(trade.confidence, 10) || 0;
+    const confidence = parseInt(trade?.confidence, 10) || 0;
 
     const confidenceClass =
         confidence >= 70 ? styles.confidenceHigh : confidence >= 40 ? styles.confidenceMid : styles.confidenceLow;
@@ -31,13 +47,13 @@ export default function AnalysisResultItem({ trade, index, onViewDetails }) {
             <div className={styles.resultHeader}>
                 <div>
                     <div className={styles.resultTitleRow}>
-                        <h3>{formatSymbol(trade.symbol)}</h3>
+                        <h3>{formatSymbol(trade?.symbol)}</h3>
                         {trade.Trade && (
                             <span className={styles.tradeTypeBadge}>{String(trade.Trade).toUpperCase()}</span>
                         )}
                         <span className={styles.timeframeBadge}>
                             <ClockIcon />
-                            {trade.timeframe}
+                            {trade?.timeframe}
                         </span>
                     </div>
                     <div
@@ -46,7 +62,7 @@ export default function AnalysisResultItem({ trade, index, onViewDetails }) {
                         {isBuy && <TrendUpIcon />}
                         {isSell && <TrendDownIcon />}
                         {isNoTrade && <ChartIcon />}
-                        <span>{trade.trade_call}</span>
+                        <span>{formatTradeCall(trade?.trade_call)}</span>
                     </div>
                 </div>
 
@@ -80,7 +96,7 @@ export default function AnalysisResultItem({ trade, index, onViewDetails }) {
                     <div className={styles.detailGrid}>
                         <div className={styles.detailBox}>
                             <span>Entry Price</span>
-                            <strong>{trade.entry?.split('(')[0].trim() || 'N/A'}</strong>
+                            <strong>{trade?.entry?.split('(')[0].trim() || 'N/A'}</strong>
                         </div>
                         <div className={styles.detailBox}>
                             <span>Stop Loss</span>
@@ -92,7 +108,7 @@ export default function AnalysisResultItem({ trade, index, onViewDetails }) {
                         <div className={styles.targetsBox}>
                             <span className={styles.targetsLabel}>TARGETS</span>
                             <div className={styles.targetsList}>
-                                {Object.entries(trade.targets || {}).map(([key, value], i) =>
+                                {Object.entries(trade?.targets || trade?.Targets || {}).map(([key, value], i) =>
                                     value !== 'N/A' ? (
                                         <div key={key} className={styles.targetRow}>
                                             <span>Target {i + 1}</span>
@@ -107,7 +123,7 @@ export default function AnalysisResultItem({ trade, index, onViewDetails }) {
                                 <span>Support</span>
                                 <strong>
                                     {(() => {
-                                        const sp = trade.Support_price || trade.support_price;
+                                        const sp = trade?.Support_price || trade.support_price;
                                         if (!sp) return 'N/A';
                                         return typeof sp === 'string' ? sp.split('-')[0].trim() : sp;
                                     })()}
@@ -115,19 +131,19 @@ export default function AnalysisResultItem({ trade, index, onViewDetails }) {
                             </div>
                             <div className={styles.detailBox}>
                                 <span>Resistance</span>
-                                <strong>{trade.Resistance_price || trade.resistance_price || 'N/A'}</strong>
+                                <strong>{trade?.Resistance_price || trade.resistance_price || 'N/A'}</strong>
                             </div>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* {trade.rationale && (
+            {trade.rationale && onViewDetails && (
                 <button type="button" className={styles.viewDetailsBtn} onClick={() => onViewDetails(trade)}>
                     <EyeIcon />
                     View Detailed Analysis
                 </button>
-            )} */}
+            )}
         </motion.article>
     );
 }

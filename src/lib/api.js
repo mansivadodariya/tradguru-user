@@ -91,7 +91,9 @@ async function request(path, options = {}, _isRetry = false) {
     }
 
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data?.message || data?.detail || 'Something went wrong');
+    console.log(data, "datttttttaaaaaa");
+
+    if (!res.ok) throw new Error(data?.detail?.message || 'Something went wrong');
     return data;
 }
 
@@ -148,14 +150,14 @@ function getAuthHeaders() {
 
 export const fxApi = {
     chat: (pair, message, user_id) =>
-        request('/fx/chat', {
+        request('/chat', {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify({ pair, message, user_id }),
         }),
 
     generateBlog: (input_data, is_content) =>
-        request('/fx/blog_generation', {
+        request('/blog_generation', {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify({ input_data, is_content }),
