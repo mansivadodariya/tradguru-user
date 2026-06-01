@@ -8,6 +8,16 @@
         gap: 24px;
         min-height: calc(100dvh - 112px);
 
+        @include respond-to('lg') {
+            grid-template-columns: 280px 1fr;
+            gap: 16px;
+        }
+
+        @include respond-to('md') {
+            display: flex;
+            flex-direction: column;
+        }
+
         .left {
             border: 1px solid rgba(18, 18, 18, 0.12);
             background: #FFF;
@@ -17,6 +27,10 @@
             flex-direction: column;
             height: calc(100dvh - 112px);
             overflow: hidden;
+
+            @include respond-to('md') {
+                height: 350px;
+            }
 
             .first {
                 padding: 24px 20px 16px;
@@ -165,8 +179,16 @@
             position: relative;
             min-width: 0;
 
+            @include respond-to('md') {
+                order: -1;
+                padding: 12px;
+            }
+
             &.rightSideSplit {
                 padding: 16px;
+                @include respond-to('md') {
+                    padding: 12px;
+                }
             }
 
             .chatSingleBody,
@@ -182,6 +204,12 @@
                 display: grid;
                 grid-template-columns: minmax(260px, 36%) minmax(0, 1fr);
                 gap: 16px;
+
+                @include respond-to('lg') {
+                    grid-template-columns: 1fr;
+                    display: flex;
+                    flex-direction: column;
+                }
             }
 
             .chatColumn {

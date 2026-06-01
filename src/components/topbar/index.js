@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import styles from './topbar.module.scss';
 import { dashboardApi } from '@/lib/api';
 
-const Topbar = () => {
+const Topbar = ({ onMenuClick }) => {
     const router = useRouter();
     const [user, setUser] = useState(null);
     const [credits, setCredits] = useState(null);
@@ -78,7 +78,15 @@ const Topbar = () => {
     if (loading) {
         return (
             <div className={styles.topbar}>
-                <div className={styles.left} />
+                <div className={styles.left}>
+                    <button className={styles.menuBtn} onClick={onMenuClick}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
                 <div className={styles.right}>
                     <div className={styles.skeletonCredits} />
                     <div className={styles.skeletonProfile}>
@@ -96,7 +104,15 @@ const Topbar = () => {
     return (
         <>
             <div className={styles.topbar}>
-                <div className={styles.left} />
+                <div className={styles.left}>
+                    <button className={styles.menuBtn} onClick={onMenuClick}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
                 <div className={styles.right}>
                     {credits !== null && (
                         <div className={styles.credits}>

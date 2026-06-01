@@ -65,6 +65,11 @@ $border: rgba(18, 18, 18, 0.10);
         font-size: 22px;
         font-weight: 700;
         margin: 0 0 6px;
+
+        @include respond-to('sm') {
+            font-size: 18px;
+        }
+
         span {
             font-weight: 800;
         }
@@ -368,6 +373,24 @@ $border: rgba(18, 18, 18, 0.10);
     }
     .quickGrid {
         grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@include respond-to('md') {
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .quickGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@include respond-to('sm') {
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+    .quickGrid {
+        grid-template-columns: 1fr;
     }
 }
 .recentHeader {

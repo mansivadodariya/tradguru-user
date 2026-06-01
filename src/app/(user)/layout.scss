@@ -1,0 +1,35 @@
+@use '../../scss/breakpoints/breakpoints.scss' as *;
+
+.sidebar-overlay {
+    display: none;
+
+    @include respond-to('lg') {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 99;
+    }
+}
+
+@include respond-to('lg') {
+    .user-layout {
+        .sidebar-wrapper {
+            position: fixed;
+            left: -300px;
+            top: 0;
+            height: 100dvh;
+            width: 270px;
+            z-index: 100;
+            transition: left 0.3s ease;
+
+            &.open {
+                left: 0;
+            }
+        }
+
+        .children-wrapper {
+            width: 100% !important;
+        }
+    }
+}
