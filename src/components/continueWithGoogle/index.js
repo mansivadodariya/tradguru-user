@@ -68,7 +68,7 @@ const ContinueWithGoogle = () => {
 
             window.google.accounts.id.renderButton(
                 document.getElementById('google-signin-btn'),
-                { theme: 'outline', size: 'large', width: '100%' }
+                { theme: 'outline', size: 'large', width: '100%', logo_alignment: 'center' }
             );
         };
 

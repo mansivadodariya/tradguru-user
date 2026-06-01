@@ -38,7 +38,16 @@
         font-weight: 500;
         line-height: normal;
 
+        // Force the generated Google button wrapper to take the full width of this container
+        >div {
+            width: 100% !important;
+            max-width: 100% !important;
+
+            iframe {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
 
     }
 }
-
