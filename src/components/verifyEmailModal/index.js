@@ -23,7 +23,7 @@ export default function VerifyEmailModal({ onVerify, onClose, loading, error }) 
                     <img src={LineImage} alt='' aria-hidden="true" />
                 </div>
                 <div className={styles.relative}>
-                    <div className={styles.icon} onClick={()=>router.push("/")}>
+                    <div className={styles.icon} onClick={onClose} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onClose?.()}>
                         <img src={AuthIcon} alt='' aria-hidden="true" />
                     </div>
                     <div className={styles.text}>
@@ -40,7 +40,7 @@ export default function VerifyEmailModal({ onVerify, onClose, loading, error }) 
                                 onChange={(e) => setToken(e.target.value)}
                             />
                             {error && <p className={styles.error} role="alert">{error}</p>}
-                            <Button text={loading ? 'Verifying...' : 'Verify Email'} icon={ArrowIcon} />
+                            <Button type="submit" text={loading ? 'Verifying...' : 'Verify Email'} icon={ArrowIcon} disabled={loading} />
                         </div>
                     </form>
                     <button className={styles.closeBtn} onClick={onClose} aria-label="Close modal">✕</button>

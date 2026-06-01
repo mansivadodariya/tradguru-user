@@ -1,95 +1,65 @@
 "use client";
-import React, { useRef } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { motion } from 'framer-motion';
 import styles from './button.module.scss';
 import classNames from 'classnames';
 
-export default function Button({ text, icon, href, light, outline, onClick, type = 'button', disabled = false }) {
-    const ref = useRef(null);
-    const x = useMotionValue(0);
-    const y = useMotionValue(0);
+export default function Button({
+    text,
+    icon,
+    href,
+    light,
+    outline,
+    onClick,
+    type = 'button',
+    disabled = false,
+    fullWidth = false,
+}) {
+    const className = classNames(
+        styles.button,
+        light ? styles.light : '',
+        outline ? styles.outline : '',
+        fullWidth ? styles.fullWidth : ''
+    );
 
-    const mouseXSpring = useSpring(x, { stiffness: 300, damping: 20 });
-    const mouseYSpring = useSpring(y, { stiffness: 300, damping: 20 });
+    const content = (
+        <>
+            {icon && (
+                <div className={styles.icon}>
+                    <img src={icon} alt="" />
+                </div>
+            )}
+            {text}
+        </>
+    );
 
-    const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
-    const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
-
-    const handleMouseMove = (e) => {
-        if (!ref.current) return;
-        const rect = ref.current.getBoundingClientRect();
-        const width = rect.width;
-        const height = rect.height;
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        const xPct = mouseX / width - 0.5;
-        const yPct = mouseY / height - 0.5;
-        x.set(xPct);
-        y.set(yPct);
-    };
-
-    const handleMouseLeave = () => {
-        x.set(0);
-        y.set(0);
-    };
-
-    return (
-        <div className={classNames(styles.button, light ? styles.light : "", outline ? styles.outline : "")} style={{ perspective: 1200, pointerEvents: 'none' }}>
-            {href ? (
-                <Link href={href}>
-                    <motion.button
-                        ref={ref}
-                        onMouseMove={handleMouseMove}
-                        onMouseLeave={handleMouseLeave}
-                        style={{ rotateX, rotateY, pointerEvents: 'auto' }}
-                        whileHover={{
-                            scale: 1.05,
-                            boxShadow: "0px 15px 30px -5px rgba(11, 86, 219, 0.4)",
-                            y: -5
-                        }}
-                        whileTap={{
-                            scale: 0.95,
-                            boxShadow: "0px 5px 15px -5px rgba(11, 86, 219, 0.4)",
-                            y: 0
-                        }}
-                    >
-                        {icon && (
-                            <div className={styles.icon}>
-                                <img src={icon} alt={icon} />
-                            </div>
-                        )}
-                        {text}
-                    </motion.button>
-                </Link>
-            ) : (
-                <motion.button
-                    ref={ref}
+    // Plain button for forms — 3D tilt breaks mouse clicks on submit buttons
+    if (!href) {
+        return (
+            <div className={className}>
+                <button
                     type={type}
                     disabled={disabled}
-                    onMouseMove={handleMouseMove}
-                    onMouseLeave={handleMouseLeave}
-                    style={{ rotateX, rotateY, pointerEvents: 'auto' }}
-                    whileHover={disabled ? {} : {
-                        scale: 1.05,
-                        boxShadow: "0px 15px 30px -5px rgba(11, 86, 219, 0.4)",
-                        y: -5
-                    }}
-                    whileTap={disabled ? {} : {
-                        scale: 0.95,
-                        boxShadow: "0px 5px 15px -5px rgba(11, 86, 219, 0.4)",
-                        y: 0
-                    }}
                     onClick={onClick}
                 >
-                    {icon && (
-                        <div className={styles.icon}>
-                            <img src={icon} alt={icon} />
-                        </div>
-                    )}
-                    {text}
-                </motion.button>
-            )}
+                    {content}
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <div className={className}>
+            <Link href={href} className={styles.linkBtn}>
+                <motion.span
+                    className={styles.motionInner}
+                    whileHover={disabled ? {} : { scale: 1.02 }}
+                    whileTap={disabled ? {} : { scale: 0.98 }}
+                >
+                    {content}
+                </motion.span>
+            </Link>
         </div>
     );
 }

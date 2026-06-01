@@ -28,6 +28,7 @@ const ForgotPassword = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (loading) return;
 
         const fieldError = validateForgotPassword(email);
         if (fieldError) {
@@ -74,7 +75,13 @@ const ForgotPassword = () => {
                         <form onSubmit={handleSubmit} noValidate>
                             <div className={styles.spacingGrid}>
                                 <Input label="Email" placeholder=" johnfrans@gmail.com" type="email" name="email" value={email} onChange={handleEmailChange} error={emailError} />
-                                <Button text={loading ? 'Sending...' : 'Send Reset Link'} icon={ArrowIcon} disabled={loading} />
+                                <Button
+                                    type="submit"
+                                    fullWidth
+                                    text={loading ? 'Sending...' : 'Send Reset Link'}
+                                    icon={ArrowIcon}
+                                    disabled={loading}
+                                />
                             </div>
                         </form>
                     )}

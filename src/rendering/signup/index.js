@@ -105,7 +105,13 @@ const Signup = () => {
                                 <Input icon={Lock} placeholder="Password" type="password" name="password" value={form.password} onChange={set('password')} error={errors.password} />
                                 <Input icon={Lock} placeholder="Confirm Password" type="password" name="confirmPassword" value={form.confirmPassword} onChange={set('confirmPassword')} error={errors.confirmPassword} />
                             </div>
-                            <Button text={loading ? 'Signing up...' : 'Sign up'} type="submit" icon={ArrowIcon} />
+                            <Button
+                                type="submit"
+                                fullWidth
+                                text={loading ? 'Signing up...' : 'Sign up'}
+                                icon={ArrowIcon}
+                                disabled={loading}
+                            />
                         </div>
                     </form>
                     <div className={styles.accountText}>

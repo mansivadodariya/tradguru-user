@@ -2,6 +2,17 @@
 @use '../../scss/breakpoints/breakpoints.scss' as *;
 
 .button {
+    &.fullWidth {
+        width: 100%;
+
+        button,
+        .linkBtn {
+            width: 100%;
+            justify-content: center;
+            min-height: 50px;
+        }
+    }
+
     &.light {
         button {
             background: #F1F5FC;
@@ -65,5 +76,26 @@
                 transition: 0.3s ease-in-out;
             }
         }
+    }
+
+    .linkBtn {
+        padding: 6px 29px 6px 6px;
+        background: #0B56DB;
+        display: inline-flex;
+        align-items: center;
+        gap: 18px;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 500;
+        border: 1px solid #0B56DB;
+        cursor: pointer;
+        text-decoration: none;
+        line-height: normal;
+    }
+
+    .motionInner {
+        display: flex;
+        align-items: center;
+        gap: 18px;
     }
 }

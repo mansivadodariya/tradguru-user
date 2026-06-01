@@ -30,6 +30,7 @@ const ResetPassword = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (loading) return;
 
         if (!token) {
             toast.error('Reset token is missing or invalid.');
@@ -78,7 +79,13 @@ const ResetPassword = () => {
                             <div className={styles.spacingGrid}>
                                 <Input label="New Password" placeholder=" Enter new password" type="password" name="new_password" value={form.new_password} onChange={set('new_password')} error={errors.new_password} />
                                 <Input label="Confirm Password" placeholder=" Confirm new password" type="password" name="confirm_password" value={form.confirm_password} onChange={set('confirm_password')} error={errors.confirm_password} />
-                                <Button text={loading ? 'Resetting...' : 'Reset Password'} icon={ArrowIcon} disabled={loading} />
+                                <Button
+                                    type="submit"
+                                    fullWidth
+                                    text={loading ? 'Resetting...' : 'Reset Password'}
+                                    icon={ArrowIcon}
+                                    disabled={loading}
+                                />
                             </div>
                         </form>
                     )}
