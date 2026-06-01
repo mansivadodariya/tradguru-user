@@ -1,3 +1,5 @@
+import { extractAvailableCredits, notifyCreditsUpdated, refreshCreditsFromServer } from '@/lib/credits';
+
 function getAccessToken() {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem('access_token');
@@ -150,6 +152,13 @@ export async function analyzeTradeScreenshots(fileBlobs, userId) {
 
     const trades = extractTradesFromPayload(data);
     const ai_response = trades.length === 1 ? trades[0] : trades.length > 1 ? trades : null;
+
+    const credits = extractAvailableCredits(data);
+    if (credits !== null) {
+        notifyCreditsUpdated(credits);
+    } else {
+        refreshCreditsFromServer();
+    }
 
     return { ...data, ai_response };
 }

@@ -7,6 +7,7 @@ import Input from '@/components/input';
 import Button from '@/components/button';
 import ContinueWithGoogle from '@/components/continueWithGoogle';
 import { authApi } from '@/lib/api';
+import { persistAuthSession } from '@/lib/authSession';
 import { validateLogin } from '@/lib/validation';
 import { toast } from '@/components/toast';
 
@@ -41,28 +42,7 @@ const Login = () => {
         setLoading(true);
         try {
             const data = await authApi.login(form.email, form.password);
-            const payload = data?.data || data;
-            const token = payload?.access_token;
-            const refreshToken = payload?.refresh_token;
-
-            if (token) {
-                localStorage.setItem('access_token', token);
-                document.cookie = `auth_token=${token}; path=/; SameSite=Lax`;
-            }
-            if (refreshToken) {
-                localStorage.setItem('refresh_token', refreshToken);
-            }
-
-            // Store user info for the topbar
-            const user = payload?.user || {};
-            localStorage.setItem('user', JSON.stringify({
-                id: user.id || user.user_id || '',
-                first_name: user.first_name || '',
-                last_name: user.last_name || '',
-                email: user.email || form.email,
-                picture: user.picture || user.profile_picture || '',
-            }));
-
+            persistAuthSession(data);
             router.push(redirectTo);
         } catch (err) {
             toast.dismiss();

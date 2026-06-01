@@ -6,6 +6,8 @@ import RemoveIcon from '@/icons/removeIcon';
 import DownIcon from '@/icons/downIcon';
 import { toast } from '@/components/toast';
 import { fxApi } from '@/lib/api';
+import { getStoredUserId } from '@/lib/authSession';
+import { syncCreditsAfterAction } from '@/lib/credits';
 import { historyDeletes } from '@/lib/historyDeletes';
 import Modal from '@/rendering/tradeSnap/Modal';
 import Loader from '@/components/loader';
@@ -113,17 +115,13 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
 
     // Fetch user details on mount
     useEffect(() => {
-        try {
-            const stored = localStorage.getItem('user');
-            if (stored) {
-                const parsed = JSON.parse(stored);
-                if (parsed.id || parsed.user_id) {
-                    setUserId(parsed.id || parsed.user_id);
-                }
-            }
-        } catch (e) {
-            console.error("Failed to parse user from localStorage:", e);
-        }
+        const syncUserId = () => {
+            const id = getStoredUserId();
+            if (id) setUserId(id);
+        };
+        syncUserId();
+        window.addEventListener('user:updated', syncUserId);
+        return () => window.removeEventListener('user:updated', syncUserId);
     }, []);
 
     // Close dropdown on click outside
@@ -335,6 +333,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                 setReportScrollKey((k) => k + 1);
             }
             fetchChatHistory(userId);
+            syncCreditsAfterAction(result);
         } catch (err) {
             const errorMessage = err?.message || "I apologize, but the FX Copilot API is currently unavailable. Please verify the endpoint or try again later.";
             setChatMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
@@ -367,6 +366,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                 isLoading: false
             });
             fetchBlogHistory(userId);
+            syncCreditsAfterAction(result);
         } catch (err) {
             console.error("Error generating blog:", err);
             setSelectedBlog({

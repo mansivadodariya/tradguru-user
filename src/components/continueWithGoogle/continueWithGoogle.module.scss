@@ -22,32 +22,60 @@
     }
 
     .googleBtnWrapper {
+        position: relative;
         width: 100%;
+        min-height: 48px;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    // Visible label — same on local and live (not Google's "Sign in as …" chip)
+    .customGoogleBtn {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
         display: flex;
         align-items: center;
-        gap: 10px;
         justify-content: center;
-        transition: .3s ease-in-out;
-        color: var(--Color, #25292B);
-        text-align: center;
-        cursor: pointer;
+        gap: 10px;
+        pointer-events: none;
+        color: var(--Color, #25292b);
         font-size: 18px;
-        border: 1px solid rgba(0, 0, 0, 0.10);
-        background: #FFF;
-        font-style: normal;
         font-weight: 500;
         line-height: normal;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        background: #fff;
+        border-radius: 8px;
 
-        // Force the generated Google button wrapper to take the full width of this container
-        >div {
+        img {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+    }
+
+    // Native Google button — transparent overlay captures clicks
+    .googleNativeBtn {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: flex;
+        align-items: stretch;
+        justify-content: stretch;
+        opacity: 0.011;
+        cursor: pointer;
+
+        > div {
             width: 100% !important;
             max-width: 100% !important;
+            height: 100% !important;
 
             iframe {
                 width: 100% !important;
                 max-width: 100% !important;
+                height: 48px !important;
+                min-height: 48px !important;
             }
         }
-
     }
 }

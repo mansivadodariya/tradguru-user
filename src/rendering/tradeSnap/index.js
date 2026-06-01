@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import styles from './tradeSnap.module.scss';
 import { analyzeTradeScreenshots, dataUrlToBlob, extractTradesFromPayload } from '@/lib/tradeSnapApi';
+import { getStoredUserId } from '@/lib/authSession';
 import { toast } from '@/components/toast';
 import { tradeSnapApi } from '@/lib/api';
 import { historyDeletes } from '@/lib/historyDeletes';
@@ -39,16 +40,7 @@ const AUTO_CAPTURE_OPTIONS_MULTI_LOW = [
 ];
 
 function getUserId() {
-    try {
-        const stored = localStorage.getItem('user');
-        if (stored) {
-            const parsed = JSON.parse(stored);
-            return parsed.id || parsed.user_id || '';
-        }
-    } catch {
-        /* ignore */
-    }
-    return localStorage.getItem('user_id') || '';
+    return getStoredUserId();
 }
 
 export default function TradeSnap() {

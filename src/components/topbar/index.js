@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './topbar.module.scss';
 import { dashboardApi } from '@/lib/api';
+import { getStoredUser, getStoredUserId, clearAuthSession } from '@/lib/authSession';
+import { CREDITS_UPDATED_EVENT } from '@/lib/credits';
 
 const Topbar = ({ onMenuClick }) => {
     const router = useRouter();
@@ -13,25 +15,44 @@ const Topbar = ({ onMenuClick }) => {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const dropdownRef = useRef(null);
 
+    const fetchCredits = async (userId) => {
+        if (!userId) return;
+        try {
+            const res = await dashboardApi.getStats(userId);
+            setCredits(res?.data?.available_credits ?? null);
+        } catch (err) {
+            if (!err?.message?.includes('Session expired')) { /* skip */ }
+        }
+    };
+
     useEffect(() => {
         const init = async () => {
             try {
-                const stored = localStorage.getItem('user');
-                if (!stored) { router.replace('/login'); return; }
-                const parsed = JSON.parse(stored);
-                setUser(parsed);
-                if (parsed?.id) {
-                    try {
-                        const res = await dashboardApi.getStats(parsed.id);
-                        setCredits(res?.data?.available_credits ?? null);
-                    } catch (err) {
-                        if (!err?.message?.includes('Session expired')) { /* skip */ }
-                    }
+                const parsed = getStoredUser();
+                const userId = getStoredUserId();
+                if (!parsed && !userId) {
+                    router.replace('/login');
+                    return;
                 }
+                setUser(parsed || { id: userId });
+                await fetchCredits(userId);
             } catch { /* ignore */ } finally { setLoading(false); }
         };
         init();
+        window.addEventListener('user:updated', init);
+        return () => window.removeEventListener('user:updated', init);
     }, [router]);
+
+    useEffect(() => {
+        const onCreditsUpdated = (e) => {
+            const next = e?.detail?.available_credits;
+            if (next !== undefined && next !== null) {
+                setCredits(next);
+            }
+        };
+        window.addEventListener(CREDITS_UPDATED_EVENT, onCreditsUpdated);
+        return () => window.removeEventListener(CREDITS_UPDATED_EVENT, onCreditsUpdated);
+    }, []);
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -68,10 +89,7 @@ const Topbar = ({ onMenuClick }) => {
     const profilePicture = user?.picture || '';
 
     const doLogout = () => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('user');
-        document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+        clearAuthSession();
         router.push('/login');
     };
 

@@ -1,3 +1,5 @@
+import { extractAvailableCredits, notifyCreditsUpdated } from '@/lib/credits';
+
 const BASE_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1`;
 
 const DEFAULT_ROLE_ID = '44b71348-74d5-42ef-831a-be7c2da4882e';
@@ -91,9 +93,12 @@ async function request(path, options = {}, _isRetry = false) {
     }
 
     const data = await res.json().catch(() => ({}));
-    console.log(data, "datttttttaaaaaa");
 
     if (!res.ok) throw new Error(data?.detail?.message || 'Something went wrong');
+
+    const credits = extractAvailableCredits(data);
+    if (credits !== null) notifyCreditsUpdated(credits);
+
     return data;
 }
 

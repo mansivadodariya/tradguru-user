@@ -8,6 +8,7 @@ import TradeIcon from "@/icons/tradeIcon";
 import AssistantIcon from "@/icons/assistantIcon";
 import PricingIcon from "@/icons/pricingIcon";
 import SettingsIcon from "@/icons/settingsIcon";
+import { clearAuthSession } from '@/lib/authSession';
 
 const SidebarLogo = "/assets/logo/logo.svg";
 
@@ -50,10 +51,7 @@ const Sidebar = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const doLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
-    document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    clearAuthSession();
     router.replace('/login');
   };
 

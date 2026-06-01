@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import styles from './dashboard.module.scss';
 import CommonSearch from '@/components/commonSearch';
 import { dashboardApi } from '@/lib/api';
+import { getStoredUser, getStoredUserId } from '@/lib/authSession';
 import Loader from '@/components/loader';
 const CardIcon = '/assets/icons/dashboardCard.svg'
 const iconOne = '/assets/icons/IconOne.svg'
@@ -17,31 +18,11 @@ const state2 = '/assets/icons/state2.svg';
 const state3 = '/assets/icons/state3.svg';
 const state4 = '/assets/icons/state4.svg';
 
-function getUserIdFromLocalStorage() {
-    try {
-        const stored = localStorage.getItem('user');
-        if (stored) {
-            const parsed = JSON.parse(stored);
-            return parsed.id || parsed.user_id || '';
-        }
-    } catch {
-        // ignore
-    }
-    return '';
-}
-
 function getUserNameFromLocalStorage() {
-    try {
-        const stored = localStorage.getItem('user');
-        if (stored) {
-            const parsed = JSON.parse(stored);
-            const name = [parsed.first_name, parsed.last_name].filter(Boolean).join(' ');
-            return name || parsed.email || 'Trader';
-        }
-    } catch {
-        // ignore
-    }
-    return 'Trader';
+    const parsed = getStoredUser();
+    if (!parsed) return 'Trader';
+    const name = [parsed.first_name, parsed.last_name].filter(Boolean).join(' ');
+    return name || parsed.email || 'Trader';
 }
 
 function timeAgo(dateLike) {
@@ -71,13 +52,21 @@ export default function Dashboard() {
     const [name, setName] = useState('');
 
     useEffect(() => {
-        setUserId(getUserIdFromLocalStorage());
-        setName(getUserNameFromLocalStorage());
-        setGreeting(getGreeting());
+        const syncUser = () => {
+            setUserId(getStoredUserId());
+            setName(getUserNameFromLocalStorage());
+            setGreeting(getGreeting());
+        };
+        syncUser();
+        window.addEventListener('user:updated', syncUser);
+        return () => window.removeEventListener('user:updated', syncUser);
     }, []);
 
     useEffect(() => {
-        if (!userId) return;
+        if (!userId) {
+            setLoading(false);
+            return;
+        }
         let mounted = true;
         const load = async () => {
             setLoading(true);
