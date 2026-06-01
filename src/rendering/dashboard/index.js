@@ -7,10 +7,10 @@ import CommonSearch from '@/components/commonSearch';
 import { dashboardApi } from '@/lib/api';
 import Loader from '@/components/loader';
 const CardIcon = '/assets/icons/dashboardCard.svg'
-const iconOne = '/assets/icons/iconOne.svg'
-const iconTwo = '/assets/icons/iconTwo.svg'
-const iconThree = '/assets/icons/iconThree.svg'
-const iconFour = '/assets/icons/iconFour.svg'
+const iconOne = '/assets/icons/IconOne.svg'
+const iconTwo = '/assets/icons/IconTwo.svg'
+const iconThree = '/assets/icons/IconThree.svg'
+const iconFour = '/assets/icons/IconFour.svg'
 const ArrowIcon = '/assets/icons/arrow.svg';
 const state1 = '/assets/icons/state1.svg';
 const state2 = '/assets/icons/state2.svg';
