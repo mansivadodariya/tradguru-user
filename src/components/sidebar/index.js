@@ -20,13 +20,25 @@ const mainNav = [
   { label: "Profile", href: "/profile", icon: SettingsIcon },
 ];
 
-const NavItem = ({ item, pathname }) => {
+/** Match current route to nav item (handles trailing slashes and nested paths). */
+function isNavItemActive(pathname, href) {
+  if (!pathname || !href) return false;
+  const current = pathname.split('?')[0].replace(/\/$/, '') || '/';
+  const target = href.replace(/\/$/, '') || '/';
+  return current === target || current.startsWith(`${target}/`);
+}
+
+const NavItem = ({ item, pathname, onNavigate }) => {
   const Icon = item.icon;
-  const isActive = pathname === item.href;
+  const isActive = isNavItemActive(pathname, item.href);
+
   return (
     <Link
       href={item.href}
-      className={`${styles.menu}${isActive ? ` ${styles.active}` : ""}`}
+      className={styles.menu}
+      data-active={isActive ? 'true' : undefined}
+      aria-current={isActive ? 'page' : undefined}
+      onClick={onNavigate}
     >
       <div className={styles.icon}>
         <Icon />
@@ -44,11 +56,15 @@ const LogoutIcon = () => (
   </svg>
 );
 
-const Sidebar = () => {
+const Sidebar = ({ onClose }) => {
   const pathname = usePathname();
   const router = useRouter();
 
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleNavigate = () => {
+    onClose?.();
+  };
 
   const doLogout = () => {
     clearAuthSession();
@@ -63,7 +79,12 @@ const Sidebar = () => {
         </div>
         <div className={styles.sidebarmenu}>
           {mainNav.map((item) => (
-            <NavItem key={item.href} item={item} pathname={pathname} />
+            <NavItem
+              key={item.href}
+              item={item}
+              pathname={pathname}
+              onNavigate={handleNavigate}
+            />
           ))}
         </div>
         <div className={styles.sidebarFooter}>

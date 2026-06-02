@@ -95,11 +95,13 @@ export function persistAuthSession(payload) {
     }
 
     const user = data.user || {};
+    const fullName = user.name || data.name || user.full_name || data.full_name || '';
+    const nameParts = fullName.trim().split(/\s+/);
     const sessionUser = {
         id: userId || user.id || user.user_id || '',
         user_id: userId || user.user_id || user.id || '',
-        first_name: user.first_name || data.first_name || '',
-        last_name: user.last_name || data.last_name || '',
+        first_name: user.first_name || data.first_name || nameParts[0] || '',
+        last_name: user.last_name || data.last_name || nameParts.slice(1).join(' ') || '',
         email: user.email || data.email || '',
         picture: user.picture || user.profile_picture || data.picture || '',
     };

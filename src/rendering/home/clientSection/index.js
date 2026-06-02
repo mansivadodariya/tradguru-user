@@ -42,7 +42,7 @@ const testimonials = [
     {
         id: 5,
         rating: 5,
-        quote: "The support structures identified by FX Guru saved me from at least three bad setups this week alone. Incredible math.",
+        quote: "The support structures identified by Trader Master saved me from at least three bad setups this week alone. Incredible math.",
         author: "Kenji Sato",
         role: "Risk Manager, Tokyo",
         avatar: ProfileImage

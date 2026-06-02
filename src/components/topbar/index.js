@@ -5,6 +5,7 @@ import styles from './topbar.module.scss';
 import { dashboardApi } from '@/lib/api';
 import { getStoredUser, getStoredUserId, clearAuthSession } from '@/lib/authSession';
 import { CREDITS_UPDATED_EVENT } from '@/lib/credits';
+import { supabase } from '@/lib/supabaseClient';
 
 const Topbar = ({ onMenuClick }) => {
     const router = useRouter();
@@ -25,6 +26,39 @@ const Topbar = ({ onMenuClick }) => {
         }
     };
 
+    const hydrateUserFromProfile = async (userId, currentUser) => {
+        if (!userId) return currentUser || null;
+        const hasBasicIdentity = Boolean(
+            currentUser?.first_name || currentUser?.last_name || currentUser?.name || currentUser?.email
+        );
+        if (hasBasicIdentity) return currentUser;
+
+        try {
+            const { data, error } = await supabase
+                .from('users')
+                .select('first_name, last_name, email, profile_picture, picture')
+                .eq('id', userId)
+                .single();
+
+            if (error || !data) return currentUser || { id: userId, user_id: userId };
+
+            const mergedUser = {
+                ...(currentUser || {}),
+                id: currentUser?.id || currentUser?.user_id || userId,
+                user_id: currentUser?.user_id || currentUser?.id || userId,
+                first_name: data.first_name || currentUser?.first_name || '',
+                last_name: data.last_name || currentUser?.last_name || '',
+                email: data.email || currentUser?.email || '',
+                picture: data.profile_picture || data.picture || currentUser?.picture || '',
+            };
+
+            localStorage.setItem('user', JSON.stringify(mergedUser));
+            return mergedUser;
+        } catch {
+            return currentUser || { id: userId, user_id: userId };
+        }
+    };
+
     useEffect(() => {
         const init = async () => {
             try {
@@ -34,7 +68,8 @@ const Topbar = ({ onMenuClick }) => {
                     router.replace('/login');
                     return;
                 }
-                setUser(parsed || { id: userId });
+                const resolvedUser = await hydrateUserFromProfile(userId, parsed || { id: userId, user_id: userId });
+                setUser(resolvedUser);
                 await fetchCredits(userId);
             } catch { /* ignore */ } finally { setLoading(false); }
         };
@@ -64,26 +99,15 @@ const Topbar = ({ onMenuClick }) => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    useEffect(() => {
-        const handleUserUpdate = () => {
-            try {
-                const stored = localStorage.getItem('user');
-                if (stored) setUser(JSON.parse(stored));
-            } catch { /* ignore */ }
-        };
-        window.addEventListener('user:updated', handleUserUpdate);
-        return () => window.removeEventListener('user:updated', handleUserUpdate);
-    }, []);
-
     const displayName = user
-        ? [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email || 'User'
+        ? [user.first_name, user.last_name].filter(Boolean).join(' ') || user.name || user.email || 'User'
         : 'User';
 
     const initials = user
         ? [user.first_name, user.last_name]
             .filter(Boolean)
             .map((n) => n.charAt(0).toUpperCase())
-            .join('') || (user.email ? user.email.charAt(0).toUpperCase() : 'U')
+            .join('') || (user.name ? user.name.charAt(0).toUpperCase() : user.email ? user.email.charAt(0).toUpperCase() : 'U')
         : 'U';
 
     const profilePicture = user?.picture || '';
@@ -158,7 +182,7 @@ const Topbar = ({ onMenuClick }) => {
                                     {user?.email && <span>{user.email}</span>}
                                 </div>
                             </div>
-                        </div>                   
+                        </div>
                     </div>
                 </div>
             </div>

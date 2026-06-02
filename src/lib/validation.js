@@ -1,4 +1,5 @@
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Accepts E.164 (+919876543210) and plain formats
 const PHONE_RE = /^\+?[0-9\s\-().]{7,20}$/;
 // Strong password: min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special char
 const PASSWORD_RE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;

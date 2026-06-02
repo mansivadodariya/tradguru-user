@@ -18,18 +18,30 @@ import ReportPanel from './ReportPanel';
 
 const UploadIcon = '/assets/icons/upload-xs.svg';
 
-const MAJOR_PAIRS = [
-    'EUR/USD',
-    'USD/JPY',
-    'GBP/USD',
-    'USD/CHF',
-    'AUD/USD',
-    'USD/CAD',
-    'NZD/USD',
-    'EUR/GBP',
-    'EUR/JPY',
-    'GBP/JPY'
+const PAIR_GROUPS = [
+    {
+        label: 'Major Pairs',
+        pairs: ['EUR/USD', 'USD/JPY', 'GBP/USD', 'USD/CHF', 'AUD/USD', 'USD/CAD', 'NZD/USD', 'XAU/USD'],
+    },
+    {
+        label: 'Euro Crosses',
+        pairs: ['EUR/GBP', 'EUR/CHF', 'EUR/JPY', 'EUR/AUD', 'EUR/CAD', 'EUR/NZD'],
+    },
+    {
+        label: 'Pound Crosses',
+        pairs: ['GBP/JPY', 'GBP/AUD', 'GBP/CAD', 'GBP/CHF', 'GBP/NZD'],
+    },
+    {
+        label: 'Yen Crosses',
+        pairs: ['CHF/JPY', 'CAD/JPY', 'AUD/JPY', 'NZD/JPY'],
+    },
+    {
+        label: 'Other Crosses',
+        pairs: ['AUD/CHF', 'AUD/CAD', 'AUD/NZD', 'CAD/CHF', 'NZD/CHF'],
+    },
 ];
+
+const ALL_PAIRS = PAIR_GROUPS.flatMap(g => g.pairs);
 
 const parseAssistantResponse = (raw) => {
     const envelope = raw?.data || raw;
@@ -91,7 +103,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     const [selectedChat, setSelectedChat] = useState(null);
     const [chatMessages, setChatMessages] = useState([]);
     const [chatInput, setChatInput] = useState('');
-    const [selectedPair, setSelectedPair] = useState('EUR/USD');
+    const [selectedPair, setSelectedPair] = useState('XAU/USD');
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     // Blog State
@@ -244,7 +256,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         setSelectedVisualData(parsed.visualData);
         setReportScrollKey((k) => k + 1);
 
-        if (pair && MAJOR_PAIRS.includes(pair)) {
+        if (pair && ALL_PAIRS.includes(pair)) {
             setSelectedPair(pair);
         }
     };
@@ -659,7 +671,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                             </svg>
                                         </div>
                                         <div className={styles.headerInfo}>
-                                            <h3>FX Guru Copilot</h3>
+                                            <h3>Trader Master Copilot</h3>
                                             <span>Active Pair: {selectedPair}</span>
                                         </div>
                                     </div>
@@ -667,7 +679,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                         {chatMessages.length === 0 ? (
                                             <div className={styles.welcomeContainer}>
                                                 <div className={styles.welcomeIcon}></div>
-                                                <h2>Welcome to FX Guru Copilot</h2>
+                                                <h2>Welcome to Trader Master Copilot</h2>
                                                 <p>Select a major pair below, ask a question, and get deep insights on forex market movement and trends instantly.</p>
                                             </div>
                                         ) : (
@@ -755,7 +767,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                         placeholder="Ask anything about forex trading, chart and strategies.."
                                         className={styles.textarea}
                                         value={chatInput}
-                                        onChange={(e) => setChatInput(e.target.value)}
+                                        onChange={(e) => setChatInput(e.target.value.trimStart())}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter' && !e.shiftKey) {
                                                 e.preventDefault();
@@ -778,26 +790,27 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                             </button>
                                             {dropdownOpen && (
                                                 <div className={styles.dropdownMenu}>
-                                                    <div className={styles.dropdownHeader}>Major Pairs</div>
-                                                    <div className={styles.dropdownList}>
-                                                        {MAJOR_PAIRS.map(pair => (
-                                                            <button
-                                                                key={pair}
-                                                                className={`${styles.dropdownItem} ${selectedPair === pair ? styles.activePair : ''}`}
-                                                                onClick={() => {
-                                                                    setSelectedPair(pair);
-                                                                    setDropdownOpen(false);
-                                                                }}
-                                                                type="button"
-                                                            >
-                                                                {selectedPair === pair && <span className={styles.checkmark}>✓</span>}
-                                                                <span className={styles.pairText}>{pair}</span>
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                    <div className={styles.dropdownScrollArrow}>
-                                                        <DownIcon />
-                                                    </div>
+                                                    {PAIR_GROUPS.map(group => (
+                                                        <div key={group.label}>
+                                                            <div className={styles.dropdownHeader}>{group.label}</div>
+                                                            <div className={styles.dropdownList}>
+                                                                {group.pairs.map(pair => (
+                                                                    <button
+                                                                        key={pair}
+                                                                        className={`${styles.dropdownItem} ${selectedPair === pair ? styles.activePair : ''}`}
+                                                                        onClick={() => {
+                                                                            setSelectedPair(pair);
+                                                                            setDropdownOpen(false);
+                                                                        }}
+                                                                        type="button"
+                                                                    >
+                                                                        {selectedPair === pair && <span className={styles.checkmark}>✓</span>}
+                                                                        <span className={styles.pairText}>{pair}</span>
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             )}
                                         </div>
@@ -868,7 +881,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                     ) : (
                                         <div className={styles.welcomeContainer}>
                                             <div className={styles.welcomeIcon}></div>
-                                            <h2>FX Guru Blog Writer</h2>
+                                            <h2>Trader Master Blog Writer</h2>
                                             <p>Provide a topic or detailed outline guidelines. Switch toggle below to write a structured outline or a full article post.</p>
                                         </div>
                                     )}
@@ -881,7 +894,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                     placeholder="Enter a forex topic or outlines to generate a blog..."
                                     className={styles.textarea}
                                     value={blogInput}
-                                    onChange={(e) => setBlogInput(e.target.value)}
+                                    onChange={(e) => setBlogInput(e.target.value.trimStart())}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter' && !e.shiftKey) {
                                             e.preventDefault();

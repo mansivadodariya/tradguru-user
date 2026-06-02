@@ -71,7 +71,7 @@ export default function Herobanner() {
                     </motion.h1>
 
                     <motion.p variants={itemVariants}>
-                        FX Guru reads your charts, analyses your trades, and builds your strategies through a conversational prompt interface designed exclusively for Forex
+                        Trader Master reads your charts, analyses your trades, and builds your strategies through a conversational prompt interface designed exclusively for Forex
                         and MT5 traders.
                     </motion.p>
 

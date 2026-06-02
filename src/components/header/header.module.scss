@@ -80,17 +80,18 @@
                 display: none;
             }
 
-            a {
+            a,
+            .navLink {
                 text-decoration: none;
                 display: block;
                 cursor: pointer;
-                color: #5F5F5F;
+                color: #0f0f0f;
                 font-size: 16px;
                 font-style: normal;
                 font-weight: 400;
                 line-height: normal;
                 padding: 6px 16px;
-                transition: .3s ease-in-out;
+                transition: 0.3s ease-in-out;
 
                 @include respond-to('md') {
                     padding: 6px 10px;
@@ -102,7 +103,8 @@
                     font-size: 13px;
                 }
 
-                &:hover {
+                &:hover,
+                &.active {
                     background: linear-gradient(180deg, rgba(11, 86, 219, 0.10) 0%, rgba(255, 255, 255, 0.10) 49.65%, rgba(11, 86, 219, 0.10) 100%);
                     color: #0B56DB;
                 }
@@ -139,7 +141,7 @@
             font-size: 24px;
             font-weight: 600;
             color: #1A1A1A;
-            padding: 0 0 40px 0;
+            padding: 0 0 40px;
             text-decoration: none;
 
             &:last-child {

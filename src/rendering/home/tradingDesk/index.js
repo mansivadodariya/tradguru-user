@@ -74,7 +74,7 @@ export default function TradingDesk() {
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.5, delay: 0.2 }}
                                 >
-                                    A glimpse of how a typical FX Guru conversation flows. Specific, structured, and
+                                    A glimpse of how a typical Trader Master conversation flows. Specific, structured, and
                                     always tied to risk.
                                 </motion.p>
                             </div>

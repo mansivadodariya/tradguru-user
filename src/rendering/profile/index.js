@@ -3,12 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './profile.module.scss';
 import Input from '@/components/input';
+import PhoneInput from '@/components/phoneInput';
 import Button from '@/components/button';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from '@/components/toast';
-const ArrowIcon = '/assets/icons/arrow.svg';
+import { isValidPhoneNumber } from 'react-phone-number-input';
 
-const PHONE_RE = /^\+?[0-9\s\-().]{7,20}$/;
+const ArrowIcon = '/assets/icons/arrow.svg';
 
 function getUserFromStorage() {
     try {
@@ -66,44 +67,30 @@ export default function Profile() {
 
     const validate = () => {
         const errs = {};
-        if (!form.first_name.trim()) errs.first_name = 'First name is required.';
-        else if (form.first_name.trim().length < 2) errs.first_name = 'Min 2 characters.';
-        if (!form.last_name.trim()) errs.last_name = 'Last name is required.';
-        else if (form.last_name.trim().length < 2) errs.last_name = 'Min 2 characters.';
-        if (form.phone_number && !PHONE_RE.test(form.phone_number.trim()))
+        if (!form.first_name.trim())
+            errs.first_name = 'First name is required.';
+        else if (form.first_name.trim().length < 2)
+            errs.first_name = 'Min 2 characters.';
+
+        if (!form.last_name.trim())
+            errs.last_name = 'Last name is required.';
+        else if (form.last_name.trim().length < 2)
+            errs.last_name = 'Min 2 characters.';
+
+        if (form.phone_number && !isValidPhoneNumber(form.phone_number))
             errs.phone_number = 'Enter a valid phone number.';
+
         return errs;
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        if (name === 'phone_number') {
-            // allow digits, +, spaces, -, (, ) only
-            const cleaned = value.replace(/[^\d+\s\-().]/g, '');
-            setForm((prev) => ({ ...prev, phone_number: cleaned }));
-            setErrors((prev) => ({ ...prev, phone_number: '' }));
-            return;
-        }
         setForm((prev) => ({ ...prev, [name]: value }));
         setErrors((prev) => ({ ...prev, [name]: '' }));
     };
 
-    const handlePhoneKeyDown = (e) => {
-        // allow: backspace, delete, tab, escape, enter, arrows, home, end
-        const controlKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
-            'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
-        if (controlKeys.includes(e.key)) return;
-        // allow: Ctrl/Cmd+A/C/V/X
-        if ((e.ctrlKey || e.metaKey) && ['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) return;
-        // allow valid phone chars: digits, +, space, -, (, )
-        if (/[\d+\s\-().]/.test(e.key)) return;
-        e.preventDefault();
-    };
-
-    const handlePhonePaste = (e) => {
-        e.preventDefault();
-        const pasted = e.clipboardData.getData('text').replace(/[^\d+\s\-().]/g, '');
-        setForm((prev) => ({ ...prev, phone_number: pasted }));
+    const setPhone = (value) => {
+        setForm((prev) => ({ ...prev, phone_number: value || '' }));
         setErrors((prev) => ({ ...prev, phone_number: '' }));
     };
 
@@ -119,18 +106,17 @@ export default function Profile() {
                 .update({
                     first_name: form.first_name.trim(),
                     last_name: form.last_name.trim(),
-                    phone_number: form.phone_number.trim() || null,
+                    phone_number: form.phone_number || null,
                 })
                 .eq('id', userId);
             if (error) throw error;
 
-            // sync localStorage and notify other components
             const stored = getUserFromStorage() || {};
             const updated = {
                 ...stored,
                 first_name: form.first_name.trim(),
                 last_name: form.last_name.trim(),
-                phone_number: form.phone_number.trim() || null,
+                phone_number: form.phone_number || null,
             };
             localStorage.setItem('user', JSON.stringify(updated));
             window.dispatchEvent(new Event('user:updated'));
@@ -184,15 +170,11 @@ export default function Profile() {
                         <div className={styles.emailDisplay}>{form.email || '—'}</div>
                     </div>
 
-                    <Input
+                    <PhoneInput
                         label="Phone Number"
-                        name="phone_number"
-                        placeholder="+1 234 567 8900"
                         value={form.phone_number}
-                        onChange={handleChange}
-                        onKeyDown={handlePhoneKeyDown}
-                        onPaste={handlePhonePaste}
-                        inputMode="tel"
+                        onChange={setPhone}
+                        placeholder="Phone number"
                         error={errors.phone_number}
                     />
 

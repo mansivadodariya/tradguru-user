@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import Link from 'next/link';
 import styles from './header.module.scss';
 import Button from '../button';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { authNavigate } from '@/lib/authRedirect';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,7 +12,11 @@ const ArrowIcon = '/assets/icons/arrow.svg';
 
 export default function Header() {
     const router = useRouter()
+    const pathname = usePathname()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const navClass = (href) =>
+        pathname === href ? `${styles.navLink} ${styles.active}` : styles.navLink;
 
     return (
         <>
@@ -25,24 +29,25 @@ export default function Header() {
                             </Link>
                         </div>
                         <div className={styles.menuAlignment}>
-                            <Link href="/" aria-label='Home'>Home</Link>
-                            <Link href="/tradesnap" aria-label='AI Trade'>AI Trade</Link>
-                            <Link href="/ai-chat" aria-label='AI Chat'>AI Chat</Link>
-                            <Link href="/ai-chat" aria-label='AI Strategy'>AI Strategy</Link>
+                            <Link href="/" aria-label='Home' className={navClass('/')}>Home</Link>
+                            <Link href="/tradesnap" aria-label='AI Trade' className={navClass('/tradesnap')}>AI Trade</Link>
+                            <Link href="/ai-chat" aria-label='AI Chat' className={navClass('/ai-chat')}>AI Chat</Link>
+                            <Link href="/ai-chat" aria-label='AI Strategy' className={navClass('/ai-chat')}>AI Strategy</Link>
                             <Link
                                 href="https://www.edufins.com/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Education"
+                                className={styles.navLink}
                             >
                                 Education
                             </Link>
-
                             <Link
                                 href="https://fundedmaster.com/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Funded Master"
+                                className={styles.navLink}
                             >
                                 Funded Master
                             </Link>

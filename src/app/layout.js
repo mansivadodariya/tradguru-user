@@ -17,21 +17,21 @@ const robotoSans = Roboto({
 });
 
 export const metadata = {
-  title: "Trade Guru — AI-Powered Forex Intelligence",
+  title: "Trader Master — AI-Powered Forex Intelligence",
   description:
-    "Trade Guru delivers AI-powered Forex analysis, chart reading, trade signals, and strategy generation built around MT5 and the Newera brokerage stack.",
-  keywords: ["forex", "trading", "AI", "trade analysis", "MT5", "trade signals", "FX Guru"],
-  authors: [{ name: "Trade Guru" }],
+    "Trader Master delivers AI-powered Forex analysis, chart reading, trade signals, and strategy generation built around MT5 and the Newera brokerage stack.",
+  keywords: ["forex", "trading", "AI", "trade analysis", "MT5", "trade signals", "Trader Master"],
+  authors: [{ name: "Trader Master" }],
   openGraph: {
-    title: "Trade Guru — AI-Powered Forex Intelligence",
+    title: "Trader Master — AI-Powered Forex Intelligence",
     description:
       "AI-powered Forex intelligence for serious traders. Chart reading, trade analysis, and strategy generation.",
-    siteName: "Trade Guru",
+    siteName: "Trader Master",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Trade Guru — AI-Powered Forex Intelligence",
+    title: "Trader Master — AI-Powered Forex Intelligence",
     description:
       "AI-powered Forex intelligence for serious traders. Chart reading, trade analysis, and strategy generation.",
   },

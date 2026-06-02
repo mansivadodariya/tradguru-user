@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styles from './signup.module.scss';
 import Input from '@/components/input';
+import PhoneInput from '@/components/phoneInput';
 import Button from '@/components/button';
 import ContinueWithGoogle from '@/components/continueWithGoogle';
 import { getAuthRedirectTarget } from '@/lib/authSession';
@@ -17,7 +18,6 @@ const LineImage = '/assets/images/line.png';
 const AuthIcon = '/assets/icons/auth.svg';
 const ArrowIcon = '/assets/icons/arrow.svg';
 const Profile = '/assets/icons/profile.svg';
-const Call = '/assets/icons/call.svg';
 const EmailIcon = '/assets/icons/sms.svg';
 const Lock = '/assets/icons/lock.svg';
 
@@ -34,10 +34,14 @@ const Signup = () => {
 
     const set = (field) => (e) => {
         let val = e.target.value.trimStart();
-        if (field === 'phone_number') val = val.replace(/\D/g, '');
         setForm((f) => ({ ...f, [field]: val }));
         // clear field error on change
         if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }));
+    };
+
+    const setPhone = (value) => {
+        setForm((f) => ({ ...f, phone_number: value || '' }));
+        if (errors.phone_number) setErrors((prev) => ({ ...prev, phone_number: '' }));
     };
 
     const handleSubmit = async (e) => {
@@ -104,7 +108,14 @@ const Signup = () => {
                                 <Input icon={Profile} placeholder="Last Name" name="last_name" value={form.last_name} onChange={set('last_name')} error={errors.last_name} />
                             </div>
                             <Input icon={EmailIcon} placeholder="Email" type="email" name="email" value={form.email} onChange={set('email')} error={errors.email} />
-                            <Input icon={Call} placeholder="Phone no" name="phone_number" value={form.phone_number} onChange={set('phone_number')} error={errors.phone_number} inputMode="numeric" maxLength={15} />
+                            <PhoneInput
+                                label=""
+                                placeholder="Phone no"
+                                value={form.phone_number}
+                                onChange={setPhone}
+                                error={errors.phone_number}
+                                defaultCountry="IN"
+                            />
                             <div className={styles.twoCol}>
                                 <Input icon={Lock} placeholder="Password" type="password" name="password" value={form.password} onChange={set('password')} error={errors.password} />
                                 <Input icon={Lock} placeholder="Confirm Password" type="password" name="confirmPassword" value={form.confirmPassword} onChange={set('confirmPassword')} error={errors.confirmPassword} />

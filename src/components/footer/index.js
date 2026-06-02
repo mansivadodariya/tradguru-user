@@ -47,6 +47,9 @@ export default function Footer() {
         e.preventDefault();
         // logic for subscription
     };
+    const handleEmailInput = (e) => {
+        e.target.value = e.target.value.trimStart();
+    };
 
     return (
         <footer className={styles.footer}>
@@ -55,7 +58,7 @@ export default function Footer() {
                     {/* Brand/Logo column */}
                     <div className={styles.brandCol}>
                         <a href="#" className={styles.logo}>
-                            <img src={FooterLogo} alt="Trade Guru Logo" />
+                            <img src={FooterLogo} alt="Trader Master Logo" />
                         </a>
                         <p>
                             AI-powered Forex intelligence for serious traders. Chart reading,
@@ -66,6 +69,7 @@ export default function Footer() {
                             <input
                                 type="email"
                                 placeholder="Your@gmail.com"
+                                onChange={handleEmailInput}
                                 required
                             />
                             <button type="submit" className={styles.submitBtn} aria-label="Subscribe">
@@ -79,7 +83,7 @@ export default function Footer() {
                             <h4>Product</h4>
                             <ul>
                                 <li><Link href="/tradesnap">Trade Snap</Link></li>
-                                <li><Link href="/ai-chat">FX Guru</Link></li>
+                                <li><Link href="/ai-chat">AI assistant</Link></li>
                                 <li><Link href="/ai-chat">AI Strategy</Link></li>
                             </ul>
                         </div>
@@ -127,7 +131,7 @@ export default function Footer() {
 
                 <div className={styles.bottomSection}>
                     <div className={styles.warningBlock}>
-                        <h5>© {new Date().getFullYear()} Trade Guru. All rights reserved.</h5>                        <p>
+                        <h5>© {new Date().getFullYear()} Trader Master. All rights reserved.</h5>                        <p>
                             Risk warning: Forex trading carries substantial risk. Trader Master provides analytical
                             tools and does not handle deposits or withdrawals. All funds are managed by Newera.
                         </p>

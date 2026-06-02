@@ -21,7 +21,7 @@ const tradersData = [
     },
     {
         id: 2,
-        title: 'FX Guru',
+        title: 'AI Assistant',
         description: 'Ask anything pair commentary session bias news interpretation, each prompt costa one credits your full chat history stays available.',
         icon: SearchIcon,
         image: FxGuruImage,

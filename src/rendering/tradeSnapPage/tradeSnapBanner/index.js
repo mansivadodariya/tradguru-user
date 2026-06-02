@@ -73,7 +73,7 @@ export default function TradeSnapBanner() {
                                     Snap a chart.Read the trade.
                                 </h1>
                                 <p>
-                                    Drag any chart screenshot into Trade Snap and let FX Guru identify structure, mark levels, and grade the setup against your
+                                    Drag any chart screenshot into Trade Snap and let Trader Master identify structure, mark levels, and grade the setup against your
                                     risk profile.
                                 </p>
                             </motion.div>

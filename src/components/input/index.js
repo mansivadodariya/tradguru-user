@@ -22,6 +22,21 @@ const Input = ({ label, placeholder, type = 'text', value, onChange, name, icon,
     const isPassword = type === 'password';
     const resolvedType = isPassword ? (showPassword ? 'text' : 'password') : type;
 
+    const handleChange = (e) => {
+        if (e && e.target && type !== 'file') {
+            let val = e.target.value;
+            if (type === 'email' || type === 'password') {
+                // no spaces allowed at all
+                val = val.replace(/\s/g, '');
+            } else {
+                // strip leading spaces from all other fields
+                val = val.replace(/^\s+/, '');
+            }
+            e.target.value = val;
+        }
+        if (onChange) onChange(e);
+    };
+
     return (
         <div className={styles.input}>
             {label && <label htmlFor={name}>{label}</label>}
@@ -33,7 +48,7 @@ const Input = ({ label, placeholder, type = 'text', value, onChange, name, icon,
                     name={name}
                     placeholder={placeholder}
                     value={value}
-                    onChange={onChange}
+                    onChange={handleChange}
                     aria-invalid={!!error}
                     aria-describedby={error ? `${name}-error` : undefined}
                     {...rest}
