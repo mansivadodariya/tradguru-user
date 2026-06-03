@@ -120,6 +120,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     const [selectedReport, setSelectedReport] = useState(null);
     const [selectedVisualData, setSelectedVisualData] = useState(null);
     const [reportScrollKey, setReportScrollKey] = useState(0);
+    const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
     // Refs
     const dropdownRef = useRef(null);
@@ -225,6 +226,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     };
 
     const handleCreateNew = () => {
+        setHistoryModalOpen(false);
         if (activeTab === 'chat') {
             setSelectedChat(null);
             setChatMessages([]);
@@ -238,6 +240,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     };
 
     const handleSelectChat = (item) => {
+        setHistoryModalOpen(false);
         setSelectedChat(item);
         const question = item.question || item.message || '';
         const rawResponse = item.response || item.answer || item;
@@ -262,6 +265,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     };
 
     const handleSelectBlog = (item) => {
+        setHistoryModalOpen(false);
         setSelectedBlog(item);
     };
 
@@ -576,86 +580,27 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     return (
         <div className={styles.aiAssistant}>
             <div className={styles.grid}>
-                {/* Left Sidebar: Navigation/History list */}
-                <div className={styles.items}>
-                    <div className={styles.left}>
-                        <div className={styles.first}>
-                            <Button
-                                text={activeTab === 'chat' ? 'Create New Chat' : 'Create New Blog'}
-                                icon={UploadIcon}
-                                onClick={handleCreateNew}
-                            />
-                            <div className={styles.lineText}>
-                                {activeTab === 'chat' ? 'Chat History' : 'Blog History'}
-                            </div>
-                        </div>
-                        <div className={styles.allMessage}>
-                            {loadingHistory ? (
-                                <Loader centered />
-                            ) : activeTab === 'chat' ? (
-                                chatHistory.length === 0 ? (
-                                    <div className={styles.noHistory}>No past questions found</div>
-                                ) : (
-                                    chatHistory.map((item, index) => (
-                                        <div
-                                            className={`${styles.messageBox} ${selectedChat === item ? styles.selectedBox : ''}`}
-                                            key={item.id || index}
-                                            onClick={() => handleSelectChat(item)}
-                                        >
-                                            <p className={styles.truncate}>
-                                                {getQuestionText(item)}
-                                            </p>
-                                            <div
-                                                className={styles.icon}
-                                                onClick={(e) => openDeleteConfirm(e, 'chat', index, item)}
-                                            >
-                                                <RemoveIcon />
-                                            </div>
-                                        </div>
-                                    ))
-                                )
-                            ) : (
-                                blogHistory.length === 0 ? (
-                                    <div className={styles.noHistory}>No past blogs generated</div>
-                                ) : (
-                                    blogHistory.map((item, index) => (
-                                        <div
-                                            className={`${styles.messageBox} ${selectedBlog === item ? styles.selectedBox : ''}`}
-                                            key={item.id || index}
-                                            onClick={() => handleSelectBlog(item)}
-                                        >
-                                            <p className={styles.truncate}>
-                                                {getBlogTopicText(item)}
-                                            </p>
-                                            <div
-                                                className={styles.icon}
-                                                onClick={(e) => openDeleteConfirm(e, 'blog', index, item)}
-                                            >
-                                                <RemoveIcon />
-                                            </div>
-                                        </div>
-                                    ))
-                                )
-                            )}
-                        </div>
-                    </div>
-                </div>
 
                 {/* Right Side Pane: Chat View / Blog generation */}
                 <div className={`${styles.items} ${styles.rightSide} ${showReportPanel ? styles.rightSideSplit : ''}`}>
                     {/* Premium tab control */}
-                    <div className={styles.tabContainer}>
-                        <button
-                            className={`${styles.tabBtn} ${activeTab === 'chat' ? styles.activeTab : ''}`}
-                            onClick={() => handleTabChange('chat')}
-                        >
-                            AI Chat Copilot
-                        </button>
-                        <button
-                            className={`${styles.tabBtn} ${activeTab === 'blog' ? styles.activeTab : ''}`}
-                            onClick={() => handleTabChange('blog')}
-                        >
-                            Blog Generator
+                    <div className={styles.topControls}>
+                        <div className={styles.tabContainer}>
+                            <button
+                                className={`${styles.tabBtn} ${activeTab === 'chat' ? styles.activeTab : ''}`}
+                                onClick={() => handleTabChange('chat')}
+                            >
+                                AI Chat Copilot
+                            </button>
+                            <button
+                                className={`${styles.tabBtn} ${activeTab === 'blog' ? styles.activeTab : ''}`}
+                                onClick={() => handleTabChange('blog')}
+                            >
+                                Blog Generator
+                            </button>
+                        </div>
+                        <button className={styles.historyBtn} onClick={() => setHistoryModalOpen(true)}>
+                            History
                         </button>
                     </div>
 
@@ -673,6 +618,13 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                         <div className={styles.headerInfo}>
                                             <h3>Trader Master Copilot</h3>
                                             <span>Active Pair: {selectedPair}</span>
+                                        </div>
+                                        <div className={styles.headerAction}>
+                                            <Button
+                                                text="Create New Chat"
+                                                icon={UploadIcon}
+                                                onClick={handleCreateNew}
+                                            />
                                         </div>
                                     </div>
                                     <div className={styles.chatBody}>
@@ -853,10 +805,17 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                             <polyline points="10 9 9 9 8 9"></polyline>
                                         </svg>
                                     </div>
-                                    <div className={styles.headerInfo}>
-                                        <h3>AI Blog Writer</h3>
-                                        <span>Generates outline or full content</span>
-                                    </div>
+                                        <div className={styles.headerInfo}>
+                                            <h3>AI Blog Writer</h3>
+                                            <span>Generates outline or full content</span>
+                                        </div>
+                                        <div className={styles.headerAction}>
+                                            <Button
+                                                text="Create New Blog"
+                                                icon={UploadIcon}
+                                                onClick={handleCreateNew}
+                                            />
+                                        </div>
                                 </div>
                                 <div className={styles.chatBody}>
                                     {selectedBlog ? (
@@ -952,6 +911,64 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                 <p className={styles.modalText}>
                     Are you sure you want to delete this {pendingDeleteItem?.type === 'chat' ? 'chat' : 'blog'} history item?
                 </p>
+            </Modal>
+            
+            <Modal
+                open={historyModalOpen}
+                onClose={() => setHistoryModalOpen(false)}
+                title={activeTab === 'chat' ? 'Chat History' : 'Blog History'}
+            >
+                <div className={styles.historyModalContent}>
+                    <div className={styles.allMessage}>
+                        {loadingHistory ? (
+                            <Loader centered />
+                        ) : activeTab === 'chat' ? (
+                            chatHistory.length === 0 ? (
+                                <div className={styles.noHistory}>No past questions found</div>
+                            ) : (
+                                chatHistory.map((item, index) => (
+                                    <div
+                                        className={`${styles.messageBox} ${selectedChat === item ? styles.selectedBox : ''}`}
+                                        key={item.id || index}
+                                        onClick={() => handleSelectChat(item)}
+                                    >
+                                        <p className={styles.truncate}>
+                                            {getQuestionText(item)}
+                                        </p>
+                                        <div
+                                            className={styles.icon}
+                                            onClick={(e) => openDeleteConfirm(e, 'chat', index, item)}
+                                        >
+                                            <RemoveIcon />
+                                        </div>
+                                    </div>
+                                ))
+                            )
+                        ) : (
+                            blogHistory.length === 0 ? (
+                                <div className={styles.noHistory}>No past blogs generated</div>
+                            ) : (
+                                blogHistory.map((item, index) => (
+                                    <div
+                                        className={`${styles.messageBox} ${selectedBlog === item ? styles.selectedBox : ''}`}
+                                        key={item.id || index}
+                                        onClick={() => handleSelectBlog(item)}
+                                    >
+                                        <p className={styles.truncate}>
+                                            {getBlogTopicText(item)}
+                                        </p>
+                                        <div
+                                            className={styles.icon}
+                                            onClick={(e) => openDeleteConfirm(e, 'blog', index, item)}
+                                        >
+                                            <RemoveIcon />
+                                        </div>
+                                    </div>
+                                ))
+                            )
+                        )}
+                    </div>
+                </div>
             </Modal>
         </div>
     );
