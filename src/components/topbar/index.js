@@ -36,7 +36,7 @@ const Topbar = ({ onMenuClick }) => {
         try {
             const { data, error } = await supabase
                 .from('users')
-                .select('first_name, last_name, email, profile_picture, picture')
+                .select('first_name, last_name, email ')
                 .eq('id', userId)
                 .single();
 
@@ -49,7 +49,6 @@ const Topbar = ({ onMenuClick }) => {
                 first_name: data.first_name || currentUser?.first_name || '',
                 last_name: data.last_name || currentUser?.last_name || '',
                 email: data.email || currentUser?.email || '',
-                picture: data.profile_picture || data.picture || currentUser?.picture || '',
             };
 
             localStorage.setItem('user', JSON.stringify(mergedUser));

@@ -54,6 +54,7 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard' }) => {
 
             if (isGooglePendingApproval(result)) {
                 setPending(true);
+                router.push("/dashboard")
                 toast.success(
                     result?.message ||
                         'Sign up successful! Your account is awaiting admin approval.'

@@ -103,7 +103,6 @@ export function persistAuthSession(payload) {
         first_name: user.first_name || data.first_name || nameParts[0] || '',
         last_name: user.last_name || data.last_name || nameParts.slice(1).join(' ') || '',
         email: user.email || data.email || '',
-        picture: user.picture || user.profile_picture || data.picture || '',
     };
 
     localStorage.setItem('user', JSON.stringify(sessionUser));
