@@ -373,7 +373,8 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
 
         try {
             const result = await fxApi.generateBlog(topic, isContent);
-            const blogText = result.response || result.content || result.blog_content || '';
+            const source = result.data || result;
+            const blogText = source.generated_content?.blog || source.response || source.content || source.blog_content || (typeof source === 'string' ? source : JSON.stringify(source));
 
             setSelectedBlog({
                 input_data: topic,
@@ -428,14 +429,15 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     const getQuestionText = (item) => item.question || item.message || item.input_data || 'Untitled interaction';
     const getBlogTopicText = (item) => item.input_data || item.topic || item.title || 'Untitled Blog';
     const getBlogContentText = (item) => {
-        const raw = item.response || item.content || item.blog_content || '';
-        if (typeof raw === 'string') {
+        const source = item.data || item;
+        const raw = source.generated_content?.blog || source.response || source.content || source.blog_content || '';
+        if (typeof raw === 'string' && raw) {
             try {
                 const parsed = JSON.parse(raw);
-                return parsed?.response || parsed?.content || parsed?.blog_content || raw;
+                return parsed?.generated_content?.blog || parsed?.response || parsed?.content || parsed?.blog_content || raw;
             } catch { return raw; }
         }
-        return raw?.response || raw?.content || raw?.blog_content || String(raw || '');
+        return raw?.generated_content?.blog || raw?.response || raw?.content || raw?.blog_content || String(raw || '');
     };
 
     const formatResponse = (text) => {
@@ -833,7 +835,11 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                                         <p>Drafting your blog post, please wait...</p>
                                                     </div>
                                                 ) : (
-                                                    formatResponse(getBlogContentText(selectedBlog))
+                                                    <div className={styles.chatMarkdown}>
+                                                        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                                                            {getBlogContentText(selectedBlog) || ''}
+                                                        </ReactMarkdown>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>

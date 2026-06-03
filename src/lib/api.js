@@ -64,7 +64,9 @@ async function request(path, options = {}, _isRetry = false) {
         ...restOptions,
     });
 
-    if (res.status === 401 && !_isRetry) {
+    const isAuthEndpoint = path.startsWith('/auth/');
+
+    if (res.status === 401 && !_isRetry && !isAuthEndpoint) {
         // Try to refresh and retry once
         const newToken = await tryRefreshToken();
         if (newToken) {
@@ -85,16 +87,19 @@ async function request(path, options = {}, _isRetry = false) {
         throw err;
     }
 
-    if (res.status === 401 || res.status === 403) {
-        clearAuthAndRedirect();
-        const err = new Error('Session expired. Please log in again.');
-        err.status = 401;
-        throw err;
-    }
-
     const data = await res.json().catch(() => ({}));
 
-    if (!res.ok) throw new Error(data?.detail?.message || data?.message || 'Something went wrong');
+    if (!res.ok) {
+        if ((res.status === 401 || res.status === 403) && !isAuthEndpoint) {
+            clearAuthAndRedirect();
+            const err = new Error('Session expired. Please log in again.');
+            err.status = 401;
+            throw err;
+        }
+        throw new Error(data?.detail?.message || data?.message || 'Something went wrong');
+    }
+
+
 
     const credits = extractAvailableCredits(data);
     if (credits !== null) notifyCreditsUpdated(credits);
