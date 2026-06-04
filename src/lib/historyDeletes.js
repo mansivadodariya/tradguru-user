@@ -7,7 +7,7 @@ async function deleteHistoryById({ table, userId, id }) {
 
     const { error } = await supabase
         .from(table)
-        .delete()
+        .update({ is_delete: true })
         .eq('id', id)
         .eq('user_id', userId);
 

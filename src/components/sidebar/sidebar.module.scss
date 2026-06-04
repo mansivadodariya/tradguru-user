@@ -11,6 +11,8 @@
     flex-direction: column;
 
     .logo {
+        display: flex;
+        justify-content: center;
         padding: 20px;
         border-bottom: 1px solid #E4E4E4;
 
@@ -53,7 +55,7 @@
             cursor: pointer;
             position: relative;
             text-decoration: none;
-  
+
             &::before {
                 position: absolute;
                 top: 50%;

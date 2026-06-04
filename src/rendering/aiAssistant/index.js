@@ -160,7 +160,8 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         setLoadingHistory(true);
         try {
             const data = await fxApi.getQuestionHistory(uid);
-            const historyList = Array.isArray(data) ? data : (data?.data || data?.questions || []);
+            let historyList = Array.isArray(data) ? data : (data?.data || data?.questions || []);
+            historyList = historyList.filter(item => item?.is_delete !== true);
             setChatHistory(historyList);
         } catch (err) {
             // Permission errors or network failures — just show empty history
@@ -175,7 +176,8 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         setLoadingHistory(true);
         try {
             const data = await fxApi.getBlogHistory(uid);
-            const historyList = Array.isArray(data) ? data : (data?.data || data?.blogs || []);
+            let historyList = Array.isArray(data) ? data : (data?.data || data?.blogs || []);
+            historyList = historyList.filter(item => item?.is_delete !== true);
             setBlogHistory(historyList);
         } catch (err) {
             console.warn("Could not fetch blog history:", err.message);
@@ -280,6 +282,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
             itemId: getHistoryItemId(item, index),
         });
         setConfirmDeleteOpen(true);
+        setHistoryModalOpen(false);
     };
 
     const closeDeleteConfirm = () => {

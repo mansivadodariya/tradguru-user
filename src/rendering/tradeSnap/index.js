@@ -133,7 +133,9 @@ export default function TradeSnap() {
         setHistoryLoading(true);
         try {
             const res = await tradeSnapApi.getAnalysisHistory(userId);
-            setHistoryItems(normalizeHistory(res));
+            let rawList = Array.isArray(res) ? res : (res?.data || res?.items || []);
+            rawList = rawList.filter(item => item?.is_delete !== true);
+            setHistoryItems(normalizeHistory(rawList));
         } catch (e) {
             setError(e?.message || 'Failed to load history');
             setHistoryItems([]);
@@ -145,6 +147,7 @@ export default function TradeSnap() {
     const requestDeleteHistory = (item) => {
         setPendingDeleteHistory(item);
         setConfirmDeleteOpen(true);
+        setHistoryOpen(false);
     };
 
     const closeDeleteHistoryModal = () => {
@@ -1037,6 +1040,7 @@ export default function TradeSnap() {
                                             onViewDetails={(t) => {
                                                 setSelectedAnalysis(t);
                                                 setIsDetailModalOpen(true);
+                                                setHistoryOpen(false);
                                             }}
                                         />
                                     ))}
