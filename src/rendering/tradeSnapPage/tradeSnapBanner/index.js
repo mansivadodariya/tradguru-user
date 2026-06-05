@@ -7,6 +7,8 @@ import Button from '@/components/button';
 import AiIcon from '@/icons/aiIcon';
 import WinIcon from '@/icons/winIcon';
 import StructureIcon from '@/icons/structureIcon';
+import { useRouter } from 'next/navigation';
+import { authNavigate } from '@/lib/authRedirect';
 
 const UploadIcon = '/assets/icons/upload-xs.svg';
 const PlayIcon = '/assets/icons/play.svg';
@@ -54,12 +56,13 @@ const imageVariants = {
 };
 
 export default function TradeSnapBanner() {
+    const router = useRouter();
     return (
         <div className={styles.tradeSnapBanner}>
             <div className={styles.widthFull}>
                 <div className='container-xs3'>
                     <div className={styles.grid}>
-                        <motion.div 
+                        <motion.div
                             className={styles.items}
                             variants={containerVariants}
                             initial="hidden"
@@ -78,8 +81,8 @@ export default function TradeSnapBanner() {
                                 </p>
                             </motion.div>
                             <motion.div className={styles.buttonAlignment} variants={itemVariants}>
-                                <Button text="Upload Chart" icon={UploadIcon} />
-                                <Button outline text="View Demo" icon={PlayIcon} />
+                                <Button text="Upload Chart" icon={UploadIcon} onClick={() => authNavigate(router, '/trade-snap')} />
+                                <Button outline text="View Demo" icon={PlayIcon} onClick={() => authNavigate(router, '/trade-snap')} />
                             </motion.div>
                             <motion.div className={styles.tagAlignment} variants={itemVariants}>
                                 <motion.button
@@ -108,13 +111,13 @@ export default function TradeSnapBanner() {
                                 </motion.button>
                             </motion.div>
                         </motion.div>
-                        <motion.div 
+                        <motion.div
                             className={styles.items}
                             variants={imageVariants}
                             initial="hidden"
                             animate="visible"
                         >
-                            <motion.div 
+                            <motion.div
                                 className={styles.image}
                                 animate={{ y: [0, -12, 0] }}
                                 transition={{

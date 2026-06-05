@@ -17,6 +17,7 @@ import rehypeRaw from 'rehype-raw';
 import ReportPanel from './ReportPanel';
 
 const UploadIcon = '/assets/icons/upload-xs.svg';
+const Logo = '/assets/icons/auth.svg';
 
 const PAIR_GROUPS = [
     {
@@ -616,9 +617,10 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                 <div className={styles.chatCard}>
                                     <div className={styles.chatHeader}>
                                         <div className={styles.avatar}>
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <img src={Logo} alt='logo' />
+                                            {/* <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M12 3L3 20H8.5L12 12L15.5 20H21L12 3Z" fill="#0f5cf2" />
-                                            </svg>
+                                            </svg> */}
                                         </div>
                                         <div className={styles.headerInfo}>
                                             <h3>Trader Master Copilot</h3>
@@ -802,25 +804,19 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                             <div className={styles.chatCard}>
                                 <div className={styles.chatHeader}>
                                     <div className={styles.avatar}>
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f5cf2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                            <polyline points="14 2 14 8 20 8"></polyline>
-                                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                                            <polyline points="10 9 9 9 8 9"></polyline>
-                                        </svg>
+                                        <img src={Logo} alt='logo' />
                                     </div>
-                                        <div className={styles.headerInfo}>
-                                            <h3>AI Blog Writer</h3>
-                                            <span>Generates outline or full content</span>
-                                        </div>
-                                        <div className={styles.headerAction}>
-                                            <Button
-                                                text="Create New Blog"
-                                                icon={UploadIcon}
-                                                onClick={handleCreateNew}
-                                            />
-                                        </div>
+                                    <div className={styles.headerInfo}>
+                                        <h3>AI Blog Writer</h3>
+                                        <span>Generates outline or full content</span>
+                                    </div>
+                                    <div className={styles.headerAction}>
+                                        <Button
+                                            text="Create New Blog"
+                                            icon={UploadIcon}
+                                            onClick={handleCreateNew}
+                                        />
+                                    </div>
                                 </div>
                                 <div className={styles.chatBody}>
                                     {selectedBlog ? (
@@ -921,7 +917,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                     Are you sure you want to delete this {pendingDeleteItem?.type === 'chat' ? 'chat' : 'blog'} history item?
                 </p>
             </Modal>
-            
+
             <Modal
                 open={historyModalOpen}
                 onClose={() => setHistoryModalOpen(false)}
