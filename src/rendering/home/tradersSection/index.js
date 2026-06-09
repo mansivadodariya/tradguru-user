@@ -13,7 +13,7 @@ const AiStrategyImage = '/assets/images/ai-strategy.png';
 const tradersData = [
     {
         id: 1,
-        title: 'Trade Snap',
+        title: 'AI Trade',
         description: 'Drag in a screenshot from MT5 or trading view. FX guru identifies structure, key levels, and gives you a graded setup with risk/reward math.',
         icon: SearchIcon,
         image: TradeSnapImage,
@@ -21,7 +21,7 @@ const tradersData = [
     },
     {
         id: 2,
-        title: 'AI Assistant',
+        title: 'AI Chat',
         description: 'Ask anything pair commentary session bias news interpretation, each prompt costa one credits your full chat history stays available.',
         icon: SearchIcon,
         image: FxGuruImage,
@@ -50,13 +50,13 @@ export default function TradersSection() {
 
     const cardVariants = {
         hidden: { opacity: 0, y: 30 },
-        visible: { 
-            opacity: 1, 
-            y: 0, 
-            transition: { 
-                duration: 0.6, 
-                ease: "easeOut" 
-            } 
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.6,
+                ease: "easeOut"
+            }
         },
         hover: {
             y: -10,
@@ -105,7 +105,7 @@ export default function TradersSection() {
                         linked MT5 context.
                     </motion.p>
                 </div>
-                <motion.div 
+                <motion.div
                     className={styles.grid}
                     variants={containerVariants}
                     initial="hidden"
@@ -113,13 +113,13 @@ export default function TradersSection() {
                     viewport={{ once: true, amount: 0.2 }}
                 >
                     {tradersData.map((item) => (
-                        <motion.div 
-                            key={item.id} 
+                        <motion.div
+                            key={item.id}
                             className={styles.items}
                             variants={cardVariants}
                             whileHover="hover"
                         >
-                            <motion.div 
+                            <motion.div
                                 className={styles.icon}
                                 variants={iconVariants}
                             >
@@ -137,7 +137,7 @@ export default function TradersSection() {
                                 </span>
                                 <RightIcon />
                             </div>
-                            <motion.div 
+                            <motion.div
                                 className={styles.imageAlignment}
                                 variants={imageVariants}
                             >

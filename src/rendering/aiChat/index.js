@@ -13,7 +13,7 @@ export default function AiChat() {
                             Ask anything on Finance
                         </h1>
                         <p>
-                            The only AI assistant that screens stocks, analyzes charts, and delivers deep fundamental research - all in one conversation. Built for
+                            The only AI Chat that screens stocks, analyzes charts, and delivers deep fundamental research - all in one conversation. Built for
                             every Indian investor.
                         </p>
                     </div>

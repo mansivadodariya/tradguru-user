@@ -69,14 +69,14 @@ export default function TradeSnapBanner() {
                             animate="visible"
                         >
                             <motion.div variants={itemVariants}>
-                                <LineText text="Trade Snap" start />
+                                <LineText text="AI Trade" start />
                             </motion.div>
                             <motion.div className={styles.title} variants={itemVariants}>
                                 <h1>
                                     Snap a chart.Read the trade.
                                 </h1>
                                 <p>
-                                    Drag any chart screenshot into Trade Snap and let Trader Master identify structure, mark levels, and grade the setup against your
+                                    Drag any chart screenshot into AI Trade and let Trader Master identify structure, mark levels, and grade the setup against your
                                     risk profile.
                                 </p>
                             </motion.div>

@@ -14,8 +14,8 @@ const SidebarLogo = "/assets/logo/logo.svg";
 
 const mainNav = [
   { label: "Dashboard", href: "/dashboard", icon: DashboardIcon },
-  { label: "Trade Snap", href: "/trade-snap", icon: TradeIcon },
-  { label: "AI Assistant", href: "/ai-assistant", icon: AssistantIcon },
+  { label: "AI Trade", href: "/trade-snap", icon: TradeIcon },
+  { label: "AI Chat", href: "/ai-assistant", icon: AssistantIcon },
   { label: "Economic Calendar", href: "/economic-calendar", icon: PricingIcon },
   { label: "Profile", href: "/profile", icon: SettingsIcon },
 ];

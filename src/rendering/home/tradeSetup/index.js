@@ -159,7 +159,7 @@ export default function TradeSetup() {
                             </h3>
                         </div>
                         <p>
-                            Trade snap scans price action structure and momentum.
+                            AI Trade scans price action structure and momentum.
                         </p>
                         <motion.div
                             className={styles.counter}
@@ -217,14 +217,14 @@ export default function TradeSetup() {
                 </motion.div>
                 <div className={styles.box}>
                     <div className={styles.content}>
-                        <LineText text="Trade Snap" start />
+                        <LineText text="AI Trade" start />
                         <h3>
                             Turn screenshot into trading opportunities
                         </h3>
                         <p>
                             Upload a chart and let AI uncover the setup behind the price action.
                         </p>
-                        <Button icon={ArrowIcon} text="Try Trade Snap Now" onClick={() => authNavigate(router, '/trade-snap')} />
+                        <Button icon={ArrowIcon} text="Try AI Trade Now" onClick={() => authNavigate(router, '/trade-snap')} />
                     </div>
                     <div className={styles.image}>
                         <img src={SnapImage} alt='SnapImage' />

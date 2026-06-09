@@ -32,7 +32,7 @@ export default function Header() {
                             <Link href="/" aria-label='Home' className={navClass('/')}>Home</Link>
                             <Link href="/tradesnap" aria-label='AI Trade' className={navClass('/tradesnap')}>AI Trade</Link>
                             <Link href="/ai-chat" aria-label='AI Chat' className={navClass('/ai-chat')}>AI Chat</Link>
-                            <Link href="/ai-chat" aria-label='AI Strategy' className={navClass('/ai-chat')}>AI Strategy</Link>
+                            {/* <Link href="/ai-chat" aria-label='AI Strategy' className={navClass('/ai-chat')}>AI Strategy</Link> */}
                             <Link
                                 href="https://www.edufins.com/"
                                 target="_blank"
@@ -86,9 +86,25 @@ export default function Header() {
                             <Link href="/" aria-label='Home' onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
                             <Link href="/tradesnap" aria-label='AI Trade' onClick={() => setIsMobileMenuOpen(false)}>AI Trade</Link>
                             <Link href="/ai-chat" aria-label='AI Chat' onClick={() => setIsMobileMenuOpen(false)}>AI Chat</Link>
-                            <Link href="/ai-chat" aria-label='AI Strategy' onClick={() => setIsMobileMenuOpen(false)}>AI Strategy</Link>
-                            <Link href="/login" aria-label='Education' onClick={() => setIsMobileMenuOpen(false)}>Education</Link>
-                            <Link href="/login" aria-label='Funded Master' onClick={() => setIsMobileMenuOpen(false)}>Funded Master</Link>
+                            {/* <Link href="/ai-chat" aria-label='AI Strategy' onClick={() => setIsMobileMenuOpen(false)}>AI Strategy</Link> */}
+                            <Link
+                                href="https://www.edufins.com/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Education"
+                                className={styles.navLink}
+                            >
+                                Education
+                            </Link>
+                            <Link
+                                href="https://fundedmaster.com/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Funded Master"
+                                className={styles.navLink}
+                            >
+                                Funded Master
+                            </Link>
                         </div>
                         <div className={styles.headerFooter}>
                             <Button text="Get Started" icon={ArrowIcon} onClick={() => { authNavigate(router, '/dashboard'); setIsMobileMenuOpen(false); }} />

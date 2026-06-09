@@ -10,7 +10,7 @@ const testimonials = [
     {
         id: 1,
         rating: 5,
-        quote: "The chart reads are scarily accurate. I use Trade Snap before every London open it catches structure I'd miss half-asleep.",
+        quote: "The chart reads are scarily accurate. I use AI Trade before every London open it catches structure I'd miss half-asleep.",
         author: "Marcus Okafor",
         role: "MT5 day trader, London",
         avatar: ProfileImage

@@ -106,7 +106,7 @@ export default function Dashboard() {
                 icon: iconOne
             },
             {
-                title: 'Ask AI Assistant',
+                title: 'Ask AI Chat',
                 desc: 'Ask any trading or finance related question to AI.',
                 cta: 'Ask Now',
                 href: '/ai-assistant?tab=chat',

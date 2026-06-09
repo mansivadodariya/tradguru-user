@@ -82,9 +82,9 @@ export default function Footer() {
                         <div className={styles.linkCol}>
                             <h4>Product</h4>
                             <ul>
-                                <li><Link href="/tradesnap">Trade Snap</Link></li>
-                                <li><Link href="/ai-chat">AI assistant</Link></li>
-                                <li><Link href="/ai-chat">AI Strategy</Link></li>
+                                <li><Link href="/tradesnap">AI Trade</Link></li>
+                                <li><Link href="/ai-chat">AI Chat</Link></li>
+                                {/* <li><Link href="/ai-chat">AI Strategy</Link></li> */}
                             </ul>
                         </div>
 

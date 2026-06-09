@@ -611,7 +611,7 @@ export default function TradeSnap() {
                         </div>
                         <h3>Desktop View Required</h3>
                         <p>
-                            Trade Snap uses screen sharing and works best on a desktop or laptop with a larger display.
+                            AI Trade uses screen sharing and works best on a desktop or laptop with a larger display.
                         </p>
                     </motion.div>
                 </div>
@@ -624,7 +624,7 @@ export default function TradeSnap() {
             <div className={styles.title}>
                 <div className={styles.titleRow}>
                     <div>
-                        <h2>Trade Snap</h2>
+                        <h2>AI Trade</h2>
                         <p>
                             Capture your screen, analyze chart movements, and get AI trade insights with single or multi-timeframe
                             views.
@@ -983,8 +983,8 @@ export default function TradeSnap() {
             <Modal
                 open={historyOpen}
                 onClose={() => setHistoryOpen(false)}
-                title="Trade Snap History"
-                description="Your past Trade Snap analyses"
+                title="AI Trade History"
+                description="Your past AI Trade analyses"
                 footer={
                     <button type="button" className={styles.btnGhost} onClick={() => setHistoryOpen(false)}>
                         Close
