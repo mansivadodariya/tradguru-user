@@ -16,118 +16,14 @@
             display: flex;
             flex-direction: column;
         }
-
     }
 
-    .rightSide {
+    .chatSingleBody {
         display: flex;
         flex-direction: column;
         height: calc(100dvh - 112px);
-        background: rgba(11, 86, 219, 0.02);
-        border-radius: 12px;
-        position: relative;
-        min-width: 0;
-
-        @include respond-to('md') {
-            order: -1;
-            padding: 12px;
-        }
-
-        &.rightSideSplit {
-            padding: 16px;
-
-            @include respond-to('md') {
-                padding: 12px;
-            }
-        }
-
-        .chatSingleBody,
-        .chatSplitBody {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            min-height: 0;
-            gap: 12px;
-        }
-
-        .chatSplitBody {
-            display: grid;
-            grid-template-columns: minmax(260px, 36%) minmax(0, 1fr);
-            gap: 16px;
-
-            @include respond-to('lg') {
-                grid-template-columns: 1fr;
-                display: flex;
-                flex-direction: column;
-            }
-        }
-
-        .chatColumn {
-            display: flex;
-            flex-direction: column;
-            height: 80 dvh;
-            min-width: 0;
-            gap: 12px;
-        }
-
-        .topControls {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            gap: 16px;
-
-            .historyBtn {
-                background: #FFF;
-                border: 1px solid rgba(15, 92, 242, 0.3);
-                color: #0f5cf2;
-                font-size: 14px;
-                font-weight: 600;
-                padding: 8px 16px;
-                border-radius: 6px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-
-                &:hover {
-                    background: #f4f8ff;
-                    border-color: #0f5cf2;
-                }
-            }
-        }
-
-        // Premium segmented control
-        .tabContainer {
-            display: flex;
-            background: #e2e8f0;
-            padding: 4px;
-            border-radius: 8px;
-            align-self: flex-start;
-            gap: 4px;
-
-            .tabBtn {
-                background: transparent;
-                border: none;
-                outline: none;
-                color: rgba(18, 18, 18, 0.6);
-                font-size: 13px;
-                font-weight: 600;
-                padding: 8px 16px;
-                border-radius: 6px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-
-                &:hover {
-                    color: #121212;
-                }
-
-                &.activeTab {
-                    background: #FFF;
-                    color: #0f5cf2;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-                }
-            }
-        }
-
+        min-height: 0;
+        gap: 12px;
         .chatCard {
             flex: 1;
             background: #FFF;
@@ -181,19 +77,32 @@
                     }
                 };
 
-                // .headerAction {
-                //     margin-left: auto;
-                //     flex-shrink: 0;
+                .headerAction {
+                    margin-left: auto;
+                    flex-shrink: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
 
-                //     button {
-                //         width: auto;
-                //         padding: 6px;
-                //         height: 42px;
-                //         font-size: 14px;
-                //     }
+                    .historyBtn {
+                        background: #fff;
+                        border: 1px solid rgba(15, 92, 242, 0.3);
+                        color: #0f5cf2;
+                        height: 52px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        white-space: nowrap;
 
-
-                // }
+                        &:hover {
+                            background: #f4f8ff;
+                            border-color: #0f5cf2;
+                        }
+                    }
+                }
             }
 
             .chatBody {
@@ -720,10 +629,7 @@
             }
         }
     }
-}
-
-
-// Markdown response styles (used by formatResponse)
+} // Markdown response styles (used by formatResponse)
 .mdH2 {
     font-size: 15px;
     font-weight: 700;

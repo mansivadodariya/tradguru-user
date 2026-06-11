@@ -96,9 +96,6 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     // Authentication & Identification
     const [userId, setUserId] = useState(null);
 
-    // Tab State: "chat" or "blog"
-    const [activeTab, setActiveTab] = useState('chat');
-
     // Chat State
     const [chatHistory, setChatHistory] = useState([]);
     const [selectedChat, setSelectedChat] = useState(null);
@@ -107,7 +104,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     const [selectedPair, setSelectedPair] = useState('XAU/USD');
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    // Blog State
+    // Blog State - kept for history modal compatibility
     const [blogHistory, setBlogHistory] = useState([]);
     const [selectedBlog, setSelectedBlog] = useState(null);
     const [blogInput, setBlogInput] = useState('');
@@ -187,55 +184,26 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     };
 
     useEffect(() => {
-        if (activeTab === 'chat') {
-            if (userId) fetchChatHistory(userId);
-        } else {
-            if (userId) fetchBlogHistory(userId);
-        }
-    }, [activeTab, userId]);
+        if (userId) fetchChatHistory(userId);
+    }, [userId]);
 
-    // Deep-link support from dashboard (passed in from page wrapper):
-    // /ai-assistant?tab=chat&open=<id> OR /ai-assistant?tab=blog&open=<id>
+    // Deep-link support: /ai-assistant?open=<id>
     useEffect(() => {
-        if (initialTab === 'chat' || initialTab === 'blog') {
-            setActiveTab(initialTab);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [initialTab]);
-
-    useEffect(() => {
-        if (!initialOpenId) return;
-        const tab = initialTab || activeTab;
+        if (!initialOpenId || chatHistory.length === 0) return;
         const matchId = (item, index) =>
             String(item?.id || item?.created_at || item?.createdAt || index) === String(initialOpenId);
-
-        if (tab === 'chat' && chatHistory.length > 0) {
-            const found = chatHistory.find((it, idx) => matchId(it, idx));
-            if (found) handleSelectChat(found);
-        }
-        if (tab === 'blog' && blogHistory.length > 0) {
-            const found = blogHistory.find((it, idx) => matchId(it, idx));
-            if (found) handleSelectBlog(found);
-        }
+        const found = chatHistory.find((it, idx) => matchId(it, idx));
+        if (found) handleSelectChat(found);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [initialOpenId, initialTab, chatHistory, blogHistory]);
+    }, [initialOpenId, chatHistory]);
 
     // Actions
-    const handleTabChange = (tab) => {
-        setActiveTab(tab);
-        setPendingRequest(false);
-    };
 
     const handleCreateNew = () => {
         setHistoryModalOpen(false);
-        if (activeTab === 'chat') {
-            setSelectedChat(null);
-            setChatMessages([]);
-            setChatInput('');
-        } else {
-            setSelectedBlog(null);
-            setBlogInput('');
-        }
+        setSelectedChat(null);
+        setChatMessages([]);
+        setChatInput('');
     };
 
     const handleSelectChat = (item) => {
@@ -565,306 +533,181 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
 
     return (
         <div className={styles.aiAssistant}>
-            <div className={styles.grid}>
-
-                {/* Right Side Pane: Chat View / Blog generation */}
-                <div className={`${styles.items} ${styles.rightSide}`}>
-                    {/* Premium tab control */}
-                    <div className={styles.topControls}>
-                        <div className={styles.tabContainer}>
-                            <button
-                                className={`${styles.tabBtn} ${activeTab === 'chat' ? styles.activeTab : ''}`}
-                                onClick={() => handleTabChange('chat')}
-                            >
-                                AI Chat Copilot
-                            </button>
-                            <button
-                                className={`${styles.tabBtn} ${activeTab === 'blog' ? styles.activeTab : ''}`}
-                                onClick={() => handleTabChange('blog')}
-                            >
-                                Blog Generator
+            <div className={styles.chatSingleBody}>
+                {/* Chat interaction card */}
+                <div className={styles.chatCard}>
+                    <div className={styles.chatHeader}>
+                        <div className={styles.avatar}>
+                            <img src={Logo} alt='logo' />
+                        </div>
+                        <div className={styles.headerInfo}>
+                            <h3>Trader Master Copilot</h3>
+                            <span>Active Pair: {selectedPair}</span>
+                        </div>
+                        <div className={styles.headerAction}>
+                            <Button
+                                text="Create New Chat"
+                                icon={UploadIcon}
+                                onClick={handleCreateNew}
+                            />
+                            <button className={styles.historyBtn} onClick={() => setHistoryModalOpen(true)}>
+                                History
                             </button>
                         </div>
-                        <button className={styles.historyBtn} onClick={() => setHistoryModalOpen(true)}>
-                            History
-                        </button>
                     </div>
-
-                    {activeTab === 'chat' ? (
-                        <div className={styles.chatSingleBody}>
-                            {/* Chat interaction card */}
-                            <div className={styles.chatCard}>
-                                <div className={styles.chatHeader}>
-                                    <div className={styles.avatar}>
-                                        <img src={Logo} alt='logo' />
-                                        {/* <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M12 3L3 20H8.5L12 12L15.5 20H21L12 3Z" fill="#0f5cf2" />
-                                            </svg> */}
-                                    </div>
-                                    <div className={styles.headerInfo}>
-                                        <h3>Trader Master Copilot</h3>
-                                        <span>Active Pair: {selectedPair}</span>
-                                    </div>
-                                    <div className={styles.headerAction}>
-                                        <Button
-                                            text="Create New Chat"
-                                            icon={UploadIcon}
-                                            onClick={handleCreateNew}
-                                        />
-                                    </div>
-                                </div>
-                                <div className={styles.chatBody}>
-                                    {chatMessages.length === 0 ? (
-                                        <div className={styles.welcomeContainer}>
-                                            <div className={styles.welcomeIcon}></div>
-                                            <h2>Welcome to Trader Master Copilot</h2>
-                                            <p>Select a major pair below, ask a question, and get deep insights on forex market movement and trends instantly.</p>
-                                        </div>
-                                    ) : (
-                                        chatMessages.map((msg, index) => (
-                                            <div
-                                                key={index}
-                                                className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''} ${msg.fullReport ? styles.reportRow : ''}`}
-                                            >
-                                                {msg.role === 'user' && msg.pair && (
-                                                    <span className={styles.pairBadge}>{msg.pair}</span>
-                                                )}
-                                                <div className={msg.role === 'user' ? styles.userMessage : styles.assistantMessage}>
-                                                    {msg.role === 'user' ? (
-                                                        msg.content
-                                                    ) : (
-                                                        <>
-                                                            {msg.fullReport && (
-                                                                <>
-                                                                    <div className={styles.chatMarkdown}>
-                                                                        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
-                                                                            {msg.content}
-                                                                        </ReactMarkdown>
-                                                                    </div>
-                                                                    <ReportPanel
-                                                                        inline
-                                                                        fullReport={msg.fullReport}
-                                                                        visualData={msg.visualData}
-                                                                        onDownload={() => handleDownloadReportContent(msg.fullReport)}
-                                                                    />
-                                                                </>
-                                                            )}
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))
-                                    )}
-                                    {pendingRequest && (
-                                        <div className={styles.messageRow}>
-                                            <div className={styles.assistantMessage}>
-                                                <div className={styles.loadingDots}>
-                                                    <span></span>
-                                                    <span></span>
-                                                    <span></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                    <div ref={chatEndRef} />
-                                </div>
+                    <div className={styles.chatBody}>
+                        {chatMessages.length === 0 ? (
+                            <div className={styles.welcomeContainer}>
+                                <div className={styles.welcomeIcon}></div>
+                                <h2>Welcome to Trader Master Copilot</h2>
+                                <p>Select a major pair below, ask a question, and get deep insights on forex market movement and trends instantly.</p>
                             </div>
-
-                            {/* Suggestions Chips Row */}
-                            {chatMessages.length === 0 && (
-                                <div className={styles.chipsRow}>
-                                    <button
-                                        className={styles.chip}
-                                        onClick={() => handleSuggestionClick("Is EUR/USD a buy at current level on H4?", "EUR/USD")}
-                                    >
-                                        Analyze EUR/USD on H4
-                                    </button>
-                                    <button
-                                        className={styles.chip}
-                                        onClick={() => handleSuggestionClick("What is the current technical trend for GBP/USD?", "GBP/USD")}
-                                    >
-                                        GBP/USD Trend Analysis
-                                    </button>
-                                    <button
-                                        className={styles.chip}
-                                        onClick={() => handleSuggestionClick("Explain USD/JPY breakout patterns", "USD/JPY")}
-                                    >
-                                        USD/JPY Breakouts
-                                    </button>
-                                    <button
-                                        className={styles.chip}
-                                        onClick={() => handleSuggestionClick("Give me a scalping strategy for AUD/USD", "AUD/USD")}
-                                    >
-                                        AUD/USD Strategy
-                                    </button>
-                                </div>
-                            )}
-
-                            {/* Chat input box */}
-                            <div className={styles.inputArea}>
-                                <textarea
-                                    placeholder="Ask anything about forex trading, chart and strategies.."
-                                    className={styles.textarea}
-                                    value={chatInput}
-                                    onChange={(e) => setChatInput(e.target.value.trimStart())}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && !e.shiftKey) {
-                                            e.preventDefault();
-                                            handleSendChatMessage();
-                                        }
-                                    }}
-                                />
-                                <div className={styles.inputFooter}>
-                                    {/* Custom Dropdown Trigger */}
-                                    <div className={styles.dropdownContainer} ref={dropdownRef}>
-                                        <button
-                                            className={styles.dropdownTrigger}
-                                            onClick={() => setDropdownOpen(!dropdownOpen)}
-                                            type="button"
-                                        >
-                                            <span>{selectedPair}</span>
-                                            <span className={`${styles.chevron} ${dropdownOpen ? styles.rotated : ''}`}>
-                                                <DownIcon />
-                                            </span>
-                                        </button>
-                                        {dropdownOpen && (
-                                            <div className={styles.dropdownMenu}>
-                                                {PAIR_GROUPS.map(group => (
-                                                    <div key={group.label}>
-                                                        <div className={styles.dropdownHeader}>{group.label}</div>
-                                                        <div className={styles.dropdownList}>
-                                                            {group.pairs.map(pair => (
-                                                                <button
-                                                                    key={pair}
-                                                                    className={`${styles.dropdownItem} ${selectedPair === pair ? styles.activePair : ''}`}
-                                                                    onClick={() => {
-                                                                        setSelectedPair(pair);
-                                                                        setDropdownOpen(false);
-                                                                    }}
-                                                                    type="button"
-                                                                >
-                                                                    {selectedPair === pair && <span className={styles.checkmark}>✓</span>}
-                                                                    <span className={styles.pairText}>{pair}</span>
-                                                                </button>
-                                                            ))}
+                        ) : (
+                            chatMessages.map((msg, index) => (
+                                <div
+                                    key={index}
+                                    className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''} ${msg.fullReport ? styles.reportRow : ''}`}
+                                >
+                                    {msg.role === 'user' && msg.pair && (
+                                        <span className={styles.pairBadge}>{msg.pair}</span>
+                                    )}
+                                    <div className={msg.role === 'user' ? styles.userMessage : styles.assistantMessage}>
+                                        {msg.role === 'user' ? (
+                                            msg.content
+                                        ) : (
+                                            <>
+                                                {msg.fullReport && (
+                                                    <>
+                                                        <div className={styles.chatMarkdown}>
+                                                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                                                                {msg.content}
+                                                            </ReactMarkdown>
                                                         </div>
-                                                    </div>
-                                                ))}
-                                            </div>
+                                                        <ReportPanel
+                                                            inline
+                                                            fullReport={msg.fullReport}
+                                                            visualData={msg.visualData}
+                                                            onDownload={() => handleDownloadReportContent(msg.fullReport)}
+                                                        />
+                                                    </>
+                                                )}
+                                            </>
                                         )}
                                     </div>
-
-                                    {/* Send trigger */}
-                                    <button
-                                        className={styles.sendBtn}
-                                        onClick={handleSendChatMessage}
-                                        disabled={pendingRequest || !chatInput.trim()}
-                                    >
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                            <line x1="12" y1="19" x2="12" y2="5"></line>
-                                            <polyline points="5 12 12 5 19 12"></polyline>
-                                        </svg>
-                                    </button>
+                                </div>
+                            ))
+                        )}
+                        {pendingRequest && (
+                            <div className={styles.messageRow}>
+                                <div className={styles.assistantMessage}>
+                                    <div className={styles.loadingDots}>
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ) : (
-                        <>
-                            {/* Blog Generator Card */}
-                            <div className={styles.chatCard}>
-                                <div className={styles.chatHeader}>
-                                    <div className={styles.avatar}>
-                                        <img src={Logo} alt='logo' />
-                                    </div>
-                                    <div className={styles.headerInfo}>
-                                        <h3>AI Blog Writer</h3>
-                                        <span>Generates outline or full content</span>
-                                    </div>
-                                    <div className={styles.headerAction}>
-                                        <Button
-                                            text="Create New Blog"
-                                            icon={UploadIcon}
-                                            onClick={handleCreateNew}
-                                        />
-                                    </div>
-                                </div>
-                                <div className={styles.chatBody}>
-                                    {selectedBlog ? (
-                                        <div className={styles.blogViewContainer}>
-                                            <h2 className={styles.blogTitle}>
-                                                Topic: {getBlogTopicText(selectedBlog)}
-                                            </h2>
-                                            <span className={styles.blogTypeBadge}>
-                                                {selectedBlog.is_content ? 'Full Article' : 'Outline Only'}
-                                            </span>
-                                            <div className={styles.blogContent}>
-                                                {selectedBlog.isLoading ? (
-                                                    <div className={styles.blogLoadingState}>
-                                                        <Loader size="lg" />
-                                                        <p>Drafting your blog post, please wait...</p>
-                                                    </div>
-                                                ) : (
-                                                    <div className={styles.chatMarkdown}>
-                                                        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
-                                                            {getBlogContentText(selectedBlog) || ''}
-                                                        </ReactMarkdown>
-                                                    </div>
-                                                )}
+                        )}
+                        <div ref={chatEndRef} />
+                    </div>
+                </div>
+
+                {/* Suggestions Chips Row */}
+                {chatMessages.length === 0 && (
+                    <div className={styles.chipsRow}>
+                        <button
+                            className={styles.chip}
+                            onClick={() => handleSuggestionClick("Is EUR/USD a buy at current level on H4?", "EUR/USD")}
+                        >
+                            Analyze EUR/USD on H4
+                        </button>
+                        <button
+                            className={styles.chip}
+                            onClick={() => handleSuggestionClick("What is the current technical trend for GBP/USD?", "GBP/USD")}
+                        >
+                            GBP/USD Trend Analysis
+                        </button>
+                        <button
+                            className={styles.chip}
+                            onClick={() => handleSuggestionClick("Explain USD/JPY breakout patterns", "USD/JPY")}
+                        >
+                            USD/JPY Breakouts
+                        </button>
+                        <button
+                            className={styles.chip}
+                            onClick={() => handleSuggestionClick("Give me a scalping strategy for AUD/USD", "AUD/USD")}
+                        >
+                            AUD/USD Strategy
+                        </button>
+                    </div>
+                )}
+
+                {/* Chat input box */}
+                <div className={styles.inputArea}>
+                    <textarea
+                        placeholder="Ask anything about forex trading, chart and strategies.."
+                        className={styles.textarea}
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value.trimStart())}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSendChatMessage();
+                            }
+                        }}
+                    />
+                    <div className={styles.inputFooter}>
+                        {/* Custom Dropdown Trigger */}
+                        <div className={styles.dropdownContainer} ref={dropdownRef}>
+                            <button
+                                className={styles.dropdownTrigger}
+                                onClick={() => setDropdownOpen(!dropdownOpen)}
+                                type="button"
+                            >
+                                <span>{selectedPair}</span>
+                                <span className={`${styles.chevron} ${dropdownOpen ? styles.rotated : ''}`}>
+                                    <DownIcon />
+                                </span>
+                            </button>
+                            {dropdownOpen && (
+                                <div className={styles.dropdownMenu}>
+                                    {PAIR_GROUPS.map(group => (
+                                        <div key={group.label}>
+                                            <div className={styles.dropdownHeader}>{group.label}</div>
+                                            <div className={styles.dropdownList}>
+                                                {group.pairs.map(pair => (
+                                                    <button
+                                                        key={pair}
+                                                        className={`${styles.dropdownItem} ${selectedPair === pair ? styles.activePair : ''}`}
+                                                        onClick={() => {
+                                                            setSelectedPair(pair);
+                                                            setDropdownOpen(false);
+                                                        }}
+                                                        type="button"
+                                                    >
+                                                        {selectedPair === pair && <span className={styles.checkmark}>✓</span>}
+                                                        <span className={styles.pairText}>{pair}</span>
+                                                    </button>
+                                                ))}
                                             </div>
                                         </div>
-                                    ) : (
-                                        <div className={styles.welcomeContainer}>
-                                            <div className={styles.welcomeIcon}></div>
-                                            <h2>Trader Master Blog Writer</h2>
-                                            <p>Provide a topic or detailed outline guidelines. Switch toggle below to write a structured outline or a full article post.</p>
-                                        </div>
-                                    )}
+                                    ))}
                                 </div>
-                            </div>
+                            )}
+                        </div>
 
-                            {/* Blog Input Area */}
-                            <div className={styles.inputArea}>
-                                <textarea
-                                    placeholder="Enter a forex topic or outlines to generate a blog..."
-                                    className={styles.textarea}
-                                    value={blogInput}
-                                    onChange={(e) => setBlogInput(e.target.value.trimStart())}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && !e.shiftKey) {
-                                            e.preventDefault();
-                                            handleGenerateBlog();
-                                        }
-                                    }}
-                                />
-                                <div className={styles.inputFooter}>
-                                    {/* Toggle input_data is_content */}
-                                    <div className={styles.toggleContainer}>
-                                        <label className={styles.switch}>
-                                            <input
-                                                type="checkbox"
-                                                checked={isContent}
-                                                onChange={(e) => setIsContent(e.target.checked)}
-                                            />
-                                            <span className={styles.slider}></span>
-                                        </label>
-                                        <span className={styles.toggleLabel}>Generate Full Content</span>
-                                    </div>
-
-                                    {/* Generate button */}
-                                    <button
-                                        className={styles.sendBtn}
-                                        onClick={handleGenerateBlog}
-                                        disabled={pendingRequest || !blogInput.trim()}
-                                    >
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                            <line x1="12" y1="19" x2="12" y2="5"></line>
-                                            <polyline points="5 12 12 5 19 12"></polyline>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </>
-                    )}
+                        {/* Send trigger */}
+                        <button
+                            className={styles.sendBtn}
+                            onClick={handleSendChatMessage}
+                            disabled={pendingRequest || !chatInput.trim()}
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="12" y1="19" x2="12" y2="5"></line>
+                                <polyline points="5 12 12 5 19 12"></polyline>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
             <Modal
@@ -891,56 +734,32 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
             <Modal
                 open={historyModalOpen}
                 onClose={() => setHistoryModalOpen(false)}
-                title={activeTab === 'chat' ? 'Chat History' : 'Blog History'}
+                title="Chat History"
             >
                 <div className={styles.historyModalContent}>
                     <div className={styles.allMessage}>
                         {loadingHistory ? (
                             <Loader centered />
-                        ) : activeTab === 'chat' ? (
-                            chatHistory.length === 0 ? (
-                                <div className={styles.noHistory}>No past questions found</div>
-                            ) : (
-                                chatHistory.map((item, index) => (
-                                    <div
-                                        className={`${styles.messageBox} ${selectedChat === item ? styles.selectedBox : ''}`}
-                                        key={item.id || index}
-                                        onClick={() => handleSelectChat(item)}
-                                    >
-                                        <p className={styles.truncate}>
-                                            {getQuestionText(item)}
-                                        </p>
-                                        <div
-                                            className={styles.icon}
-                                            onClick={(e) => openDeleteConfirm(e, 'chat', index, item)}
-                                        >
-                                            <RemoveIcon />
-                                        </div>
-                                    </div>
-                                ))
-                            )
+                        ) : chatHistory.length === 0 ? (
+                            <div className={styles.noHistory}>No past questions found</div>
                         ) : (
-                            blogHistory.length === 0 ? (
-                                <div className={styles.noHistory}>No past blogs generated</div>
-                            ) : (
-                                blogHistory.map((item, index) => (
+                            chatHistory.map((item, index) => (
+                                <div
+                                    className={`${styles.messageBox} ${selectedChat === item ? styles.selectedBox : ''}`}
+                                    key={item.id || index}
+                                    onClick={() => handleSelectChat(item)}
+                                >
+                                    <p className={styles.truncate}>
+                                        {getQuestionText(item)}
+                                    </p>
                                     <div
-                                        className={`${styles.messageBox} ${selectedBlog === item ? styles.selectedBox : ''}`}
-                                        key={item.id || index}
-                                        onClick={() => handleSelectBlog(item)}
+                                        className={styles.icon}
+                                        onClick={(e) => openDeleteConfirm(e, 'chat', index, item)}
                                     >
-                                        <p className={styles.truncate}>
-                                            {getBlogTopicText(item)}
-                                        </p>
-                                        <div
-                                            className={styles.icon}
-                                            onClick={(e) => openDeleteConfirm(e, 'blog', index, item)}
-                                        >
-                                            <RemoveIcon />
-                                        </div>
+                                        <RemoveIcon />
                                     </div>
-                                ))
-                            )
+                                </div>
+                            ))
                         )}
                     </div>
                 </div>
