@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import styles from './aiAssistant.module.scss';
+import { ATR } from 'technicalindicators';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -19,58 +20,125 @@ const getAssetData = (visualData, symbol) => {
     return assets[cleanSymbol] || assets[symbol] || assets[symbol?.replace('/', '')];
 };
 
-// Remove nearby duplicate levels within a price threshold
-const mergeLevels = (levels, threshold = 0.0008) => {
-    const result = [];
-    levels.forEach(level => {
-        const exists = result.some(x => Math.abs(x - level) < threshold);
-        if (!exists) result.push(level);
-    });
-    return result;
+// ─── Support & Resistance ────────────────────────────────────────────────────
+// TradingView-style Pivot High/Low (LEFT=8, RIGHT=8)
+// • Tight touch threshold (ATR*0.2) — no overcounting
+// • Touch count uses high + low + close (wick + body)
+// • Age-weighted strength score — recent pivots rank higher
+// • minMove filter removes noise pivots
+// • Dynamic zone merge distance — works across forex / crypto / stocks
+// • Full-width lines (first→last candle)
+// • Star labels in legend & annotations
+
+const LEFT = 8;
+const RIGHT = 8;
+
+const strengthStars = (score) => {
+    if (score >= 8) return 'Strong';
+    if (score >= 4) return 'Medium';
+    return 'Weak';
 };
 
-// Detect local swing lows (support) — 3 neighbors on each side for stricter filtering
-const findLocalSupport = (candles) => {
-    const levels = [];
-    for (let i = 3; i < candles.length - 3; i++) {
-        const cur = Number(candles[i].low);
-        if (
-            cur < Number(candles[i - 1].low) &&
-            cur < Number(candles[i - 2].low) &&
-            cur < Number(candles[i - 3].low) &&
-            cur < Number(candles[i + 1].low) &&
-            cur < Number(candles[i + 2].low) &&
-            cur < Number(candles[i + 3].low)
-        ) levels.push(cur);
-    }
-    return mergeLevels(levels).slice(0, 3);
-};
+const calculateSupportResistance = (candles) => {
+    if (!candles?.length) return { support: [], resistance: [] };
 
-// Detect local swing highs (resistance) — 3 neighbors on each side for stricter filtering
-const findLocalResistance = (candles) => {
-    const levels = [];
-    for (let i = 3; i < candles.length - 3; i++) {
-        const cur = Number(candles[i].high);
-        if (
-            cur > Number(candles[i - 1].high) &&
-            cur > Number(candles[i - 2].high) &&
-            cur > Number(candles[i - 3].high) &&
-            cur > Number(candles[i + 1].high) &&
-            cur > Number(candles[i + 2].high) &&
-            cur > Number(candles[i + 3].high)
-        ) levels.push(cur);
+    const highs = candles.map(c => Number(c.high));
+    const lows = candles.map(c => Number(c.low));
+    const closes = candles.map(c => Number(c.close));
+    const total = candles.length;
+
+    const atrValues = ATR.calculate({ period: 14, high: highs, low: lows, close: closes });
+    const atrThreshold = atrValues.length ? atrValues[atrValues.length - 1] * 0.7 : 0.0008;
+
+    // Tight threshold for realistic touch counts
+    const touchThreshold = atrThreshold * 0.2;
+
+    // Count touches: high, low, close all count (wick + body)
+    const countTouches = (price) =>
+        candles.filter(c =>
+            Math.abs(Number(c.high) - price) <= touchThreshold ||
+            Math.abs(Number(c.low) - price) <= touchThreshold ||
+            Math.abs(Number(c.close) - price) <= touchThreshold
+        ).length;
+
+    // Recent pivots score higher
+    const ageWeight = (index) => 1 + (index / total);
+
+    // Reject pivots that barely moved from the previous one
+    const minMove = atrThreshold * 1.5;
+
+    const pivotHighs = [];
+    let lastPH = null;
+    for (let i = LEFT; i < highs.length - RIGHT; i++) {
+        const val = highs[i];
+        if (lastPH !== null && Math.abs(val - lastPH) < minMove) continue;
+        let ok = true;
+        for (let j = i - LEFT; j <= i + RIGHT; j++) {
+            if (j !== i && highs[j] >= val) { ok = false; break; }
+        }
+        if (ok) { pivotHighs.push({ price: val, index: i }); lastPH = val; }
     }
-    return mergeLevels(levels).sort((a, b) => b - a).slice(0, 3);
+
+    const pivotLows = [];
+    let lastPL = null;
+    for (let i = LEFT; i < lows.length - RIGHT; i++) {
+        const val = lows[i];
+        if (lastPL !== null && Math.abs(val - lastPL) < minMove) continue;
+        let ok = true;
+        for (let j = i - LEFT; j <= i + RIGHT; j++) {
+            if (j !== i && lows[j] <= val) { ok = false; break; }
+        }
+        if (ok) { pivotLows.push({ price: val, index: i }); lastPL = val; }
+    }
+
+    // Dynamic merge distance — works across forex / crypto / stocks
+    const mergeDistance = Math.max(
+        atrThreshold * 0.5,
+        (closes[closes.length - 1] || 1) * 0.0005
+    );
+
+    const mergeZones = (pivots) => {
+        const sorted = [...pivots].sort((a, b) => a.price - b.price);
+        const zones = [];
+
+        sorted.forEach(({ price, index }) => {
+            const last = zones[zones.length - 1];
+            if (last && Math.abs(price - last.price) < mergeDistance) {
+                const midPrice = Number(((last.price + price) / 2).toFixed(4));
+                const lastScore = countTouches(last.price) * ageWeight(last.index);
+                const curScore = countTouches(price) * ageWeight(index);
+                zones[zones.length - 1] = {
+                    price: midPrice,
+                    index: curScore >= lastScore ? index : last.index,
+                    touches: countTouches(midPrice),
+                    strength: Math.round(lastScore + curScore)
+                };
+            } else {
+                const touches = countTouches(price);
+                const strength = Math.round(touches * ageWeight(index));
+                zones.push({ price: Number(price.toFixed(4)), index, touches, strength });
+            }
+        });
+
+        // Rank by strength (touch count × recency), return top 3
+        return zones.sort((a, b) => b.strength - a.strength).slice(0, 3);
+    };
+
+    return {
+        resistance: mergeZones(pivotHighs),
+        support: mergeZones(pivotLows)
+    };
 };
+// ─────────────────────────────────────────────────────────────────────────────
 
 const PriceChart = ({ data, symbol = 'Asset' }) => {
     const [showSR, setShowSR] = useState(true);
     const ohlc = data?.ohlc_data?.ohlc_1h || [];
 
-    const supportLevels = findLocalSupport(ohlc);
-    const resistanceLevels = findLocalResistance(ohlc);
+    const { support, resistance } = calculateSupportResistance(ohlc);
+    const supportLevels = support;
+    const resistanceLevels = resistance;
 
-    // Candlestick series
     const candleSeries = {
         name: 'Candles',
         type: 'candlestick',
@@ -80,66 +148,35 @@ const PriceChart = ({ data, symbol = 'Asset' }) => {
         }))
     };
 
-    const findLevelIndex = (level, type) =>
-        ohlc.findIndex(c =>
-            type === 'support' ? Number(c.low) === level : Number(c.high) === level
-        );
+    // Full-width lines — first candle to last candle
+    const createLevelLine = ({ price, strength }, rank, type) => ({
+        name: `${type === 'support' ? 'S' : 'R'}${rank + 1} ${strengthStars(strength)}`,
+        type: 'line',
+        data: [
+            { x: new Date(ohlc[0].timestamp), y: price },
+            { x: new Date(ohlc[ohlc.length - 1].timestamp), y: price }
+        ]
+    });
 
-    const createLevelLine = (level, idx, type) => {
-        const start = Math.max(0, idx - 8);
-        const end = Math.min(ohlc.length - 1, idx + 8);
-        return {
-            name: `${type === 'support' ? 'Support' : 'Resistance'} ${idx + 1}`,
-            type: 'line',
-            data: [
-                { x: new Date(ohlc[start].timestamp), y: level },
-                { x: new Date(ohlc[end].timestamp), y: level }
-            ]
-        };
-    };
-
-    const supportSeriesArr = supportLevels.map((level, i) =>
-        createLevelLine(level, findLevelIndex(level, 'support'), 'support')
-    );
-
-    const resistanceSeriesArr = resistanceLevels.map((level, i) =>
-        createLevelLine(level, findLevelIndex(level, 'resistance'), 'resistance')
-    );
+    const supportSeriesArr = supportLevels.map((z, i) => createLevelLine(z, i, 'support'));
+    const resistanceSeriesArr = resistanceLevels.map((z, i) => createLevelLine(z, i, 'resistance'));
 
     const series = [candleSeries, ...(showSR ? [...supportSeriesArr, ...resistanceSeriesArr] : [])];
 
-    // Annotations only when SR visible
     const yAxisAnnotations = showSR ? [
-        ...supportLevels.map((val) => ({
-            y: val,
-            borderColor: '#10b981',
-            strokeDashArray: 4,
-            label: {
-                borderColor: '#10b981',
-                style: { color: '#fff', background: '#10b981', fontSize: '11px' },
-                text: `S ${val.toFixed(4)}`
-            }
+        ...supportLevels.map(({ price, strength }) => ({
+            y: price, borderColor: '#10b981', strokeDashArray: 4,
+            label: { borderColor: '#10b981', style: { color: '#fff', background: '#10b981', fontSize: '11px' }, text: `S ${price.toFixed(4)} ${strengthStars(strength)}` }
         })),
-        ...resistanceLevels.map((val) => ({
-            y: val,
-            borderColor: '#ef4444',
-            strokeDashArray: 4,
-            label: {
-                borderColor: '#ef4444',
-                style: { color: '#fff', background: '#ef4444', fontSize: '11px' },
-                text: `R ${val.toFixed(4)}`
-            }
+        ...resistanceLevels.map(({ price, strength }) => ({
+            y: price, borderColor: '#ef4444', strokeDashArray: 4,
+            label: { borderColor: '#ef4444', style: { color: '#fff', background: '#ef4444', fontSize: '11px' }, text: `R ${price.toFixed(4)} ${strengthStars(strength)}` }
         }))
     ] : [];
 
-    // Colors: candlestick transparent, supports green, resistances red
-    const seriesColors = showSR ? [
-        'transparent',
-        ...supportLevels.map(() => '#10b981'),
-        ...resistanceLevels.map(() => '#ef4444')
-    ] : ['transparent'];
-
-    // Stroke widths and dash arrays matching series count
+    const seriesColors = showSR
+        ? ['transparent', ...supportLevels.map(() => '#10b981'), ...resistanceLevels.map(() => '#ef4444')]
+        : ['transparent'];
     const strokeWidths = showSR ? [1, ...supportLevels.map(() => 1.5), ...resistanceLevels.map(() => 1.5)] : [1];
     const dashArrays = showSR ? [0, ...supportLevels.map(() => 4), ...resistanceLevels.map(() => 4)] : [0];
 
@@ -152,20 +189,11 @@ const PriceChart = ({ data, symbol = 'Asset' }) => {
         },
         title: {
             text: `${symbol} Price Action`,
-            align: 'left',
-            margin: 10,
-            offsetX: 10,
+            align: 'left', margin: 10, offsetX: 10,
             style: { color: '#0f5cf2', fontSize: '16px', fontWeight: 700 }
         },
         legend: {
-            show: true,
-            position: 'top',
-            horizontalAlign: 'right',
-            formatter: (seriesName) => {
-                if (seriesName.includes('Support')) return seriesName.replace('Support', 'S');
-                if (seriesName.includes('Resistance')) return seriesName.replace('Resistance', 'R');
-                return seriesName;
-            },
+            show: true, position: 'top', horizontalAlign: 'right',
             onItemClick: { toggleDataSeries: true },
             onItemHover: { highlightDataSeries: true }
         },
@@ -173,37 +201,20 @@ const PriceChart = ({ data, symbol = 'Asset' }) => {
         xaxis: {
             type: 'datetime',
             labels: { style: { colors: '#64748b' } },
-            axisBorder: { show: false },
-            axisTicks: { show: false }
+            axisBorder: { show: false }, axisTicks: { show: false }
         },
         yaxis: {
             tooltip: { enabled: true },
-            labels: {
-                style: { colors: '#64748b' },
-                formatter: (val) => val?.toFixed(4) ?? val
-            }
+            labels: { style: { colors: '#64748b' }, formatter: (val) => val?.toFixed(4) ?? val }
         },
-        grid: {
-            borderColor: 'rgba(15, 92, 242, 0.08)',
-            strokeDashArray: 4
-        },
+        grid: { borderColor: 'rgba(15, 92, 242, 0.08)', strokeDashArray: 4 },
         annotations: { yaxis: yAxisAnnotations },
-        stroke: {
-            width: strokeWidths,
-            curve: 'straight',
-            dashArray: dashArrays
-        },
+        stroke: { width: strokeWidths, curve: 'straight', dashArray: dashArrays },
         colors: seriesColors,
         plotOptions: {
-            candlestick: {
-                colors: { upward: '#10b981', downward: '#ef4444' },
-                wick: { useFillColor: true }
-            }
+            candlestick: { colors: { upward: '#10b981', downward: '#ef4444' }, wick: { useFillColor: true } }
         },
-        tooltip: {
-            theme: 'light',
-            x: { format: 'dd MMM HH:mm' }
-        }
+        tooltip: { theme: 'light', x: { format: 'dd MMM HH:mm' } }
     };
 
     if (!ohlc.length) return null;
@@ -244,35 +255,17 @@ const SentimentRadar = ({ indicators }) => {
     }];
 
     const options = {
-        chart: {
-            type: 'radar',
-            toolbar: { show: false },
-            animations: { enabled: true, speed: 1000 }
-        },
+        chart: { type: 'radar', toolbar: { show: false }, animations: { enabled: true, speed: 1000 } },
         theme: { mode: 'light' },
         labels: ['Trend', 'Momentum', 'Volatility', 'Overall'],
         yaxis: { show: false, min: 0, max: 100 },
         fill: {
-            opacity: 0.45,
-            type: 'gradient',
-            gradient: {
-                shade: 'light',
-                gradientToColors: ['#0f5cf2'],
-                shadeIntensity: 1,
-                type: 'horizontal',
-                stops: [0, 100]
-            }
+            opacity: 0.45, type: 'gradient',
+            gradient: { shade: 'light', gradientToColors: ['#0f5cf2'], shadeIntensity: 1, type: 'horizontal', stops: [0, 100] }
         },
         stroke: { width: 2, colors: ['#0f5cf2'] },
         markers: { size: 4, colors: ['#0f5cf2'], strokeWidth: 2, strokeColors: '#fff' },
-        plotOptions: {
-            radar: {
-                polygons: {
-                    strokeColors: 'rgba(15, 92, 242, 0.15)',
-                    connectorColors: 'rgba(15, 92, 242, 0.1)'
-                }
-            }
-        },
+        plotOptions: { radar: { polygons: { strokeColors: 'rgba(15, 92, 242, 0.15)', connectorColors: 'rgba(15, 92, 242, 0.1)' } } },
         tooltip: { theme: 'light' }
     };
 
@@ -288,36 +281,16 @@ const Gauge = ({ value, title }) => {
         chart: { type: 'radialBar', sparkline: { enabled: true } },
         plotOptions: {
             radialBar: {
-                startAngle: -110,
-                endAngle: 110,
+                startAngle: -110, endAngle: 110,
                 hollow: { size: '65%', background: '#f8fafc' },
-                track: {
-                    background: '#e2e8f0',
-                    strokeWidth: '100%',
-                    margin: 5
-                },
+                track: { background: '#e2e8f0', strokeWidth: '100%', margin: 5 },
                 dataLabels: {
                     name: { show: true, color: '#0f5cf2', offsetY: -10, fontSize: '12px', fontWeight: 600 },
-                    value: {
-                        show: true,
-                        fontSize: '22px',
-                        fontWeight: 700,
-                        color: '#121212',
-                        offsetY: 0,
-                        formatter: (val) => val.toFixed(1)
-                    }
+                    value: { show: true, fontSize: '22px', fontWeight: 700, color: '#121212', offsetY: 0, formatter: (val) => val.toFixed(1) }
                 }
             }
         },
-        fill: {
-            type: 'gradient',
-            gradient: {
-                shade: 'light',
-                type: 'horizontal',
-                gradientToColors: ['#0f5cf2'],
-                stops: [0, 100]
-            }
-        },
+        fill: { type: 'gradient', gradient: { shade: 'light', type: 'horizontal', gradientToColors: ['#0f5cf2'], stops: [0, 100] } },
         stroke: { lineCap: 'round' },
         labels: [title]
     };
@@ -329,33 +302,18 @@ const Gauge = ({ value, title }) => {
     );
 };
 
-const ReportPanel = ({
-    fullReport,
-    visualData,
-    isLoading,
-    scrollToTopSignal,
-    onDownload,
-    inline = true
-}) => {
+const ReportPanel = ({ fullReport, visualData, isLoading, scrollToTopSignal, onDownload, inline = true }) => {
     const scrollRef = useRef(null);
 
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = 0;
-        }
+        if (scrollRef.current) scrollRef.current.scrollTop = 0;
     }, [scrollToTopSignal, fullReport]);
 
     const renderWidget = (type, symbol, key) => {
         const assetData = getAssetData(visualData, symbol);
-
         if (!assetData) {
-            return (
-                <div key={key} className={styles.reportWidgetMissing}>
-                    Visualization data for {symbol} is currently unavailable.
-                </div>
-            );
+            return <div key={key} className={styles.reportWidgetMissing}>Visualization data for {symbol} is currently unavailable.</div>;
         }
-
         switch (type) {
             case 'CANDLESTICK':
                 return <PriceChart key={key} data={assetData} symbol={symbol} />;
@@ -367,25 +325,9 @@ const ReportPanel = ({
                     </div>
                 );
             case 'RSI_GAUGE':
-                return (
-                    <Gauge
-                        key={key}
-                        value={assetData.indicators?.momentum_indicators?.RSI?.value
-                            || assetData.indicators?.['1H']?.momentum_indicators?.RSI?.value
-                            || 50}
-                        title={`${symbol} RSI`}
-                    />
-                );
+                return <Gauge key={key} value={assetData.indicators?.momentum_indicators?.RSI?.value || assetData.indicators?.['1H']?.momentum_indicators?.RSI?.value || 50} title={`${symbol} RSI`} />;
             case 'ADX_GAUGE':
-                return (
-                    <Gauge
-                        key={key}
-                        value={assetData.indicators?.trend_indicators?.ADX?.value
-                            || assetData.indicators?.['1H']?.trend_indicators?.ADX?.value
-                            || 25}
-                        title={`${symbol} Trend Strength`}
-                    />
-                );
+                return <Gauge key={key} value={assetData.indicators?.trend_indicators?.ADX?.value || assetData.indicators?.['1H']?.trend_indicators?.ADX?.value || 25} title={`${symbol} Trend Strength`} />;
             default:
                 return null;
         }
@@ -393,34 +335,22 @@ const ReportPanel = ({
 
     const renderContent = () => {
         if (!fullReport) return null;
-
-        const parts = fullReport.split(WIDGET_REGEX);
-
-        return parts.map((part, pIdx) => {
+        return fullReport.split(WIDGET_REGEX).map((part, pIdx) => {
             const widgetMatch = part.match(/\[WIDGET:([A-Z_]+):([A-Z0-9/]+)\]/);
-            if (widgetMatch) {
-                const [, type, symbol] = widgetMatch;
-                return renderWidget(type, symbol, pIdx);
-            }
-
+            if (widgetMatch) return renderWidget(widgetMatch[1], widgetMatch[2], pIdx);
             if (!part.trim()) return null;
-
             return (
                 <div key={pIdx} className={styles.reportMarkdown}>
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
-                        {part}
-                    </ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{part}</ReactMarkdown>
                 </div>
             );
         });
     };
 
-    // Inline mode: renders report content directly without the panel chrome
     if (inline) {
         return (
             <div className={styles.inlineReportContainer}>
                 <h3>{fullReport ? 'Analysis Center' : 'No Report Selected'}</h3>
-
                 {isLoading ? (
                     <div className={styles.reportLoading}>Analyzing market data...</div>
                 ) : fullReport ? (
@@ -451,11 +381,7 @@ const ReportPanel = ({
         <div className={styles.reportPanel}>
             <div className={styles.reportPanelHeader}>
                 <h3>{fullReport ? 'Analysis Center' : 'No Report Selected'}</h3>
-                {fullReport ? (
-                    <button type="button" className={styles.reportDownloadBtn} onClick={onDownload}>
-                        Download Document
-                    </button>
-                ) : null}
+                {fullReport && <button type="button" className={styles.reportDownloadBtn} onClick={onDownload}>Download Document</button>}
             </div>
             <div className={styles.reportPanelBody} ref={scrollRef}>
                 {isLoading ? (
