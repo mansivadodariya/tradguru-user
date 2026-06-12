@@ -115,15 +115,6 @@ export default function Dashboard() {
 
             },
             {
-                title: 'Generate Blog',
-                desc: 'Generate outlines or full forex content in seconds.',
-                cta: 'Write Now',
-                href: '/ai-assistant?tab=blog',
-                accent: styles.qaGreen,
-                icon: iconThree
-
-            },
-            {
                 title: 'Economic Calendar',
                 desc: 'Track high-impact news and plan trades around events.',
                 cta: 'Open Calendar',
@@ -132,6 +123,14 @@ export default function Dashboard() {
                 icon: iconFour
 
             },
+            {
+                title: 'Manage Profile',
+                desc: 'Update your personal information, account settings, and profile preferences easily.',
+                cta: 'Manage Now',
+                href: '/profile',
+                accent: styles.qaGreen,
+                icon: iconThree
+            }
         ],
         []
     );
@@ -255,9 +254,9 @@ export default function Dashboard() {
         },
         {
             id: 4,
-            label: "Total Blogs",
-            value: stats?.total_blog_history ?? "—",
-            delta: "Blog History",
+            label: "Total Credits",
+            value: stats?.total_credits ?? "—",
+            delta: "Total Credits",
             icon: state4,
         },
     ];

@@ -37,10 +37,10 @@ export default function Header() {
                                 href="https://www.edufins.com/"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                aria-label="Education"
+                                aria-label="Edufins"
                                 className={styles.navLink}
                             >
-                                Education
+                                Edufins
                             </Link>
                             <Link
                                 href="https://fundedmaster.com/"
@@ -91,10 +91,10 @@ export default function Header() {
                                 href="https://www.edufins.com/"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                aria-label="Education"
+                                aria-label="Edufins"
                                 className={styles.navLink}
                             >
-                                Education
+                                Edufins
                             </Link>
                             <Link
                                 href="https://fundedmaster.com/"

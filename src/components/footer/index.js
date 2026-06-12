@@ -96,9 +96,9 @@ export default function Footer() {
                                         href="https://www.edufins.com/"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        aria-label="Education"
+                                        aria-label="Edufins"
                                     >
-                                        Education
+                                        Edufins
                                     </Link>
                                 </li>
                                 <li>
