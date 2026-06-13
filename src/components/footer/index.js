@@ -1,7 +1,10 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link';
 import styles from './footer.module.scss';
+import { supabase } from '@/lib/supabaseClient';
+import { toast } from '@/components/toast';
+import Loader from '@/components/loader';
 
 const FooterLogo = '/assets/logo/logoWhite.svg';
 
@@ -43,12 +46,55 @@ const DribbbleIcon = () => (
 );
 
 export default function Footer() {
-    const handleSubscribe = (e) => {
+    const [email, setEmail] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleSubscribe = async (e) => {
         e.preventDefault();
-        // logic for subscription
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const trimmedEmail = email.trim();
+
+        if (!trimmedEmail) {
+            toast.error('Please enter an email address.');
+            return;
+        }
+
+        if (!emailRegex.test(trimmedEmail)) {
+            toast.error('Please enter a valid email address.');
+            return;
+        }
+
+        if (!supabase) {
+            toast.error('Subscription client is not initialized.');
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            const { error } = await supabase
+                .from('newsletter_subscribers')
+                .insert([{ email: trimmedEmail }]);
+
+            if (error) {
+                if (error.code === '23505') {
+                    toast.error('This email is already subscribed.');
+                } else {
+                    toast.error(error.message || 'Failed to subscribe.');
+                }
+            } else {
+                toast.success('Successfully subscribed to the newsletter!');
+                setEmail('');
+            }
+        } catch (err) {
+            toast.error(err.message || 'An unexpected error occurred.');
+        } finally {
+            setSubmitting(false);
+        }
     };
+
     const handleEmailInput = (e) => {
-        e.target.value = e.target.value.trimStart();
+        setEmail(e.target.value.trimStart());
     };
 
     return (
@@ -69,11 +115,18 @@ export default function Footer() {
                             <input
                                 type="email"
                                 placeholder="Your@gmail.com"
+                                value={email}
                                 onChange={handleEmailInput}
+                                disabled={submitting}
                                 required
                             />
-                            <button type="submit" className={styles.submitBtn} aria-label="Subscribe">
-                                <ArrowUpIcon />
+                            <button
+                                type="submit"
+                                className={styles.submitBtn}
+                                aria-label="Subscribe"
+                                disabled={submitting}
+                            >
+                                {submitting ? <Loader size="sm" /> : <ArrowUpIcon />}
                             </button>
                         </form>
                     </div>

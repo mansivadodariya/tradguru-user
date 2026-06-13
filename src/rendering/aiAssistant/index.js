@@ -121,6 +121,10 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     // Refs
     const dropdownRef = useRef(null);
     const chatEndRef = useRef(null);
+    const exportRef = useRef(null);
+
+    // PDF Exporting State
+    const [exportData, setExportData] = useState(null);
 
     // Fetch user details on mount
     useEffect(() => {
@@ -364,18 +368,93 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         setChatInput(suggestion);
     };
 
-    const handleDownloadReportContent = (reportContent) => {
-        if (!reportContent) return;
-        const blob = new Blob([reportContent], { type: 'text/markdown' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'market-analysis-report.md';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+    const handleDownloadReportContent = (reportContent, element, visualData) => {
+        if (!element) {
+            if (!reportContent) return;
+            const blob = new Blob([reportContent], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'market-analysis-report.md';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            return;
+        }
+
+        setExportData({ fullReport: reportContent, visualData });
     };
+
+    useEffect(() => {
+        if (!exportData) return;
+
+        const generatePdf = async () => {
+            try {
+                toast('Preparing PDF download...');
+                const html2pdf = (await import('html2pdf.js')).default;
+
+                // Give a short delay to let layout and ApexCharts settle in the off-screen element
+                await new Promise((resolve) => setTimeout(resolve, 500));
+
+                const element = exportRef.current;
+                if (!element) {
+                    throw new Error("Export element not found");
+                }
+
+                const opt = {
+                    margin: 15,
+                    filename: 'market-analysis-report.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: {
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: '#ffffff',
+                        logging: false,
+                        windowWidth: 800,
+                        width: 800
+                    },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: {
+                        mode: ['css', 'legacy'],
+                        before: [],
+                        after: [],
+                        avoid: [
+                            `.${styles.reportWidget}`,
+                            `.${styles.chartContainer}`,
+                            `.${styles.mdTableWrapper}`,
+                            'h2',
+                            'h3',
+                            'img',
+                            'canvas'
+                        ]
+                    }
+                };
+
+                await html2pdf().set(opt).from(element).save();
+                toast('Report downloaded successfully!');
+            } catch (err) {
+                console.error('PDF download error:', err);
+                toast('PDF generation failed. Downloading markdown version...');
+                if (exportData.fullReport) {
+                    const blob = new Blob([exportData.fullReport], { type: 'text/markdown' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'market-analysis-report.md';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
+            } finally {
+                setExportData(null);
+            }
+        };
+
+        generatePdf();
+    }, [exportData]);
 
     // Helper functions for safe rendering
     const getQuestionText = (item) => item.question || item.message || item.input_data || 'Untitled interaction';
@@ -587,7 +666,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                                             inline
                                                             fullReport={msg.fullReport}
                                                             visualData={msg.visualData}
-                                                            onDownload={() => handleDownloadReportContent(msg.fullReport)}
+                                                            onDownload={(el) => handleDownloadReportContent(msg.fullReport, el, msg.visualData)}
                                                         />
                                                     </>
                                                 )}
@@ -764,6 +843,28 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                     </div>
                 </div>
             </Modal>
+
+            {exportData && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        left: '-9999px',
+                        top: '-9999px',
+                        width: '800px',
+                        background: '#ffffff',
+                        zIndex: -1000
+                    }}
+                >
+                    <div ref={exportRef} className={styles.pdfExporting}>
+                        <ReportPanel
+                            inline
+                            fullReport={exportData.fullReport}
+                            visualData={exportData.visualData}
+                            isLoading={false}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

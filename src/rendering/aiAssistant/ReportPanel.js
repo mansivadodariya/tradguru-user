@@ -34,9 +34,25 @@ const LEFT = 8;
 const RIGHT = 8;
 
 const strengthStars = (score) => {
+    if (typeof score === 'string') return score;
     if (score >= 8) return 'Strong';
     if (score >= 4) return 'Medium';
     return 'Weak';
+};
+
+const normalizeBackendLevels = (levels) => {
+    if (!Array.isArray(levels)) return null;
+    return levels.map(level => {
+        if (typeof level === 'number') {
+            return { price: level, strength: 5 };
+        }
+        if (level && typeof level === 'object') {
+            const price = Number(level.price ?? level.value ?? level.level ?? 0);
+            const strength = level.strength ?? level.touches ?? 5;
+            return { price, strength };
+        }
+        return null;
+    }).filter(Boolean);
 };
 
 const calculateSupportResistance = (candles) => {
@@ -135,9 +151,16 @@ const PriceChart = ({ data, symbol = 'Asset' }) => {
     const [showSR, setShowSR] = useState(true);
     const ohlc = data?.ohlc_data?.ohlc_1h || [];
 
-    const { support, resistance } = calculateSupportResistance(ohlc);
-    const supportLevels = support;
-    const resistanceLevels = resistance;
+    // Extract raw support and resistance levels from multiple possible backend data fields
+    const rawSupport = data?.horizontal_levels?.supports ?? data?.horizontal_levels?.support ?? data?.support ?? data?.support_levels ?? data?.indicators?.support ?? data?.indicators?.support_levels ?? data?.indicators?.['1H']?.support ?? data?.indicators?.['1H']?.support_levels;
+    const rawResistance = data?.horizontal_levels?.resistances ?? data?.horizontal_levels?.resistance ?? data?.resistance ?? data?.resistance_levels ?? data?.indicators?.resistance ?? data?.indicators?.resistance_levels ?? data?.indicators?.['1H']?.resistance ?? data?.indicators?.['1H']?.resistance_levels;
+
+    // Normalize levels if they exist; otherwise, fall back to frontend calculations
+    const backendSupport = normalizeBackendLevels(rawSupport);
+    const backendResistance = normalizeBackendLevels(rawResistance);
+
+    const supportLevels = backendSupport !== null ? backendSupport : calculateSupportResistance(ohlc).support;
+    const resistanceLevels = backendResistance !== null ? backendResistance : calculateSupportResistance(ohlc).resistance;
 
     const candleSeries = {
         name: 'Candles',
@@ -304,6 +327,7 @@ const Gauge = ({ value, title }) => {
 
 const ReportPanel = ({ fullReport, visualData, isLoading, scrollToTopSignal, onDownload, inline = true }) => {
     const scrollRef = useRef(null);
+    const reportRef = useRef(null);
 
     useEffect(() => {
         if (scrollRef.current) scrollRef.current.scrollTop = 0;
@@ -354,7 +378,7 @@ const ReportPanel = ({ fullReport, visualData, isLoading, scrollToTopSignal, onD
                 {isLoading ? (
                     <div className={styles.reportLoading}>Analyzing market data...</div>
                 ) : fullReport ? (
-                    <div className={styles.reportContent}>{renderContent()}</div>
+                    <div className={styles.reportContent} ref={reportRef}>{renderContent()}</div>
                 ) : (
                     <div className={styles.reportEmpty}>
                         <p className={styles.reportEmptyTitle}>Ready for Analysis</p>
@@ -363,7 +387,7 @@ const ReportPanel = ({ fullReport, visualData, isLoading, scrollToTopSignal, onD
                 )}
                 {onDownload && (
                     <div className={styles.inlineDownloadRow}>
-                        <button type="button" className={styles.inlineDownloadBtn} onClick={onDownload}>
+                        <button type="button" className={styles.inlineDownloadBtn} onClick={() => onDownload && onDownload(reportRef.current)}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                 <polyline points="7 10 12 15 17 10"></polyline>
@@ -381,13 +405,13 @@ const ReportPanel = ({ fullReport, visualData, isLoading, scrollToTopSignal, onD
         <div className={styles.reportPanel}>
             <div className={styles.reportPanelHeader}>
                 <h3>{fullReport ? 'Analysis Center' : 'No Report Selected'}</h3>
-                {fullReport && <button type="button" className={styles.reportDownloadBtn} onClick={onDownload}>Download Document</button>}
+                {fullReport && onDownload && <button type="button" className={styles.reportDownloadBtn} onClick={() => onDownload && onDownload(reportRef.current)}>Download Document</button>}
             </div>
             <div className={styles.reportPanelBody} ref={scrollRef}>
                 {isLoading ? (
                     <div className={styles.reportLoading}>Analyzing market data...</div>
                 ) : fullReport ? (
-                    <div className={styles.reportContent}>{renderContent()}</div>
+                    <div className={styles.reportContent} ref={reportRef}>{renderContent()}</div>
                 ) : (
                     <div className={styles.reportEmpty}>
                         <p className={styles.reportEmptyTitle}>Ready for Analysis</p>

@@ -173,24 +173,28 @@ export const fxApi = {
             body: JSON.stringify({ input_data, is_content }),
         }),
 
-    getBlogHistory: (user_id) =>
-        request(`/users/${user_id}/blog-history`, {
+    getBlogHistory: (user_id) => {
+        const path = (!user_id || user_id === 'all') ? '/users/blog-history' : `/users/blog-history?user_id=${user_id}`;
+        return request(path, {
             headers: getAuthHeaders(),
-        }),
+        });
+    },
 
-    getQuestionHistory: (user_id) =>
-        request(`/users/${user_id}/question-history`, {
+    getQuestionHistory: (user_id) => {
+        const path = (!user_id || user_id === 'all') ? '/users/question-history' : `/users/question-history?user_id=${user_id}`;
+        return request(path, {
             headers: getAuthHeaders(),
-        }),
+        });
+    },
 
     deleteQuestionHistoryItem: (user_id, history_id) =>
-        request(`/users/${user_id}/question-history/${history_id}`, {
+        request(`/users/question-history/${history_id}?user_id=${user_id}`, {
             method: 'DELETE',
             headers: getAuthHeaders(),
         }),
 
     deleteBlogHistoryItem: (user_id, history_id) =>
-        request(`/users/${user_id}/blog-history/${history_id}`, {
+        request(`/users/blog-history/${history_id}?user_id=${user_id}`, {
             method: 'DELETE',
             headers: getAuthHeaders(),
         }),
@@ -209,13 +213,15 @@ export const dashboardApi = {
 };
 
 export const tradeSnapApi = {
-    getAnalysisHistory: (user_id) =>
-        request(`/users/${user_id}/analysis-history`, {
+    getAnalysisHistory: (user_id) => {
+        const path = (!user_id || user_id === 'all') ? '/users/analysis-history' : `/users/analysis-history?user_id=${user_id}`;
+        return request(path, {
             headers: getAuthHeaders(),
-        }),
+        });
+    },
 
     deleteAnalysisHistoryItem: (user_id, history_id) =>
-        request(`/users/${user_id}/analysis-history/${history_id}`, {
+        request(`/users/analysis-history/${history_id}?user_id=${user_id}`, {
             method: 'DELETE',
             headers: getAuthHeaders(),
         }),
