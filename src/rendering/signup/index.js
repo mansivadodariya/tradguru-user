@@ -34,6 +34,10 @@ const Signup = () => {
 
     const set = (field) => (e) => {
         let val = e.target.value.trimStart();
+        // Block numbers and special characters for name fields — only allow letters and spaces
+        if (field === 'first_name' || field === 'last_name') {
+            val = val.replace(/[^a-zA-Z\s]/g, '');
+        }
         setForm((f) => ({ ...f, [field]: val }));
         // clear field error on change
         if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }));
@@ -104,10 +108,10 @@ const Signup = () => {
                     <form onSubmit={handleSubmit} noValidate>
                         <div className={styles.spacingGrid}>
                             <div className={styles.twoCol}>
-                                <Input icon={Profile} placeholder="First Name" name="first_name" value={form.first_name} onChange={set('first_name')} error={errors.first_name} />
-                                <Input icon={Profile} placeholder="Last Name" name="last_name" value={form.last_name} onChange={set('last_name')} error={errors.last_name} />
+                                <Input icon={Profile} placeholder="First Name" name="first_name" value={form.first_name} onChange={set('first_name')} error={errors.first_name} maxLength={50} />
+                                <Input icon={Profile} placeholder="Last Name" name="last_name" value={form.last_name} onChange={set('last_name')} error={errors.last_name} maxLength={50} />
                             </div>
-                            <Input icon={EmailIcon} placeholder="Email" type="email" name="email" value={form.email} onChange={set('email')} error={errors.email} />
+                            <Input icon={EmailIcon} placeholder="Email" type="email" name="email" value={form.email} onChange={set('email')} error={errors.email} maxLength={100} />
                             <PhoneInput
                                 label=""
                                 placeholder="Phone no"
@@ -117,8 +121,8 @@ const Signup = () => {
                                 defaultCountry="IN"
                             />
                             <div className={styles.twoCol}>
-                                <Input icon={Lock} placeholder="Password" type="password" name="password" value={form.password} onChange={set('password')} error={errors.password} />
-                                <Input icon={Lock} placeholder="Confirm Password" type="password" name="confirmPassword" value={form.confirmPassword} onChange={set('confirmPassword')} error={errors.confirmPassword} />
+                                <Input icon={Lock} placeholder="Password" type="password" name="password" value={form.password} onChange={set('password')} error={errors.password} maxLength={50} />
+                                <Input icon={Lock} placeholder="Confirm Password" type="password" name="confirmPassword" value={form.confirmPassword} onChange={set('confirmPassword')} error={errors.confirmPassword} maxLength={50} />
                             </div>
                             <Button
                                 type="submit"

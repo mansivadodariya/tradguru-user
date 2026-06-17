@@ -69,8 +69,8 @@ const Login = () => {
                     </div>
                     <form onSubmit={handleSubmit} noValidate>
                         <div className={styles.spacingGrid}>
-                            <Input icon={EmailIcon} placeholder="Email" type="email" name="email" value={form.email} onChange={set('email')} error={errors.email} />
-                            <Input icon={Lock} placeholder="Password" type="password" name="password" value={form.password} onChange={set('password')} error={errors.password} />
+                            <Input icon={EmailIcon} placeholder="Email" type="email" name="email" value={form.email} onChange={set('email')} error={errors.email} maxLength={100} />
+                            <Input icon={Lock} placeholder="Password" type="password" name="password" value={form.password} onChange={set('password')} error={errors.password} maxLength={50} />
                             <div className={styles.forgotRow}>
                                 <Link href="/forgot-password">Forgot password?</Link>
                             </div>

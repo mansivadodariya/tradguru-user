@@ -942,6 +942,18 @@
     }
 }
 
+.reportRadar,
+.reportGauge {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    & > div {
+        margin: 0 auto !important;
+    }
+}
+
 .srToggleBtn {
     display: inline-flex;
     align-items: center;
@@ -1549,28 +1561,46 @@
         }
     }
 
+    // Override flex layouts to block layouts for PDF generation
+    .inlineReportContainer,
+    .reportPanel,
+    .reportPanelBody,
+    .reportContent {
+        display: block !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .reportContent > * {
+        margin-top: 0 !important;
+        margin-bottom: 24px !important;
+    }
+
     .reportWidget {
         background: #ffffff !important;
         border-color: rgba(15, 92, 242, 0.2) !important;
         box-shadow: none !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-
-        &:not(:first-child) {
-            page-break-before: always !important;
-            break-before: page !important;
-        }
     }
 
     .chartContainer,
+    .reportGauge,
+    .reportRadar,
     canvas,
-    img {
+    img,
+    svg {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
     }
 
-    h2,
-    h3 {
+    h1, h2, h3, h4, h5, h6 {
         page-break-after: avoid !important;
         break-after: avoid !important;
     }
@@ -1578,11 +1608,5 @@
     .reportPage {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-    }
-
-    // Ensure gauges do not get split across pages
-    .reportGauge {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
     }
 }

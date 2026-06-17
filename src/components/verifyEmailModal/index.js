@@ -38,6 +38,7 @@ export default function VerifyEmailModal({ onVerify, onClose, loading, error }) 
                                 name='token'
                                 value={token}
                                 onChange={(e) => setToken(e.target.value)}
+                                maxLength={100}
                             />
                             {error && <p className={styles.error} role="alert">{error}</p>}
                             <Button type="submit" text={loading ? 'Verifying...' : 'Verify Email'} icon={ArrowIcon} disabled={loading} />

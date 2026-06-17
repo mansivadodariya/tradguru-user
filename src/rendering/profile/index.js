@@ -67,25 +67,46 @@ export default function Profile() {
 
     const validate = () => {
         const errs = {};
-        if (!form.first_name.trim())
+        const firstName = form.first_name.trim();
+        const lastName = form.last_name.trim();
+
+        if (!firstName) {
             errs.first_name = 'First name is required.';
-        else if (form.first_name.trim().length < 2)
-            errs.first_name = 'Min 2 characters.';
+        } else if (firstName.length < 2) {
+            errs.first_name = 'First name must be at least 2 characters.';
+        } else if (firstName.length > 50) {
+            errs.first_name = 'First name cannot exceed 50 characters.';
+        } else if (!/^[a-zA-Z\s]+$/.test(firstName)) {
+            errs.first_name = 'First name can only contain letters and spaces.';
+        }
 
-        if (!form.last_name.trim())
+        if (!lastName) {
             errs.last_name = 'Last name is required.';
-        else if (form.last_name.trim().length < 2)
-            errs.last_name = 'Min 2 characters.';
+        } else if (lastName.length < 2) {
+            errs.last_name = 'Last name must be at least 2 characters.';
+        } else if (lastName.length > 50) {
+            errs.last_name = 'Last name cannot exceed 50 characters.';
+        } else if (!/^[a-zA-Z\s]+$/.test(lastName)) {
+            errs.last_name = 'Last name can only contain letters and spaces.';
+        }
 
-        if (form.phone_number && !isValidPhoneNumber(form.phone_number))
+        if (!form.phone_number) {
+            errs.phone_number = 'Phone number is required.';
+        } else if (!isValidPhoneNumber(form.phone_number)) {
             errs.phone_number = 'Enter a valid phone number.';
+        }
 
         return errs;
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        let sanitized = value;
+        // Block numbers and special characters for name fields — only allow letters and spaces
+        if (name === 'first_name' || name === 'last_name') {
+            sanitized = value.replace(/[^a-zA-Z\s]/g, '');
+        }
+        setForm((prev) => ({ ...prev, [name]: sanitized }));
         setErrors((prev) => ({ ...prev, [name]: '' }));
     };
 
@@ -106,7 +127,7 @@ export default function Profile() {
                 .update({
                     first_name: form.first_name.trim(),
                     last_name: form.last_name.trim(),
-                    phone_number: form.phone_number || null,
+                    phone_number: form.phone_number,
                 })
                 .eq('id', userId);
             if (error) throw error;
@@ -116,7 +137,7 @@ export default function Profile() {
                 ...stored,
                 first_name: form.first_name.trim(),
                 last_name: form.last_name.trim(),
-                phone_number: form.phone_number || null,
+                phone_number: form.phone_number,
             };
             localStorage.setItem('user', JSON.stringify(updated));
             window.dispatchEvent(new Event('user:updated'));
@@ -154,6 +175,7 @@ export default function Profile() {
                             value={form.first_name}
                             onChange={handleChange}
                             error={errors.first_name}
+                            maxLength={50}
                         />
                         <Input
                             label="Last Name"
@@ -162,6 +184,7 @@ export default function Profile() {
                             value={form.last_name}
                             onChange={handleChange}
                             error={errors.last_name}
+                            maxLength={50}
                         />
                     </div>
 

@@ -18,16 +18,20 @@ export function validateSignup(form) {
         errors.first_name = 'First name is required.';
     } else if (firstName.length < 2) {
         errors.first_name = 'First name must be at least 2 characters.';
-    } else if (!/^[a-zA-Z\s'-]+$/.test(firstName)) {
-        errors.first_name = 'First name contains invalid characters.';
+    } else if (firstName.length > 50) {
+        errors.first_name = 'First name cannot exceed 50 characters.';
+    } else if (!/^[a-zA-Z\s]+$/.test(firstName)) {
+        errors.first_name = 'First name can only contain letters and spaces.';
     }
 
     if (!lastName) {
         errors.last_name = 'Last name is required.';
     } else if (lastName.length < 2) {
         errors.last_name = 'Last name must be at least 2 characters.';
-    } else if (!/^[a-zA-Z\s'-]+$/.test(lastName)) {
-        errors.last_name = 'Last name contains invalid characters.';
+    } else if (lastName.length > 50) {
+        errors.last_name = 'Last name cannot exceed 50 characters.';
+    } else if (!/^[a-zA-Z\s]+$/.test(lastName)) {
+        errors.last_name = 'Last name can only contain letters and spaces.';
     }
 
     if (!email) {

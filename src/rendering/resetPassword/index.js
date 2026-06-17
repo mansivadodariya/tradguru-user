@@ -77,8 +77,8 @@ const ResetPassword = () => {
                     ) : (
                         <form onSubmit={handleSubmit} noValidate>
                             <div className={styles.spacingGrid}>
-                                <Input label="New Password" placeholder=" Enter new password" type="password" name="new_password" value={form.new_password} onChange={set('new_password')} error={errors.new_password} />
-                                <Input label="Confirm Password" placeholder=" Confirm new password" type="password" name="confirm_password" value={form.confirm_password} onChange={set('confirm_password')} error={errors.confirm_password} />
+                                <Input label="New Password" placeholder=" Enter new password" type="password" name="new_password" value={form.new_password} onChange={set('new_password')} error={errors.new_password} maxLength={50} />
+                                <Input label="Confirm Password" placeholder=" Confirm new password" type="password" name="confirm_password" value={form.confirm_password} onChange={set('confirm_password')} error={errors.confirm_password} maxLength={50} />
                                 <Button
                                     type="submit"
                                     fullWidth

@@ -74,7 +74,7 @@ const ForgotPassword = () => {
                     ) : (
                         <form onSubmit={handleSubmit} noValidate>
                             <div className={styles.spacingGrid}>
-                                <Input label="Email" placeholder=" johnfrans@gmail.com" type="email" name="email" value={email} onChange={handleEmailChange} error={emailError} />
+                                <Input label="Email" placeholder=" johnfrans@gmail.com" type="email" name="email" value={email} onChange={handleEmailChange} error={emailError} maxLength={100} />
                                 <Button
                                     type="submit"
                                     fullWidth

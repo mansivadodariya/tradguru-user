@@ -18,6 +18,7 @@ $border: rgba(18, 18, 18, 0.10);
         color: #1a1a1a;
         margin: 0 0 4px;
     }
+
     p {
         font-size: 14px;
         color: rgba(26, 26, 26, 0.55);
@@ -35,6 +36,7 @@ $border: rgba(18, 18, 18, 0.10);
     @include respond-to('sm') {
         padding: 20px;
     }
+
     gap: 20px;
 
     form {
@@ -67,11 +69,11 @@ $border: rgba(18, 18, 18, 0.10);
 }
 
 .emailDisplay {
-    padding: 10px 14px;
-    background: #F5F8FE;
+    padding: 12px 16px;
     border: 1px solid $border;
-    font-size: 14px;
+    font-size: 16px;
     color: rgba(26, 26, 26, 0.65);
+    line-height: 24px;
     cursor: not-allowed;
 }
 

@@ -328,12 +328,6 @@ export default function Dashboard() {
                 <div className={styles.sectionHeader}>
                     <h2>Recent</h2>
 
-                    <Link
-                        href="/ai-assistant"
-                        className={styles.viewAll}
-                    >
-                        View All
-                    </Link>
                 </div>
 
                 <div className={styles.recentCard}>
@@ -342,10 +336,10 @@ export default function Dashboard() {
                             <table className={styles.recentTable}>
                                 <thead>
                                     <tr>
+                                        <th>Time</th>
                                         <th>Type</th>
                                         <th>Title</th>
                                         <th>Summary</th>
-                                        <th>Time</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -370,7 +364,6 @@ export default function Dashboard() {
                                 <thead>
                                     <tr>
                                         <th>Time</th>
-                                        <th>Type</th>
                                         <th>Title</th>
                                         <th>Summary</th>
                                     </tr>
@@ -388,18 +381,7 @@ export default function Dashboard() {
                                                     {timeAgo(item.created_at)}
                                                 </div>
                                             </td>
-                                            <td>
-                                                <span
-                                                    className={`${styles.badge} ${item.type === "chat"
-                                                        ? styles.badgeChat
-                                                        : styles.badgeBlog
-                                                        }`}
-                                                >
-                                                    {item.type === "chat"
-                                                        ? "Chat"
-                                                        : "Blog"}
-                                                </span>
-                                            </td>
+
 
                                             <td>
                                                 <div

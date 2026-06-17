@@ -422,12 +422,15 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                         after: [],
                         avoid: [
                             `.${styles.reportWidget}`,
-                            `.${styles.chartContainer}`,
+                            `.${styles.reportGauge}`,
+                            `.${styles.reportRadar}`,
                             `.${styles.mdTableWrapper}`,
                             'h2',
                             'h3',
                             'img',
-                            'canvas'
+                            'canvas',
+                            'svg',
+                            'tr'
                         ]
                     }
                 };
