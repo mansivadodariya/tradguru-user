@@ -8,14 +8,37 @@ import TradeIcon from "@/icons/tradeIcon";
 import AssistantIcon from "@/icons/assistantIcon";
 import PricingIcon from "@/icons/pricingIcon";
 import SettingsIcon from "@/icons/settingsIcon";
+import AiIcon from "@/icons/aiIcon";
 import { clearAuthSession } from '@/lib/authSession';
 
 const SidebarLogo = "/assets/logo/logo.svg";
+const LiveAnalysisIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+  </svg>
+);
+
+const StrategyIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+  </svg>
+);
 
 const mainNav = [
   { label: "Dashboard", href: "/dashboard", icon: DashboardIcon },
   { label: "AI Trade", href: "/trade-snap", icon: TradeIcon },
   { label: "AI Chat", href: "/ai-assistant", icon: AssistantIcon },
+  { 
+    label: "AI Strategy", 
+    href: "/ai-strategy", 
+    icon: AiIcon,
+    subItems: [
+      { label: "AI Strategy", href: "/ai-strategy/strategy", icon: StrategyIcon },
+      { label: "Live Analysis", href: "/ai-strategy/live", icon: LiveAnalysisIcon },
+    ]
+  },
   { label: "Economic Calendar", href: "/economic-calendar", icon: PricingIcon },
   { label: "Profile", href: "/profile", icon: SettingsIcon },
 ];
@@ -30,7 +53,55 @@ function isNavItemActive(pathname, href) {
 
 const NavItem = ({ item, pathname, onNavigate }) => {
   const Icon = item.icon;
-  const isActive = isNavItemActive(pathname, item.href);
+  const isParentActive = isNavItemActive(pathname, item.href);
+  const isAnySubActive = item.subItems?.some(sub => isNavItemActive(pathname, sub.href));
+  const isActive = isParentActive || isAnySubActive;
+  
+  const [isOpen, setIsOpen] = useState(isActive);
+
+  if (item.subItems) {
+    return (
+      <div className={styles.menuGroup}>
+        <div
+          className={styles.menu}
+          data-active={isActive ? 'true' : undefined}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <div className={styles.icon}>
+            <Icon />
+          </div>
+          <span>{item.label}</span>
+          <span className={`${styles.chevron} ${isOpen ? styles.rotated : ''}`}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </span>
+        </div>
+        {isOpen && (
+          <div className={styles.subItemsList}>
+            {item.subItems.map(sub => {
+              const isSubActive = isNavItemActive(pathname, sub.href);
+              const SubIcon = sub.icon;
+              return (
+                <Link
+                  key={sub.href}
+                  href={sub.href}
+                  className={styles.subMenuLink}
+                  data-active={isSubActive ? 'true' : undefined}
+                  onClick={onNavigate}
+                >
+                  <div className={styles.subMenuIcon}>
+                    <SubIcon />
+                  </div>
+                  <span>{sub.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <Link

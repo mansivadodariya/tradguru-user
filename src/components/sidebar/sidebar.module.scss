@@ -81,6 +81,10 @@
                 span {
                     color: #0b56db;
                 }
+
+                .chevron {
+                    color: #0b56db;
+                }
             }
 
             &[data-active='true'] {
@@ -98,6 +102,10 @@
                 }
 
                 span {
+                    color: #fff;
+                }
+
+                .chevron {
                     color: #fff;
                 }
             }
@@ -120,8 +128,140 @@
                 font-weight: 500;
                 line-height: normal;
                 transition: 0.3s ease-in-out;
-
             }
+
+            .chevron {
+                margin-left: auto;
+                display: flex;
+                align-items: center;
+                transition: transform 0.2s ease-in-out;
+                color: #656363;
+
+                &.rotated {
+                    transform: rotate(180deg);
+                }
+            }
+        }
+
+        .menuGroup {
+            display: flex;
+            flex-direction: column;
+            margin: 0 0 10px;
+
+            .menu {
+                margin: 0;
+            }
+        }
+
+        .subItemsList {
+            display: flex;
+            flex-direction: column;
+            padding-left: 20px;
+            margin-top: 6px;
+            border-left: 1.5px solid #E4E4E4;
+            margin-left: 21px;
+            gap: 6px;
+            animation: fadeInSubmenu 0.2s ease-out;
+        }
+
+        .subMenuLink {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            color: #656363;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease-in-out;
+            margin-left: 14px;
+
+            &::before {
+                content: '';
+                position: absolute;
+                left: -34px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 20px;
+                height: 1.5px;
+                background: #E4E4E4;
+                transition: background-color 0.2s ease;
+            }
+
+            &::after {
+                content: '';
+                position: absolute;
+                left: -18px;
+                top: 50%;
+                transform: translateY(-50%) rotate(45deg);
+                width: 5px;
+                height: 5px;
+                border-top: 1.5px solid #E4E4E4;
+                border-right: 1.5px solid #E4E4E4;
+                transition: border-color 0.2s ease;
+            }
+
+            &:hover {
+                color: #0b56db;
+                background: rgba(11, 86, 219, 0.04);
+
+                &::before {
+                    background: #0b56db;
+                }
+                &::after {
+                    border-color: #0b56db;
+                }
+
+                .subMenuIcon {
+                    color: #0b56db;
+                }
+            }
+
+            &[data-active='true'] {
+                color: #fff;
+                font-weight: 600;
+                background: #0b56db;
+                box-shadow: 0 4px 10px rgba(11, 86, 219, 0.25);
+
+                &::before {
+                    background: #0b56db;
+                }
+                &::after {
+                    border-color: #0b56db;
+                }
+
+                .subMenuIcon {
+                    color: #fff;
+                }
+            }
+
+            .subMenuIcon {
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: inherit;
+                transition: color 0.2s ease;
+
+                svg {
+                    width: 16px;
+                    height: 16px;
+                    stroke-width: 2px;
+                }
+            }
+        }
+    }
+
+    @keyframes fadeInSubmenu {
+        from {
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
     }
 

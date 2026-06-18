@@ -417,7 +417,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                     },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
                     pagebreak: {
-                        mode: ['css', 'legacy'],
+                        mode: ['avoid-all', 'css', 'legacy'],
                         before: [],
                         after: [],
                         avoid: [
@@ -425,12 +425,26 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                             `.${styles.reportGauge}`,
                             `.${styles.reportRadar}`,
                             `.${styles.mdTableWrapper}`,
+                            `.${styles.reportMarkdown}`,
+                            'h1',
                             'h2',
                             'h3',
+                            'h4',
+                            'h5',
+                            'h6',
+                            'p',
+                            'li',
+                            'ul',
+                            'ol',
+                            'blockquote',
                             'img',
                             'canvas',
                             'svg',
-                            'tr'
+                            'table',
+                            'tr',
+                            'td',
+                            'th',
+                            'pre'
                         ]
                     }
                 };

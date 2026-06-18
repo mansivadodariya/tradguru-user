@@ -1590,9 +1590,15 @@
         break-inside: avoid !important;
     }
 
-    .chartContainer,
     .reportGauge,
-    .reportRadar,
+    .reportRadar {
+        display: block !important;
+        text-align: center !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .chartContainer,
     canvas,
     img,
     svg {
@@ -1600,9 +1606,37 @@
         break-inside: avoid !important;
     }
 
+    .mdTableWrapper,
+    table,
+    tr,
+    th,
+    td,
+    pre {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    // --- Text content: prevent paragraphs, lists, and blockquotes from being sliced ---
+    .reportMarkdown {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    p,
+    li,
+    ul,
+    ol,
+    blockquote {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    // --- Headings: keep headings attached to the content that follows ---
     h1, h2, h3, h4, h5, h6 {
         page-break-after: avoid !important;
         break-after: avoid !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
 
     .reportPage {
