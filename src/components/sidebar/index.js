@@ -71,11 +71,6 @@ const NavItem = ({ item, pathname, onNavigate }) => {
             <Icon />
           </div>
           <span>{item.label}</span>
-          <span className={`${styles.chevron} ${isOpen ? styles.rotated : ''}`}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </span>
         </div>
         {isOpen && (
           <div className={styles.subItemsList}>

@@ -5,14 +5,14 @@ import styles from './aiStrategy.module.scss';
 import { SearchIcon } from './icons';
 
 const PAIRS = [
-    "EUR/USD", "USD/JPY", "GBP/USD", "USD/CHF", "AUD/USD", "USD/CAD", "NZD/USD", "XAU/USD",
-    "EUR/GBP", "EUR/CHF", "EUR/JPY", "EUR/AUD", "EUR/CAD", "EUR/NZD",
-    "GBP/JPY", "GBP/AUD", "GBP/CAD", "GBP/CHF", "GBP/NZD",
-    "CHF/JPY", "CAD/JPY", "AUD/JPY", "NZD/JPY",
-    "AUD/CHF", "AUD/CAD", "AUD/NZD", "CAD/CHF", "NZD/CHF"
+    "XAU/USD",
+    "EUR/USD",
+    "GBP/USD",
+    "GBP/JPY",
+    "EUR/JPY",
+    "USD/CAD"
 ];
 
-// Formatting helper
 function formatPairCurrency(val, symbol) {
     if (typeof val !== 'number' || isNaN(val)) return '-';
     let symUpper = (symbol || '').toUpperCase().replace("/", "");
@@ -22,7 +22,6 @@ function formatPairCurrency(val, symbol) {
     return val.toFixed(2);
 }
 
-// Mock initial data generator for seed values
 function getMockInitialData(pair) {
     const symUpper = pair.toUpperCase().replace("/", "");
     let basePrice = 1.25000;
@@ -32,7 +31,7 @@ function getMockInitialData(pair) {
     else if (symUpper === "USDCHF") basePrice = 0.89500;
     else if (symUpper === "AUDUSD") basePrice = 0.66500;
     else if (symUpper === "NZDUSD") basePrice = 0.61200;
-    
+
     const multiplier = symUpper.endsWith("JPY") ? 100 : (symUpper.includes("XAU") || symUpper.includes("GOLD")) ? 1000 : 1;
     const now = Math.floor(Date.now() / 1000);
     return {
@@ -62,7 +61,7 @@ function getScoreLabel(score) {
 }
 
 // Separate component for watchlist list item
-const WatchlistItem = memo(({ pair, isActive, globalTimeframe, addLog, onClick, actualScore }) => {
+const WatchlistItem = memo(({ pair, isActive, globalTimeframe, addLog, onClick, actualScore, onPriceUpdate }) => {
     const [liveData, setLiveData] = useState(null);
     const [wsStatus, setWsStatus] = useState('disconnected');
     const [tickClass, setTickClass] = useState('normal');
@@ -84,7 +83,7 @@ const WatchlistItem = memo(({ pair, isActive, globalTimeframe, addLog, onClick, 
         const connect = () => {
             if (!active) return;
             const pairClean = pair.replace("/", "").toUpperCase();
-            
+
             let base = process.env.NEXT_PUBLIC_WS_LIVE_URL;
             if (!base || base.includes('localhost') || base.includes('127.0.0.1')) {
                 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -113,14 +112,31 @@ const WatchlistItem = memo(({ pair, isActive, globalTimeframe, addLog, onClick, 
                     const payload = JSON.parse(event.data);
                     if (payload.type === 'initial_state' || payload.type === 'candle_update') {
                         lastWsTickTime.current = Date.now();
-                        setLiveData(payload.data);
+                        const parsedData = {};
+                        if (payload.data) {
+                            for (const tf in payload.data) {
+                                const c = payload.data[tf];
+                                if (c) {
+                                    parsedData[tf] = {
+                                        ...c,
+                                        time: Number(c.time),
+                                        open: Number(c.open),
+                                        high: Number(c.high),
+                                        low: Number(c.low),
+                                        close: Number(c.close),
+                                        tick_volume: Number(c.tick_volume || 0)
+                                    };
+                                }
+                            }
+                        }
+                        setLiveData(parsedData);
                     }
                 } catch (err) {
                     console.error(`WS error for ${pair}:`, err);
                 }
             };
 
-            ws.onerror = () => {};
+            ws.onerror = () => { };
 
             ws.onclose = () => {
                 if (!active) return;
@@ -144,11 +160,11 @@ const WatchlistItem = memo(({ pair, isActive, globalTimeframe, addLog, onClick, 
             const now = Date.now();
             setLiveData(prevData => {
                 if (!prevData) return prevData;
-                
+
                 const nowSec = Math.floor(now / 1000);
                 const durations = { "5m": 300, "15m": 900, "1h": 3600, "1d": 86400 };
                 const nextData = { ...prevData };
-                
+
                 for (const tf in durations) {
                     const dur = durations[tf];
                     const candle = nextData[tf];
@@ -175,12 +191,12 @@ const WatchlistItem = memo(({ pair, isActive, globalTimeframe, addLog, onClick, 
                         const moveTicks = Math.floor(Math.random() * 5) - 2;
                         if (moveTicks !== 0) {
                             const change = moveTicks * tickSize;
-                            const newClose = candle.close + change;
+                            const newClose = Number(candle.close) + change;
                             nextData[globalTimeframe] = {
                                 ...candle,
                                 close: newClose,
-                                high: newClose > candle.high ? newClose : candle.high,
-                                low: newClose < candle.low ? newClose : candle.low
+                                high: newClose > Number(candle.high) ? newClose : Number(candle.high),
+                                low: newClose < Number(candle.low) ? newClose : Number(candle.low)
                             };
                         }
                     }
@@ -208,6 +224,25 @@ const WatchlistItem = memo(({ pair, isActive, globalTimeframe, addLog, onClick, 
         prevPriceRef.current = currentPrice;
     }, [currentPrice]);
 
+    useEffect(() => {
+        if (isActive && onPriceUpdate && candle) {
+            const parsedClose = Number(candle.close);
+            const parsedOpen = Number(candle.open);
+            const parsedHigh = Number(candle.high);
+            const parsedLow = Number(candle.low);
+            onPriceUpdate({
+                symbol: pair,
+                price: parsedClose,
+                open: parsedOpen,
+                high: parsedHigh,
+                low: parsedLow,
+                close: parsedClose,
+                change: parsedClose - parsedOpen,
+                changePct: parsedOpen > 0 ? ((parsedClose - parsedOpen) / parsedOpen) * 100 : 0
+            });
+        }
+    }, [isActive, onPriceUpdate, candle, pair]);
+
     const changeVal = candle ? candle.close - candle.open : 0;
     const changePct = candle && candle.open > 0 ? (changeVal / candle.open) * 100 : 0;
     const isBullish = changeVal >= 0;
@@ -218,7 +253,7 @@ const WatchlistItem = memo(({ pair, isActive, globalTimeframe, addLog, onClick, 
     const scoreLabel = getScoreLabel(score);
 
     return (
-        <div 
+        <div
             onClick={onClick}
             className={`${styles.watchlistItem} ${isActive ? styles.activeItem : ''} ${tickClass === 'upTick' ? styles.itemUpTick : tickClass === 'downTick' ? styles.itemDownTick : ''}`}
         >
@@ -234,7 +269,7 @@ const WatchlistItem = memo(({ pair, isActive, globalTimeframe, addLog, onClick, 
             </div>
 
             <div className={styles.itemRight}>
-                <span className={styles.itemPrice}>
+                <span className={`${styles.itemPrice} ${isBullish ? styles.itemBullish : styles.itemBearish}`}>
                     {candle ? formatPairCurrency(candle.close, pair) : '-'}
                 </span>
                 <span className={`${styles.itemChangePct} ${isBullish ? styles.itemBullish : styles.itemBearish}`}>
@@ -247,10 +282,10 @@ const WatchlistItem = memo(({ pair, isActive, globalTimeframe, addLog, onClick, 
 
 WatchlistItem.displayName = 'WatchlistItem';
 
-export default function WatchlistPanel({ selectedSymbol, onSelectSymbol, globalTimeframe, addLog, activeAnalysis }) {
+export default function WatchlistPanel({ selectedSymbol, onSelectSymbol, globalTimeframe, addLog, activeAnalysis, onActivePriceUpdate }) {
     const [searchQuery, setSearchQuery] = useState('');
 
-    const filteredPairs = PAIRS.filter(pair => 
+    const filteredPairs = PAIRS.filter(pair =>
         pair.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -260,13 +295,13 @@ export default function WatchlistPanel({ selectedSymbol, onSelectSymbol, globalT
                 <h3>Watchlist</h3>
                 <span className={styles.watchlistCount}>{PAIRS.length} pairs</span>
             </div>
-            
+
             {/* Search Box */}
             <div className={styles.watchlistSearchContainer}>
                 <SearchIcon className={styles.searchIcon} />
-                <input 
-                    type="text" 
-                    placeholder="Search pairs..." 
+                <input
+                    type="text"
+                    placeholder="Search pairs..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className={styles.watchlistSearchInput}
@@ -281,13 +316,13 @@ export default function WatchlistPanel({ selectedSymbol, onSelectSymbol, globalT
                 {filteredPairs.length > 0 ? (
                     filteredPairs.map(pair => {
                         const isSelected = pair.replace('/', '').toUpperCase() === selectedSymbol.replace('/', '').toUpperCase();
-                        
+
                         // Pass actual score to list item if this is the currently loaded pair's analysis
                         const isAnalysisMatch = activeAnalysis && activeAnalysis.symbol?.replace('/', '').toUpperCase() === pair.replace('/', '').toUpperCase();
                         const scoreVal = isAnalysisMatch ? activeAnalysis.technical_score?.total : null;
 
                         return (
-                            <WatchlistItem 
+                            <WatchlistItem
                                 key={pair}
                                 pair={pair}
                                 isActive={isSelected}
@@ -295,6 +330,7 @@ export default function WatchlistPanel({ selectedSymbol, onSelectSymbol, globalT
                                 addLog={addLog}
                                 onClick={() => onSelectSymbol(pair)}
                                 actualScore={scoreVal}
+                                onPriceUpdate={isSelected ? onActivePriceUpdate : null}
                             />
                         );
                     })

@@ -40,7 +40,8 @@ export default function AiStrategy({ initialTab = 'live' }) {
     const [timeframe, setTimeframe] = useState('1h'); // '5m', '15m', '1h', '1d'
 
     // 3-panel layout state variables
-    const [selectedSymbol, setSelectedSymbol] = useState('EUR/USD');
+    const [selectedSymbol, setSelectedSymbol] = useState('XAU/USD');
+    const [selectedSymbolPriceInfo, setSelectedSymbolPriceInfo] = useState(null);
     const [selectedStrategyId, setSelectedStrategyId] = useState('');
     const [activeAnalysis, setActiveAnalysis] = useState(null);
     const [refreshCounter, setRefreshCounter] = useState(0);
@@ -52,7 +53,7 @@ export default function AiStrategy({ initialTab = 'live' }) {
     const [activeSignals, setActiveSignals] = useState({});
     const [strategyAnalysis, setStrategyAnalysis] = useState(null);
     const [analysisLoading, setAnalysisLoading] = useState(false);
-    const [showPairSelector, setShowPairSelector] = useState(false);
+    const [showPairSelector, setShowPairSelector] = useState(true);
 
     // Global Timeframe (live tab)
     const [globalTimeframe, setGlobalTimeframe] = useState('1h');
@@ -84,7 +85,7 @@ export default function AiStrategy({ initialTab = 'live' }) {
     useEffect(() => {
         setMounted(true);
         setLogs([
-            { id: 'init', time: new Date().toLocaleTimeString(), text: 'Terminal initialized. Booting streams for 28 pairs...', isSystem: true }
+            { id: 'init', time: new Date().toLocaleTimeString(), text: 'Terminal initialized. Booting streams for 6 pairs...', isSystem: true }
         ]);
 
         if (typeof window !== 'undefined') {
@@ -95,6 +96,10 @@ export default function AiStrategy({ initialTab = 'live' }) {
             }
         }
     }, []);
+
+    useEffect(() => {
+        setSelectedSymbolPriceInfo(null);
+    }, [selectedSymbol]);
 
     const clearLogs = () => {
         setLogs([{ id: 'clear', time: new Date().toLocaleTimeString(), text: 'Log cleared.', isSystem: true }]);
@@ -654,21 +659,7 @@ export default function AiStrategy({ initialTab = 'live' }) {
                             <div className={styles.controlsRow}>
                                 <StrategyDropdown onSelect={setSelectedStrategyId} />
                                 
-                                <div className={`${styles.globalTimeframeBar} ${styles.timeframeBarOverride}`}>
-                                    <span className={styles.barLabel}>Select Timeframe:</span>
-                                    <div className={styles.timeframeButtons}>
-                                        {['5m', '15m', '1h', '1d'].map((tf) => (
-                                            <button 
-                                                key={tf}
-                                                onClick={() => handleSetGlobalTimeframe(tf)}
-                                                className={`${styles.tfBtn} ${globalTimeframe === tf ? styles.active : ''}`}
-                                                disabled={tf.toLowerCase() !== '1h' && tf.toLowerCase() !== 'h1'}
-                                            >
-                                                {tf}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
+                               
                             </div>
 
                             {/* Three Panel Layout */}
@@ -680,6 +671,7 @@ export default function AiStrategy({ initialTab = 'live' }) {
                                     globalTimeframe={globalTimeframe}
                                     addLog={addLog}
                                     activeAnalysis={activeAnalysis}
+                                    onActivePriceUpdate={setSelectedSymbolPriceInfo}
                                 />
 
                                 {/* Panel 2: Chart */}
@@ -690,6 +682,7 @@ export default function AiStrategy({ initialTab = 'live' }) {
                                     nearestSupport={activeAnalysis?.levels?.nearest_support}
                                     nearestResistance={activeAnalysis?.levels?.nearest_resistance}
                                     onRefreshNeeded={handleHourlyRefresh}
+                                    livePriceInfo={selectedSymbolPriceInfo}
                                 />
 
                                 {/* Panel 3: Analysis */}

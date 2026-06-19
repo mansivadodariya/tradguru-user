@@ -1313,28 +1313,107 @@ $bgSoft: #F5F8FE;
         margin: 0;
     }
 
-    .selectWrapper {
+    .customSelectWrapper {
+        position: relative;
         display: flex;
         align-items: center;
-        position: relative;
     }
 
-    .dropdownSelect {
+    .customSelectTrigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         background: #f1f5f9;
         border: 1px solid rgba(18, 18, 18, 0.08);
         color: #121212;
-        padding: 6px 12px;
-        border-radius: 8px;
+        padding: 8px 16px;
+        border-radius: 10px;
         font-size: 13px;
         font-weight: 700;
         outline: none;
         cursor: pointer;
         min-width: 220px;
-        transition: all 0.2s;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        user-select: none;
+
+        &:hover:not(:disabled) {
+            background: #e2e8f0;
+            border-color: rgba(18, 18, 18, 0.15);
+        }
+
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    }
+
+    .selectedText {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-right: 8px;
+    }
+
+    .chevronIcon {
+        color: rgba(18, 18, 18, 0.5);
+        transition: transform 0.25s ease;
+        flex-shrink: 0;
+    }
+
+    .chevronRotated {
+        transform: rotate(180deg);
+    }
+
+    .customDropdownMenu {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        width: 100%;
+        min-width: 220px;
+        background: #ffffff;
+        border: 1px solid rgba(18, 18, 18, 0.08);
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        padding: 6px;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        animation: fadeIn 0.15s ease-out;
+    }
+
+    .customDropdownItem {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 8px 12px;
+        border: none;
+        background: transparent;
+        color: #121212;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 8px;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.15s;
 
         &:hover {
-            background: #e2e8f0;
+            background: #f1f5f9;
+            color: #0b56db;
         }
+
+        &.itemSelected {
+            background: rgba(11, 86, 219, 0.06);
+            color: #0b56db;
+            font-weight: 700;
+        }
+    }
+
+    .checkmarkIcon {
+        font-size: 11px;
+        font-weight: 700;
+        color: #0b56db;
     }
 
     .dropdownSpinner {
@@ -1346,6 +1425,17 @@ $bgSoft: #F5F8FE;
         animation: spin 0.8s linear infinite;
         position: absolute;
         right: -24px;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -1482,13 +1572,13 @@ $bgSoft: #F5F8FE;
 }
 
 .itemScoreBadge {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     color: #ffffff;
     flex-shrink: 0;
@@ -1504,14 +1594,14 @@ $bgSoft: #F5F8FE;
 }
 
 .itemSymbolName {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     color: #121212;
     font-family: monospace;
 }
 
 .itemSymbolLabel {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 600;
     color: rgba(18, 18, 18, 0.4);
     text-transform: uppercase;
@@ -1525,29 +1615,34 @@ $bgSoft: #F5F8FE;
 }
 
 .itemPrice {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     font-family: monospace;
     color: #121212;
 }
 
-.itemChangePct {
-    font-size: 10px;
-    font-weight: 700;
+.itemBullish {
+    color: #10b981 !important;
+}
 
-    &.itemBullish { color: #10b981; }
-    &.itemBearish { color: #ef4444; }
+.itemBearish {
+    color: #ef4444 !important;
+}
+
+.itemChangePct {
+    font-size: 11px;
+    font-weight: 700;
 }
 
 /* Flashing animations for rows */
 @keyframes itemFlashGreen {
-    0% { background-color: rgba(16, 185, 129, 0.15); }
-    100% { background-color: transparent; }
+    0% { border-color: rgba(16, 185, 129); }
+    100% { border-color: transparent; }
 }
 
 @keyframes itemFlashRed {
-    0% { background-color: rgba(239, 68, 68, 0.15); }
-    100% { background-color: transparent; }
+    0% { border-color: rgba(239, 68, 68); }
+    100% { border-color: transparent; }
 }
 
 .itemUpTick {
@@ -1611,6 +1706,48 @@ $bgSoft: #F5F8FE;
     }
 }
 
+.chartHeaderOHLCInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 16px;
+    flex-wrap: wrap;
+}
+
+.ohlcItem {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ohlcLabel {
+    color: rgba(18, 18, 18, 0.4);
+    font-weight: 700;
+}
+
+.ohlcValue {
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.chartLegendContainer {
+    display: flex;
+    justify-content: flex-start;
+    padding-top: 12px;
+    border-top: 1px solid rgba(18, 18, 18, 0.04);
+}
+
+.legendValue {
+    color: #121212;
+    font-family: monospace;
+    font-size: 10px;
+    font-weight: 700;
+    margin-left: 2px;
+}
+
 .chartLegend {
     display: flex;
     gap: 12px;
@@ -1645,6 +1782,24 @@ $bgSoft: #F5F8FE;
 .chartCanvas {
     width: 100%;
     height: 100%;
+}
+
+.chartDotsOverlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.chartIndicatorDot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid #ffffff;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
 }
 
 .chartOverlay {
@@ -1695,14 +1850,15 @@ $bgSoft: #F5F8FE;
 
 /* ─── Analysis Panel ─── */
 .analysisPanel {
-    background: #ffffff;
-    border: 1px solid rgba(18, 18, 18, 0.08);
+    background: #ffffff !important;
+    border: 1px solid rgba(18, 18, 18, 0.08) !important;
+    color: #121212 !important;
     border-radius: 16px;
     padding: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 0px;
     height: 650px;
     overflow-y: auto;
 
@@ -1724,8 +1880,8 @@ $bgSoft: #F5F8FE;
 }
 
 .analysisPanelPlaceholder {
-    background: #ffffff;
-    border: 1px solid rgba(18, 18, 18, 0.08);
+    background: #ffffff !important;
+    border: 1px solid rgba(18, 18, 18, 0.08) !important;
     border-radius: 16px;
     height: 650px;
     display: flex;
@@ -2613,8 +2769,926 @@ $bgSoft: #F5F8FE;
     gap: 8px;
 }
 
+/* ──────────────────────────────────────
+   Analysis Panel Premium Redesign Styles
+   ────────────────────────────────────── */
 
+// 1. Accordion Rules
+.premiumAccordion {
+    border-bottom: 1px solid rgba(18, 18, 18, 0.08);
+    display: flex;
+    flex-direction: column;
 
+    &:last-child {
+        border-bottom: none;
+    }
+}
 
+.premiumAccordionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 4px;
+    cursor: pointer;
+    user-select: none;
+    color: rgba(18, 18, 18, 0.6);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: color 0.2s ease;
 
+    &:hover {
+        color: #121212;
+    }
+}
 
+.premiumAccordionBody {
+    padding: 4px 4px 12px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+// 2. Technical Score Sub-elements
+.scoreTopRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.scoreTextGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.largeScoreText {
+    display: flex;
+    align-items: baseline;
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1.1;
+
+    .scoreDivider {
+        font-size: 14px;
+        color: rgba(18, 18, 18, 0.4);
+        font-weight: 600;
+        margin-left: 2px;
+    }
+}
+
+.scoreTextLabel {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.confidenceGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.confLabel {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(18, 18, 18, 0.4);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.confValue {
+    font-size: 16px;
+    font-weight: 700;
+    color: #121212;
+}
+
+.breakdownProgressList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.progressRowContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.progressBarRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    padding: 4px 0;
+    user-select: none;
+
+    &:hover {
+        .progressBarTitle {
+            color: #121212;
+        }
+        .subChevron {
+            color: #121212;
+        }
+    }
+}
+
+.progressBarLabelGroup {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 90px;
+    flex-shrink: 0;
+
+    svg {
+        color: rgba(18, 18, 18, 0.5);
+        flex-shrink: 0;
+    }
+}
+
+.progressBarTitle {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(18, 18, 18, 0.6);
+    transition: color 0.2s ease;
+}
+
+.progressOuterTrack {
+    flex: 1;
+    height: 6px;
+    background: rgba(18, 18, 18, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progressFillBar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progressValueGroup {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 60px;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.progressScoreText {
+    font-size: 12px;
+    font-weight: 700;
+    color: #121212;
+    font-family: monospace;
+}
+
+.subChevron {
+    color: rgba(18, 18, 18, 0.4);
+    transition: all 0.2s ease;
+}
+
+.progressSubDetailsCollapse {
+    background: rgba(18, 18, 18, 0.02);
+    border: 1px solid rgba(18, 18, 18, 0.04);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-left: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: fadeIn 0.15s ease-out;
+}
+
+.subDetailTableGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.subDetailMetricRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+}
+
+.metricName {
+    color: rgba(18, 18, 18, 0.5);
+    font-weight: 500;
+}
+
+.metricVal {
+    font-family: monospace;
+    color: #121212;
+    font-weight: 600;
+    margin-left: auto;
+    margin-right: 12px;
+}
+
+.metricAction {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.3px;
+    min-width: 65px;
+    text-align: right;
+}
+
+.subDetailSimpleRows {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.simpleRowItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+
+    span {
+        color: rgba(18, 18, 18, 0.5);
+        font-weight: 500;
+    }
+
+    strong {
+        color: #121212;
+        font-weight: 700;
+    }
+}
+
+.scoreFormulaRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(18, 18, 18, 0.08);
+    padding-top: 14px;
+    margin-top: 8px;
+
+    .formulaTitle {
+        font-size: 11px;
+        font-weight: 700;
+        color: rgba(18, 18, 18, 0.4);
+        letter-spacing: 0.5px;
+    }
+
+    .formulaEquation {
+        font-size: 14px;
+        font-weight: 700;
+        font-family: monospace;
+        letter-spacing: 0.3px;
+    }
+}
+
+// 3. Evidence Sub-elements
+.evidenceOutlinedGroup {
+    border: 1px solid rgba(18, 18, 18, 0.08);
+    background: rgba(18, 18, 18, 0.01);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.25s ease;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    &.trend {
+        border-left: 3px solid #3b82f6;
+        background: linear-gradient(to right, rgba(59, 130, 246, 0.03), transparent);
+    }
+    &.momentum {
+        border-left: 3px solid #a855f7;
+        background: linear-gradient(to right, rgba(168, 85, 247, 0.03), transparent);
+    }
+    &.volume {
+        border-left: 3px solid #f59e0b;
+        background: linear-gradient(to right, rgba(245, 158, 11, 0.03), transparent);
+    }
+    &.structure {
+        border-left: 3px solid #10b981;
+        background: linear-gradient(to right, rgba(16, 185, 129, 0.03), transparent);
+    }
+}
+
+.evidenceGroupClickableHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.evidenceTitleGroup {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.groupTypeTitle {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(18, 18, 18, 0.5);
+    letter-spacing: 0.5px;
+    width: 90px;
+}
+
+.groupTypeAction {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.evidenceCollapsedBulletArea {
+    margin-top: 10px;
+    border-top: 1px solid rgba(18, 18, 18, 0.06);
+    padding-top: 10px;
+    animation: fadeIn 0.15s ease-out;
+}
+
+.evidenceOutlineBulletList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.evidenceBulletItem {
+    display: flex;
+    align-items: flex-start;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: rgba(18, 18, 18, 0.8);
+
+    svg {
+        margin-top: 2px;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+}
+
+// 4. Trend Analysis Sub-elements
+.trendRowHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.trendBoxIcon {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &.bullish {
+        background: rgba(16, 185, 129, 0.08);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.15);
+    }
+    &.bearish {
+        background: rgba(239, 68, 68, 0.08);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+}
+
+.trendHeaderText {
+    display: flex;
+    flex-direction: column;
+    
+    h4 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #121212;
+        margin: 0 0 2px 0;
+    }
+
+    span {
+        font-size: 11px;
+        color: rgba(18, 18, 18, 0.5);
+        font-weight: 600;
+    }
+}
+
+.indicatorMetricGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.metricGridItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(18, 18, 18, 0.015);
+    border: 1px solid rgba(18, 18, 18, 0.04);
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+.indicatorLabelBox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #121212;
+
+    .dotDot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+
+        &.ema20 { background-color: #f59e0b; }
+        &.ema50 { background-color: #3b82f6; }
+        &.supertrend { background-color: #10b981; }
+    }
+}
+
+.indicatorValueAction {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .positionTxt {
+        font-size: 11px;
+        font-weight: 700;
+    }
+}
+
+.trendConfidenceContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: rgba(18, 18, 18, 0.01);
+    border: 1px solid rgba(18, 18, 18, 0.04);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+.confidenceTexts {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    span {
+        font-size: 11px;
+        font-weight: 600;
+        color: rgba(18, 18, 18, 0.5);
+    }
+
+    strong {
+        font-size: 12px;
+        font-weight: 700;
+        color: #121212;
+    }
+}
+
+.confidenceTrack {
+    height: 6px;
+    background: rgba(18, 18, 18, 0.06);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.confidenceFill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease-out;
+}
+
+// 5. Momentum Sub-elements
+.momentumSliderContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+    background: rgba(18, 18, 18, 0.01);
+    border: 1px solid rgba(18, 18, 18, 0.04);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+.sliderLabelRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .sliderName {
+        font-size: 11px;
+        font-weight: 700;
+        color: rgba(18, 18, 18, 0.5);
+    }
+
+    .sliderValTxt {
+        font-size: 13px;
+        font-weight: 700;
+        font-family: monospace;
+        color: #121212;
+    }
+}
+
+.gradientTrackBg {
+    height: 6px;
+    background: linear-gradient(to right, #ef4444 0%, #cbd5e1 30%, #3b82f6 50%, #cbd5e1 70%, #ef4444 100%);
+    border-radius: 3px;
+    position: relative;
+    margin: 10px 0 16px 0;
+}
+
+.sliderPinPointer {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    .pinDot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2.5px solid #121212;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+    }
+
+    .pinLine {
+        width: 2px;
+        height: 8px;
+        background: rgba(18, 18, 18, 0.3);
+        margin-top: 1px;
+    }
+}
+
+.axisMarker {
+    position: absolute;
+    top: 12px;
+    transform: translateX(-50%);
+    font-size: 9px;
+    color: rgba(18, 18, 18, 0.4);
+    font-weight: 700;
+}
+
+.sliderStatusLabel {
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    color: rgba(18, 18, 18, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.macdMetricsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+    background: rgba(18, 18, 18, 0.01);
+    border: 1px solid rgba(18, 18, 18, 0.04);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+.macdHeaderRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .macdTitle {
+        font-size: 11px;
+        font-weight: 700;
+        color: rgba(18, 18, 18, 0.5);
+    }
+
+    .macdLabelValue {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+}
+
+.macdHistogramTrack {
+    height: 8px;
+    background: rgba(18, 18, 18, 0.06);
+    border-radius: 4px;
+    position: relative;
+    margin: 8px 0;
+    overflow: hidden;
+
+    .centerLine {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: rgba(18, 18, 18, 0.25);
+        z-index: 2;
+    }
+
+    .histogramFillBar {
+        position: absolute;
+        height: 100%;
+        border-radius: 2px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}
+
+.macdSubDetailsRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: rgba(18, 18, 18, 0.5);
+    font-family: monospace;
+    font-weight: 600;
+}
+
+.stochasticSubProgressList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(18, 18, 18, 0.01);
+    border: 1px solid rgba(18, 18, 18, 0.04);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+.stochProgressRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.stochLabel {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(18, 18, 18, 0.5);
+    width: 65px;
+    flex-shrink: 0;
+}
+
+.stochTrackBg {
+    flex: 1;
+    height: 6px;
+    background: rgba(18, 18, 18, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.stochFillBar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease-out;
+}
+
+.stochValText {
+    font-size: 11px;
+    font-weight: 700;
+    color: #121212;
+    min-width: 25px;
+    text-align: right;
+    font-family: monospace;
+}
+
+// 6. Volume Analysis Sub-elements
+.relativeVolumeContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+    background: rgba(18, 18, 18, 0.01);
+    border: 1px solid rgba(18, 18, 18, 0.04);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+.volHeaderRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    span {
+        font-size: 11px;
+        font-weight: 700;
+        color: rgba(18, 18, 18, 0.5);
+    }
+
+    strong {
+        font-size: 13px;
+        font-weight: 700;
+        color: #121212;
+    }
+}
+
+.relativeVolumeTrack {
+    height: 6px;
+    background: rgba(18, 18, 18, 0.06);
+    border-radius: 3px;
+    position: relative;
+    margin: 10px 0 16px 0;
+}
+
+.relativeVolPointer {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 2.5px solid #121212;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.volMarker {
+    position: absolute;
+    top: 12px;
+    transform: translateX(-50%);
+    font-size: 9px;
+    color: rgba(18, 18, 18, 0.4);
+    font-weight: 700;
+}
+
+.volumeCompareGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.volCompareCard {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(18, 18, 18, 0.015);
+    border: 1px solid rgba(18, 18, 18, 0.05);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+}
+
+.volCompareLabel {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(18, 18, 18, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.volCompareValue {
+    font-size: 14px;
+    font-weight: 700;
+    color: #121212;
+    font-family: monospace;
+}
+
+.volumePressureContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(18, 18, 18, 0.01);
+    border: 1px solid rgba(18, 18, 18, 0.04);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+.pressureHeaderRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    span {
+        font-size: 11px;
+        font-weight: 700;
+        color: rgba(18, 18, 18, 0.5);
+    }
+
+    strong {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+}
+
+.segmentedPressureBar {
+    display: flex;
+    height: 18px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 4px 0;
+}
+
+.buySegment {
+    background-color: #10b981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 9.5px;
+    font-weight: 700;
+    transition: width 0.3s ease;
+}
+
+.sellSegment {
+    background-color: #ef4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 9.5px;
+    font-weight: 700;
+    transition: width 0.3s ease;
+}
+
+.pressureLabelsRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 700;
+
+    .buyText { color: #10b981; }
+    .sellText { color: #ef4444; }
+}
+
+// 7. AI Intelligence Summary Sub-elements
+.purpleAiSummaryCard {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.06) 0%, rgba(11, 86, 219, 0.06) 100%);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.purpleAiHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #a855f7;
+
+    h5 {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+}
+
+.purpleAiHeadline {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #121212;
+    line-height: 1.45;
+}
+
+.purpleAiBulletsList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-top: 1px solid rgba(18, 18, 18, 0.06);
+    padding-top: 12px;
+}
+
+.aiBulletSection {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .sectionLabel {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    p {
+        font-size: 11.5px;
+        line-height: 1.5;
+        color: rgba(18, 18, 18, 0.75);
+        margin: 0;
+    }
+}

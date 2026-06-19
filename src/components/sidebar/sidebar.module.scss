@@ -175,16 +175,15 @@
             font-weight: 500;
             text-decoration: none;
             transition: all 0.2s ease-in-out;
-            margin-left: 14px;
 
             &::before {
                 content: '';
                 position: absolute;
-                left: -34px;
+                left: -20px;
                 top: 50%;
                 transform: translateY(-50%);
-                width: 20px;
-                height: 1.5px;
+                width: 10px;
+                height: 1px;
                 background: #E4E4E4;
                 transition: background-color 0.2s ease;
             }
@@ -192,13 +191,13 @@
             &::after {
                 content: '';
                 position: absolute;
-                left: -18px;
+                left: -15px;
                 top: 50%;
                 transform: translateY(-50%) rotate(45deg);
-                width: 5px;
-                height: 5px;
-                border-top: 1.5px solid #E4E4E4;
-                border-right: 1.5px solid #E4E4E4;
+                width: 4px;
+                height: 4px;
+                border-top: 1px solid #E4E4E4;
+                border-right: 1px solid #E4E4E4;
                 transition: border-color 0.2s ease;
             }
 
@@ -222,7 +221,7 @@
                 color: #fff;
                 font-weight: 600;
                 background: #0b56db;
-                box-shadow: 0 4px 10px rgba(11, 86, 219, 0.25);
+                box-shadow: 0 4px 14px rgba(11, 86, 219, 0.35);
 
                 &::before {
                     background: #0b56db;
@@ -232,18 +231,19 @@
                 }
 
                 .subMenuIcon {
-                    color: #fff;
+                    background-color: #fff;
+                    color: #0B56DB;
                 }
             }
 
             .subMenuIcon {
-                width: 24px;
-                height: 24px;
+                width: 32px;
+                height: 32px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 color: inherit;
-                transition: color 0.2s ease;
+                transition: all 0.2s ease;
 
                 svg {
                     width: 16px;
