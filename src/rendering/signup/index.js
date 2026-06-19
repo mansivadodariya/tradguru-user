@@ -80,6 +80,9 @@ const Signup = () => {
                         <div className={styles.text}>
                             <h2>Check your email</h2>
                             <p>We sent a verification link to <strong>{form.email}</strong>. Click the link to activate your account.</p>
+                            <p className={styles.note}>
+                                <strong>Note:</strong> If you don't find the email in your inbox, please check your spam folder.
+                            </p>
                         </div>
                         <div className={styles.accountText}>
                             <p><Link href="/login">Back to Log in</Link></p>
