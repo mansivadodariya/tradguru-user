@@ -24,9 +24,16 @@ const Lock = '/assets/icons/lock.svg';
 const Signup = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const codeFromQuery = searchParams.get('code') || searchParams.get('referral_code') || '';
     const redirectTo = getAuthRedirectTarget(searchParams);
     const [form, setForm] = useState({
-        first_name: '', last_name: '', email: '', phone_number: '', password: '', confirmPassword: ''
+        first_name: '',
+        last_name: '',
+        email: '',
+        phone_number: '',
+        password: '',
+        confirmPassword: '',
+        referral_code: codeFromQuery
     });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
@@ -127,6 +134,15 @@ const Signup = () => {
                                 <Input icon={Lock} placeholder="Password" type="password" name="password" value={form.password} onChange={set('password')} error={errors.password} maxLength={50} />
                                 <Input icon={Lock} placeholder="Confirm Password" type="password" name="confirmPassword" value={form.confirmPassword} onChange={set('confirmPassword')} error={errors.confirmPassword} maxLength={50} />
                             </div>
+                            <Input
+                                icon={Profile}
+                                placeholder="Referral Code (Optional)"
+                                name="referral_code"
+                                value={form.referral_code}
+                                onChange={set('referral_code')}
+                                error={errors.referral_code}
+                                maxLength={50}
+                            />
                             <Button
                                 type="submit"
                                 fullWidth

@@ -32,6 +32,7 @@ export default function Profile() {
         last_name: '',
         email: '',
         phone_number: '',
+        referral_code: '',
     });
     const [errors, setErrors] = useState({});
 
@@ -48,7 +49,7 @@ export default function Profile() {
         try {
             const { data, error } = await supabase
                 .from('users')
-                .select('first_name, last_name, email, phone_number')
+                .select('first_name, last_name, email, phone_number, referral_code')
                 .eq('id', id)
                 .single();
             if (error) throw error;
@@ -57,6 +58,7 @@ export default function Profile() {
                 last_name: data.last_name || '',
                 email: data.email || '',
                 phone_number: data.phone_number || '',
+                referral_code: data.referral_code || '',
             });
         } catch (err) {
             toast.error(err.message || 'Failed to load profile.');
@@ -150,6 +152,41 @@ export default function Profile() {
         }
     };
 
+    const handleCopyLink = async () => {
+        if (!form.referral_code) return;
+        try {
+            await navigator.clipboard.writeText(form.referral_code);
+            toast.success('Referral code copied to clipboard!');
+        } catch (err) {
+            toast.error('Failed to copy code.');
+        }
+    };
+
+    const handleShareLink = async () => {
+        if (!form.referral_code) return;
+        const link = `${window.location.origin}/signup?code=${encodeURIComponent(form.referral_code)}`;
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Join TradeGuru',
+                    text: 'Sign up using my referral code!',
+                    url: link
+                });
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    toast.error('Failed to share link.');
+                }
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(link);
+                toast.success('Referral link copied to clipboard!');
+            } catch (err) {
+                toast.error('Failed to copy link.');
+            }
+        }
+    };
+
     if (loading) {
         return (
             <div className={styles.centered}>
@@ -200,6 +237,51 @@ export default function Profile() {
                         placeholder="Phone number"
                         error={errors.phone_number}
                     />
+
+                    <div className={styles.field}>
+                        <label className={styles.label}>Referral Code</label>
+                        <div className={styles.referralWrapper}>
+                            <input
+                                type="text"
+                                className={styles.referralInput}
+                                value={form.referral_code || '—'}
+                                disabled
+                                readOnly
+                            />
+                            {form.referral_code && (
+                                <div className={styles.referralActions}>
+                                    <button
+                                        type="button"
+                                        className={styles.iconButton}
+                                        onClick={handleCopyLink}
+                                        title="Copy referral link"
+                                    >
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={styles.iconButton}
+                                        onClick={handleShareLink}
+                                        title="Share referral link"
+                                    >
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <circle cx="18" cy="5" r="3" />
+                                            <circle cx="6" cy="12" r="3" />
+                                            <circle cx="18" cy="19" r="3" />
+                                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                        <p className={styles.hint}>
+                            Share this link with others. It will automatically fill the referral code when they sign up!
+                        </p>
+                    </div>
 
                     <div className={styles.actions}>
                         <Button

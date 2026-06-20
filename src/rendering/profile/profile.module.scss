@@ -108,3 +108,55 @@ $border: rgba(18, 18, 18, 0.10);
         transform: rotate(360deg);
     }
 }
+
+.referralWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.referralInput {
+    width: 100%;
+    padding: 12px 90px 12px 16px;
+    border: 1px solid $border;
+    font-size: 16px;
+    color: rgba(26, 26, 26, 0.65);
+    background-color: #f9f9f9;
+    line-height: 24px;
+    height: 50px;
+    outline: none;
+    cursor: not-allowed;
+}
+
+.referralActions {
+    position: absolute;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.iconButton {
+    background: transparent;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: rgba(26, 26, 26, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+
+    &:hover {
+        color: $primary;
+        background-color: rgba(11, 86, 219, 0.08);
+    }
+
+    svg {
+        display: block;
+        width: 18px;
+        height: 18px;
+    }
+}
