@@ -42,6 +42,42 @@ function timeAgo(dateLike) {
 
     return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
 }
+
+function formatSummary(text) {
+    if (!text || typeof text !== 'string') return '';
+    try {
+        // 1. Decode unicode escape sequences like \u2014
+        let decoded = text.replace(/\\u([0-9a-fA-F]{4})/g, (match, grp) => {
+            return String.fromCharCode(parseInt(grp, 16));
+        });
+
+        // 2. Normalize literal newlines
+        decoded = decoded.replace(/\\n/g, '\n');
+
+        // 3. Convert markdown bold **text** to HTML <strong>text</strong>
+        let formatted = decoded.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+        // Convert markdown italic *text* to HTML <em>text</em>
+        formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+        // 4. Handle leading bullet points
+        if (formatted.startsWith('- ')) {
+            formatted = '• ' + formatted.substring(2);
+        } else if (formatted.startsWith('-\t')) {
+            formatted = '• ' + formatted.substring(2);
+        }
+
+        // 5. Replace subsequent newlines and bullets
+        formatted = formatted.replace(/\n-\s*/g, '<br />• ');
+        formatted = formatted.replace(/\n/g, '<br />');
+
+        return formatted;
+    } catch (e) {
+        console.error("Error formatting summary:", e);
+        return text;
+    }
+}
+
 export default function Dashboard() {
     const router = useRouter();
     const [userId, setUserId] = useState('');
@@ -399,7 +435,7 @@ export default function Dashboard() {
                                                     {item.summary ? (
                                                         <div
                                                             dangerouslySetInnerHTML={{
-                                                                __html: item.summary,
+                                                                __html: formatSummary(item.summary),
                                                             }}
                                                         />
                                                     ) : (
