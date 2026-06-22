@@ -434,3 +434,144 @@
     background: #E74C3C;
     color: #fff;
 }
+
+:global(.dark) {
+    .sidebar {
+        background: #0f0f11;
+        border-color: #2d2d34;
+
+        .logo {
+            border-bottom-color: #2d2d34;
+        }
+
+        .sidebarmenu {
+            p {
+                color: #9ca3af;
+            }
+
+            .line {
+                border-bottom-color: #2d2d34;
+            }
+
+            .menu {
+                span {
+                    color: #e5e7eb;
+                }
+
+                .icon {
+                    color: #e5e7eb;
+                }
+
+                .chevron {
+                    color: #9ca3af;
+                }
+
+                &:hover {
+                    background: rgba(11, 86, 219, 0.15);
+                    .icon, span, .chevron {
+                        color: #60a5fa;
+                    }
+                }
+
+                &[data-active='true'] {
+                    background: #0B56DB;
+                    box-shadow: 0 4px 14px rgba(11, 86, 219, 0.4);
+
+                    &::before {
+                        background: #bcbcbd;
+                    }
+
+                    .icon {
+                        background-color: transparent;
+                        color: #ffffff;
+                    }
+
+                    span, .chevron {
+                        color: #ffffff;
+                    }
+                }
+            }
+
+            .subItemsList {
+                border-left-color: #2d2d34;
+            }
+
+            .subMenuLink {
+                color: #9ca3af;
+
+                &::before {
+                    background: #2d2d34;
+                }
+
+                &::after {
+                    border-top-color: #2d2d34;
+                    border-right-color: #2d2d34;
+                }
+
+                &:hover {
+                    color: #60a5fa;
+                    background: rgba(11, 86, 219, 0.1);
+
+                    &::before {
+                        background: #60a5fa;
+                    }
+                    &::after {
+                        border-color: #60a5fa;
+                    }
+                }
+
+                &[data-active='true'] {
+                    color: #ffffff;
+                    background: #0B56DB;
+
+                    &::before {
+                        background: #0b56db;
+                    }
+                    &::after {
+                        border-color: #0b56db;
+                    }
+
+                    .subMenuIcon {
+                        background-color: transparent;
+                        color: #ffffff;
+                    }
+                }
+            }
+        }
+
+        .sidebarFooter {
+            border-top-color: #2d2d34;
+        }
+
+        .logoutBtn {
+            color: #9ca3af;
+
+            &:hover {
+                color: #ef4444;
+                svg {
+                    stroke: #ef4444;
+                }
+            }
+        }
+    }
+
+    .confirmOverlay {
+        background: rgba(0, 0, 0, 0.7);
+    }
+
+    .confirmBox {
+        background: #1a1a1e;
+        border: 1px solid #2d2d34;
+        h3 {
+            color: #ffffff;
+        }
+        p {
+            color: rgba(255, 255, 255, 0.6);
+        }
+    }
+
+    .cancelBtn {
+        background: #252529;
+        color: #ffffff;
+    }
+}

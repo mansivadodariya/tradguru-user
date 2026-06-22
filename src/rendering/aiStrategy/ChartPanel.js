@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createChart, CandlestickSeries, HistogramSeries, LineSeries } from 'lightweight-charts';
 import styles from './aiStrategy.module.scss';
+import { useTheme } from '@/context/ThemeContext';
 
 // Helper to calculate milliseconds until the next HH:01:00
 function getMsUntilNextHourOOne() {
@@ -32,9 +33,10 @@ function formatPairCurrency(val, symbol) {
     return val.toFixed(2);
 }
 
-export default function ChartPanel({ symbol, strategyId, timeframe = 'H1', nearestSupport, nearestResistance, onRefreshNeeded, livePriceInfo }) {
+export default function ChartPanel({ symbol, strategyId, timeframe = '1H', nearestSupport, nearestResistance, onRefreshNeeded, livePriceInfo }) {
     const containerRef = useRef(null);
     const chartRef = useRef(null);
+    const { theme } = useTheme();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [priceInfo, setPriceInfo] = useState(null);
@@ -240,34 +242,35 @@ export default function ChartPanel({ symbol, strategyId, timeframe = 'H1', neare
     useEffect(() => {
         if (!containerRef.current) return;
 
+        const isDark = theme === 'dark';
         const rect = containerRef.current.getBoundingClientRect();
         const chart = createChart(containerRef.current, {
             width: rect.width || 600,
             height: 450,
             layout: {
                 background: { type: 'solid', color: 'transparent' },
-                textColor: '#64748b',
+                textColor: isDark ? '#94a3b8' : '#64748b',
                 fontSize: 11,
                 fontFamily: "'Outfit', sans-serif",
                 attributionLogo: false,
             },
             grid: {
-                vertLines: { color: 'rgba(18, 18, 18, 0.04)' },
-                horzLines: { color: 'rgba(18, 18, 18, 0.04)' },
+                vertLines: { color: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(18, 18, 18, 0.04)' },
+                horzLines: { color: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(18, 18, 18, 0.04)' },
             },
             crosshair: {
-                vertLine: { color: '#0B56DB30', width: 1 },
-                horzLine: { color: '#0B56DB30', width: 1 },
+                vertLine: { color: isDark ? 'rgba(96, 165, 250, 0.25)' : '#0B56DB30', width: 1 },
+                horzLine: { color: isDark ? 'rgba(96, 165, 250, 0.25)' : '#0B56DB30', width: 1 },
             },
             timeScale: {
-                borderColor: 'rgba(18, 18, 18, 0.08)',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(18, 18, 18, 0.08)',
                 timeVisible: true,
                 secondsVisible: false,
                 rightOffset: 10,
                 barSpacing: 8,
             },
             rightPriceScale: {
-                borderColor: 'rgba(18, 18, 18, 0.08)',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(18, 18, 18, 0.08)',
                 scaleMargins: { top: 0.1, bottom: 0.2 },
             },
         });
@@ -427,7 +430,7 @@ export default function ChartPanel({ symbol, strategyId, timeframe = 'H1', neare
             chart.remove();
             chartRef.current = null;
         };
-    }, [symbol, timeframe]);
+    }, [symbol, timeframe, theme]);
 
     // Update data when parameters or support/resistance props change
     useEffect(() => {

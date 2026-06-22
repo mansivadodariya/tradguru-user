@@ -1,9 +1,11 @@
 "use client";
 import React, { useEffect, useRef } from "react";
 import styles from "./economicCalendar.module.scss";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function EconomicCalendar() {
   const widgetContainerRef = useRef(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -11,7 +13,7 @@ export default function EconomicCalendar() {
     script.type = "text/javascript";
     script.async = true;
     script.innerHTML = JSON.stringify({
-      colorTheme: "light",
+      colorTheme: theme,
       isTransparent: true,
       locale: "en",
       countryFilter: "ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,za,tr,gb,us,eu",
@@ -29,7 +31,7 @@ export default function EconomicCalendar() {
         widgetContainerRef.current.innerHTML = "";
       }
     };
-  }, []);
+  }, [theme]);
 
   return (
     <section className={styles.economicCalendar}>

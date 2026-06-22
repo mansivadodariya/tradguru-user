@@ -168,7 +168,7 @@ export default function Profile() {
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: 'Join TradeGuru',
+                    title: 'Join The Trader Master',
                     text: 'Sign up using my referral code!',
                     url: link
                 });

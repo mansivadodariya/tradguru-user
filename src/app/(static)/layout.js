@@ -1,8 +1,13 @@
+"use client";
 import Footer from '@/components/footer'
 import Header from '@/components/header'
-import React from 'react'
+import React, { useEffect } from 'react'
 
-export default function layout({ children }) {
+export default function Layout({ children }) {
+    useEffect(() => {
+        document.documentElement.classList.remove('dark');
+    }, []);
+
     return (
         <div>
             <Header />

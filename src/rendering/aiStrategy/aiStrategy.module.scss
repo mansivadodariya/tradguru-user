@@ -3692,3 +3692,791 @@ $bgSoft: #F5F8FE;
         margin: 0;
     }
 }
+
+:global(.dark) {
+    .aiStrategyWrapper {
+        .header {
+            .titleArea {
+                h2 {
+                    color: #ffffff;
+                }
+                p {
+                    color: rgba(255, 255, 255, 0.6);
+                }
+            }
+        }
+
+        .statusBadge {
+            background: #252529;
+            border-color: #2d2d34;
+            color: #94a3b8;
+
+            &.connected {
+                color: #10b981;
+                border-color: rgba(16, 185, 129, 0.3);
+                background: rgba(16, 185, 129, 0.1);
+            }
+            &.connecting {
+                color: #60a5fa;
+                border-color: rgba(96, 165, 250, 0.3);
+                background: rgba(96, 165, 250, 0.1);
+            }
+            &.disconnected {
+                color: #f87171;
+                border-color: rgba(248, 113, 113, 0.3);
+                background: rgba(248, 113, 113, 0.1);
+            }
+        }
+
+        .controlsBar {
+            border-bottom-color: #2d2d34;
+        }
+
+        .symbolForm {
+            border-color: #2d2d34;
+            background: #1a1a1e;
+
+            .symbolInput {
+                color: #ffffff;
+                &::placeholder {
+                    color: rgba(255, 255, 255, 0.4);
+                }
+            }
+        }
+
+        .tabSwitcher {
+            background: #252529;
+        }
+
+        .tabBtn {
+            color: #94a3b8;
+
+            &:hover {
+                color: #ffffff;
+            }
+
+            &.activeTab {
+                background: #1a1a1e;
+                color: #60a5fa;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        .strategyDropdownContainer {
+            background: #1a1a1e;
+            border-color: #2d2d34;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+            .dropdownLabel {
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            .customSelectTrigger {
+                background: #252529;
+                border-color: #2d2d34;
+                color: #ffffff;
+
+                &:hover:not(:disabled) {
+                    background: #2d2d34;
+                    border-color: rgba(255, 255, 255, 0.15);
+                }
+            }
+
+            .chevronIcon {
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            .customDropdownMenu {
+                background: #252529;
+                border-color: #2d2d34;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            }
+
+            .customDropdownItem {
+                color: #ffffff;
+
+                &:hover {
+                    background: #2d2d34;
+                    color: #60a5fa;
+                }
+
+                &.itemSelected {
+                    background: rgba(96, 165, 250, 0.15);
+                    color: #60a5fa;
+                }
+            }
+
+            .checkmarkIcon {
+                color: #60a5fa;
+            }
+        }
+
+        .watchlistPanel {
+            background: #1a1a1e;
+            border-color: #2d2d34;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+            .watchlistHeader {
+                h3 {
+                    color: #ffffff;
+                }
+                .watchlistCount {
+                    color: rgba(255, 255, 255, 0.4);
+                }
+            }
+        }
+
+        .watchlistSearchContainer {
+            background: #252529;
+            border-color: #2d2d34;
+
+            .searchIcon {
+                color: rgba(255, 255, 255, 0.4);
+            }
+
+            .watchlistSearchInput {
+                color: #ffffff;
+                
+                &::placeholder {
+                    color: rgba(255, 255, 255, 0.4);
+                }
+            }
+
+            .searchClearBtn {
+                color: rgba(255, 255, 255, 0.4);
+            }
+        }
+
+        .watchlistItemsList {
+            &::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.08);
+            }
+        }
+
+        .noPairsFound {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .watchlistItem {
+            &:hover {
+                background: #252529;
+            }
+
+            &.activeItem {
+                background: rgba(11, 86, 219, 0.15);
+                border-color: rgba(11, 86, 219, 0.3);
+                
+                .itemSymbolName {
+                    color: #60a5fa;
+                }
+            }
+
+            .itemSymbolName {
+                color: #ffffff;
+            }
+
+            .itemSymbolLabel {
+                color: rgba(255, 255, 255, 0.4);
+            }
+
+            .itemPrice {
+                color: #ffffff;
+            }
+        }
+
+    .loaderContainer {
+        background: #1a1a1e;
+        border-color: #2d2d34;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+        .analysisPanel {
+            background: #1a1a1e !important;
+            border-color: #2d2d34 !important;
+            color: #ffffff !important;
+
+            &::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.08);
+            }
+        }
+
+        .analysisPanelPlaceholder {
+            background: #1a1a1e !important;
+            border-color: #2d2d34 !important;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .premiumAccordion {
+            border-bottom-color: #2d2d34;
+        }
+
+        .premiumAccordionHeader {
+            color: rgba(255, 255, 255, 0.6);
+
+            &:hover {
+                color: #ffffff;
+            }
+        }
+
+        .largeScoreText {
+            .scoreDivider {
+                color: rgba(255, 255, 255, 0.4);
+            }
+        }
+
+        .confLabel {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .confValue {
+            color: #ffffff;
+        }
+
+        .progressBarRow {
+            &:hover {
+                .progressBarTitle {
+                    color: #ffffff;
+                }
+                .subChevron {
+                    color: #ffffff;
+                }
+            }
+        }
+
+        .progressBarLabelGroup {
+            svg {
+                color: rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        .progressBarTitle {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .progressOuterTrack {
+            background: #2d2d34;
+        }
+
+        .progressScoreText {
+            color: #ffffff;
+        }
+
+        .subChevron {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .progressSubDetailsCollapse {
+            background: #252529;
+            border-color: #2d2d34;
+        }
+
+        .metricName {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .metricVal {
+            color: #ffffff;
+        }
+
+        .simpleRowItem {
+            span {
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            strong {
+                color: #ffffff;
+            }
+        }
+
+        .scoreFormulaRow {
+            border-top-color: #2d2d34;
+
+            .formulaTitle {
+                color: rgba(255, 255, 255, 0.4);
+            }
+        }
+
+        .evidenceOutlinedGroup {
+            border-color: #2d2d34;
+            background: #252529;
+
+            &.trend {
+                background: linear-gradient(to right, rgba(59, 130, 246, 0.1), transparent);
+            }
+            &.momentum {
+                background: linear-gradient(to right, rgba(168, 85, 247, 0.1), transparent);
+            }
+            &.volume {
+                background: linear-gradient(to right, rgba(245, 158, 11, 0.1), transparent);
+            }
+            &.structure {
+                background: linear-gradient(to right, rgba(16, 185, 129, 0.1), transparent);
+            }
+        }
+
+        .groupTypeTitle {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .evidenceCollapsedBulletArea {
+            border-top-color: #2d2d34;
+        }
+
+        .evidenceBulletItem {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .trendHeaderText {
+            h4 {
+                color: #ffffff;
+            }
+
+            span {
+                color: rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        .metricGridItem {
+            background: #252529;
+            border-color: #2d2d34;
+        }
+
+        .indicatorLabelBox {
+            color: #ffffff;
+        }
+
+        .trendConfidenceContainer {
+            background: #252529;
+            border-color: #2d2d34;
+        }
+
+        .confidenceTexts {
+            span {
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            strong {
+                color: #ffffff;
+            }
+        }
+
+        .confidenceTrack {
+            background: #2d2d34;
+        }
+
+        .momentumSliderContainer {
+            background: #252529;
+            border-color: #2d2d34;
+        }
+
+        .sliderLabelRow {
+            .sliderName {
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            .sliderValTxt {
+                color: #ffffff;
+            }
+        }
+
+        .sliderPinPointer {
+            .pinDot {
+                background: #1a1a1e;
+                border-color: #ffffff;
+            }
+
+            .pinLine {
+                background: rgba(255, 255, 255, 0.3);
+            }
+        }
+
+        .axisMarker {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .sliderStatusLabel {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .macdMetricsContainer {
+            background: #252529;
+            border-color: #2d2d34;
+        }
+
+        .macdHeaderRow {
+            .macdTitle {
+                color: rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        .macdHistogramTrack {
+            background: #2d2d34;
+
+            .centerLine {
+                background: rgba(255, 255, 255, 0.25);
+            }
+        }
+
+        .macdSubDetailsRow {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .stochasticSubProgressList {
+            background: #252529;
+            border-color: #2d2d34;
+        }
+
+        .stochProgressRow {
+            .stochLabel {
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            .stochTrackBg {
+                background: #2d2d34;
+            }
+
+            .stochValText {
+                color: #ffffff;
+            }
+        }
+
+        .relativeVolumeContainer {
+            background: #252529;
+            border-color: #2d2d34;
+        }
+
+        .volHeaderRow {
+            span {
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            strong {
+                color: #ffffff;
+            }
+        }
+
+        .relativeVolumeTrack {
+            background: #2d2d34;
+        }
+
+        .relativeVolPointer {
+            background: #1a1a1e;
+            border-color: #ffffff;
+        }
+
+        .volMarker {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .volCompareCard {
+            background: #252529;
+            border-color: #2d2d34;
+        }
+
+        .volCompareLabel {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .volCompareValue {
+            color: #ffffff;
+        }
+
+        .volumePressureContainer {
+            background: #252529;
+            border-color: #2d2d34;
+        }
+
+        .pressureHeaderRow {
+            span {
+                color: rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        .purpleAiHeadline {
+            color: #ffffff;
+        }
+
+        .purpleAiBulletsList {
+            border-top-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .aiBulletSection {
+            p {
+                color: rgba(255, 255, 255, 0.75);
+            }
+        }
+
+    .unifiedCard {
+        background: #1a1a1e;
+        border-color: #2d2d34;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+        .symbolText h3 {
+            color: #ffffff;
+        }
+
+        .symbolText p {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .priceValue {
+            color: #ffffff;
+        }
+
+        .countdownBox {
+            background: #252529;
+            border-color: #2d2d34;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .timeframeRow {
+            border-top-color: #2d2d34;
+            .rowLabel {
+                color: rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        .timeframeSelectors {
+            background: #252529;
+        }
+
+        .tfBtn {
+            color: #94a3b8;
+            &:hover {
+                color: #ffffff;
+            }
+            &.tfActive {
+                background: #0B56DB;
+                color: #ffffff;
+            }
+        }
+
+        .strengthArea {
+            border-top-color: #2d2d34;
+        }
+
+        .strengthHeader {
+            .strengthText {
+                color: #ffffff;
+            }
+            span {
+                color: rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        .progressBackground {
+            background: #2d2d34;
+        }
+
+        .signalsArea {
+            border-top-color: #2d2d34;
+            .signalsHeaderLabel {
+                color: rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        .noSignalsBadge {
+            background: #252529;
+            border-color: #2d2d34;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .signalPill {
+            &.neutralBadge {
+                background: rgba(255, 255, 255, 0.05);
+                border-color: #2d2d34;
+                color: #94a3b8;
+            }
+        }
+    }
+
+    .noTradeCard {
+        background: #1a1a1e;
+        border-color: #2d2d34;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+        h4 {
+            color: #ffffff;
+        }
+
+        p {
+            color: rgba(255, 255, 255, 0.5);
+        }
+    }
+
+    .strategyCard {
+        background: #1a1a1e;
+        border-color: #2d2d34;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+        .strategyTitleRow {
+            h3 {
+                color: #ffffff;
+            }
+            .timeTag {
+                color: rgba(255, 255, 255, 0.4);
+            }
+        }
+
+        .strategyHeader {
+            border-bottom-color: #2d2d34;
+        }
+    }
+
+    .levelsCard {
+        background: #252529;
+        border-color: #2d2d34;
+
+        .levelItem {
+            border-bottom-color: #2d2d34;
+            .levelLabel {
+                color: rgba(255, 255, 255, 0.5);
+            }
+            .levelValue {
+                color: #ffffff;
+            }
+        }
+    }
+
+    .confluenceBox {
+        border-color: #2d2d34;
+        .confluenceStats {
+            .confKicker {
+                color: rgba(255, 255, 255, 0.5);
+            }
+            .confItem {
+                color: rgba(255, 255, 255, 0.8);
+            }
+        }
+    }
+
+    // Chart Panel specific dark theme support
+    .chartPanel {
+        background: #1a1a1e;
+        border-color: #2d2d34;
+
+        .chartPanelHeader {
+            border-bottom-color: #2d2d34;
+            .chartTitleArea h3 {
+                color: #ffffff;
+            }
+        }
+
+        .chartCanvasContainer {
+            background: #0f0f11;
+            .chartOverlay {
+                background: rgba(15, 15, 17, 0.7);
+                span {
+                    color: #ffffff;
+                }
+            }
+        }
+
+        .chartLegendContainer {
+            background: #1a1a1e;
+            border-top-color: #2d2d34;
+            .chartLegend {
+                color: #94a3b8;
+            }
+        }
+    }
+
+    .strategyAccordion {
+        border-color: #2d2d34;
+        background: #1a1a1e;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .accordionTrigger {
+        background: #1a1a1e;
+
+        &:hover {
+            background: #252529;
+        }
+
+        &.accordionOpen {
+            background: #252529;
+            border-bottom-color: #2d2d34;
+        }
+    }
+
+    .accordionTitle {
+        color: #ffffff;
+    }
+
+    .accordionBadge {
+        background: rgba(96, 165, 250, 0.15);
+        color: #60a5fa;
+    }
+
+    .accordionWsBadge {
+        &.connected {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        &.connecting {
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.08);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        &.disconnected {
+            color: #94a3b8;
+            background: rgba(148, 163, 184, 0.08);
+            border-color: rgba(148, 163, 184, 0.2);
+        }
+    }
+
+    .pairCard {
+        border-color: #2d2d34;
+        background: #1a1a1e;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+        &:hover {
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+            background: #252529;
+        }
+
+        &.activeBuy {
+            border-left-color: #10b981;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);
+        }
+
+        &.activeSell {
+            border-left-color: #ef4444;
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.15);
+        }
+
+        h4 {
+            color: #ffffff;
+        }
+
+        .levelsCard {
+            background: #252529 !important;
+            border-color: #2d2d34 !important;
+        }
+
+        .inactiveMessage {
+            background: #252529 !important;
+            border-color: #2d2d34 !important;
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .directionBadge.holdColor,
+        .holdBadge {
+            background-color: #252529 !important;
+            color: #94a3b8 !important;
+            border-color: #2d2d34 !important;
+        }
+    }
+
+    .inactiveMessage {
+        background: #252529 !important;
+        border-color: #2d2d34 !important;
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+}
+}
+

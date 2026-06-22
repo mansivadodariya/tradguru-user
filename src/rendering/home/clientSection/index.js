@@ -143,8 +143,8 @@ export default function ClientSection() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                     >
-                        Real reviews from active MT5 traders using FX
-                        Guru daily.
+                        Real reviews from active MT5 traders using The Trader
+                        Master daily.
                     </motion.p>
                 </div>
 

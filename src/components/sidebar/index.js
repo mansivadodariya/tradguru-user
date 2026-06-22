@@ -10,8 +10,10 @@ import PricingIcon from "@/icons/pricingIcon";
 import SettingsIcon from "@/icons/settingsIcon";
 import AiIcon from "@/icons/aiIcon";
 import { clearAuthSession } from '@/lib/authSession';
+import { useTheme } from '@/context/ThemeContext';
 
 const SidebarLogo = "/assets/logo/logo.svg";
+const SidebarLogoWhite = "/assets/logo/logoWhite.svg";
 const LiveAnalysisIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
@@ -125,6 +127,7 @@ const LogoutIcon = () => (
 const Sidebar = ({ onClose }) => {
   const pathname = usePathname();
   const router = useRouter();
+  const { theme } = useTheme();
 
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -137,11 +140,13 @@ const Sidebar = ({ onClose }) => {
     router.replace('/login');
   };
 
+  const logoSrc = theme === 'dark' ? SidebarLogoWhite : SidebarLogo;
+
   return (
     <>
       <aside className={styles.sidebar}>
         <div className={styles.logo} onClick={() => router.push('/')}>
-          <img src={SidebarLogo} alt="SidebarLogo" />
+          <img src={logoSrc} alt="SidebarLogo" />
         </div>
         <div className={styles.sidebarmenu}>
           {mainNav.map((item) => (

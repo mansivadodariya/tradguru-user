@@ -121,7 +121,6 @@ export default function StrategyDropdown({ onSelect }) {
                     </div>
                 )}
                 
-                {loading && <div className={styles.dropdownSpinner} />}
             </div>
         </div>
     );

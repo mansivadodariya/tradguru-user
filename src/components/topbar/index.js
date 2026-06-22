@@ -6,9 +6,11 @@ import { dashboardApi } from '@/lib/api';
 import { getStoredUser, getStoredUserId, clearAuthSession } from '@/lib/authSession';
 import { CREDITS_UPDATED_EVENT } from '@/lib/credits';
 import { supabase } from '@/lib/supabaseClient';
+import { useTheme } from '@/context/ThemeContext';
 
 const Topbar = ({ onMenuClick }) => {
     const router = useRouter();
+    const { theme, toggleTheme } = useTheme();
     const [user, setUser] = useState(null);
     const [credits, setCredits] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -155,6 +157,18 @@ const Topbar = ({ onMenuClick }) => {
                     </button>
                 </div>
                 <div className={styles.right}>
+                    <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle Theme" type="button">
+                        {theme === 'light' ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                            </svg>
+                        ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="4" />
+                                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+                            </svg>
+                        )}
+                    </button>
                     {credits !== null && (
                         <div className={styles.credits}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none">
@@ -166,6 +180,7 @@ const Topbar = ({ onMenuClick }) => {
                             <span>{credits} credits</span>
                         </div>
                     )}
+                    
                     <div className={styles.profileSection} ref={dropdownRef}>
                         <div className={styles.profile} onClick={() => setDropdownOpen((prev) => !prev)}>
                             <div className={styles.image}>

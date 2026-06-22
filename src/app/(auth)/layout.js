@@ -1,11 +1,14 @@
-import React from 'react'
+"use client";
+import React, { useEffect } from 'react'
 
-function layout({ children }) {
+export default function Layout({ children }) {
+    useEffect(() => {
+        document.documentElement.classList.remove('dark');
+    }, []);
+
     return (
         <div>
             {children}
         </div>
     )
 }
-
-export default layout

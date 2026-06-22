@@ -123,3 +123,13 @@ p:last-child {
   position: relative;
   width: 100% !important;
 }
+
+/* Dark Mode Core Theme */
+html.dark, html.dark body {
+  background-color: #0f0f11;
+  color: #f3f4f6;
+}
+
+html.dark .children-wrapper {
+  background-color: #0f0f11;
+}

@@ -334,13 +334,8 @@ export default function AiStrategy({ initialTab = 'live' }) {
     const fetchScannerData = async (targetSymbol, targetTf) => {
         try {
             setScannerLoading(true);
-            let displayTf = "H1";
-            const tfUpper = targetTf.toUpperCase();
-            if (tfUpper === "5M") displayTf = "M5";
-            else if (tfUpper === "15M") displayTf = "M15";
-            else if (tfUpper === "1H") displayTf = "H1";
-            else if (tfUpper === "1D") displayTf = "D1";
-
+            let displayTf = targetTf.toUpperCase();
+            
             const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
             const url = `${backendUrl}/api/v1/scanner/run-all?symbol=${targetSymbol}&timeframe=${displayTf}`;
             
@@ -678,7 +673,7 @@ export default function AiStrategy({ initialTab = 'live' }) {
                                 <ChartPanel 
                                     symbol={selectedSymbol}
                                     strategyId={selectedStrategyId}
-                                    timeframe={globalTimeframe === '1h' ? 'H1' : globalTimeframe}
+                                    timeframe={globalTimeframe === '1h' ? '1H' : globalTimeframe}
                                     nearestSupport={activeAnalysis?.levels?.nearest_support}
                                     nearestResistance={activeAnalysis?.levels?.nearest_resistance}
                                     onRefreshNeeded={handleHourlyRefresh}

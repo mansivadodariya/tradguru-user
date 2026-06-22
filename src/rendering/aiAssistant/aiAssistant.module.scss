@@ -780,6 +780,13 @@
     flex-direction: column;
     gap: 12px;
     margin-top: 10px !important;
+
+    .reportContent {
+        background: #fff;
+        border: 1px solid rgba(18, 18, 18, 0.1);
+        border-radius: 8px;
+        padding: 16px 20px;
+    }
 }
 
 .inlineDownloadRow {
@@ -1642,5 +1649,420 @@
     .reportPage {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+    }
+}
+
+:global(.dark) {
+    .aiAssistant {
+        .chatCard {
+            background: #1a1a1e;
+            border-color: #2d2d34;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+            .chatHeader {
+                border-bottom-color: #2d2d34;
+
+                .avatar {
+                    background: #252529;
+                    svg {
+                        color: #60a5fa;
+                    }
+                }
+
+                .headerInfo {
+                    h3 {
+                        color: #ffffff;
+                    }
+                    span {
+                        color: rgba(255, 255, 255, 0.5);
+                    }
+                }
+
+                .headerAction {
+                    .historyBtn {
+                        background: #252529;
+                        border-color: #2d2d34;
+                        color: #ffffff;
+
+                        &:hover {
+                            background: #2d2d34;
+                            border-color: #60a5fa;
+                        }
+                    }
+                }
+            }
+
+            .chatBody {
+                &::-webkit-scrollbar-thumb {
+                    background: rgba(96, 165, 250, 0.3);
+                }
+
+                .welcomeContainer {
+                    h2 {
+                        color: #ffffff;
+                    }
+                    p {
+                        color: rgba(255, 255, 255, 0.6);
+                    }
+                }
+
+                .messageRow {
+                    .pairBadge {
+                        background: rgba(96, 165, 250, 0.15);
+                        color: #60a5fa;
+                    }
+
+                    .assistantMessage {
+                        background: #252529;
+                        color: #f3f4f6;
+
+                        p, li {
+                            color: #f3f4f6;
+                        }
+                    }
+                }
+
+                .userRow {
+                    .userMessage {
+                        background: #0f5cf2;
+                        color: #FFF;
+                        box-shadow: 0 4px 12px rgba(15, 92, 242, 0.3);
+                    }
+                }
+
+                .blogViewContainer {
+                    .blogTitle {
+                        color: #ffffff;
+                    }
+
+                    .blogTypeBadge {
+                        background: rgba(96, 165, 250, 0.15);
+                        color: #60a5fa;
+                    }
+
+                    .blogContent {
+                        color: #f3f4f6;
+
+                        p, li {
+                            color: #f3f4f6;
+                        }
+
+                        .blogLoadingState {
+                            .spinner {
+                                border-color: rgba(96, 165, 250, 0.1);
+                                border-top-color: #60a5fa;
+                            }
+                            p {
+                                color: rgba(255, 255, 255, 0.5);
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+        .chipsRow {
+            &::-webkit-scrollbar-thumb {
+                background: rgba(96, 165, 250, 0.3);
+            }
+
+            .chip {
+                background: #252529;
+                color: #60a5fa;
+
+                &:hover {
+                    background: #0f5cf2;
+                    color: #FFF;
+                }
+            }
+        }
+
+        .inputArea {
+            background: #1a1a1e;
+            border-color: #2d2d34;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+            .textarea {
+                color: #ffffff;
+
+                &::placeholder {
+                    color: rgba(255, 255, 255, 0.4);
+                }
+            }
+
+            .inputFooter {
+                .dropdownContainer {
+                    .dropdownTrigger {
+                        background: #252529;
+                        border-color: #2d2d34;
+                        color: #ffffff;
+
+                        &:hover {
+                            border-color: rgba(96, 165, 250, 0.4);
+                            background: #2d2d34;
+                        }
+                    }
+
+                    .dropdownMenu {
+                        background: #252529;
+                        border-color: #2d2d34;
+                        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+
+                        .dropdownHeader {
+                            color: rgba(255, 255, 255, 0.4);
+                            border-bottom-color: #2d2d34;
+                            background: #1a1a1e;
+                        }
+
+                        .dropdownList {
+                            .dropdownItem {
+                                color: #f3f4f6;
+
+                                &:hover {
+                                    background: #2d2d34;
+                                    color: #60a5fa;
+                                }
+
+                                &.activePair {
+                                    background: #2d2d34;
+                                    color: #60a5fa;
+                                }
+
+                                .checkmark {
+                                    color: #60a5fa;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .toggleContainer {
+                    .toggleLabel {
+                        color: rgba(255, 255, 255, 0.7);
+                    }
+
+                    .switch {
+                        .slider {
+                            background-color: rgba(255, 255, 255, 0.2);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .reportPanel,
+    .inlineReportContainer {
+        h3 {
+            color: #ffffff;
+        }
+    }
+
+    .reportPanel {
+        border-color: #2d2d34;
+
+        .reportPanelHeader {
+            border-bottom-color: #2d2d34;
+            background: #1a1a1e;
+        }
+
+        .reportPanelBody {
+            background: #0f0f11;
+
+            .reportEmpty {
+                color: rgba(255, 255, 255, 0.5);
+                .reportEmptyTitle {
+                    color: #ffffff;
+                }
+            }
+        }
+    }
+
+    .inlineReportContainer {
+        .reportContent {
+            background: #1a1a1e;
+            border: 1px solid #2d2d34;
+            border-radius: 8px;
+            padding: 16px 20px;
+        }
+
+        .reportEmpty {
+            color: rgba(255, 255, 255, 0.5);
+            .reportEmptyTitle {
+                color: #ffffff;
+            }
+        }
+
+        .reportLoading {
+            color: rgba(255, 255, 255, 0.6);
+        }
+    }
+
+    .reportWidget {
+        background: #252529;
+        border-color: #2d2d34;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+        .reportWidgetTitle {
+            color: #ffffff;
+        }
+    }
+
+    .reportWidgetMissing {
+        background: #252529;
+        border-color: #2d2d34;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .reportMarkdown {
+        color: #f3f4f6;
+
+        h2, h3, h4, h5, h6 {
+            color: #ffffff;
+        }
+
+        h2 {
+            border-bottom-color: #2d2d34;
+        }
+
+        p, li {
+            color: #d1d5db;
+        }
+
+        :global(table) {
+            border-color: #2d2d34;
+        }
+
+        :global(th),
+        :global(td) {
+            border-color: #2d2d34;
+        }
+
+        :global(th) {
+            background: #252529;
+            color: #ffffff;
+        }
+
+        :global(td) {
+            color: #e2e8f0;
+        }
+
+        :global(tr:nth-child(even) td) {
+            background: #1a1a1e;
+        }
+    }
+
+    .mdH2 {
+        color: #ffffff;
+        border-bottom-color: #2d2d34;
+    }
+
+    .mdH3 {
+        color: #e2e8f0;
+    }
+
+    .mdTableWrapper {
+        border-color: #2d2d34;
+    }
+
+    .mdTable {
+        th {
+            background: #252529;
+            color: #ffffff;
+            border-bottom-color: #2d2d34;
+        }
+
+        td {
+            color: #e2e8f0;
+            border-bottom-color: #2d2d34;
+        }
+
+        tr:nth-child(even) td {
+            background: #1a1a1e;
+        }
+    }
+
+    .mdChartBlock {
+        border-color: #2d2d34;
+        background: #1a1a1e;
+    }
+
+    .mdChartTitle {
+        color: #60a5fa;
+        background: #252529;
+        border-bottom-color: #2d2d34;
+    }
+
+    .historyModalContent {
+        background: #1a1a1e;
+
+        .first {
+            .lineText {
+                color: rgba(255, 255, 255, 0.5);
+                &::before, &::after {
+                    background: linear-gradient(to right, transparent, rgba(96, 165, 250, 0.4));
+                }
+            }
+        }
+
+        .allMessage {
+            border-top-color: #2d2d34;
+
+            &::-webkit-scrollbar-thumb {
+                background: rgba(96, 165, 250, 0.2);
+            }
+
+            .noHistory {
+                color: rgba(255, 255, 255, 0.4);
+            }
+
+            .messageBox {
+                background: #252529;
+                border-color: #2d2d34;
+
+                &:hover {
+                    background: #2d2d34;
+                    border-color: rgba(96, 165, 250, 0.4);
+                }
+
+                &.selectedBox {
+                    background: rgba(96, 165, 250, 0.1);
+                    border-color: #0f5cf2;
+
+                    p {
+                        color: #60a5fa;
+                        font-weight: 600;
+                    }
+                }
+
+                p {
+                    color: rgba(255, 255, 255, 0.85);
+                }
+
+                .icon {
+                    color: rgba(255, 255, 255, 0.4);
+
+                    &:hover {
+                        background-color: rgba(239, 68, 68, 0.2);
+                        color: #f87171;
+                    }
+                }
+            }
+        }
+    }
+
+    .modalCancelBtn {
+        background: #252529;
+        color: rgba(255, 255, 255, 0.8);
+
+        &:hover {
+            background: #2d2d34;
+            color: #ffffff;
+        }
+    }
+
+    .modalText {
+        color: rgba(255, 255, 255, 0.8);
     }
 }

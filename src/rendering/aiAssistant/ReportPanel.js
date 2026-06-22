@@ -7,6 +7,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import styles from './aiAssistant.module.scss';
 import { ATR } from 'technicalindicators';
+import { useTheme } from '@/context/ThemeContext';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -147,9 +148,10 @@ const calculateSupportResistance = (candles) => {
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
-const PriceChart = ({ data, symbol = 'Asset' }) => {
+const PriceChart = ({ data, symbol = 'Asset', theme = 'light' }) => {
     const [showSR, setShowSR] = useState(true);
     const ohlc = data?.ohlc_data?.ohlc_1h || [];
+    const isDark = theme === 'dark';
 
     // Extract raw support and resistance levels from multiple possible backend data fields
     const rawSupport = data?.horizontal_levels?.supports ?? data?.horizontal_levels?.support ?? data?.support ?? data?.support_levels ?? data?.indicators?.support ?? data?.indicators?.support_levels ?? data?.indicators?.['1H']?.support ?? data?.indicators?.['1H']?.support_levels;
@@ -213,31 +215,32 @@ const PriceChart = ({ data, symbol = 'Asset' }) => {
         title: {
             text: `${symbol} Price Action`,
             align: 'left', margin: 10, offsetX: 10,
-            style: { color: '#0f5cf2', fontSize: '16px', fontWeight: 700 }
+            style: { color: isDark ? '#60a5fa' : '#0f5cf2', fontSize: '16px', fontWeight: 700 }
         },
         legend: {
             show: true, position: 'top', horizontalAlign: 'right',
             onItemClick: { toggleDataSeries: true },
-            onItemHover: { highlightDataSeries: true }
+            onItemHover: { highlightDataSeries: true },
+            labels: { colors: isDark ? '#f3f4f6' : '#1e293b' }
         },
-        theme: { mode: 'light' },
+        theme: { mode: theme },
         xaxis: {
             type: 'datetime',
-            labels: { style: { colors: '#64748b' } },
+            labels: { style: { colors: isDark ? '#94a3b8' : '#64748b' } },
             axisBorder: { show: false }, axisTicks: { show: false }
         },
         yaxis: {
             tooltip: { enabled: true },
-            labels: { style: { colors: '#64748b' }, formatter: (val) => val?.toFixed(4) ?? val }
+            labels: { style: { colors: isDark ? '#94a3b8' : '#64748b' }, formatter: (val) => val?.toFixed(4) ?? val }
         },
-        grid: { borderColor: 'rgba(15, 92, 242, 0.08)', strokeDashArray: 4 },
+        grid: { borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(15, 92, 242, 0.08)', strokeDashArray: 4 },
         annotations: { yaxis: yAxisAnnotations },
         stroke: { width: strokeWidths, curve: 'straight', dashArray: dashArrays },
         colors: seriesColors,
         plotOptions: {
             candlestick: { colors: { upward: '#10b981', downward: '#ef4444' }, wick: { useFillColor: true } }
         },
-        tooltip: { theme: 'light', x: { format: 'dd MMM HH:mm' } }
+        tooltip: { theme: theme, x: { format: 'dd MMM HH:mm' } }
     };
 
     if (!ohlc.length) return null;
@@ -263,9 +266,10 @@ const PriceChart = ({ data, symbol = 'Asset' }) => {
     );
 };
 
-const SentimentRadar = ({ indicators }) => {
+const SentimentRadar = ({ indicators, theme = 'light' }) => {
     const data = indicators?.voting_scores || indicators?.['4H']?.voting_scores || {};
     const normalize = (val) => (val + 10) * 5;
+    const isDark = theme === 'dark';
 
     const series = [{
         name: 'Market Sentiment',
@@ -279,17 +283,17 @@ const SentimentRadar = ({ indicators }) => {
 
     const options = {
         chart: { type: 'radar', toolbar: { show: false }, animations: { enabled: true, speed: 1000 } },
-        theme: { mode: 'light' },
+        theme: { mode: theme },
         labels: ['Trend', 'Momentum', 'Volatility', 'Overall'],
         yaxis: { show: false, min: 0, max: 100 },
         fill: {
             opacity: 0.45, type: 'gradient',
-            gradient: { shade: 'light', gradientToColors: ['#0f5cf2'], shadeIntensity: 1, type: 'horizontal', stops: [0, 100] }
+            gradient: { shade: isDark ? 'dark' : 'light', gradientToColors: ['#0f5cf2'], shadeIntensity: 1, type: 'horizontal', stops: [0, 100] }
         },
         stroke: { width: 2, colors: ['#0f5cf2'] },
-        markers: { size: 4, colors: ['#0f5cf2'], strokeWidth: 2, strokeColors: '#fff' },
-        plotOptions: { radar: { polygons: { strokeColors: 'rgba(15, 92, 242, 0.15)', connectorColors: 'rgba(15, 92, 242, 0.1)' } } },
-        tooltip: { theme: 'light' }
+        markers: { size: 4, colors: ['#0f5cf2'], strokeWidth: 2, strokeColors: isDark ? '#1a1a1e' : '#fff' },
+        plotOptions: { radar: { polygons: { strokeColors: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(15, 92, 242, 0.15)', connectorColors: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(15, 92, 242, 0.1)' } } },
+        tooltip: { theme: theme }
     };
 
     return (
@@ -299,21 +303,22 @@ const SentimentRadar = ({ indicators }) => {
     );
 };
 
-const Gauge = ({ value, title }) => {
+const Gauge = ({ value, title, theme = 'light' }) => {
+    const isDark = theme === 'dark';
     const options = {
         chart: { type: 'radialBar', sparkline: { enabled: true } },
         plotOptions: {
             radialBar: {
                 startAngle: -110, endAngle: 110,
-                hollow: { size: '65%', background: '#f8fafc' },
-                track: { background: '#e2e8f0', strokeWidth: '100%', margin: 5 },
+                hollow: { size: '65%', background: isDark ? '#1a1a1e' : '#f8fafc' },
+                track: { background: isDark ? '#2d2d34' : '#e2e8f0', strokeWidth: '100%', margin: 5 },
                 dataLabels: {
-                    name: { show: true, color: '#0f5cf2', offsetY: -10, fontSize: '12px', fontWeight: 600 },
-                    value: { show: true, fontSize: '22px', fontWeight: 700, color: '#121212', offsetY: 0, formatter: (val) => val.toFixed(1) }
+                    name: { show: true, color: isDark ? '#60a5fa' : '#0f5cf2', offsetY: -10, fontSize: '12px', fontWeight: 600 },
+                    value: { show: true, fontSize: '22px', fontWeight: 700, color: isDark ? '#ffffff' : '#121212', offsetY: 0, formatter: (val) => val.toFixed(1) }
                 }
             }
         },
-        fill: { type: 'gradient', gradient: { shade: 'light', type: 'horizontal', gradientToColors: ['#0f5cf2'], stops: [0, 100] } },
+        fill: { type: 'gradient', gradient: { shade: isDark ? 'dark' : 'light', type: 'horizontal', gradientToColors: ['#0f5cf2'], stops: [0, 100] } },
         stroke: { lineCap: 'round' },
         labels: [title]
     };
@@ -328,6 +333,7 @@ const Gauge = ({ value, title }) => {
 const ReportPanel = ({ fullReport, visualData, isLoading, scrollToTopSignal, onDownload, inline = true }) => {
     const scrollRef = useRef(null);
     const reportRef = useRef(null);
+    const { theme } = useTheme();
 
     useEffect(() => {
         if (scrollRef.current) scrollRef.current.scrollTop = 0;
@@ -340,18 +346,18 @@ const ReportPanel = ({ fullReport, visualData, isLoading, scrollToTopSignal, onD
         }
         switch (type) {
             case 'CANDLESTICK':
-                return <PriceChart key={key} data={assetData} symbol={symbol} />;
+                return <PriceChart key={key} data={assetData} symbol={symbol} theme={theme} />;
             case 'SENTIMENT_RADAR':
                 return (
                     <div key={key} className={styles.reportWidget}>
                         <h4 className={styles.reportWidgetTitle}>Market Sentiment: {symbol}</h4>
-                        <SentimentRadar indicators={assetData.indicators} />
+                        <SentimentRadar indicators={assetData.indicators} theme={theme} />
                     </div>
                 );
             case 'RSI_GAUGE':
-                return <Gauge key={key} value={assetData.indicators?.momentum_indicators?.RSI?.value || assetData.indicators?.['1H']?.momentum_indicators?.RSI?.value || 50} title={`${symbol} RSI`} />;
+                return <Gauge key={key} value={assetData.indicators?.momentum_indicators?.RSI?.value || assetData.indicators?.['1H']?.momentum_indicators?.RSI?.value || 50} title={`${symbol} RSI`} theme={theme} />;
             case 'ADX_GAUGE':
-                return <Gauge key={key} value={assetData.indicators?.trend_indicators?.ADX?.value || assetData.indicators?.['1H']?.trend_indicators?.ADX?.value || 25} title={`${symbol} Trend Strength`} />;
+                return <Gauge key={key} value={assetData.indicators?.trend_indicators?.ADX?.value || assetData.indicators?.['1H']?.trend_indicators?.ADX?.value || 25} title={`${symbol} Trend Strength`} theme={theme} />;
             default:
                 return null;
         }

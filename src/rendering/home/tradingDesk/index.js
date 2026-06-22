@@ -144,7 +144,7 @@ export default function TradingDesk() {
                                             Structured & reliable insights
                                         </h3>
                                         <p>
-                                            FX guru providers clear, well structured analysis backed by
+                                            The Trader Master provides clear, well structured analysis backed by
                                             data and logic.
                                         </p>
                                     </div>
@@ -166,7 +166,7 @@ export default function TradingDesk() {
                                             Built for traders
                                         </h3>
                                         <p>
-                                            whether you’re a beginner or pro, FX guru helps you trade smarter with confidence.
+                                            whether you’re a beginner or pro, The Trader Master helps you trade smarter with confidence.
                                         </p>
                                     </div>
                                 </motion.div>
