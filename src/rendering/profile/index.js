@@ -155,10 +155,11 @@ export default function Profile() {
     const handleCopyLink = async () => {
         if (!form.referral_code) return;
         try {
-            await navigator.clipboard.writeText(form.referral_code);
-            toast.success('Referral code copied to clipboard!');
+            const link = `${window.location.origin}/signup?code=${encodeURIComponent(form.referral_code)}`;
+            await navigator.clipboard.writeText(link);
+            toast.success('Referral link copied to clipboard!');
         } catch (err) {
-            toast.error('Failed to copy code.');
+            toast.error('Failed to copy link.');
         }
     };
 
