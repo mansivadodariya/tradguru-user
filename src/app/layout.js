@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono, Plus_Jakarta_Sans, Roboto } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/toast";
+import WhatsappButton from "@/components/whatsappButton";
 
 const plusSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
@@ -40,7 +41,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${robotoSans.variable} ${plusSans.variable}`}>
-      <body><ToastProvider>{children}</ToastProvider></body>
+      <body>
+        <ToastProvider>
+          {children}
+          <WhatsappButton />
+        </ToastProvider>
+      </body>
     </html>
   );
 }

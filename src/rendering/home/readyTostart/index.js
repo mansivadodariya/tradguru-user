@@ -21,7 +21,7 @@ export default function ReadyTostart() {
                             Ready to put an AI in your trading desk?
                         </h2>
                         <p>
-                            Verify your MT5, claim 50 credits, and start asking the Guru in under
+                            Claim credits, and start asking Trader Master in under
                             five minutes.
                         </p>
                     </div>

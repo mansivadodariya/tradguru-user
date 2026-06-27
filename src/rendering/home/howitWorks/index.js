@@ -17,23 +17,23 @@ const stepsData = [
         id: 1,
         number: '01',
         title: 'Create your account',
-        description: 'Sign up using your email address and complete quick verification to activate your trading dashboard access instantly.',
+        description: 'Sign up on Trader Master using your email address to access your trading dashboard instantly.',
         image: Step1,
         icon: IconOne
     },
     {
         id: 2,
         number: '02',
-        title: 'Link your MT5',
-        description: 'Connect your MT5 trading account securely using your registered email and MT5 ID to sync balances, trades, and analytical data.',
+        title: 'Link Newera account',
+        description: 'Connect your Newera trading account by entering your registered Newera email address to claim your credits.',
         image: Step2,
         icon: IconOne
     },
     {
         id: 3,
         number: '03',
-        title: 'Verify & unlock access',
-        description: 'Submit your registered Nextera email and MT5 account ID for verification. Once your trading account qualifies, you unlock premium trading access.',
+        title: 'Ask the AI',
+        description: 'Analyze charts with AI Trade, consult the AI Chat for market analysis, or build strategies with AI Strategy.',
         image: Step3,
         icon: IconOne
     },
@@ -41,7 +41,7 @@ const stepsData = [
         id: 4,
         number: '04',
         title: 'Trade & replenish',
-        description: 'Every completed trade cycle helps replenish your available credits automatically, ensuring uninterrupted trading insights.',
+        description: 'Every completed trade cycle on your linked Newera account automatically replenishes your credits for uninterrupted insights.',
         image: Step4,
         icon: IconOne
     }

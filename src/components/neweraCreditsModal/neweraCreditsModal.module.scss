@@ -1,0 +1,441 @@
+@use '../../scss/main.scss' as *;
+@use '../../scss/breakpoints/breakpoints.scss' as *;
+
+$newera-navy: #0F2240;
+$newera-red: #D92D20;
+$newera-bg-light: #F8FAFC;
+$newera-border: #E2E8F0;
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 21, 32, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.box {
+    max-width: 700px;
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid rgba(15, 34, 64, 0.15);
+    border-radius: 24px;
+    box-shadow: 0 25px 60px rgba(15, 34, 64, 0.15);
+    position: relative;
+    padding: 40px 32px 32px;
+    overflow: hidden;
+    animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+    .accentLayer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, $newera-navy 0%, #3b5275 50%, $newera-red 100%);
+    }
+}
+
+.brandHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.logoWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    padding: 4px;
+}
+
+.logoImg {
+    width: 220px;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    clip-path: inset(0 0 0 4.5%); // Crop the vertical starting line on the left
+    margin-left: -9px; // Shift left to offset the cropped area
+}
+
+.brandBlue {
+    fill: $newera-navy;
+}
+
+.brandRed {
+    fill: $newera-red;
+}
+
+.brandText {
+    font-family: var(--font-plus-jakarta);
+    font-size: 16px;
+    font-weight: 800;
+    color: $newera-navy;
+    letter-spacing: 2px;
+}
+
+.content {
+    text-align: center;
+}
+
+.title {
+    font-family: var(--font-plus-jakarta);
+    font-size: 24px;
+    font-weight: 800;
+    color: #1A1A1A;
+    margin: 0 0 16px;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    svg {
+        flex-shrink: 0;
+        color: $newera-red;
+    }
+}
+
+.welcomeText {
+    margin-bottom: 28px;
+
+    span {
+        display: block;
+        color: $newera-red;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        font-family: var(--font-plus-jakarta);
+    }
+
+    p {
+        font-size: 14px;
+        color: rgba(26, 26, 26, 0.65);
+        font-weight: 500;
+        margin: 0;
+    }
+}
+
+.optionsContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    text-align: left;
+    margin-bottom: 8px;
+
+    @include respond-to('sm') {
+        grid-template-columns: 1fr;
+    }
+}
+
+.optionCard {
+    background: $newera-bg-light;
+    border: 1px solid $newera-border;
+    border-radius: 18px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(15, 34, 64, 0.04);
+        border-color: rgba(15, 34, 64, 0.2);
+    }
+}
+
+.optionHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+
+    h3 {
+        font-family: var(--font-plus-jakarta);
+        font-size: 15px;
+        font-weight: 700;
+        color: #1A1A1A;
+        margin: 0;
+        line-height: 1.3;
+    }
+}
+
+.badgeStep {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: $newera-navy;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.optionDesc {
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(26, 26, 26, 0.6);
+    margin: 0 0 20px;
+    flex-grow: 1;
+}
+
+.registerBtn {
+    width: 100%;
+    background: #000000; /* Matching the black buttons in Newera's layout */
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+
+    &:hover {
+        background: #222222;
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+
+    svg {
+        transition: transform 0.2s ease;
+    }
+
+    &:hover svg {
+        transform: translate(2px, -2px);
+    }
+}
+
+.linkForm {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.inputWrapper {
+    :global(.input) {
+        margin: 0;
+
+        label {
+            display: none;
+        }
+
+        :global(.inputWrapper) {
+            border-radius: 12px;
+            background: #ffffff;
+            border-color: $newera-border;
+            padding: 2px 8px;
+
+            input {
+                font-size: 13px;
+                height: 38px;
+                color: #1A1A1A;
+            }
+        }
+    }
+}
+
+.submitBtn {
+    width: 100%;
+    background: $newera-navy;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+
+    &:hover:not(:disabled) {
+        background: #1B355A;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: spin 0.8s linear infinite;
+}
+
+.error {
+    color: $newera-red;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 4px 0 0;
+    text-align: left;
+}
+
+.closeBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(26, 26, 26, 0.05);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    color: rgba(26, 26, 26, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: rgba(26, 26, 26, 0.1);
+        color: #1A1A1A;
+        transform: rotate(90deg);
+    }
+}
+
+/* Dark Mode Overrides */
+:global(.dark) {
+    .overlay {
+        background: rgba(10, 12, 18, 0.85);
+    }
+
+    .box {
+        background: #111318;
+        border-color: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+
+        .closeBtn {
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.6);
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.12);
+                color: #ffffff;
+            }
+        }
+    }
+
+    .brandText {
+        color: #ffffff;
+    }
+
+    .title {
+        color: #ffffff;
+    }
+
+    .welcomeText {
+        p {
+            color: rgba(243, 244, 246, 0.7);
+        }
+    }
+
+    .optionCard {
+        background: #181B22;
+        border-color: rgba(255, 255, 255, 0.05);
+
+        &:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+    }
+
+    .optionHeader {
+        h3 {
+            color: #ffffff;
+        }
+    }
+
+    .badgeStep {
+        background: #ffffff;
+        color: #111318;
+    }
+
+    .optionDesc {
+        color: rgba(243, 244, 246, 0.5);
+    }
+
+    .registerBtn {
+        background: #ffffff;
+        color: #111318;
+
+        &:hover {
+            background: #e2e8f0;
+        }
+    }
+
+    .submitBtn {
+        background: #2b4875;
+        color: #ffffff;
+
+        &:hover:not(:disabled) {
+            background: #3b5e96;
+        }
+    }
+
+    .inputWrapper {
+        :global(.input) {
+            :global(.inputWrapper) {
+                background: #1E222B;
+                border-color: rgba(255, 255, 255, 0.15);
+
+                input {
+                    color: #ffffff;
+                    &::placeholder {
+                        color: rgba(255, 255, 255, 0.35);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

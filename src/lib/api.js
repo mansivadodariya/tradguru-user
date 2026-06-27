@@ -227,3 +227,40 @@ export const tradeSnapApi = {
         }),
 };
 
+export const neweraApi = {
+    linkAccount: async (user_id, email) => {
+        // NOTE: Currently we don't have the backend API.
+        // Once the API is available, replace this mock implementation with the real fetch request.
+        // For example:
+        // return request(`/users/${user_id}/newera-link`, {
+        //     method: 'POST',
+        //     headers: getAuthHeaders(),
+        //     body: JSON.stringify({ email }),
+        // });
+
+        console.log(`[API Mock] Linking Newera Account with email ${email} for user ${user_id}`);
+
+        // Simulate network request delay
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
+        if (!email || !email.includes('@')) {
+            throw new Error("Invalid email. Please enter a valid email address.");
+        }
+
+        const responseData = {
+            success: true,
+            message: "Newera account linked successfully!",
+            data: {
+                available_credits: 100 // Granting 100 mock credits
+            }
+        };
+
+        // Notify application components (like Topbar) about the new credit balance
+        const { notifyCreditsUpdated } = await import('@/lib/credits');
+        notifyCreditsUpdated(responseData.data.available_credits);
+
+        return responseData;
+    }
+};
+
+

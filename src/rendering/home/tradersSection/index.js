@@ -14,7 +14,7 @@ const tradersData = [
     {
         id: 1,
         title: 'AI Trade',
-        description: 'Drag in a screenshot from MT5 or trading view. FX guru identifies structure, key levels, and gives you a graded setup with risk/reward math.',
+        description: 'Drag in a screenshot from MT5 or trading view. The Trader Master identifies structure, key levels, and gives you a graded setup with risk/reward math.',
         icon: SearchIcon,
         image: TradeSnapImage,
         linkText: 'Explore',
@@ -22,7 +22,7 @@ const tradersData = [
     {
         id: 2,
         title: 'AI Chat',
-        description: 'Ask anything pair commentary session bias news interpretation, each prompt costa one credits your full chat history stays available.',
+        description: 'Ask anything pair commentary session bias news interpretation, each prompt cost a one credits your full chat history stays available.',
         icon: SearchIcon,
         image: FxGuruImage,
         linkText: 'Explore',
@@ -119,12 +119,12 @@ export default function TradersSection() {
                             variants={cardVariants}
                             whileHover="hover"
                         >
-                            <motion.div
+                            <div
                                 className={styles.icon}
                                 variants={iconVariants}
                             >
                                 <img src={item.icon} alt={`${item.title} Icon`} />
-                            </motion.div>
+                            </div>
                             <h3>
                                 {item.title}
                             </h3>
