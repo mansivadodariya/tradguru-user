@@ -17,7 +17,8 @@ export default function WhatsappButton() {
         '/crm',
         '/economic-calendar',
         '/profile',
-        '/settings'
+        '/settings',
+        '/credit-history'
     ];
     
     const shouldHide = pathname && hideOnPaths.some(path => pathname.startsWith(path));

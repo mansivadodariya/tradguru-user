@@ -5,17 +5,17 @@ import styles from './aiStrategy.module.scss';
 
 // SVG Icon Components
 const ChevronIcon = ({ isOpen, className }) => (
-    <svg 
-        width="14" 
-        height="14" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        strokeWidth="2.5" 
-        strokeLinecap="round" 
+    <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
         strokeLinejoin="round"
-        style={{ 
-            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', 
+        style={{
+            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
             transition: 'transform 0.2s ease',
             flexShrink: 0
         }}
@@ -28,16 +28,16 @@ const ChevronIcon = ({ isOpen, className }) => (
 const TrendArrowIcon = ({ direction, className }) => {
     const isUp = direction?.toLowerCase().includes('bull') || direction?.toLowerCase().includes('buy') || direction?.toLowerCase().includes('up') || direction === 'Above';
     return (
-        <svg 
-            width="14" 
-            height="14" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke={isUp ? '#10b981' : '#ef4444'} 
-            strokeWidth="3" 
-            strokeLinecap="round" 
+        <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={isUp ? '#10b981' : '#ef4444'}
+            strokeWidth="3"
+            strokeLinecap="round"
             strokeLinejoin="round"
-            style={{ 
+            style={{
                 transform: isUp ? 'rotate(0deg)' : 'rotate(180deg)',
                 flexShrink: 0
             }}
@@ -50,14 +50,14 @@ const TrendArrowIcon = ({ direction, className }) => {
 };
 
 const CircleCheckIcon = ({ color = '#10b981' }) => (
-    <svg 
-        width="12" 
-        height="12" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke={color} 
-        strokeWidth="3" 
-        strokeLinecap="round" 
+    <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={color}
+        strokeWidth="3"
+        strokeLinecap="round"
         strokeLinejoin="round"
         style={{ marginRight: '8px', flexShrink: 0, marginTop: '2px' }}
     >
@@ -159,11 +159,11 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
     // Main Accordion Toggles
     const [expandedAccordions, setExpandedAccordions] = useState({
         score: true,
-        evidence: true,
-        trend: true,
-        momentum: true,
-        volume: true,
-        ai: true
+        evidence: false,
+        trend: false,
+        momentum: false,
+        volume: false,
+        ai: false
     });
 
     // Score Sub-details Toggles
@@ -207,14 +207,14 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
 
         try {
             const res = await fetch(url, {
-                headers: { 
+                headers: {
                     'accept': 'application/json',
                     'ngrok-skip-browser-warning': 'true'
                 }
             });
             if (!res.ok) throw new Error('Failed to fetch analysis details');
             const data = await res.json();
-            
+
             if (data.success && data.analysis) {
                 setAnalysis(data.analysis);
                 if (onAnalysisLoaded) {
@@ -310,11 +310,11 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
                                                 <IndicatorIcon type={key} />
                                                 <span className={styles.progressBarTitle}>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
                                             </div>
-                                            
+
                                             {/* Outer track & fill */}
                                             <div className={styles.progressOuterTrack}>
-                                                <div 
-                                                    className={styles.progressFillBar} 
+                                                <div
+                                                    className={styles.progressFillBar}
                                                     style={{ width: `${pct}%`, backgroundColor: itemColor }}
                                                 />
                                             </div>
@@ -416,11 +416,11 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
                             const itemColor = getScoreColor(data.label);
 
                             return (
-                                <div 
-                                    key={key} 
+                                <div
+                                    key={key}
                                     className={`${styles.evidenceOutlinedGroup} ${styles[key]}`}
                                 >
-                                    <div 
+                                    <div
                                         className={styles.evidenceGroupClickableHeader}
                                         onClick={(e) => toggleEvidenceSub(key, e)}
                                     >
@@ -517,11 +517,11 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
                                 <strong>{trend_analysis.trend_confidence || '-'}</strong>
                             </div>
                             <div className={styles.confidenceTrack}>
-                                <div 
-                                    className={styles.confidenceFill} 
-                                    style={{ 
-                                        width: trend_analysis.trend_confidence || '0%', 
-                                        backgroundColor: scoreColor 
+                                <div
+                                    className={styles.confidenceFill}
+                                    style={{
+                                        width: trend_analysis.trend_confidence || '0%',
+                                        backgroundColor: scoreColor
                                     }}
                                 />
                             </div>
@@ -544,10 +544,10 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
                                 <span className={styles.sliderName}>RSI (14)</span>
                                 <span className={styles.sliderValTxt}>{formatValue(momentum.rsi?.value)}</span>
                             </div>
-                            
+
                             {/* Gradient Track & Pin Pointer */}
                             <div className={styles.gradientTrackBg}>
-                                <div 
+                                <div
                                     className={styles.sliderPinPointer}
                                     style={{ left: `${Math.min(100, Math.max(0, momentum.rsi?.value || 50))}%` }}
                                 >
@@ -568,19 +568,19 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
                             <div className={styles.macdMetricsContainer}>
                                 <div className={styles.macdHeaderRow}>
                                     <span className={styles.macdTitle}>MACD ({momentum.macd.params})</span>
-                                    <span 
-                                        className={styles.macdLabelValue} 
+                                    <span
+                                        className={styles.macdLabelValue}
                                         style={{ color: getScoreColor(momentum.macd.direction) }}
                                     >
                                         {momentum.macd.direction}
                                     </span>
                                 </div>
-                                
+
                                 {/* Histogram Center Alignment Track */}
                                 <div className={styles.macdHistogramTrack}>
                                     <div className={styles.centerLine} />
                                     {momentum.macd.histogram !== undefined && (
-                                        <div 
+                                        <div
                                             className={styles.histogramFillBar}
                                             style={{
                                                 left: momentum.macd.histogram >= 0 ? '50%' : `calc(50% - ${Math.min(48, Math.abs(momentum.macd.histogram) * 2.5)}%)`,
@@ -604,12 +604,12 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
                                 <div className={styles.stochProgressRow}>
                                     <span className={styles.stochLabel}>Stoch %K</span>
                                     <div className={styles.stochTrackBg}>
-                                        <div 
-                                            className={styles.stochFillBar} 
-                                            style={{ 
-                                                width: `${momentum.stochastic.k || 0}%`, 
-                                                backgroundColor: getScoreColor(momentum.stochastic.direction) 
-                                            }} 
+                                        <div
+                                            className={styles.stochFillBar}
+                                            style={{
+                                                width: `${momentum.stochastic.k || 0}%`,
+                                                backgroundColor: getScoreColor(momentum.stochastic.direction)
+                                            }}
                                         />
                                     </div>
                                     <span className={styles.stochValText}>{Math.round(momentum.stochastic.k || 0)}</span>
@@ -618,12 +618,12 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
                                 <div className={styles.stochProgressRow}>
                                     <span className={styles.stochLabel}>Stoch %D</span>
                                     <div className={styles.stochTrackBg}>
-                                        <div 
-                                            className={styles.stochFillBar} 
-                                            style={{ 
-                                                width: `${momentum.stochastic.d || 0}%`, 
-                                                backgroundColor: getScoreColor(momentum.stochastic.direction) 
-                                            }} 
+                                        <div
+                                            className={styles.stochFillBar}
+                                            style={{
+                                                width: `${momentum.stochastic.d || 0}%`,
+                                                backgroundColor: getScoreColor(momentum.stochastic.direction)
+                                            }}
                                         />
                                     </div>
                                     <span className={styles.stochValText}>{Math.round(momentum.stochastic.d || 0)}</span>
@@ -649,7 +649,7 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
                                 <strong>{volume_analysis.relative_volume || '0'}x</strong>
                             </div>
                             <div className={styles.relativeVolumeTrack}>
-                                <div 
+                                <div
                                     className={styles.relativeVolPointer}
                                     style={{ left: `${Math.min(100, (volume_analysis.relative_volume || 0) * 33.3)}%` }}
                                 />
@@ -681,17 +681,17 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
                                         {volume_analysis.pressure.label}
                                     </strong>
                                 </div>
-                                
+
                                 {/* Segmented Bar Fill */}
                                 <div className={styles.segmentedPressureBar}>
-                                    <div 
-                                        className={styles.buySegment} 
+                                    <div
+                                        className={styles.buySegment}
                                         style={{ width: `${volume_analysis.pressure.buy_pct || 50}%` }}
                                     >
                                         <span>{volume_analysis.pressure.buy_pct}%</span>
                                     </div>
-                                    <div 
-                                        className={styles.sellSegment} 
+                                    <div
+                                        className={styles.sellSegment}
                                         style={{ width: `${volume_analysis.pressure.sell_pct || 50}%` }}
                                     >
                                         <span>{volume_analysis.pressure.sell_pct}%</span>

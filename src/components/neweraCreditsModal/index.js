@@ -13,6 +13,20 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
     const [error, setError] = useState('');
     const { theme } = useTheme();
 
+    React.useEffect(() => {
+        try {
+            const stored = localStorage.getItem('user');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (parsed?.email) {
+                    setEmail(parsed.email);
+                }
+            }
+        } catch (e) {
+            console.error('Error reading user email for Newera link:', e);
+        }
+    }, []);
+
     const logoSrc = theme === 'dark' ? '/assets/icons/Img1.svg' : '/assets/images/LightNewera.png';
 
     const handleLinkAccount = async (e) => {
@@ -118,7 +132,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                         name="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        disabled={loading}
+                                        disabled={true}
                                         required
                                     />
                                 </div>

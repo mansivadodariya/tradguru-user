@@ -96,7 +96,10 @@ async function request(path, options = {}, _isRetry = false) {
             err.status = 401;
             throw err;
         }
-        throw new Error(data?.detail?.message || data?.message || 'Something went wrong');
+        const err = new Error(data?.detail?.message || data?.message || 'Something went wrong');
+        err.detail = data?.detail;
+        err.status = res.status;
+        throw err;
     }
 
 
@@ -229,37 +232,17 @@ export const tradeSnapApi = {
 
 export const neweraApi = {
     linkAccount: async (user_id, email) => {
-        // NOTE: Currently we don't have the backend API.
-        // Once the API is available, replace this mock implementation with the real fetch request.
-        // For example:
-        // return request(`/users/${user_id}/newera-link`, {
-        //     method: 'POST',
-        //     headers: getAuthHeaders(),
-        //     body: JSON.stringify({ email }),
-        // });
+        const res = await request('/newera/credit', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ email }),
+        });
 
-        console.log(`[API Mock] Linking Newera Account with email ${email} for user ${user_id}`);
-
-        // Simulate network request delay
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-
-        if (!email || !email.includes('@')) {
-            throw new Error("Invalid email. Please enter a valid email address.");
-        }
-
-        const responseData = {
+        return {
             success: true,
-            message: "Newera account linked successfully!",
-            data: {
-                available_credits: 100 // Granting 100 mock credits
-            }
+            message: res?.message || 'Newera account linked successfully!',
+            data: res?.data || res || {}
         };
-
-        // Notify application components (like Topbar) about the new credit balance
-        const { notifyCreditsUpdated } = await import('@/lib/credits');
-        notifyCreditsUpdated(responseData.data.available_credits);
-
-        return responseData;
     }
 };
 

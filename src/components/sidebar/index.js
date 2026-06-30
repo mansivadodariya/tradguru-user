@@ -28,6 +28,13 @@ const StrategyIcon = () => (
   </svg>
 );
 
+const CreditHistoryIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <path d="M12 8v4l3 3" />
+    <circle cx="12" cy="12" r="9" />
+  </svg>
+);
+
 const mainNav = [
   { label: "Dashboard", href: "/dashboard", icon: DashboardIcon },
   { label: "AI Trade", href: "/trade-snap", icon: TradeIcon },
@@ -42,6 +49,7 @@ const mainNav = [
     ]
   },
   { label: "Economic Calendar", href: "/economic-calendar", icon: PricingIcon },
+  { label: "Credit History", href: "/credit-history", icon: CreditHistoryIcon },
   { label: "Profile", href: "/profile", icon: SettingsIcon },
 ];
 

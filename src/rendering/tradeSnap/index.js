@@ -5,6 +5,7 @@ import styles from './tradeSnap.module.scss';
 import { analyzeTradeScreenshots, dataUrlToBlob, extractTradesFromPayload } from '@/lib/tradeSnapApi';
 import { getStoredUserId } from '@/lib/authSession';
 import { toast } from '@/components/toast';
+import { notifyCreditsUpdated } from '@/lib/credits';
 import { tradeSnapApi } from '@/lib/api';
 import { historyDeletes } from '@/lib/historyDeletes';
 import AnalysisResultItem from './AnalysisResultItem';
@@ -355,9 +356,8 @@ export default function TradeSnap() {
             : extractTradesFromPayload({ ai_response: analysisData });
         if (!trades.length) return;
 
-        setAllAnalyses((prev) => [
+        setAllAnalyses([
             { data: trades, timestamp: new Date().toISOString() },
-            ...prev,
         ]);
         setShowAnalysis(true);
     };
@@ -392,6 +392,9 @@ export default function TradeSnap() {
             }
         } catch (err) {
             setError(err?.message || 'Failed to analyze image');
+            if (err?.detail?.error_code === 'INSUFFICIENT_CREDITS' || err?.message?.toLowerCase().includes('insufficient credits')) {
+                notifyCreditsUpdated(0);
+            }
         } finally {
             setIsAnalyzing(false);
         }
@@ -413,6 +416,9 @@ export default function TradeSnap() {
             }
         } catch (err) {
             setError(err?.message || 'Failed to analyze images');
+            if (err?.detail?.error_code === 'INSUFFICIENT_CREDITS' || err?.message?.toLowerCase().includes('insufficient credits')) {
+                notifyCreditsUpdated(0);
+            }
         } finally {
             setIsAnalyzingMulti(false);
         }
@@ -547,6 +553,9 @@ export default function TradeSnap() {
             }
         } catch (err) {
             setError(err?.message || 'Failed to analyze uploaded image');
+            if (err?.detail?.error_code === 'INSUFFICIENT_CREDITS' || err?.message?.toLowerCase().includes('insufficient credits')) {
+                notifyCreditsUpdated(0);
+            }
         } finally {
             setIsAnalyzingUpload(false);
         }

@@ -12,23 +12,38 @@ export function normalizeTradeRecord(trade) {
     if (!trade || typeof trade !== 'object') return null;
     if (trade.error) return trade;
 
-    const targets = trade.targets ?? trade.Targets ?? {};
+    let targets = trade.targets ?? trade.Targets ?? {};
+    const rawTargets = trade['Target(s)'] ?? trade['targets(s)'] ?? trade['Targets(s)'];
+    if (typeof rawTargets === 'string') {
+        const parts = rawTargets.split(',').map(s => s.trim());
+        targets = {};
+        parts.forEach((part, index) => {
+            const split = part.split(':').map(s => s.trim());
+            if (split.length === 2) {
+                targets[split[0].toLowerCase()] = split[1];
+            } else {
+                targets[`tp${index + 1}`] = part;
+            }
+        });
+    } else if (rawTargets && typeof rawTargets === 'object') {
+        targets = rawTargets;
+    }
 
     return {
         ...trade,
-        symbol: trade.symbol ?? trade.Symbol,
-        trade_call: trade.trade_call ?? trade.tradeCall,
-        Trade: trade.Trade ?? trade.trade,
-        timeframe: trade.timeframe ?? trade.Timeframe,
-        confidence: trade.confidence ?? trade.Confidence,
-        entry: trade.entry ?? trade.Entry,
-        stop_loss: trade.stop_loss ?? trade.Stop_loss ?? trade.stopLoss,
-        risk_reward: trade.risk_reward ?? trade.Risk_reward,
-        rationale: trade.rationale ?? trade.Rationale,
-        targets: targets && typeof targets === 'object' ? targets : {},
-        Support_price: trade.Support_price ?? trade.support_price,
-        Resistance_price: trade.Resistance_price ?? trade.resistance_price,
-        Current_price: trade.Current_price ?? trade.current_price,
+        symbol: trade.symbol ?? trade.Symbol ?? 'Unknown',
+        trade_call: trade.trade_call ?? trade.tradeCall ?? trade['Trade Call'] ?? '—',
+        Trade: trade.Trade ?? trade.trade ?? trade['Horizon'] ?? '—',
+        timeframe: trade.timeframe ?? trade.Timeframe ?? '—',
+        confidence: trade.confidence ?? trade.Confidence ?? trade['Confidence'] ?? '0%',
+        entry: trade.entry ?? trade.Entry ?? trade['Entry Zone'] ?? '—',
+        stop_loss: trade.stop_loss ?? trade.Stop_loss ?? trade.stopLoss ?? trade['Stop-Loss'] ?? '—',
+        risk_reward: trade.risk_reward ?? trade.Risk_reward ?? trade['R:R'] ?? '—',
+        rationale: trade.rationale ?? trade.Rationale ?? trade['Rationale'] ?? '',
+        targets,
+        Support_price: trade.Support_price ?? trade.support_price ?? '—',
+        Resistance_price: trade.Resistance_price ?? trade.resistance_price ?? '—',
+        Current_price: trade.Current_price ?? trade.current_price ?? '—',
     };
 }
 
@@ -38,7 +53,7 @@ function unwrapAnalysisPayload(raw) {
 
     if (raw.Response && typeof raw.Response === 'object') {
         const inner = raw.Response;
-        if (inner.trade_call || inner.Trade || inner.entry || inner.Targets || inner.targets) {
+        if (inner.trade_call || inner.Trade || inner.entry || inner.Targets || inner.targets || inner['Trade Call'] || inner['Entry Zone']) {
             return inner;
         }
     }
@@ -48,10 +63,12 @@ function unwrapAnalysisPayload(raw) {
         typeof raw.response === 'object' &&
         !raw.trade_call &&
         !raw.Trade &&
-        !raw.entry
+        !raw.entry &&
+        !raw['Trade Call'] &&
+        !raw['Entry Zone']
     ) {
         const inner = raw.response;
-        if (inner.trade_call || inner.Trade || inner.entry || inner.Targets || inner.targets) {
+        if (inner.trade_call || inner.Trade || inner.entry || inner.Targets || inner.targets || inner['Trade Call'] || inner['Entry Zone']) {
             return inner;
         }
     }
@@ -67,6 +84,7 @@ export function extractTradesFromPayload(payload) {
     if (!payload) return [];
 
     let raw =
+        payload.content ??
         payload.ai_response ??
         payload.aiResponse ??
         payload.Response ??
@@ -79,13 +97,33 @@ export function extractTradesFromPayload(payload) {
             payload.Trade ||
             payload.entry ||
             payload.Targets ||
-            payload.targets
+            payload.targets ||
+            payload['Trade Call'] ||
+            payload['Entry Zone']
         ) {
             raw = payload;
         } else if (payload.status === 'success' && payload.Response) {
             raw = payload.Response;
         } else {
             raw = payload.analysis ?? payload.result ?? payload.data ?? payload;
+        }
+    }
+
+    // If raw is an array of history items, we only want the latest history item's content/data for the active view
+    if (Array.isArray(raw)) {
+        if (raw.length > 0 && raw[0] && typeof raw[0] === 'object' && (raw[0].content || Array.isArray(raw[0].data))) {
+            raw = raw[0];
+        }
+    }
+
+    // If raw is a single history item object (which has a nested content string or data array of trades)
+    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+        if (raw.content) {
+            raw = raw.content;
+        } else if (Array.isArray(raw.data)) {
+            raw = raw.data;
+        } else if (raw.analysis_data && Array.isArray(raw.analysis_data)) {
+            raw = raw.analysis_data;
         }
     }
 
@@ -143,7 +181,10 @@ export async function analyzeTradeScreenshots(fileBlobs, userId) {
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-        throw new Error(data?.detail?.message || data?.message || data?.detail || 'Analysis request failed');
+        const err = new Error(data?.detail?.message || data?.message || data?.detail || 'Analysis request failed');
+        err.detail = data?.detail;
+        err.status = res.status;
+        throw err;
     }
 
     if (data.user_id && typeof window !== 'undefined' && !localStorage.getItem('user_id')) {

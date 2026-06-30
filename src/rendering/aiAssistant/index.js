@@ -7,7 +7,7 @@ import DownIcon from '@/icons/downIcon';
 import { toast } from '@/components/toast';
 import { fxApi } from '@/lib/api';
 import { getStoredUserId } from '@/lib/authSession';
-import { syncCreditsAfterAction } from '@/lib/credits';
+import { syncCreditsAfterAction, notifyCreditsUpdated } from '@/lib/credits';
 import { historyDeletes } from '@/lib/historyDeletes';
 import Modal from '@/rendering/tradeSnap/Modal';
 import Loader from '@/components/loader';
@@ -317,6 +317,9 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         } catch (err) {
             const errorMessage = err?.message || "I apologize, but the FX Copilot API is currently unavailable. Please verify the endpoint or try again later.";
             setChatMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
+            if (err?.detail?.error_code === 'INSUFFICIENT_CREDITS' || err?.message?.toLowerCase().includes('insufficient credits')) {
+                notifyCreditsUpdated(0);
+            }
         } finally {
             setPendingRequest(false);
         }
@@ -672,7 +675,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                             msg.content
                                         ) : (
                                             <>
-                                                {msg.fullReport && (
+                                                {msg.fullReport ? (
                                                     <>
                                                         <div className={styles.chatMarkdown}>
                                                             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
@@ -686,6 +689,12 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                                             onDownload={(el) => handleDownloadReportContent(msg.fullReport, el, msg.visualData)}
                                                         />
                                                     </>
+                                                ) : (
+                                                    <div className={styles.chatMarkdown}>
+                                                        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                                                            {msg.content}
+                                                        </ReactMarkdown>
+                                                    </div>
                                                 )}
                                             </>
                                         )}
