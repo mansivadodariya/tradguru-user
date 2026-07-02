@@ -35,20 +35,29 @@ const Login = () => {
     const [savingPhone, setSavingPhone] = useState(false);
 
     useEffect(() => {
+        console.log('Login mount/update: pendingPhoneUserId =', pendingPhoneUserId);
+    }, [pendingPhoneUserId]);
+
+    useEffect(() => {
         const checkSession = async () => {
             const uid = getStoredUserId();
+            console.log('Login checkSession: uid =', uid);
             if (uid) {
                 const user = getStoredUser();
+                console.log('Login checkSession: user =', user);
                 if (!user?.phone_number && supabase) {
                     try {
-                        const { data } = await supabase
+                        const { data, error } = await supabase
                             .from('users')
                             .select('phone_number')
                             .eq('id', uid)
                             .single();
+                        console.log('Login checkSession: supabase data =', data, 'error =', error);
                         if (!data?.phone_number) {
+                            console.log('Login checkSession: No phone number found, setting pending uid =', uid);
                             setPendingPhoneUserId(uid);
                         } else {
+                            console.log('Login checkSession: Phone number exists:', data.phone_number);
                             if (user) {
                                 user.phone_number = data.phone_number;
                                 localStorage.setItem('user', JSON.stringify(user));
@@ -58,12 +67,17 @@ const Login = () => {
                     } catch (e) {
                         console.error('Error fetching user phone status', e);
                     }
+                } else {
+                    console.log('Login checkSession: user already has phone in session:', user?.phone_number);
+                    document.cookie = 'has_phone=true; path=/; SameSite=Lax';
+                    window.location.assign(redirectTo);
                 }
             }
         };
 
         const needPhone = searchParams?.get('need_phone');
         const queryUid = searchParams?.get('uid');
+        console.log('Login URL params: needPhone =', needPhone, 'queryUid =', queryUid);
         if (needPhone && queryUid) {
             setPendingPhoneUserId(queryUid);
         } else {

@@ -45,23 +45,23 @@ export function getStoredUserId() {
     if (typeof window === 'undefined') return '';
     try {
         const stored = localStorage.getItem('user');
-        if (stored) {
+        if (stored && stored !== 'undefined' && stored !== 'null') {
             const parsed = JSON.parse(stored);
             const id = parsed?.id || parsed?.user_id;
-            if (id) return String(id);
+            if (id && id !== 'undefined' && id !== 'null') return String(id);
         }
     } catch {
         /* ignore */
     }
     const standalone = localStorage.getItem('user_id');
-    return standalone ? String(standalone) : '';
+    return (standalone && standalone !== 'undefined' && standalone !== 'null') ? String(standalone) : '';
 }
 
 export function getStoredUser() {
     if (typeof window === 'undefined') return null;
     try {
         const stored = localStorage.getItem('user');
-        if (stored) return JSON.parse(stored);
+        if (stored && stored !== 'undefined' && stored !== 'null') return JSON.parse(stored);
     } catch {
         /* ignore */
     }
