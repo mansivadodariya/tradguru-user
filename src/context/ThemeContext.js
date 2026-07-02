@@ -12,16 +12,15 @@ export const ThemeProvider = ({ children }) => {
 
     useEffect(() => {
         const storedTheme = localStorage.getItem('theme');
-        if (storedTheme === 'dark') {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
             setTheme('dark');
             document.documentElement.classList.add('dark');
         } else {
             setTheme('light');
             document.documentElement.classList.remove('dark');
         }
-        return () => {
-            document.documentElement.classList.remove('dark');
-        };
     }, []);
 
     const toggleTheme = () => {

@@ -28,6 +28,7 @@ $bgSoft: #F5F8FE;
             color: #121212;
             margin: 0 0 4px;
         }
+
         p {
             font-size: 13px;
             color: rgba(18, 18, 18, 0.6);
@@ -60,6 +61,7 @@ $bgSoft: #F5F8FE;
         color: #10b981;
         border-color: rgba(16, 185, 129, 0.2);
         background: rgba(16, 185, 129, 0.04);
+
         .statusDot {
             background-color: #10b981;
             box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
@@ -70,6 +72,7 @@ $bgSoft: #F5F8FE;
         color: #3b82f6;
         border-color: rgba(59, 130, 246, 0.2);
         background: rgba(59, 130, 246, 0.04);
+
         .statusDot {
             background-color: #3b82f6;
             box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
@@ -81,6 +84,7 @@ $bgSoft: #F5F8FE;
         color: #ef4444;
         border-color: rgba(239, 68, 68, 0.2);
         background: rgba(239, 68, 68, 0.04);
+
         .statusDot {
             background-color: #ef4444;
             box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
@@ -89,9 +93,20 @@ $bgSoft: #F5F8FE;
 }
 
 @keyframes pulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.3); opacity: 0.5; }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.3);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 /* Controls row (Subscription & Tab Buttons) */
@@ -263,6 +278,7 @@ $bgSoft: #F5F8FE;
         color: #121212;
         margin: 0;
     }
+
     p {
         font-size: 11px;
         color: rgba(18, 18, 18, 0.5);
@@ -464,9 +480,11 @@ $bgSoft: #F5F8FE;
     &.bullishFill {
         background: #10b981;
     }
+
     &.bearishFill {
         background: #ef4444;
     }
+
     &.neutralFill {
         background: #3b82f6;
     }
@@ -615,8 +633,15 @@ $bgSoft: #F5F8FE;
 }
 
 @keyframes radarPulse {
-    0% { transform: scale(1); opacity: 0.5; }
-    100% { transform: scale(1.6); opacity: 0; }
+    0% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1.6);
+        opacity: 0;
+    }
 }
 
 /* Strategy Card Details */
@@ -972,13 +997,27 @@ $bgSoft: #F5F8FE;
 }
 
 @keyframes flashGreen {
-    0% { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); }
-    100% { border-color: rgba(18, 18, 18, 0.10); box-shadow: none; }
+    0% {
+        border-color: #10b981;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+    }
+
+    100% {
+        border-color: rgba(18, 18, 18, 0.10);
+        box-shadow: none;
+    }
 }
 
 @keyframes flashRed {
-    0% { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.15); }
-    100% { border-color: rgba(18, 18, 18, 0.10); box-shadow: none; }
+    0% {
+        border-color: #ef4444;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);
+    }
+
+    100% {
+        border-color: rgba(18, 18, 18, 0.10);
+        box-shadow: none;
+    }
 }
 
 .unifiedCard {
@@ -1116,7 +1155,8 @@ $bgSoft: #F5F8FE;
     &.bearish {
         background: rgba(239, 68, 68, 0.08);
         color: #ef4444;
-        transform: rotate(90deg); /* point arrow down */
+        transform: rotate(90deg);
+        /* point arrow down */
     }
 }
 
@@ -1142,7 +1182,7 @@ $bgSoft: #F5F8FE;
         &.disconnected {
             color: #ef4444;
         }
-        
+
         &.connecting {
             color: #0B56DB;
         }
@@ -1281,14 +1321,21 @@ $bgSoft: #F5F8FE;
     margin-top: 12px;
     align-items: start;
 
-    @media (max-width: 1200px) {
+    @include respond-to('lg') {
         grid-template-columns: 240px 1fr;
     }
 
-    @media (max-width: 900px) {
+    @include respond-to('md') {
         grid-template-columns: 1fr;
         display: flex;
         flex-direction: column;
+    }
+
+    @include respond-to('sm') {
+        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
     }
 }
 
@@ -1433,6 +1480,7 @@ $bgSoft: #F5F8FE;
         opacity: 0;
         transform: translateY(-4px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1452,11 +1500,16 @@ $bgSoft: #F5F8FE;
     height: 650px;
     overflow: hidden;
 
+    @include respond-to("sm") {
+        width: 100%;
+        height: auto;
+    }
+
     .watchlistHeader {
         display: flex;
         justify-content: space-between;
         align-items: baseline;
-        
+
         h3 {
             font-size: 16px;
             font-weight: 700;
@@ -1495,7 +1548,7 @@ $bgSoft: #F5F8FE;
         font-weight: 600;
         color: #121212;
         width: 100%;
-        
+
         &::placeholder {
             color: rgba(18, 18, 18, 0.35);
         }
@@ -1524,9 +1577,11 @@ $bgSoft: #F5F8FE;
     &::-webkit-scrollbar {
         width: 4px;
     }
+
     &::-webkit-scrollbar-track {
         background: transparent;
     }
+
     &::-webkit-scrollbar-thumb {
         background: rgba(18, 18, 18, 0.08);
         border-radius: 2px;
@@ -1558,7 +1613,7 @@ $bgSoft: #F5F8FE;
     &.activeItem {
         background: rgba(11, 86, 219, 0.05);
         border-color: rgba(11, 86, 219, 0.15);
-        
+
         .itemSymbolName {
             color: #0B56DB;
         }
@@ -1583,9 +1638,17 @@ $bgSoft: #F5F8FE;
     color: #ffffff;
     flex-shrink: 0;
 
-    &.scoreBullish { background-color: #10b981; }
-    &.scoreNeutral { background-color: #fbbf24; }
-    &.scoreBearish { background-color: #ef4444; }
+    &.scoreBullish {
+        background-color: #10b981;
+    }
+
+    &.scoreNeutral {
+        background-color: #fbbf24;
+    }
+
+    &.scoreBearish {
+        background-color: #ef4444;
+    }
 }
 
 .itemSymbolMeta {
@@ -1636,17 +1699,28 @@ $bgSoft: #F5F8FE;
 
 /* Flashing animations for rows */
 @keyframes itemFlashGreen {
-    0% { border-color: rgba(16, 185, 129); }
-    100% { border-color: transparent; }
+    0% {
+        border-color: rgba(16, 185, 129);
+    }
+
+    100% {
+        border-color: transparent;
+    }
 }
 
 @keyframes itemFlashRed {
-    0% { border-color: rgba(239, 68, 68); }
-    100% { border-color: transparent; }
+    0% {
+        border-color: rgba(239, 68, 68);
+    }
+
+    100% {
+        border-color: transparent;
+    }
 }
 
 .itemUpTick {
     animation: itemFlashGreen 0.6s ease-out;
+
     .itemPrice {
         color: #10b981;
     }
@@ -1654,6 +1728,7 @@ $bgSoft: #F5F8FE;
 
 .itemDownTick {
     animation: itemFlashRed 0.6s ease-out;
+
     .itemPrice {
         color: #ef4444;
     }
@@ -1687,6 +1762,11 @@ $bgSoft: #F5F8FE;
     align-items: center;
     gap: 8px;
 
+    @include respond-to("sm") {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
     h3 {
         font-size: 18px;
         font-weight: 700;
@@ -1703,6 +1783,10 @@ $bgSoft: #F5F8FE;
         border-radius: 4px;
         font-size: 10px;
         font-weight: 700;
+
+        @include respond-to("sm") {
+            width: fit-content;
+        }
     }
 }
 
@@ -1862,12 +1946,18 @@ $bgSoft: #F5F8FE;
     height: 650px;
     overflow-y: auto;
 
+    @include respond-to("sm") {
+        width: 100%;
+    }
+
     &::-webkit-scrollbar {
         width: 4px;
     }
+
     &::-webkit-scrollbar-track {
         background: transparent;
     }
+
     &::-webkit-scrollbar-thumb {
         background: rgba(18, 18, 18, 0.08);
         border-radius: 2px;
@@ -1918,7 +2008,9 @@ $bgSoft: #F5F8FE;
     font-weight: 700;
     cursor: pointer;
 
-    &:hover { background: #0b57e3; }
+    &:hover {
+        background: #0b57e3;
+    }
 }
 
 .analysisOverview {
@@ -1929,7 +2021,7 @@ $bgSoft: #F5F8FE;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        
+
         h4 {
             font-size: 14px;
             font-weight: 700;
@@ -2086,7 +2178,7 @@ $bgSoft: #F5F8FE;
         align-items: center;
         gap: 6px;
         color: #0B56DB;
-        
+
         h5 {
             font-size: 12px;
             font-weight: 700;
@@ -2153,19 +2245,28 @@ $bgSoft: #F5F8FE;
     &.support {
         border-color: rgba(16, 185, 129, 0.2);
         background: rgba(16, 185, 129, 0.02);
-        .levelCardValue { color: #10b981; }
+
+        .levelCardValue {
+            color: #10b981;
+        }
     }
 
     &.resistance {
         border-color: rgba(239, 68, 68, 0.2);
         background: rgba(239, 68, 68, 0.02);
-        .levelCardValue { color: #ef4444; }
+
+        .levelCardValue {
+            color: #ef4444;
+        }
     }
 
     &.pivot {
         border-color: rgba(11, 86, 219, 0.2);
         background: rgba(11, 86, 219, 0.02);
-        .levelCardValue { color: #0B56DB; }
+
+        .levelCardValue {
+            color: #0B56DB;
+        }
     }
 }
 
@@ -2261,7 +2362,8 @@ $bgSoft: #F5F8FE;
     border-collapse: collapse;
     font-size: 11px;
 
-    th, td {
+    th,
+    td {
         padding: 6px 8px;
         text-align: left;
         border-bottom: 1px solid rgba(18, 18, 18, 0.04);
@@ -2290,7 +2392,8 @@ $bgSoft: #F5F8FE;
     border-collapse: collapse;
     font-size: 10px;
 
-    th, td {
+    th,
+    td {
         padding: 6px 4px;
         text-align: right;
         border-bottom: 1px solid rgba(18, 18, 18, 0.04);
@@ -2305,7 +2408,8 @@ $bgSoft: #F5F8FE;
         text-align: right;
     }
 
-    th:first-child, td:first-child {
+    th:first-child,
+    td:first-child {
         text-align: left;
     }
 
@@ -2461,7 +2565,7 @@ $bgSoft: #F5F8FE;
     color: #64748b;
     display: inline-block;
     transition: transform 0.2s ease;
-    
+
     &.open {
         transform: rotate(180deg);
     }
@@ -2590,12 +2694,15 @@ $bgSoft: #F5F8FE;
     &.ema20 {
         background-color: #f59e0b;
     }
+
     &.ema50 {
         background-color: #3b82f6;
     }
+
     &.ema200 {
         background-color: #a855f7;
     }
+
     &.supertrend {
         background-color: #10b981;
     }
@@ -2624,6 +2731,15 @@ $bgSoft: #F5F8FE;
     cursor: pointer;
     transition: background 0.2s ease;
     gap: 12px;
+
+    @include respond-to('md') {
+        padding: 14px 16px;
+    }
+
+    @include respond-to('sm') {
+        padding: 12px 14px;
+        gap: 10px;
+    }
 
     &:hover {
         background: #f8fafc;
@@ -2702,6 +2818,22 @@ $bgSoft: #F5F8FE;
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
     padding: 16px;
+
+    @include respond-to('lg') {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include respond-to('md') {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        padding: 14px;
+    }
+
+    @include respond-to('sm') {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 12px;
+    }
 }
 
 /* Individual pair card */
@@ -2892,6 +3024,7 @@ $bgSoft: #F5F8FE;
         .progressBarTitle {
             color: #121212;
         }
+
         .subChevron {
             color: #121212;
         }
@@ -3066,14 +3199,17 @@ $bgSoft: #F5F8FE;
         border-left: 3px solid #3b82f6;
         background: linear-gradient(to right, rgba(59, 130, 246, 0.03), transparent);
     }
+
     &.momentum {
         border-left: 3px solid #a855f7;
         background: linear-gradient(to right, rgba(168, 85, 247, 0.03), transparent);
     }
+
     &.volume {
         border-left: 3px solid #f59e0b;
         background: linear-gradient(to right, rgba(245, 158, 11, 0.03), transparent);
     }
+
     &.structure {
         border-left: 3px solid #10b981;
         background: linear-gradient(to right, rgba(16, 185, 129, 0.03), transparent);
@@ -3160,6 +3296,7 @@ $bgSoft: #F5F8FE;
         color: #10b981;
         border: 1px solid rgba(16, 185, 129, 0.15);
     }
+
     &.bearish {
         background: rgba(239, 68, 68, 0.08);
         color: #ef4444;
@@ -3170,7 +3307,7 @@ $bgSoft: #F5F8FE;
 .trendHeaderText {
     display: flex;
     flex-direction: column;
-    
+
     h4 {
         font-size: 16px;
         font-weight: 700;
@@ -3216,9 +3353,17 @@ $bgSoft: #F5F8FE;
         border-radius: 50%;
         flex-shrink: 0;
 
-        &.ema20 { background-color: #f59e0b; }
-        &.ema50 { background-color: #3b82f6; }
-        &.supertrend { background-color: #10b981; }
+        &.ema20 {
+            background-color: #f59e0b;
+        }
+
+        &.ema50 {
+            background-color: #3b82f6;
+        }
+
+        &.supertrend {
+            background-color: #10b981;
+        }
     }
 }
 
@@ -3628,8 +3773,13 @@ $bgSoft: #F5F8FE;
     font-size: 10px;
     font-weight: 700;
 
-    .buyText { color: #10b981; }
-    .sellText { color: #ef4444; }
+    .buyText {
+        color: #10b981;
+    }
+
+    .sellText {
+        color: #ef4444;
+    }
 }
 
 // 7. AI Intelligence Summary Sub-elements
@@ -3700,6 +3850,7 @@ $bgSoft: #F5F8FE;
                 h2 {
                     color: #ffffff;
                 }
+
                 p {
                     color: rgba(255, 255, 255, 0.6);
                 }
@@ -3716,11 +3867,13 @@ $bgSoft: #F5F8FE;
                 border-color: rgba(16, 185, 129, 0.3);
                 background: rgba(16, 185, 129, 0.1);
             }
+
             &.connecting {
                 color: #60a5fa;
                 border-color: rgba(96, 165, 250, 0.3);
                 background: rgba(96, 165, 250, 0.1);
             }
+
             &.disconnected {
                 color: #f87171;
                 border-color: rgba(248, 113, 113, 0.3);
@@ -3738,6 +3891,7 @@ $bgSoft: #F5F8FE;
 
             .symbolInput {
                 color: #ffffff;
+
                 &::placeholder {
                     color: rgba(255, 255, 255, 0.4);
                 }
@@ -3820,6 +3974,7 @@ $bgSoft: #F5F8FE;
                 h3 {
                     color: #ffffff;
                 }
+
                 .watchlistCount {
                     color: rgba(255, 255, 255, 0.4);
                 }
@@ -3836,7 +3991,7 @@ $bgSoft: #F5F8FE;
 
             .watchlistSearchInput {
                 color: #ffffff;
-                
+
                 &::placeholder {
                     color: rgba(255, 255, 255, 0.4);
                 }
@@ -3865,7 +4020,7 @@ $bgSoft: #F5F8FE;
             &.activeItem {
                 background: rgba(11, 86, 219, 0.15);
                 border-color: rgba(11, 86, 219, 0.3);
-                
+
                 .itemSymbolName {
                     color: #60a5fa;
                 }
@@ -3884,11 +4039,11 @@ $bgSoft: #F5F8FE;
             }
         }
 
-    .loaderContainer {
-        background: #1a1a1e;
-        border-color: #2d2d34;
-        color: rgba(255, 255, 255, 0.6);
-    }
+        .loaderContainer {
+            background: #1a1a1e;
+            border-color: #2d2d34;
+            color: rgba(255, 255, 255, 0.6);
+        }
 
         .analysisPanel {
             background: #1a1a1e !important;
@@ -3937,6 +4092,7 @@ $bgSoft: #F5F8FE;
                 .progressBarTitle {
                     color: #ffffff;
                 }
+
                 .subChevron {
                     color: #ffffff;
                 }
@@ -4003,12 +4159,15 @@ $bgSoft: #F5F8FE;
             &.trend {
                 background: linear-gradient(to right, rgba(59, 130, 246, 0.1), transparent);
             }
+
             &.momentum {
                 background: linear-gradient(to right, rgba(168, 85, 247, 0.1), transparent);
             }
+
             &.volume {
                 background: linear-gradient(to right, rgba(245, 158, 11, 0.1), transparent);
             }
+
             &.structure {
                 background: linear-gradient(to right, rgba(16, 185, 129, 0.1), transparent);
             }
@@ -4206,256 +4365,284 @@ $bgSoft: #F5F8FE;
             }
         }
 
-    .unifiedCard {
-        background: #1a1a1e;
-        border-color: #2d2d34;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-
-        .symbolText h3 {
-            color: #ffffff;
-        }
-
-        .symbolText p {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .priceValue {
-            color: #ffffff;
-        }
-
-        .countdownBox {
-            background: #252529;
+        .unifiedCard {
+            background: #1a1a1e;
             border-color: #2d2d34;
-            color: rgba(255, 255, 255, 0.5);
-        }
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 
-        .timeframeRow {
-            border-top-color: #2d2d34;
-            .rowLabel {
-                color: rgba(255, 255, 255, 0.5);
-            }
-        }
-
-        .timeframeSelectors {
-            background: #252529;
-        }
-
-        .tfBtn {
-            color: #94a3b8;
-            &:hover {
+            .symbolText h3 {
                 color: #ffffff;
             }
-            &.tfActive {
-                background: #0B56DB;
-                color: #ffffff;
-            }
-        }
 
-        .strengthArea {
-            border-top-color: #2d2d34;
-        }
-
-        .strengthHeader {
-            .strengthText {
-                color: #ffffff;
-            }
-            span {
+            .symbolText p {
                 color: rgba(255, 255, 255, 0.5);
             }
-        }
 
-        .progressBackground {
-            background: #2d2d34;
-        }
-
-        .signalsArea {
-            border-top-color: #2d2d34;
-            .signalsHeaderLabel {
-                color: rgba(255, 255, 255, 0.5);
+            .priceValue {
+                color: #ffffff;
             }
-        }
 
-        .noSignalsBadge {
-            background: #252529;
-            border-color: #2d2d34;
-            color: rgba(255, 255, 255, 0.4);
-        }
-
-        .signalPill {
-            &.neutralBadge {
-                background: rgba(255, 255, 255, 0.05);
+            .countdownBox {
+                background: #252529;
                 border-color: #2d2d34;
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            .timeframeRow {
+                border-top-color: #2d2d34;
+
+                .rowLabel {
+                    color: rgba(255, 255, 255, 0.5);
+                }
+            }
+
+            .timeframeSelectors {
+                background: #252529;
+            }
+
+            .tfBtn {
                 color: #94a3b8;
+
+                &:hover {
+                    color: #ffffff;
+                }
+
+                &.tfActive {
+                    background: #0B56DB;
+                    color: #ffffff;
+                }
             }
-        }
-    }
 
-    .noTradeCard {
-        background: #1a1a1e;
-        border-color: #2d2d34;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-
-        h4 {
-            color: #ffffff;
-        }
-
-        p {
-            color: rgba(255, 255, 255, 0.5);
-        }
-    }
-
-    .strategyCard {
-        background: #1a1a1e;
-        border-color: #2d2d34;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-
-        .strategyTitleRow {
-            h3 {
-                color: #ffffff;
+            .strengthArea {
+                border-top-color: #2d2d34;
             }
-            .timeTag {
+
+            .strengthHeader {
+                .strengthText {
+                    color: #ffffff;
+                }
+
+                span {
+                    color: rgba(255, 255, 255, 0.5);
+                }
+            }
+
+            .progressBackground {
+                background: #2d2d34;
+            }
+
+            .signalsArea {
+                border-top-color: #2d2d34;
+
+                .signalsHeaderLabel {
+                    color: rgba(255, 255, 255, 0.5);
+                }
+            }
+
+            .noSignalsBadge {
+                background: #252529;
+                border-color: #2d2d34;
                 color: rgba(255, 255, 255, 0.4);
             }
-        }
 
-        .strategyHeader {
-            border-bottom-color: #2d2d34;
-        }
-    }
-
-    .levelsCard {
-        background: #252529;
-        border-color: #2d2d34;
-
-        .levelItem {
-            border-bottom-color: #2d2d34;
-            .levelLabel {
-                color: rgba(255, 255, 255, 0.5);
+            .signalPill {
+                &.neutralBadge {
+                    background: rgba(255, 255, 255, 0.05);
+                    border-color: #2d2d34;
+                    color: #94a3b8;
+                }
             }
-            .levelValue {
+        }
+
+        .noTradeCard {
+            background: #1a1a1e;
+            border-color: #2d2d34;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+            h4 {
                 color: #ffffff;
             }
-        }
-    }
 
-    .confluenceBox {
-        border-color: #2d2d34;
-        .confluenceStats {
-            .confKicker {
+            p {
                 color: rgba(255, 255, 255, 0.5);
             }
-            .confItem {
-                color: rgba(255, 255, 255, 0.8);
-            }
-        }
-    }
-
-    // Chart Panel specific dark theme support
-    .chartPanel {
-        background: #1a1a1e;
-        border-color: #2d2d34;
-
-        .chartPanelHeader {
-            border-bottom-color: #2d2d34;
-            .chartTitleArea h3 {
-                color: #ffffff;
-            }
         }
 
-        .chartCanvasContainer {
-            background: #0f0f11;
-            .chartOverlay {
-                background: rgba(15, 15, 17, 0.7);
-                span {
+        .strategyCard {
+            background: #1a1a1e;
+            border-color: #2d2d34;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+            .strategyTitleRow {
+                h3 {
+                    color: #ffffff;
+                }
+
+                .timeTag {
+                    color: rgba(255, 255, 255, 0.4);
+                }
+            }
+
+            .strategyHeader {
+                border-bottom-color: #2d2d34;
+            }
+        }
+
+        .levelsCard {
+            background: #252529;
+            border-color: #2d2d34;
+
+            .levelItem {
+                border-bottom-color: #2d2d34;
+
+                .levelLabel {
+                    color: rgba(255, 255, 255, 0.5);
+                }
+
+                .levelValue {
                     color: #ffffff;
                 }
             }
         }
 
-        .chartLegendContainer {
-            background: #1a1a1e;
-            border-top-color: #2d2d34;
-            .chartLegend {
-                color: #94a3b8;
+        .confluenceBox {
+            border-color: #2d2d34;
+
+            .confluenceStats {
+                .confKicker {
+                    color: rgba(255, 255, 255, 0.5);
+                }
+
+                .confItem {
+                    color: rgba(255, 255, 255, 0.8);
+                }
             }
         }
-    }
 
-    .strategyAccordion {
-        border-color: #2d2d34;
-        background: #1a1a1e;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    }
+        // Chart Panel specific dark theme support
+        .chartPanel {
+            background: #1a1a1e;
+            border-color: #2d2d34;
 
-    .accordionTrigger {
-        background: #1a1a1e;
+            .chartPanelHeader {
+                border-bottom-color: #2d2d34;
 
-        &:hover {
-            background: #252529;
+                .chartTitleArea h3 {
+                    color: #ffffff;
+                }
+            }
+
+            .chartCanvasContainer {
+                background: #0f0f11;
+
+                .chartOverlay {
+                    background: rgba(15, 15, 17, 0.7);
+
+                    span {
+                        color: #ffffff;
+                    }
+                }
+            }
+
+            .chartLegendContainer {
+                background: #1a1a1e;
+                border-top-color: #2d2d34;
+
+                .chartLegend {
+                    color: #94a3b8;
+                }
+            }
         }
 
-        &.accordionOpen {
-            background: #252529;
-            border-bottom-color: #2d2d34;
-        }
-    }
-
-    .accordionTitle {
-        color: #ffffff;
-    }
-
-    .accordionBadge {
-        background: rgba(96, 165, 250, 0.15);
-        color: #60a5fa;
-    }
-
-    .accordionWsBadge {
-        &.connected {
-            color: #10b981;
-            background: rgba(16, 185, 129, 0.08);
-            border-color: rgba(16, 185, 129, 0.2);
+        .strategyAccordion {
+            border-color: #2d2d34;
+            background: #1a1a1e;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
 
-        &.connecting {
-            color: #3b82f6;
-            background: rgba(59, 130, 246, 0.08);
-            border-color: rgba(59, 130, 246, 0.2);
+        .accordionTrigger {
+            background: #1a1a1e;
+
+            &:hover {
+                background: #252529;
+            }
+
+            &.accordionOpen {
+                background: #252529;
+                border-bottom-color: #2d2d34;
+            }
         }
 
-        &.disconnected {
-            color: #94a3b8;
-            background: rgba(148, 163, 184, 0.08);
-            border-color: rgba(148, 163, 184, 0.2);
-        }
-    }
-
-    .pairCard {
-        border-color: #2d2d34;
-        background: #1a1a1e;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-
-        &:hover {
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
-            background: #252529;
-        }
-
-        &.activeBuy {
-            border-left-color: #10b981;
-            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);
-        }
-
-        &.activeSell {
-            border-left-color: #ef4444;
-            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.15);
-        }
-
-        h4 {
+        .accordionTitle {
             color: #ffffff;
         }
 
-        .levelsCard {
-            background: #252529 !important;
-            border-color: #2d2d34 !important;
+        .accordionBadge {
+            background: rgba(96, 165, 250, 0.15);
+            color: #60a5fa;
+        }
+
+        .accordionWsBadge {
+            &.connected {
+                color: #10b981;
+                background: rgba(16, 185, 129, 0.08);
+                border-color: rgba(16, 185, 129, 0.2);
+            }
+
+            &.connecting {
+                color: #3b82f6;
+                background: rgba(59, 130, 246, 0.08);
+                border-color: rgba(59, 130, 246, 0.2);
+            }
+
+            &.disconnected {
+                color: #94a3b8;
+                background: rgba(148, 163, 184, 0.08);
+                border-color: rgba(148, 163, 184, 0.2);
+            }
+        }
+
+        .pairCard {
+            border-color: #2d2d34;
+            background: #1a1a1e;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+            &:hover {
+                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+                background: #252529;
+            }
+
+            &.activeBuy {
+                border-left-color: #10b981;
+                box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);
+            }
+
+            &.activeSell {
+                border-left-color: #ef4444;
+                box-shadow: 0 4px 16px rgba(239, 68, 68, 0.15);
+            }
+
+            h4 {
+                color: #ffffff;
+            }
+
+            .levelsCard {
+                background: #252529 !important;
+                border-color: #2d2d34 !important;
+            }
+
+            .inactiveMessage {
+                background: #252529 !important;
+                border-color: #2d2d34 !important;
+                color: rgba(255, 255, 255, 0.5) !important;
+            }
+
+            .directionBadge.holdColor,
+            .holdBadge {
+                background-color: #252529 !important;
+                color: #94a3b8 !important;
+                border-color: #2d2d34 !important;
+            }
         }
 
         .inactiveMessage {
@@ -4463,20 +4650,5 @@ $bgSoft: #F5F8FE;
             border-color: #2d2d34 !important;
             color: rgba(255, 255, 255, 0.5) !important;
         }
-
-        .directionBadge.holdColor,
-        .holdBadge {
-            background-color: #252529 !important;
-            color: #94a3b8 !important;
-            border-color: #2d2d34 !important;
-        }
-    }
-
-    .inactiveMessage {
-        background: #252529 !important;
-        border-color: #2d2d34 !important;
-        color: rgba(255, 255, 255, 0.5) !important;
     }
 }
-}
-

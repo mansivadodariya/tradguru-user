@@ -43,6 +43,16 @@
                 border-bottom: 1.5px solid #f0f4f9;
                 flex-shrink: 0;
 
+                @include respond-to('md') {
+                    padding: 14px 16px;
+                }
+
+                @include respond-to('sm') {
+                    padding: 12px 14px;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                }
+
                 .avatar {
                     width: 40px;
                     height: 40px;
@@ -87,6 +97,17 @@
                     align-items: center;
                     gap: 10px;
 
+                    @include respond-to('sm') {
+                        margin-left: 0;
+                        width: 100%;
+                        justify-content: space-between;
+
+                        button {
+                            flex: 1;
+                            justify-content: center;
+                        }
+                    }
+
                     .historyBtn {
                         background: #fff;
                         border: 1px solid rgba(15, 92, 242, 0.3);
@@ -115,6 +136,15 @@
                 display: flex;
                 flex-direction: column;
                 gap: 20px;
+
+                @include respond-to('md') {
+                    padding: 16px;
+                }
+
+                @include respond-to('sm') {
+                    padding: 12px 14px;
+                    gap: 16px;
+                }
 
                 &::-webkit-scrollbar {
                     width: 8px;
@@ -170,9 +200,17 @@
                     width: fit-content;
                     position: relative;
 
+                    @include respond-to('sm') {
+                        max-width: 95%;
+                    }
+
                     &.reportRow {
                         max-width: 80%;
                         width: 100%;
+
+                        @include respond-to('sm') {
+                            max-width: 100%;
+                        }
 
                         .assistantMessage {
                             width: 100%;
@@ -347,6 +385,10 @@
             padding-bottom: 4px;
             flex-shrink: 0;
 
+            @include respond-to('md') {
+                padding-bottom: 8px;
+            }
+
             &::-webkit-scrollbar {
                 height: 4px;
             }
@@ -394,6 +436,15 @@
             gap: 12px;
             box-shadow: 0 4px 12px rgba(15, 92, 242, 0.05);
             flex-shrink: 0;
+
+            @include respond-to('md') {
+                padding: 10px 14px;
+            }
+
+            @include respond-to('sm') {
+                padding: 10px 12px;
+                gap: 10px;
+            }
 
             .textarea {
                 width: 100%;
