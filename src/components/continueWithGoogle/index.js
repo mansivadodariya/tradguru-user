@@ -9,10 +9,14 @@ import {
     isGooglePendingApproval,
 } from '@/lib/authSession';
 import { toast } from '@/components/toast';
+import { supabase } from '@/lib/supabaseClient';
+import PhoneInput from '@/components/phoneInput';
+import Button from '@/components/button';
+import { isValidPhoneNumber } from 'react-phone-number-input';
 
 const GoogleIcon = '/assets/icons/google.svg';
 
-const ContinueWithGoogle = ({ redirectTo = '/dashboard' }) => {
+const ContinueWithGoogle = ({ redirectTo = '/dashboard', onPendingPhone }) => {
     const router = useRouter();
     const [error, setError] = useState('');
     const [pending, setPending] = useState(false);
@@ -20,6 +24,13 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard' }) => {
     const initialized = useRef(false);
     const btnContainerRef = useRef(null);
     const redirectRef = useRef(redirectTo);
+
+    // States for phone number step (fallback if no onPendingPhone prop is passed)
+    const [showPhoneModal, setShowPhoneModal] = useState(false);
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [phoneError, setPhoneError] = useState('');
+    const [savingPhone, setSavingPhone] = useState(false);
+    const [userId, setUserId] = useState('');
 
     redirectRef.current = redirectTo;
 
@@ -40,6 +51,41 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard' }) => {
             const accessToken = extractAccessToken(result);
 
             if (accessToken) {
+                const data = result?.data ?? result ?? {};
+                const uId = String(data.user_id || data.user?.id || data.user?.user_id || '').trim();
+                
+                let hasPhone = false;
+                let userPhone = data.user?.phone_number || data.phone_number;
+
+                if (!userPhone && supabase && uId) {
+                    try {
+                        const { data: dbUser } = await supabase
+                            .from('users')
+                            .select('phone_number')
+                            .eq('id', uId)
+                            .single();
+                        userPhone = dbUser?.phone_number;
+                    } catch (e) {
+                        console.error('Error checking phone number', e);
+                    }
+                }
+
+                if (userPhone) {
+                    hasPhone = true;
+                }
+
+                if (!hasPhone) {
+                    // Persist session first so supabase client calls can be authenticated
+                    persistAuthSession(result);
+                    if (onPendingPhone) {
+                        onPendingPhone(uId);
+                    } else {
+                        setUserId(uId);
+                        setShowPhoneModal(true);
+                    }
+                    return;
+                }
+
                 persistAuthSession(result);
                 const target = redirectRef.current || '/dashboard';
                 // Hard navigation ensures middleware sees auth cookie immediately
@@ -72,6 +118,64 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard' }) => {
             );
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSavePhoneNumber = async (e) => {
+        if (e) e.preventDefault();
+
+        if (!phoneNumber) {
+            setPhoneError('Phone number is required.');
+            return;
+        }
+
+        if (!isValidPhoneNumber(phoneNumber)) {
+            setPhoneError('Enter a valid phone number.');
+            return;
+        }
+
+        setSavingPhone(true);
+        setPhoneError('');
+
+        try {
+            if (!supabase) {
+                throw new Error('Database client is not initialized.');
+            }
+
+            const { error: updateErr } = await supabase
+                .from('users')
+                .update({ phone_number: phoneNumber })
+                .eq('id', userId);
+
+            if (updateErr) throw updateErr;
+
+            // Update user in localStorage
+            if (typeof window !== 'undefined') {
+                const stored = localStorage.getItem('user');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    parsed.phone_number = phoneNumber;
+                    localStorage.setItem('user', JSON.stringify(parsed));
+                }
+                window.dispatchEvent(new CustomEvent('user:updated'));
+            }
+
+            toast.success('Phone number saved successfully!');
+            setShowPhoneModal(false);
+
+            const target = redirectRef.current || '/dashboard';
+            if (typeof window !== 'undefined') {
+                window.location.assign(target);
+            } else {
+                router.replace(target);
+                router.refresh();
+            }
+        } catch (err) {
+            console.error('Failed to save phone number:', err);
+            setPhoneError(err.message || 'Failed to save phone number.');
+            toast.error(err.message || 'Failed to save phone number.');
+        } finally {
+            setSavingPhone(false);
         }
     };
 
@@ -160,6 +264,40 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard' }) => {
                     aria-busy={loading}
                 />
             </div>
+
+            {showPhoneModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modalContent}>
+                        <div className={styles.logoWrapper}>
+                            <img src="/assets/icons/auth.svg" alt="Logo" className={styles.logo} />
+                        </div>
+                        <h3>Complete Your Profile</h3>
+                        <p className={styles.modalSub}>Please enter your phone number to continue.</p>
+                        
+                        <form onSubmit={handleSavePhoneNumber} noValidate>
+                            <PhoneInput
+                                label="Phone Number"
+                                value={phoneNumber}
+                                onChange={(val) => {
+                                    setPhoneNumber(val || '');
+                                    setPhoneError('');
+                                }}
+                                placeholder="Enter phone number"
+                                error={phoneError}
+                                defaultCountry="IN"
+                            />
+                            <div className={styles.modalActions}>
+                                <Button
+                                    text={savingPhone ? 'Saving...' : 'Continue'}
+                                    type="submit"
+                                    disabled={savingPhone}
+                                    fullWidth
+                                />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

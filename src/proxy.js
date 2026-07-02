@@ -21,9 +21,16 @@ export function proxy(request) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("auth_token")?.value;
   const isLoggedIn = Boolean(token);
+  const hasPhone = request.cookies.get("has_phone")?.value === "true";
 
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
   const isAuthRoute = AUTH_ROUTES.some((p) => pathname.startsWith(p));
+
+  if (isProtected && isLoggedIn && !hasPhone) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("need_phone", "true");
+    return NextResponse.redirect(loginUrl);
+  }
 
   if (isProtected && !isLoggedIn) {
     const loginUrl = new URL("/login", request.url);
@@ -32,7 +39,10 @@ export function proxy(request) {
   }
 
   if (isAuthRoute && isLoggedIn) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    if (hasPhone) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    return NextResponse.next();
   }
 
   return NextResponse.next();

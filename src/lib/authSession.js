@@ -103,7 +103,11 @@ export function persistAuthSession(payload) {
         first_name: user.first_name || data.first_name || nameParts[0] || '',
         last_name: user.last_name || data.last_name || nameParts.slice(1).join(' ') || '',
         email: user.email || data.email || '',
+        phone_number: user.phone_number || data.phone_number || '',
     };
+
+    const hasPhone = Boolean(sessionUser.phone_number);
+    document.cookie = `has_phone=${hasPhone}; path=/; SameSite=Lax`;
 
     localStorage.setItem('user', JSON.stringify(sessionUser));
     window.dispatchEvent(new CustomEvent('user:updated'));
@@ -117,4 +121,5 @@ export function clearAuthSession() {
     localStorage.removeItem('user');
     localStorage.removeItem('user_id');
     document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    document.cookie = 'has_phone=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
 }
