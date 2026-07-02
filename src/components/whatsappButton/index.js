@@ -33,8 +33,9 @@ export default function WhatsappButton() {
     }
 
     // Fake placeholder WhatsApp number - user will replace this
-    const whatsappNumber = "1234567890"; 
-    const whatsappUrl = `https://wa.me/${whatsappNumber}`;
+    const whatsappNumber = "+971568840900"; 
+    const sanitizedWhatsappNumber = whatsappNumber.replace(/[^\d]/g, "");
+    const whatsappUrl = `https://wa.me/${sanitizedWhatsappNumber}`;
 
     return (
         <motion.div 
