@@ -293,7 +293,7 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard', onPendingPhone }) => {
                                 }}
                                 placeholder="Enter phone number"
                                 error={phoneError}
-                                defaultCountry="IN"
+                                defaultCountry="AE"
                             />
                             <div className={styles.modalActions}>
                                 <Button

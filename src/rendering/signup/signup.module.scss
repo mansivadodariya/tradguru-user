@@ -223,11 +223,25 @@
                     font-weight: 600;
                 }
 
-                @include respond-to('sm') {
-                    font-size: 12px;
-                    line-height: 18px;
-                    padding: 8px 12px;
                 }
+        }
+
+        .backBtn {
+            background: none;
+            border: none;
+            color: rgba(26, 26, 26, 0.55);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            padding: 8px 0 0 0;
+            transition: color 0.2s ease, text-decoration 0.2s ease;
+            width: 100%;
+            display: block;
+
+            &:hover {
+                color: #0B56DB;
+                text-decoration: underline;
             }
         }
     }

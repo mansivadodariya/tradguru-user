@@ -103,9 +103,9 @@ export default function Footer() {
                 <div className={styles.topSection}>
                     {/* Brand/Logo column */}
                     <div className={styles.brandCol}>
-                        <a href="#" className={styles.logo}>
+                        <Link href="/" className={styles.logo}>
                             <img src={FooterLogo} alt="Trader Master Logo" />
-                        </a>
+                        </Link>
                         <p>
                             AI-powered Forex intelligence for serious traders. Chart reading,
                             trade analysis, and strategy generation — built around MT5 and the

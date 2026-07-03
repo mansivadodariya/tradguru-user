@@ -26,7 +26,7 @@ export default function PhoneInput({
     disabled = false,
     ...rest
 }) {
-    const [country, setCountry] = useState('IN');
+    const [country, setCountry] = useState('AE');
     const [internalError, setInternalError] = useState('');
 
     function handleChange(val) {
@@ -51,10 +51,10 @@ export default function PhoneInput({
             <div className={`${styles.wrapper} ${displayError ? styles.hasError : ''} ${disabled ? styles.disabled : ''}`}>
                 <PhoneInputLib
                     international
-                    defaultCountry="IN"
+                    defaultCountry="AE"
                     country={country}
                     onCountryChange={(c) => {
-                        setCountry(c || 'IN');
+                        setCountry(c || 'AE');
                         // re-validate if a value already exists
                         if (value && internalError) setInternalError('');
                     }}

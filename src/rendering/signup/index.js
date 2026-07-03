@@ -8,7 +8,7 @@ import Input from '@/components/input';
 import PhoneInput from '@/components/phoneInput';
 import Button from '@/components/button';
 import ContinueWithGoogle from '@/components/continueWithGoogle';
-import { getAuthRedirectTarget, getStoredUser, getStoredUserId } from '@/lib/authSession';
+import { getAuthRedirectTarget, getStoredUser, getStoredUserId, clearAuthSession } from '@/lib/authSession';
 import { useSearchParams } from 'next/navigation';
 import { authApi } from '@/lib/api';
 import { validateSignup } from '@/lib/validation';
@@ -57,36 +57,46 @@ const Signup = () => {
             const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
             const hasCookie = typeof document !== 'undefined' && document.cookie.split(';').some(c => c.trim().startsWith('auth_token='));
             console.log('Signup checkSession: uid =', uid, 'token =', token, 'hasCookie =', hasCookie);
-            if (uid && token && hasCookie) {
-                const user = getStoredUser();
-                console.log('Signup checkSession: user =', user);
-                if (!user?.phone_number && supabase) {
-                    try {
-                        const { data, error } = await supabase
-                            .from('users')
-                            .select('phone_number')
-                            .eq('id', uid)
-                            .single();
-                        console.log('Signup checkSession: supabase data =', data, 'error =', error);
-                        if (!data?.phone_number) {
-                            console.log('Signup checkSession: No phone number found, setting pending uid =', uid);
-                            setPendingPhoneUserId(uid);
-                        } else {
-                            console.log('Signup checkSession: Phone number exists:', data.phone_number);
-                            if (user) {
-                                user.phone_number = data.phone_number;
-                                localStorage.setItem('user', JSON.stringify(user));
-                            }
-                            document.cookie = 'has_phone=true; path=/; SameSite=Lax';
-                            window.location.assign(redirectTo);
-                        }
-                    } catch (e) {
-                        console.error('Error fetching user phone status', e);
+            if (uid && token && hasCookie && supabase) {
+                try {
+                    const { data, error } = await supabase
+                        .from('users')
+                        .select('phone_number, is_active')
+                        .eq('id', uid)
+                        .single();
+
+                    console.log('Signup checkSession: supabase data =', data, 'error =', error);
+
+                    // User deleted/not found
+                    if (error || !data) {
+                        clearAuthSession();
+                        toast.error('Your account has been deleted. Please contact admin.');
+                        return;
                     }
-                } else {
-                    console.log('Signup checkSession: user already has phone in session:', user?.phone_number);
-                    document.cookie = 'has_phone=true; path=/; SameSite=Lax';
-                    window.location.assign(redirectTo);
+
+                    // User inactive
+                    if (data.is_active === false) {
+                        clearAuthSession();
+                        toast.error('Your account is inactive. Please contact admin.');
+                        return;
+                    }
+
+                    const user = getStoredUser();
+
+                    if (!user?.phone_number && !data?.phone_number) {
+                        console.log('Signup checkSession: No phone number found, setting pending uid =', uid);
+                        setPendingPhoneUserId(uid);
+                    } else {
+                        console.log('Signup checkSession: Phone number exists:', data?.phone_number || user?.phone_number);
+                        if (user) {
+                            user.phone_number = data?.phone_number || user?.phone_number || '';
+                            localStorage.setItem('user', JSON.stringify(user));
+                        }
+                        document.cookie = 'has_phone=true; path=/; SameSite=Lax';
+                        window.location.assign(redirectTo);
+                    }
+                } catch (e) {
+                    console.error('Error fetching user status', e);
                 }
             }
         };
@@ -245,7 +255,7 @@ const Signup = () => {
                                         }}
                                         placeholder="Phone number"
                                         error={phoneError}
-                                        defaultCountry="IN"
+                                        defaultCountry="AE"
                                     />
                                     <Button
                                         text={savingPhone ? 'Saving...' : 'Continue'}
@@ -253,6 +263,16 @@ const Signup = () => {
                                         disabled={savingPhone}
                                         icon={ArrowIcon}
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            clearAuthSession();
+                                            window.location.assign('/');
+                                        }}
+                                        className={styles.backBtn}
+                                    >
+                                        Back to Home
+                                    </button>
                                 </div>
                             </form>
                         </>
@@ -275,7 +295,7 @@ const Signup = () => {
                                         value={form.phone_number}
                                         onChange={setPhone}
                                         error={errors.phone_number}
-                                        defaultCountry="IN"
+                                        defaultCountry="AE"
                                     />
                                     <div className={styles.twoCol}>
                                         <Input icon={Lock} placeholder="Password" type="password" name="password" value={form.password} onChange={set('password')} error={errors.password} maxLength={50} />
