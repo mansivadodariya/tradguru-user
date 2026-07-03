@@ -41,8 +41,10 @@ const Login = () => {
     useEffect(() => {
         const checkSession = async () => {
             const uid = getStoredUserId();
-            console.log('Login checkSession: uid =', uid);
-            if (uid) {
+            const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+            const hasCookie = typeof document !== 'undefined' && document.cookie.split(';').some(c => c.trim().startsWith('auth_token='));
+            console.log('Login checkSession: uid =', uid, 'token =', token, 'hasCookie =', hasCookie);
+            if (uid && token && hasCookie) {
                 const user = getStoredUser();
                 console.log('Login checkSession: user =', user);
                 if (!user?.phone_number && supabase) {
@@ -62,6 +64,7 @@ const Login = () => {
                                 user.phone_number = data.phone_number;
                                 localStorage.setItem('user', JSON.stringify(user));
                             }
+                            document.cookie = 'has_phone=true; path=/; SameSite=Lax';
                             window.location.assign(redirectTo);
                         }
                     } catch (e) {

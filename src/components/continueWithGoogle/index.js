@@ -54,6 +54,9 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard', onPendingPhone }) => {
                 const data = result?.data ?? result ?? {};
                 const uId = String(data.user_id || data.user?.id || data.user?.user_id || '').trim();
                 
+                // Persist session first so supabase client calls / cookie verification works
+                persistAuthSession(result);
+
                 let hasPhone = false;
                 let userPhone = data.user?.phone_number || data.phone_number;
 
@@ -72,11 +75,19 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard', onPendingPhone }) => {
 
                 if (userPhone) {
                     hasPhone = true;
+                    // Update user in localStorage and cookies since we found it in supabase
+                    if (typeof window !== 'undefined') {
+                        const stored = localStorage.getItem('user');
+                        if (stored) {
+                            const parsed = JSON.parse(stored);
+                            parsed.phone_number = userPhone;
+                            localStorage.setItem('user', JSON.stringify(parsed));
+                        }
+                        document.cookie = 'has_phone=true; path=/; SameSite=Lax';
+                    }
                 }
 
                 if (!hasPhone) {
-                    // Persist session first so supabase client calls can be authenticated
-                    persistAuthSession(result);
                     if (onPendingPhone) {
                         onPendingPhone(uId);
                     } else {
@@ -85,8 +96,6 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard', onPendingPhone }) => {
                     }
                     return;
                 }
-
-                persistAuthSession(result);
                 const target = redirectRef.current || '/dashboard';
                 // Hard navigation ensures middleware sees auth cookie immediately
                 if (typeof window !== 'undefined') {

@@ -7,12 +7,11 @@ const DEFAULT_ROLE_ID = '44b71348-74d5-42ef-831a-be7c2da4882e';
 // Prevent multiple simultaneous refresh calls
 let refreshPromise = null;
 
+import { clearAuthSession } from '@/lib/authSession';
+
 function clearAuthAndRedirect() {
     if (typeof window === 'undefined') return;
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
-    document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    clearAuthSession();
     window.dispatchEvent(new CustomEvent('auth:unauthorized'));
 }
 
