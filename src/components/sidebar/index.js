@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import styles from "./sidebar.module.scss";
@@ -63,11 +63,16 @@ function isNavItemActive(pathname, href) {
 
 const NavItem = ({ item, pathname, onNavigate }) => {
   const Icon = item.icon;
+  const router = useRouter();
   const isParentActive = isNavItemActive(pathname, item.href);
   const isAnySubActive = item.subItems?.some(sub => isNavItemActive(pathname, sub.href));
   const isActive = isParentActive || isAnySubActive;
   
   const [isOpen, setIsOpen] = useState(isActive);
+
+  useEffect(() => {
+    setIsOpen(isActive);
+  }, [isActive]);
 
   if (item.subItems) {
     return (
@@ -75,7 +80,13 @@ const NavItem = ({ item, pathname, onNavigate }) => {
         <div
           className={styles.menu}
           data-active={isActive ? 'true' : undefined}
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => {
+            setIsOpen(!isOpen);
+            if (item.subItems && item.subItems.length > 0) {
+              router.push(item.subItems[0].href);
+              onNavigate?.();
+            }
+          }}
         >
           <div className={styles.icon}>
             <Icon />

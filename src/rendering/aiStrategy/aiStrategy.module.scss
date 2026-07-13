@@ -4503,6 +4503,18 @@ $bgSoft: #F5F8FE;
                     color: #ffffff;
                 }
             }
+
+            .gridLevelRow {
+                border-bottom-color: #2d2d34;
+
+                .gridLevelLabel {
+                    color: rgba(255, 255, 255, 0.5);
+                }
+
+                .gridLevelValue {
+                    color: #ffffff;
+                }
+            }
         }
 
         .confluenceBox {
@@ -4529,6 +4541,10 @@ $bgSoft: #F5F8FE;
 
                 .chartTitleArea h3 {
                     color: #ffffff;
+                }
+
+                .ohlcLabel {
+                    color: rgba(255, 255, 255, 0.45);
                 }
             }
 
@@ -4649,6 +4665,16 @@ $bgSoft: #F5F8FE;
             background: #252529 !important;
             border-color: #2d2d34 !important;
             color: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .strategyReasoning {
+            .reasoningLabel {
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            p {
+                color: rgba(255, 255, 255, 0.75);
+            }
         }
     }
 }

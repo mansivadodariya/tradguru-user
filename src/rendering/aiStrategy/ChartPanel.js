@@ -49,7 +49,6 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
         candles: [],
         ema20Map: new Map(),
         ema50Map: new Map(),
-        ema200Map: new Map(),
         supertrendMap: new Map()
     });
 
@@ -97,7 +96,6 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
             const volumeData = [];
             const ema20Data = [];
             const ema50Data = [];
-            const ema200Data = [];
             const supertrendData = [];
 
             candlesList.forEach((c) => {
@@ -128,9 +126,6 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
                 if (c.ema50 !== null && c.ema50 !== undefined) {
                     ema50Data.push({ time: ts, value: c.ema50 });
                 }
-                if (c.ema200 !== null && c.ema200 !== undefined) {
-                    ema200Data.push({ time: ts, value: c.ema200 });
-                }
                 if (c.supertrend_value !== null && c.supertrend_value !== undefined) {
                     supertrendData.push({
                         time: ts,
@@ -145,24 +140,20 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
             series.volume.setData(volumeData);
             series.ema20.setData(ema20Data);
             series.ema50.setData(ema50Data);
-            series.ema200.setData(ema200Data);
             series.supertrend.setData(supertrendData);
 
             const ema20Map = new Map();
             const ema50Map = new Map();
-            const ema200Map = new Map();
             const supertrendMap = new Map();
 
             ema20Data.forEach(d => ema20Map.set(d.time, d.value));
             ema50Data.forEach(d => ema50Map.set(d.time, d.value));
-            ema200Data.forEach(d => ema200Map.set(d.time, d.value));
             supertrendData.forEach(d => supertrendMap.set(d.time, d));
 
             chartDataRef.current = {
                 candles: candleData,
                 ema20Map,
                 ema50Map,
-                ema200Map,
                 supertrendMap
             };
 
@@ -176,7 +167,6 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
                 const t = lastCandle.time;
                 const lastEma20 = ema20Map.get(t);
                 const lastEma50 = ema50Map.get(t);
-                const lastEma200 = ema200Map.get(t);
                 const lastSupertrend = supertrendMap.get(t);
 
                 setPriceInfo({
@@ -189,7 +179,6 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
                     changePct,
                     ema20: lastEma20,
                     ema50: lastEma50,
-                    ema200: lastEma200,
                     supertrend: lastSupertrend?.value,
                     supertrendColor: lastSupertrend?.color
                 });
@@ -309,14 +298,6 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
             crosshairMarkerVisible: false,
         });
 
-        const ema200Series = chart.addSeries(LineSeries, {
-            color: '#a855f7',
-            lineWidth: 1.5,
-            priceLineVisible: false,
-            lastValueVisible: false,
-            crosshairMarkerVisible: false,
-        });
-
         const supertrendSeries = chart.addSeries(LineSeries, {
             lineWidth: 2,
             priceLineVisible: false,
@@ -331,7 +312,6 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
                 volume: volumeSeries,
                 ema20: ema20Series,
                 ema50: ema50Series,
-                ema200: ema200Series,
                 supertrend: supertrendSeries,
             },
             priceLines: [],
@@ -372,7 +352,6 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
 
                 const ema20 = data.ema20Map.get(t);
                 const ema50 = data.ema50Map.get(t);
-                const ema200 = data.ema200Map.get(t);
                 const supertrendObj = data.supertrendMap.get(t);
 
                 setHoveredData({
@@ -385,7 +364,6 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
                     isBullish: close >= open,
                     ema20,
                     ema50,
-                    ema200,
                     supertrend: supertrendObj?.value,
                     supertrendColor: supertrendObj?.color
                 });
@@ -405,10 +383,6 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
                     if (ema50 !== undefined && ema50 !== null) {
                         const y = seriesInstance.ema50.priceToCoordinate(ema50);
                         if (y !== null) positions.ema50 = { x, y, color: '#3b82f6' };
-                    }
-                    if (ema200 !== undefined && ema200 !== null) {
-                        const y = seriesInstance.ema200.priceToCoordinate(ema200);
-                        if (y !== null) positions.ema200 = { x, y, color: '#a855f7' };
                     }
                     if (supertrendObj?.value !== undefined && supertrendObj?.value !== null) {
                         const y = seriesInstance.supertrend.priceToCoordinate(supertrendObj.value);
@@ -503,7 +477,6 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
 
     const displayEma20 = hoveredData ? hoveredData.ema20 : activePrice?.ema20;
     const displayEma50 = hoveredData ? hoveredData.ema50 : activePrice?.ema50;
-    const displayEma200 = hoveredData ? hoveredData.ema200 : activePrice?.ema200;
     const displaySupertrend = hoveredData ? hoveredData.supertrend : activePrice?.supertrend;
     const displaySupertrendColor = hoveredData ? hoveredData.supertrendColor : activePrice?.supertrendColor;
 
@@ -595,11 +568,6 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
                     <div className={styles.legendItem}>
                         <span className={`${styles.legendColor} ${styles.ema50}`} />
                         <span>EMA 50 </span>
-
-                    </div>
-                    <div className={styles.legendItem}>
-                        <span className={`${styles.legendColor} ${styles.ema200}`} />
-                        <span>EMA 200 </span>
 
                     </div>
                     <div className={styles.legendItem}>
