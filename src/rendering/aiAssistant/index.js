@@ -722,27 +722,27 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                     <div className={styles.chipsRow}>
                         <button
                             className={styles.chip}
-                            onClick={() => handleSuggestionClick("Is EUR/USD a buy at current level on H4?", "EUR/USD")}
+                            onClick={() => handleSuggestionClick(`Is ${selectedPair} a buy at current level on H4?`, selectedPair)}
                         >
-                            Analyze EUR/USD on H4
+                            Analyze {selectedPair} on H4
                         </button>
                         <button
                             className={styles.chip}
-                            onClick={() => handleSuggestionClick("What is the current technical trend for GBP/USD?", "GBP/USD")}
+                            onClick={() => handleSuggestionClick(`What is the current technical trend for ${selectedPair}?`, selectedPair)}
                         >
-                            GBP/USD Trend Analysis
+                            {selectedPair} Trend Analysis
                         </button>
                         <button
                             className={styles.chip}
-                            onClick={() => handleSuggestionClick("Explain USD/JPY breakout patterns", "USD/JPY")}
+                            onClick={() => handleSuggestionClick(`Explain ${selectedPair} breakout patterns`, selectedPair)}
                         >
-                            USD/JPY Breakouts
+                            {selectedPair} Breakouts
                         </button>
                         <button
                             className={styles.chip}
-                            onClick={() => handleSuggestionClick("Give me a scalping strategy for AUD/USD", "AUD/USD")}
+                            onClick={() => handleSuggestionClick(`Give me a scalping strategy for ${selectedPair}`, selectedPair)}
                         >
-                            AUD/USD Strategy
+                            {selectedPair} Strategy
                         </button>
                     </div>
                 )}
