@@ -69,7 +69,7 @@ const layout = ({ children }) => {
                     </div>
                 </div>
 
-                {showCreditsModal && (
+                {/* {showCreditsModal && (
                     <NeweraCreditsModal
                         userId={userId}
                         onClose={() => setShowCreditsModal(false)}
@@ -77,7 +77,7 @@ const layout = ({ children }) => {
                             setShowCreditsModal(false);
                         }}
                     />
-                )}
+                )} */}
             </ThemeProvider>
         </AuthGuard>
     );
