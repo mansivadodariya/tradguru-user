@@ -6,9 +6,11 @@ import Input from '@/components/input';
 import { neweraApi } from '@/lib/api';
 import { toast } from '@/components/toast';
 import { useTheme } from '@/context/ThemeContext';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
     const [email, setEmail] = useState('');
+    const [login, setLogin] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const { theme } = useTheme();
@@ -29,10 +31,25 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
 
     const logoSrc = theme === 'dark' ? '/assets/icons/Img1.svg' : '/assets/images/LightNewera.png';
 
+    const handleLoginChange = (e) => {
+        const val = e.target.value.replace(/\D/g, '');
+        if (val.length <= 20) {
+            setLogin(val);
+        }
+    };
+
     const handleLinkAccount = async (e) => {
         e.preventDefault();
         if (!email.trim() || !email.includes('@')) {
             setError('Please enter a valid email address.');
+            return;
+        }
+        if (!login.trim()) {
+            setError('Login ID is required.');
+            return;
+        }
+        if (login.length > 20) {
+            setError('Login ID cannot exceed 20 characters.');
             return;
         }
 
@@ -40,11 +57,49 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
         setError('');
 
         try {
-            const res = await neweraApi.linkAccount(userId, email);
+            const res = await neweraApi.linkAccount(userId, email, login);
             if (res.success) {
+                // Store the linked account in mt5_accounts
+                try {
+                    if (supabase) {
+                        const { error: dbError } = await supabase
+                            .from('mt5_accounts')
+                            .upsert({
+                                user_id: userId,
+                                email: email,
+                                login: Number(login)
+                            }, { onConflict: 'login' });
+                        if (dbError) {
+                            console.error("Failed to save MT5 account to database:", dbError);
+                        }
+                    }
+                } catch (dbErr) {
+                    console.error("Database insert error for mt5_accounts:", dbErr);
+                }
+
+                // Also store the linked account in newera_credits_sync
+                try {
+                    if (supabase) {
+                        const { error: dbError } = await supabase
+                            .from('newera_credits_sync')
+                            .insert({
+                                user_id: userId,
+                                email: email,
+                                mt5_id: Number(login),
+                                welcome_credits_awarded: true
+                            });
+                        if (dbError) {
+                            console.error("Failed to save newera_credits_sync to database:", dbError);
+                        }
+                    }
+                } catch (dbErr) {
+                    console.error("Database insert error for newera_credits_sync:", dbErr);
+                }
+
                 toast.success(res.message || 'Account linked successfully! Credits updated.');
                 if (onSuccess) {
-                    onSuccess(res.data.available_credits);
+                    const creditsVal = res.data?.available_credits ?? res.data?.availableCredits ?? res.data?.data?.available_credits;
+                    onSuccess(creditsVal);
                 }
                 onClose?.();
             } else {
@@ -136,11 +191,21 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                         required
                                     />
                                 </div>
+                                <div className={styles.inputWrapper}>
+                                    <Input
+                                        type="text"
+                                        placeholder="Enter Login ID"
+                                        name="login"
+                                        value={login}
+                                        onChange={handleLoginChange}
+                                        required
+                                    />
+                                </div>
                                 {error && <p className={styles.error} role="alert">{error}</p>}
                                 <button 
                                     type="submit" 
                                     className={styles.submitBtn} 
-                                    disabled={loading || !email.trim()}
+                                    disabled={loading || !email.trim() || !login.trim()}
                                 >
                                     {loading ? (
                                         <>

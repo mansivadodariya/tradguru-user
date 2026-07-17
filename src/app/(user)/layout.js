@@ -7,13 +7,66 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import NeweraCreditsModal from '@/components/neweraCreditsModal';
 import { CREDITS_UPDATED_EVENT } from '@/lib/credits';
 import { getStoredUserId } from '@/lib/authSession';
-import { dashboardApi } from '@/lib/api';
+import { dashboardApi, neweraApi } from '@/lib/api';
+import { supabase } from '@/lib/supabaseClient';
 import './layout.scss';
 
 const layout = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [showCreditsModal, setShowCreditsModal] = useState(false);
     const [userId, setUserId] = useState('');
+
+    const checkAndAutoSyncOrShowModal = async (uid) => {
+        if (!uid) return;
+        try {
+            if (supabase) {
+                let email = '';
+                let login = null;
+
+                // 1. Try mt5_accounts
+                const { data: mt5Data, error: mt5Error } = await supabase
+                    .from('mt5_accounts')
+                    .select('email, login')
+                    .eq('user_id', uid)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (mt5Data && mt5Data.email && mt5Data.login) {
+                    email = mt5Data.email;
+                    login = mt5Data.login;
+                } else {
+                    // 2. Try newera_credits_sync fallback
+                    const { data: syncData, error: syncError } = await supabase
+                        .from('newera_credits_sync')
+                        .select('email, mt5_id')
+                        .eq('user_id', uid)
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .maybeSingle();
+
+                    if (syncData && syncData.email && syncData.mt5_id) {
+                        email = syncData.email;
+                        login = syncData.mt5_id;
+                    }
+                }
+
+                if (email && login) {
+                    try {
+                        const res = await neweraApi.linkAccount(uid, email, login);
+                        if (res.success) {
+                            return; // Successfully linked/synced in background, do not show modal!
+                        }
+                    } catch (apiErr) {
+                        console.warn("Background auto-link credit sync failed:", apiErr);
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Error during auto credit check:", e);
+        }
+        setShowCreditsModal(true);
+    };
 
     useEffect(() => {
         const uid = getStoredUserId();
@@ -25,7 +78,7 @@ const layout = ({ children }) => {
                     const currentCredits = res?.data?.available_credits;
                     if (currentCredits !== undefined && currentCredits !== null) {
                         if (Number(currentCredits) <= 0) {
-                            setShowCreditsModal(true);
+                            checkAndAutoSyncOrShowModal(uid);
                         }
                     }
                 })
@@ -38,7 +91,13 @@ const layout = ({ children }) => {
             const currentCredits = e?.detail?.available_credits;
             if (currentCredits !== undefined && currentCredits !== null) {
                 if (Number(currentCredits) <= 0) {
-                    setShowCreditsModal(true);
+                    setShowCreditsModal((prevShow) => {
+                        if (!prevShow) {
+                            const activeUid = getStoredUserId();
+                            checkAndAutoSyncOrShowModal(activeUid);
+                        }
+                        return prevShow;
+                    });
                 } else {
                     setShowCreditsModal(false);
                 }
@@ -69,7 +128,7 @@ const layout = ({ children }) => {
                     </div>
                 </div>
 
-                {/* {showCreditsModal && (
+                {showCreditsModal && (
                     <NeweraCreditsModal
                         userId={userId}
                         onClose={() => setShowCreditsModal(false)}
@@ -77,7 +136,7 @@ const layout = ({ children }) => {
                             setShowCreditsModal(false);
                         }}
                     />
-                )} */}
+                )}
             </ThemeProvider>
         </AuthGuard>
     );

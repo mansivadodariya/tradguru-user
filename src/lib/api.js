@@ -95,7 +95,22 @@ async function request(path, options = {}, _isRetry = false) {
             err.status = 401;
             throw err;
         }
-        const err = new Error(data?.detail?.message || data?.message || 'Something went wrong');
+        let errorMessage = data?.detail?.message || data?.message || 'Something went wrong';
+        // Handle string detail that may contain embedded JSON with msg
+        if (typeof data?.detail === 'string') {
+            try {
+                const jsonMatch = data.detail.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    const parsed = JSON.parse(jsonMatch[0]);
+                    if (parsed?.msg) {
+                        errorMessage = parsed.msg;
+                    }
+                }
+            } catch (_) {
+                errorMessage = data.detail;
+            }
+        }
+        const err = new Error(errorMessage);
         err.detail = data?.detail;
         err.status = res.status;
         throw err;
@@ -230,11 +245,11 @@ export const tradeSnapApi = {
 };
 
 export const neweraApi = {
-    linkAccount: async (user_id, email) => {
+    linkAccount: async (user_id, email, login) => {
         const res = await request('/newera/credit', {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ email }),
+            body: JSON.stringify({ email, login: Number(login) }),
         });
 
         return {

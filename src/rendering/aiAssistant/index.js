@@ -17,7 +17,7 @@ import rehypeRaw from 'rehype-raw';
 import ReportPanel from './ReportPanel';
 
 const UploadIcon = '/assets/icons/upload-xs.svg';
-const Logo = '/assets/icons/auth.svg';
+const Logo = '/assets/icons/AIChat.svg';
 
 const PAIR_GROUPS = [
     {
