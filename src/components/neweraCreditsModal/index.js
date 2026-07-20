@@ -7,12 +7,14 @@ import { neweraApi } from '@/lib/api';
 import { toast } from '@/components/toast';
 import { useTheme } from '@/context/ThemeContext';
 import { supabase } from '@/lib/supabaseClient';
+import { notifyCreditsUpdated, refreshCreditsFromServer } from '@/lib/credits';
 
 export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
     const [email, setEmail] = useState('');
     const [login, setLogin] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [hasExistingLink, setHasExistingLink] = useState(false);
     const { theme } = useTheme();
 
     React.useEffect(() => {
@@ -28,6 +30,71 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
             console.error('Error reading user email for Newera link:', e);
         }
     }, []);
+
+    React.useEffect(() => {
+        const fetchLinkedAccount = async () => {
+            if (!userId || !supabase) return;
+            try {
+                // 1. Try mt5_accounts
+                const { data: mt5Data } = await supabase
+                    .from('mt5_accounts')
+                    .select('email, login')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (mt5Data && mt5Data.login) {
+                    setLogin(String(mt5Data.login));
+                    if (mt5Data.email) setEmail(mt5Data.email);
+                    setHasExistingLink(true);
+                    return;
+                }
+
+                // 2. Try newera_credits_sync fallback
+                const { data: syncData } = await supabase
+                    .from('newera_credits_sync')
+                    .select('email, mt5_id')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (syncData && syncData.mt5_id) {
+                    setLogin(String(syncData.mt5_id));
+                    if (syncData.email) setEmail(syncData.email);
+                    setHasExistingLink(true);
+                }
+            } catch (err) {
+                console.error('Error fetching linked account:', err);
+            }
+        };
+
+        fetchLinkedAccount();
+    }, [userId]);
+
+    const syncCredits = async () => {
+        if (!userId) return;
+        try {
+            const freshCredits = await refreshCreditsFromServer();
+            if (freshCredits !== null && freshCredits !== undefined && Number(freshCredits) > 0) {
+                if (onSuccess) onSuccess(freshCredits);
+                onClose?.();
+            }
+        } catch (err) {
+            console.warn("Background auto-sync failed:", err);
+        }
+    };
+
+    React.useEffect(() => {
+        if (!userId || !hasExistingLink) return;
+
+        const interval = setInterval(() => {
+            syncCredits();
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [userId, hasExistingLink]);
 
     const logoSrc = theme === 'dark' ? '/assets/icons/Img1.svg' : '/assets/images/LightNewera.png';
 
@@ -96,12 +163,32 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                     console.error("Database insert error for newera_credits_sync:", dbErr);
                 }
 
-                toast.success(res.message || 'Account linked successfully! Credits updated.');
-                if (onSuccess) {
-                    const creditsVal = res.data?.available_credits ?? res.data?.availableCredits ?? res.data?.data?.available_credits;
-                    onSuccess(creditsVal);
+                setHasExistingLink(true);
+
+                const creditsVal = res.data?.available_credits ?? res.data?.availableCredits ?? res.data?.data?.available_credits;
+                if (creditsVal !== undefined && creditsVal !== null) {
+                    notifyCreditsUpdated(creditsVal);
+                    if (Number(creditsVal) > 0) {
+                        toast.success(res.message || 'Account linked successfully! Credits updated.');
+                        if (onSuccess) {
+                            onSuccess(creditsVal);
+                        }
+                        onClose?.();
+                        return;
+                    }
+                } else {
+                    const freshCredits = await refreshCreditsFromServer();
+                    if (freshCredits !== null && freshCredits !== undefined && Number(freshCredits) > 0) {
+                        toast.success(res.message || 'Account linked successfully! Credits updated.');
+                        if (onSuccess) {
+                            onSuccess(freshCredits);
+                        }
+                        onClose?.();
+                        return;
+                    }
                 }
-                onClose?.();
+
+                toast.success('Account linked successfully! Waiting for credits to update from trades.');
             } else {
                 setError(res.message || 'Failed to link account.');
             }

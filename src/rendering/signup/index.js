@@ -15,6 +15,7 @@ import { validateSignup } from '@/lib/validation';
 import { toast } from '@/components/toast';
 import { supabase } from '@/lib/supabaseClient';
 import { isValidPhoneNumber } from 'react-phone-number-input';
+import { getUtmParameters } from '@/lib/utm';
 
 const LineImage = '/assets/images/line.png';
 const AuthIcon = '/assets/icons/auth.svg';
@@ -137,7 +138,32 @@ const Signup = () => {
         setLoading(true);
         try {
             const { confirmPassword, ...payload } = form;
-            await authApi.signup(payload);
+            const utmParams = getUtmParameters();
+            await authApi.signup({
+                ...payload,
+                utm_source: utmParams.utm_source || null,
+                utm_medium: utmParams.utm_medium || null,
+                utm_campaign: utmParams.utm_campaign || null
+            });
+
+            try {
+                if (supabase && (utmParams.utm_source || utmParams.utm_medium || utmParams.utm_campaign)) {
+                    const { error: dbErr } = await supabase
+                        .from('users')
+                        .update({
+                            utm_source: utmParams.utm_source || null,
+                            utm_medium: utmParams.utm_medium || null,
+                            utm_campaign: utmParams.utm_campaign || null
+                        })
+                        .eq('email', payload.email);
+                    if (dbErr) {
+                        console.warn("Direct UTM update on registration failed:", dbErr);
+                    }
+                }
+            } catch (dbSyncErr) {
+                console.warn("Database UTM sync error on registration:", dbSyncErr);
+            }
+
             setSuccess(true);
         } catch (err) {
             toast.dismiss();

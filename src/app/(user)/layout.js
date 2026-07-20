@@ -5,7 +5,8 @@ import AuthGuard from '@/components/authGuard';
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
 import NeweraCreditsModal from '@/components/neweraCreditsModal';
-import { CREDITS_UPDATED_EVENT } from '@/lib/credits';
+import { CREDITS_UPDATED_EVENT, notifyCreditsUpdated, refreshCreditsFromServer } from '@/lib/credits';
+import { captureUtmParameters } from '@/lib/utm';
 import { getStoredUserId } from '@/lib/authSession';
 import { dashboardApi, neweraApi } from '@/lib/api';
 import { supabase } from '@/lib/supabaseClient';
@@ -15,9 +16,11 @@ const layout = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [showCreditsModal, setShowCreditsModal] = useState(false);
     const [userId, setUserId] = useState('');
+    const isCheckingRef = React.useRef(false);
 
     const checkAndAutoSyncOrShowModal = async (uid) => {
-        if (!uid) return;
+        if (!uid || isCheckingRef.current) return;
+        isCheckingRef.current = true;
         try {
             if (supabase) {
                 let email = '';
@@ -54,8 +57,10 @@ const layout = ({ children }) => {
                 if (email && login) {
                     try {
                         const res = await neweraApi.linkAccount(uid, email, login);
-                        if (res.success) {
-                            return; // Successfully linked/synced in background, do not show modal!
+                        const updatedCredits = res?.data?.available_credits ?? res?.data?.availableCredits ?? res?.data?.data?.available_credits;
+                        if (res.success && updatedCredits !== undefined && updatedCredits !== null && Number(updatedCredits) > 0) {
+                            setShowCreditsModal(false);
+                            return; // Successfully linked/synced in background and has credits, do not show modal!
                         }
                     } catch (apiErr) {
                         console.warn("Background auto-link credit sync failed:", apiErr);
@@ -64,15 +69,46 @@ const layout = ({ children }) => {
             }
         } catch (e) {
             console.error("Error during auto credit check:", e);
+        } finally {
+            isCheckingRef.current = false;
         }
         setShowCreditsModal(true);
     };
 
     useEffect(() => {
+        captureUtmParameters();
         const uid = getStoredUserId();
         setUserId(uid);
 
         if (uid) {
+            const syncUtmToDb = async () => {
+                try {
+                    const { getUtmParameters } = await import('@/lib/utm');
+                    const utmParams = getUtmParameters();
+                    if ((utmParams.utm_source || utmParams.utm_medium || utmParams.utm_campaign) && supabase) {
+                        const { data: dbUser } = await supabase
+                            .from('users')
+                            .select('utm_source, utm_medium, utm_campaign')
+                            .eq('id', uid)
+                            .maybeSingle();
+
+                        if (dbUser && !dbUser.utm_source && !dbUser.utm_medium && !dbUser.utm_campaign) {
+                            await supabase
+                                .from('users')
+                                .update({
+                                    utm_source: utmParams.utm_source || null,
+                                    utm_medium: utmParams.utm_medium || null,
+                                    utm_campaign: utmParams.utm_campaign || null
+                                })
+                                .eq('id', uid);
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Failed to sync UTM parameters:", e);
+                }
+            };
+            syncUtmToDb();
+
             dashboardApi.getStats(uid)
                 .then((res) => {
                     const currentCredits = res?.data?.available_credits;
@@ -132,8 +168,13 @@ const layout = ({ children }) => {
                     <NeweraCreditsModal
                         userId={userId}
                         onClose={() => setShowCreditsModal(false)}
-                        onSuccess={() => {
+                        onSuccess={(creditsVal) => {
                             setShowCreditsModal(false);
+                            if (creditsVal !== undefined && creditsVal !== null) {
+                                notifyCreditsUpdated(creditsVal);
+                            } else {
+                                refreshCreditsFromServer();
+                            }
                         }}
                     />
                 )}
