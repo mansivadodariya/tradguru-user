@@ -147,16 +147,15 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard', onPendingPhone }) => {
         setPhoneError('');
 
         try {
-            if (!supabase) {
-                throw new Error('Database client is not initialized.');
+            const apiRes = await fetch('/api/v1/user/phone', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: userId, phone_number: phoneNumber }),
+            });
+            const apiData = await apiRes.json();
+            if (!apiRes.ok || apiData.error) {
+                throw new Error(apiData.error || 'Failed to save phone number.');
             }
-
-            const { error: updateErr } = await supabase
-                .from('users')
-                .update({ phone_number: phoneNumber })
-                .eq('id', userId);
-
-            if (updateErr) throw updateErr;
 
             // Update user in localStorage
             if (typeof window !== 'undefined') {

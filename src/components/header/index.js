@@ -4,7 +4,7 @@ import Link from 'next/link';
 import styles from './header.module.scss';
 import Button from '../button';
 import { useRouter, usePathname } from 'next/navigation';
-import { authNavigate } from '@/lib/authRedirect';
+import { authNavigate, getAuthHref } from '@/lib/authRedirect';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Logo = '/assets/logo/logo.svg';
@@ -16,7 +16,9 @@ export default function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const navClass = (href) =>
-        pathname === href ? `${styles.navLink} ${styles.active}` : styles.navLink;
+        pathname === href || (href !== '/' && pathname?.startsWith(href))
+            ? `${styles.navLink} ${styles.active}`
+            : styles.navLink;
 
     return (
         <>
@@ -30,9 +32,9 @@ export default function Header() {
                         </div>
                         <div className={styles.menuAlignment}>
                             <Link href="/" aria-label='Home' className={navClass('/')}>Home</Link>
-                            <Link href="/tradesnap" aria-label='AI Trade' className={navClass('/tradesnap')}>AI Trade</Link>
-                            <Link href="/ai-chat" aria-label='AI Chat' className={navClass('/ai-chat')}>AI Chat</Link>
-                            {/* <Link href="/ai-chat" aria-label='AI Strategy' className={navClass('/ai-chat')}>AI Strategy</Link> */}
+                            <Link href={getAuthHref('/trade-snap')} aria-label='AI Trade' className={navClass('/trade-snap')}>AI Trade</Link>
+                            <Link href={getAuthHref('/ai-assistant')} aria-label='AI Chat' className={navClass('/ai-assistant')}>AI Chat</Link>
+                            <Link href={getAuthHref('/ai-strategy')} aria-label='AI Strategy' className={navClass('/ai-strategy')}>AI Strategy</Link>
                             <Link
                                 href="https://www.edufins.com/"
                                 target="_blank"
@@ -84,9 +86,9 @@ export default function Header() {
                         </div>
                         <div className={styles.body}>
                             <Link href="/" aria-label='Home' onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
-                            <Link href="/tradesnap" aria-label='AI Trade' onClick={() => setIsMobileMenuOpen(false)}>AI Trade</Link>
-                            <Link href="/ai-chat" aria-label='AI Chat' onClick={() => setIsMobileMenuOpen(false)}>AI Chat</Link>
-                            {/* <Link href="/ai-chat" aria-label='AI Strategy' onClick={() => setIsMobileMenuOpen(false)}>AI Strategy</Link> */}
+                            <Link href={getAuthHref('/trade-snap')} aria-label='AI Trade' onClick={() => setIsMobileMenuOpen(false)}>AI Trade</Link>
+                            <Link href={getAuthHref('/ai-assistant')} aria-label='AI Chat' onClick={() => setIsMobileMenuOpen(false)}>AI Chat</Link>
+                            <Link href={getAuthHref('/ai-strategy')} aria-label='AI Strategy' onClick={() => setIsMobileMenuOpen(false)}>AI Strategy</Link>
                             <Link
                                 href="https://www.edufins.com/"
                                 target="_blank"

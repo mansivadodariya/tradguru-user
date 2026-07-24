@@ -5,7 +5,7 @@
  */
 export function getAuthHref(targetPath) {
     if (typeof window === 'undefined') return `/login?redirect=${encodeURIComponent(targetPath)}`;
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('access_token') || localStorage.getItem('user_id') || localStorage.getItem('user');
     return token ? targetPath : `/login?redirect=${encodeURIComponent(targetPath)}`;
 }
 

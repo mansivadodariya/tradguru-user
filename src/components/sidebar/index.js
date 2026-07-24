@@ -38,12 +38,11 @@ const CreditHistoryIcon = () => (
 
 const mainNav = [
   { label: "Dashboard", href: "/dashboard", icon: DashboardIcon },
-  { label: "Broker", href: "/broker", icon: BrokerIcon },
   { label: "AI Trade", href: "/trade-snap", icon: TradeIcon },
   { label: "AI Chat", href: "/ai-assistant", icon: AssistantIcon },
-  { 
-    label: "AI Strategy", 
-    href: "/ai-strategy", 
+  {
+    label: "AI Strategy",
+    href: "/ai-strategy",
     icon: AiIcon,
     subItems: [
       { label: "AI Strategy", href: "/ai-strategy/strategy", icon: StrategyIcon },
@@ -52,6 +51,7 @@ const mainNav = [
   },
   { label: "Economic Calendar", href: "/economic-calendar", icon: PricingIcon },
   { label: "Credit History", href: "/credit-history", icon: CreditHistoryIcon },
+  // { label: "Broker", href: "/broker", icon: BrokerIcon },
   { label: "Profile", href: "/profile", icon: SettingsIcon },
 ];
 
@@ -69,7 +69,7 @@ const NavItem = ({ item, pathname, onNavigate }) => {
   const isParentActive = isNavItemActive(pathname, item.href);
   const isAnySubActive = item.subItems?.some(sub => isNavItemActive(pathname, sub.href));
   const isActive = isParentActive || isAnySubActive;
-  
+
   const [isOpen, setIsOpen] = useState(isActive);
 
   useEffect(() => {

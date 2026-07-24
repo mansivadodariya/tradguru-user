@@ -124,15 +124,20 @@ export default function Profile() {
 
         setSaving(true);
         try {
-            const { error } = await supabase
-                .from('users')
-                .update({
+            const apiRes = await fetch('/api/v1/user/profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId,
                     first_name: form.first_name.trim(),
                     last_name: form.last_name.trim(),
                     phone_number: form.phone_number,
-                })
-                .eq('id', userId);
-            if (error) throw error;
+                }),
+            });
+            const apiData = await apiRes.json();
+            if (!apiRes.ok || apiData.error) {
+                throw new Error(apiData.error || 'Failed to update profile.');
+            }
 
             const stored = getUserFromStorage() || {};
             const updated = {

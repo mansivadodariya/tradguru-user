@@ -257,15 +257,14 @@
         .cardHeader {
             display: flex;
             align-items: flex-start;
-            justify-content: space-between;
             gap: 16px;
             margin-bottom: 16px;
 
             .logoBox {
-                width: 64px;
+                width: 100%;
                 height: 64px;
                 border-radius: 12px;
-                background: #F8FAFC;
+                background: #031738;
                 border: 1px solid #E2E8F0;
                 display: flex;
                 align-items: center;
@@ -274,8 +273,8 @@
                 flex-shrink: 0;
 
                 img {
-                    max-width: 100%;
-                    max-height: 100%;
+                    max-width: 150px;
+                    max-height: 64px;
                     object-fit: contain;
                 }
             }

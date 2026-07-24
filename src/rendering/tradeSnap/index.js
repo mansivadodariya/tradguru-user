@@ -91,13 +91,25 @@ export default function TradeSnap() {
     const [showTabSwitchConfirm, setShowTabSwitchConfirm] = useState(false);
     const [pendingTab, setPendingTab] = useState(null);
     const [isDesktop, setIsDesktop] = useState(true);
+    const [isScreenShareSupported, setIsScreenShareSupported] = useState(true);
 
     const videoRef = useRef(null);
     const videoRef2 = useRef(null);
     const canvasRef = useRef(null);
 
     useEffect(() => {
-        const check = () => setIsDesktop(window.innerWidth >= 1024);
+        const check = () => {
+            const userAgent = typeof navigator !== 'undefined' ? (navigator.userAgent || '') : '';
+            const isMobile = /iPhone|iPad|iPod|Android|Mobile/i.test(userAgent) ||
+                (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 2 && /Macintosh/i.test(userAgent));
+            
+            const hasDisplayMedia = typeof navigator !== 'undefined' &&
+                !!navigator.mediaDevices &&
+                typeof navigator.mediaDevices.getDisplayMedia === 'function';
+
+            setIsDesktop(window.innerWidth >= 1024 && !isMobile);
+            setIsScreenShareSupported(hasDisplayMedia && !isMobile);
+        };
         check();
         window.addEventListener('resize', check);
         return () => window.removeEventListener('resize', check);
@@ -105,10 +117,11 @@ export default function TradeSnap() {
 
     useEffect(() => {
         if (error) {
+            toast.dismiss();
             toast.error(error);
             setError(null);
         }
-    }, [error, toast]);
+    }, [error]);
 
     const normalizeHistory = (payload) => {
         const list = Array.isArray(payload) ? payload : (payload?.data || payload?.items || []);
@@ -217,18 +230,28 @@ export default function TradeSnap() {
             setNextScreenshotEndTime(null);
             setNextScreenshotEndTime1(null);
 
-            if (!navigator.mediaDevices?.getDisplayMedia) {
-                throw new Error('Screen sharing is not supported in this browser');
+            if (!isScreenShareSupported || !navigator.mediaDevices?.getDisplayMedia) {
+                toast.dismiss();
+                throw new Error('Screen sharing is not supported on mobile devices or in Safari on iOS. Please use desktop Chrome, Edge, or Safari on Mac.');
             }
-            const mediaStream = await navigator.mediaDevices.getDisplayMedia({
-                video: {
-                    width: { ideal: 1920, max: 1920 },
-                    height: { ideal: 1080, max: 1080 },
-                    frameRate: { ideal: 30, max: 60 },
-                },
-                audio: true,
-                selfBrowserSurface: 'include',
-            });
+            let mediaStream;
+            try {
+                mediaStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: {
+                        width: { ideal: 1920, max: 1920 },
+                        height: { ideal: 1080, max: 1080 },
+                        frameRate: { ideal: 30, max: 60 },
+                    },
+                    audio: true,
+                    selfBrowserSurface: 'include',
+                });
+            } catch (constraintErr) {
+                if (constraintErr?.name === 'NotAllowedError') throw constraintErr;
+                // Fallback for Safari on macOS which doesn't support selfBrowserSurface/audio in getDisplayMedia
+                mediaStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: true,
+                });
+            }
             setStream(mediaStream);
             setIsSharing(true);
             mediaStream.getVideoTracks()[0].addEventListener('ended', stopScreenShare);
@@ -246,7 +269,7 @@ export default function TradeSnap() {
                 setError(err?.message || 'Failed to start screen sharing');
             }
         }
-    }, [stopScreenShare]);
+    }, [stopScreenShare, isScreenShareSupported]);
 
     const stopScreenShare2 = useCallback(() => {
         if (stream2) {
@@ -270,18 +293,28 @@ export default function TradeSnap() {
             setAutoCaptureInterval2(null);
             setNextScreenshotEndTime2(null);
 
-            if (!navigator.mediaDevices?.getDisplayMedia) {
-                throw new Error('Screen sharing is not supported in this browser');
+            if (!isScreenShareSupported || !navigator.mediaDevices?.getDisplayMedia) {
+                toast.dismiss();
+                throw new Error('Screen sharing is not supported on mobile devices or in Safari on iOS. Please use desktop Chrome, Edge, or Safari on Mac.');
             }
-            const mediaStream = await navigator.mediaDevices.getDisplayMedia({
-                video: {
-                    width: { ideal: 1920, max: 1920 },
-                    height: { ideal: 1080, max: 1080 },
-                    frameRate: { ideal: 30, max: 60 },
-                },
-                audio: true,
-                selfBrowserSurface: 'include',
-            });
+            let mediaStream;
+            try {
+                mediaStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: {
+                        width: { ideal: 1920, max: 1920 },
+                        height: { ideal: 1080, max: 1080 },
+                        frameRate: { ideal: 30, max: 60 },
+                    },
+                    audio: true,
+                    selfBrowserSurface: 'include',
+                });
+            } catch (constraintErr) {
+                if (constraintErr?.name === 'NotAllowedError') throw constraintErr;
+                // Fallback for Safari on macOS which doesn't support selfBrowserSurface/audio in getDisplayMedia
+                mediaStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: true,
+                });
+            }
             setStream2(mediaStream);
             setIsSharing2(true);
             mediaStream.getVideoTracks()[0].addEventListener('ended', stopScreenShare2);
@@ -293,7 +326,7 @@ export default function TradeSnap() {
         } catch (err) {
             setError(err?.message || 'Failed to start second screen share');
         }
-    }, [stopScreenShare2]);
+    }, [stopScreenShare2, isScreenShareSupported]);
 
     useEffect(() => {
         if (videoRef.current && stream) {
@@ -587,8 +620,18 @@ export default function TradeSnap() {
     const renderVideoPlaceholder = (sharing, loadingText) => (
         <div className={styles.videoPlaceholder}>
             <MonitorIcon className={styles.placeholderIcon} />
-            <h3>{sharing ? loadingText : 'No screen sharing active'}</h3>
-            <p>{sharing ? 'Please wait while we load your screen' : 'Click "Start Sharing" to begin'}</p>
+            <h3>
+                {sharing 
+                    ? loadingText 
+                    : (isScreenShareSupported ? 'No screen sharing active' : 'Screen sharing not supported')}
+            </h3>
+            <p>
+                {sharing 
+                    ? 'Please wait while we load your screen' 
+                    : (isScreenShareSupported 
+                        ? 'Click "Start Sharing" to begin' 
+                        : 'Screen sharing is not supported on mobile Safari or iOS devices. Please open on desktop Chrome, Edge, or Mac Safari.')}
+            </p>
         </div>
     );
 
@@ -620,7 +663,7 @@ export default function TradeSnap() {
                         </div>
                         <h3>Desktop View Required</h3>
                         <p>
-                            AI Trade uses screen sharing and works best on a desktop or laptop with a larger display.
+                            AI Trade uses screen sharing and requires a desktop or laptop computer with Chrome, Edge, or macOS Safari. Screen sharing is not supported on mobile devices or iOS Safari.
                         </p>
                     </motion.div>
                 </div>

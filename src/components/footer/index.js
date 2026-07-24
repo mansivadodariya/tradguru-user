@@ -137,7 +137,7 @@ export default function Footer() {
                             <ul>
                                 <li><Link href="/tradesnap">AI Trade</Link></li>
                                 <li><Link href="/ai-chat">AI Chat</Link></li>
-                                {/* <li><Link href="/ai-chat">AI Strategy</Link></li> */}
+                                <li><Link href="/ai-strategy">AI Strategy</Link></li>
                             </ul>
                         </div>
 

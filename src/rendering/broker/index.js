@@ -12,7 +12,7 @@ const MetaIcon = '/assets/icons/Img2.svg';
 const MatchIcon = '/assets/icons/Img1.svg';
 const AlgomaticIcon = '/assets/icons/algomaticIcon.svg';
 const AsicIcon = '/assets/icons/asic.svg';
-const NeweraLogo = '/assets/images/LightNewera.png';
+const NeweraLogo = '/assets/icons/Img1.svg';
 
 const CheckIcon = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -230,10 +230,7 @@ export default function BrokerPage() {
                                 <div className={styles.cardHeader}>
                                     <div className={styles.logoBox}>
                                         <img src={broker.logo} alt={broker.name} />
-                                    </div>
-                                    <span className={`${styles.statusBadge} ${styles[broker.statusType]}`}>
-                                        {broker.status}
-                                    </span>
+                                    </div>                                  
                                 </div>
 
                                 <div className={styles.cardBody}>
@@ -241,24 +238,11 @@ export default function BrokerPage() {
                                     <div className={styles.subtitle}>{broker.subtitle}</div>
                                     <p className={styles.description}>{broker.description}</p>
 
-                                    <div className={styles.featuresList}>
-                                        {broker.features.map((feature, idx) => (
-                                            <div key={idx} className={styles.featureItem}>
-                                                <CheckIcon />
-                                                <span>{feature}</span>
-                                            </div>
-                                        ))}
-                                    </div>
                                 </div>
                             </div>
 
                             <div className={styles.cardFooter}>
-                                <button
-                                    className={styles.primaryBtn}
-                                    onClick={() => handleConnectClick(broker)}
-                                >
-                                    <span>{broker.canSync ? 'Connect / Sync MT5' : 'View Integration'}</span>
-                                </button>
+                           
                                 <a
                                     href={broker.websiteUrl}
                                     target="_blank"
