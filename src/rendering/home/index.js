@@ -5,6 +5,7 @@ import TradersSection from './tradersSection'
 import TradingDesk from './tradingDesk'
 import HowitWorks from './howitWorks'
 import TradeSetup from './tradeSetup'
+import EcosystemSection from './ecosystemSection'
 import ClientSection from './clientSection'
 import ReadyTostart from './readyTostart'
 
@@ -17,6 +18,7 @@ export default function HomePage() {
             <TradingDesk />
             <HowitWorks />
             <TradeSetup />
+            <EcosystemSection />
             <ClientSection />
             <ReadyTostart />
         </div>

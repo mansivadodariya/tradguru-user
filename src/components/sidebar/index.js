@@ -9,6 +9,7 @@ import AssistantIcon from "@/icons/assistantIcon";
 import PricingIcon from "@/icons/pricingIcon";
 import SettingsIcon from "@/icons/settingsIcon";
 import AiIcon from "@/icons/aiIcon";
+import BrokerIcon from "@/icons/brokerIcon";
 import { clearAuthSession } from '@/lib/authSession';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -37,6 +38,7 @@ const CreditHistoryIcon = () => (
 
 const mainNav = [
   { label: "Dashboard", href: "/dashboard", icon: DashboardIcon },
+  { label: "Broker", href: "/broker", icon: BrokerIcon },
   { label: "AI Trade", href: "/trade-snap", icon: TradeIcon },
   { label: "AI Chat", href: "/ai-assistant", icon: AssistantIcon },
   { 
