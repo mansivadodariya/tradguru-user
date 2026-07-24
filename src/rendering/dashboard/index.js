@@ -7,6 +7,7 @@ import CommonSearch from '@/components/commonSearch';
 import { dashboardApi } from '@/lib/api';
 import { getStoredUser, getStoredUserId } from '@/lib/authSession';
 import Loader from '@/components/loader';
+import EcosystemSection from '../home/ecosystemSection';
 const CardIcon = '/assets/icons/dashboardCard.svg'
 const iconOne = '/assets/icons/IconOne.svg'
 const iconTwo = '/assets/icons/IconTwo.svg'
@@ -461,6 +462,8 @@ export default function Dashboard() {
                     )}
                 </div>
             </section>
+
+            <EcosystemSection />
         </div>
     );
 }

@@ -9,10 +9,10 @@ import toast from 'react-hot-toast';
 // Logos from sliding logos section
 const EdufinsIcon = '/assets/icons/edufins.svg';
 const MetaIcon = '/assets/icons/Img2.svg';
-const MatchIcon = '/assets/icons/Img1.svg';
 const AlgomaticIcon = '/assets/icons/algomaticIcon.svg';
 const AsicIcon = '/assets/icons/asic.svg';
 const NeweraLogo = '/assets/icons/Img1.svg';
+const FundedMasterLogo = '/assets/icons/Img2.svg';
 
 const CheckIcon = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -37,68 +37,32 @@ const ExternalLinkIcon = () => (
 
 const brokerList = [
     {
-        id: 'edufins',
-        name: 'Edufins Capital',
-        subtitle: 'Primary FX & CFD Broker',
-        logo: EdufinsIcon,
+        id: 'newera',
+        name: 'Newera Brokerage',
+        subtitle: 'Liquidity Gateway',
+        logo: NeweraLogo,
         category: 'Brokers',
-        status: 'Connected',
-        statusType: 'connected',
-        description: 'Multi-asset Forex and CFD brokerage with high-grade liquidity, tight spreads, and instant MT5 execution.',
+        status: 'Native Partner',
+        statusType: 'partner',
+        description: 'Native volume-to-credit integration engine powering your Trader Master AI usage credits directly through MT5 trading volume.',
         features: [
-            'Up to 1:500 Leverage available',
-            'Zero deposit & withdrawal fees',
-            'Direct volume credit sync with Trader Master',
-            'Raw spreads starting from 0.0 pips'
+            'Automated 1 Lot = Credit conversion',
+            'Direct MT5 account link & balance check',
+            'Real-time credit balance updating',
+            'Zero platform subscription required'
         ],
-        websiteUrl: 'https://edufins.com',
+        websiteUrl: 'https://newera.com',
         canSync: true
-    },
-    {
-        id: 'mt5',
-        name: 'MetaTrader 5 (MT5)',
-        subtitle: 'Trading Infrastructure Platform',
-        logo: MetaIcon,
-        category: 'Platforms',
-        status: 'Supported',
-        statusType: 'supported',
-        description: 'Industry-standard global trading terminal supporting automated Expert Advisors (EAs), custom indicators, and multi-asset charts.',
-        features: [
-            'Seamless account binding via MT5 ID',
-            'Real-time automated order sync & live analysis',
-            'Advanced charting & multi-timeframe analysis',
-            'Available on Desktop, Mobile, and Web'
-        ],
-        websiteUrl: 'https://www.metatrader5.com',
-        canSync: true
-    },
-    {
-        id: 'match-trader',
-        name: 'Match-Trader Platform',
-        subtitle: 'Next-Gen Trading Engine',
-        logo: MatchIcon,
-        category: 'Platforms',
-        status: 'Supported',
-        statusType: 'supported',
-        description: 'High-performance proprietary web trading platform built with integrated TradingView charts and smart order routing.',
-        features: [
-            'TradingView interactive charting integration',
-            'Ultra-low latency execution engine',
-            'Web and PWA mobile app integration',
-            'Real-time risk management analytics'
-        ],
-        websiteUrl: 'https://match-trade.com',
-        canSync: false
     },
     {
         id: 'algomatic',
-        name: 'Algomatic Quant Broker',
-        subtitle: 'Automated Algo Brokerage',
+        name: 'Algomatic Quant',
+        subtitle: 'Algo Execution Engine',
         logo: AlgomaticIcon,
         category: 'Algo Brokers',
         status: 'Partner',
         statusType: 'partner',
-        description: 'Specialized quantitative brokerage infrastructure offering FIX API access, strategy backtesting, and automated trade routing.',
+        description: 'High-performance quantitative brokerage infrastructure offering direct FIX API access, strategy hosting, and automated risk engines.',
         features: [
             'Quantitative model hosting & execution',
             'Direct FIX API & webhooks connectivity',
@@ -109,14 +73,50 @@ const brokerList = [
         canSync: false
     },
     {
+        id: 'edufins',
+        name: 'Edufins Academy',
+        subtitle: 'Trading Education Platform',
+        logo: EdufinsIcon,
+        category: 'Learning Platforms',
+        status: 'Education Partner',
+        statusType: 'supported',
+        description: 'Premier financial trading academy offering structured forex courses, live market analysis webinars, risk management tools, and professional trader mentoring.',
+        features: [
+            'Comprehensive Forex & CFD trading courses',
+            'Live market analysis & trading webinars',
+            'Arbitrage & algorithmic trading education',
+            'Risk management frameworks & trading tools'
+        ],
+        websiteUrl: 'https://edufins.com',
+        canSync: false
+    },
+    {
+        id: 'funded-master',
+        name: 'Funded Master',
+        subtitle: 'Prop Trading Community',
+        logo: FundedMasterLogo,
+        category: 'Prop Trading',
+        status: 'Partner',
+        statusType: 'partner',
+        description: 'To win the game, you need strong support and diligent preparation. Join For Traders Community — traders worldwide (18+) can apply and trade in financial markets.',
+        features: [
+            'Global traders application (18+ years old)',
+            'Strong support & diligent preparation community',
+            'Financial markets trading access & evaluation',
+            'Up to 90% profit splits for disciplined traders'
+        ],
+        websiteUrl: 'https://fundedmaster.com/',
+        canSync: false
+    },
+    {
         id: 'asic',
         name: 'ASIC Regulated Partner',
-        subtitle: 'Tier-1 Regulated Environment',
+        subtitle: 'Tier-1 Regulation',
         logo: AsicIcon,
         category: 'Regulated Partners',
         status: 'Verified Partner',
         statusType: 'connected',
-        description: 'Brokerage architecture backed by Tier-1 ASIC (Australian Securities and Investments Commission) regulatory oversight.',
+        description: 'Backed by Tier-1 Australian Securities & Investments Commission regulation, ensuring segregated client funds and negative balance protection.',
         features: [
             'Segregated client bank accounts (Tier-1 banks)',
             'Negative balance protection guaranteed',
@@ -126,24 +126,7 @@ const brokerList = [
         websiteUrl: 'https://asic.gov.au',
         canSync: false
     },
-    {
-        id: 'newera',
-        name: 'Newera Brokerage Stack',
-        subtitle: 'Native Credit Gateway',
-        logo: NeweraLogo,
-        category: 'Brokers',
-        status: 'Native Partner',
-        statusType: 'partner',
-        description: 'Native volume-to-credit integration engine powering your Trader Master AI usage credits through live trading activity.',
-        features: [
-            'Automated 1 Lot = Credit conversion',
-            'Direct MT5 account link & balance check',
-            'Real-time credit balance updating',
-            'Zero platform subscription required'
-        ],
-        websiteUrl: 'https://newera.com',
-        canSync: true
-    }
+
 ];
 
 export default function BrokerPage() {
@@ -174,7 +157,7 @@ export default function BrokerPage() {
     const tickerLogos = [
         { name: 'Edufins', img: EdufinsIcon },
         { name: 'MT5', img: MetaIcon },
-        { name: 'Match-Trader', img: MatchIcon },
+        { name: 'Funded Master', img: FundedMasterLogo },
         { name: 'Algomatic', img: AlgomaticIcon },
         { name: 'ASIC', img: AsicIcon },
         { name: 'Newera', img: NeweraLogo }
@@ -199,7 +182,7 @@ export default function BrokerPage() {
             {/* Controls Bar: Category Tabs & Search */}
             <div className={styles.controlsRow}>
                 <div className={styles.tabs}>
-                    {['All', 'Brokers', 'Platforms', 'Algo Brokers', 'Regulated Partners'].map((tab) => (
+                    {['All', 'Brokers', 'Platforms', 'Algo Brokers', 'Prop Trading', 'Learning Platforms', 'Regulated Partners'].map((tab) => (
                         <button
                             key={tab}
                             className={`${styles.tabBtn} ${selectedTab === tab ? styles.active : ''}`}
@@ -229,29 +212,42 @@ export default function BrokerPage() {
                             <div>
                                 <div className={styles.cardHeader}>
                                     <div className={styles.logoBox}>
-                                        <img src={broker.logo} alt={broker.name} />
-                                    </div>                                  
+                                        <img src={broker.logo} alt={broker.name} style={{ filter: 'brightness(1.5)' }} />
+                                    </div>
+                                    
                                 </div>
 
                                 <div className={styles.cardBody}>
                                     <h3>{broker.name}</h3>
-                                    <div className={styles.subtitle}>{broker.subtitle}</div>
                                     <p className={styles.description}>{broker.description}</p>
-
                                 </div>
                             </div>
 
                             <div className={styles.cardFooter}>
-                           
-                                <a
-                                    href={broker.websiteUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={styles.secondaryBtn}
-                                    title="Visit Official Website"
-                                >
-                                    <ExternalLinkIcon />
-                                </a>
+                                {broker.canSync ? (
+                                    <div className={styles.actionGroup}>
+                                        <a
+                                            href={broker.websiteUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={styles.linkBtn}
+                                        >
+                                            <span>Visit Official Platform</span>
+                                            <ExternalLinkIcon />
+                                        </a>
+                                    
+                                    </div>
+                                ) : (
+                                    <a
+                                        href={broker.websiteUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={styles.linkBtn}
+                                    >
+                                        <span>Visit Official Platform</span>
+                                        <ExternalLinkIcon />
+                                    </a>
+                                )}
                             </div>
                         </div>
                     ))}

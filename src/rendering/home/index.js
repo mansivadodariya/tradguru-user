@@ -18,7 +18,7 @@ export default function HomePage() {
             <TradingDesk />
             <HowitWorks />
             <TradeSetup />
-            {/* <EcosystemSection /> */}
+            <EcosystemSection />
             <ClientSection />
             <ReadyTostart />
         </div>

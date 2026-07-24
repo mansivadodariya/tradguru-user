@@ -33,10 +33,10 @@ const partnersData = [
     },
     {
         id: 'edufins',
-        title: 'Edufins Capital',
-        badge: 'FX & CFD Broker',
-        logo: <img src={EdufinsLogo} alt="Edufins Capital" style={{ filter: 'brightness(1.5)' }} />,
-        description: 'Premier multi-asset Forex & CFD brokerage offering institutional liquidity, raw spreads from 0.0 pips, and up to 1:500 leverage.',
+        title: 'Edufins',
+        badge: 'Trading Academy',
+        logo: <img src={EdufinsLogo} alt="Edufins Academy" style={{ filter: 'brightness(1.5)' }} />,
+        description: 'Premier financial trading academy offering structured forex courses, live market analysis, risk management tools, and professional trader mentoring.',
         href: 'https://edufins.com',
         isExternal: true
     },
@@ -45,7 +45,7 @@ const partnersData = [
         title: 'Funded Master',
         badge: 'Prop Trading Firm',
         logo: <img src={FundedMasterLogo} alt="Funded Master" style={{ filter: 'brightness(1.5)' }} />,
-        description: 'Elite prop firm evaluation platform providing up to 90% profit splits, instant scaling plans, and institutional capital for disciplined traders.',
+        description: 'To win the game, you need strong support and diligent preparation. Join For Traders Community — traders worldwide (18+) can apply to trade in financial markets.',
         href: 'https://fundedmaster.com/',
         isExternal: true
     },
