@@ -24,14 +24,21 @@ export default function AuthGuard({ children }) {
                         .select('phone_number, is_active')
                         .eq('id', uid)
                         .single();
-                    
+
                     console.log('AuthGuard status check: data =', data, 'error =', error);
 
-                    // User deleted/not found
-                    if (error || !data) {
+                    // Check if account is actually deleted (PGRST116 = 0 rows returned from Supabase)
+                    const isUserDeleted = error?.code === 'PGRST116' || (!data && !error);
+                    if (isUserDeleted) {
                         clearAuthSession();
                         toast.error('Your account has been deleted. Please contact admin.');
                         router.replace('/login');
+                        return;
+                    }
+
+                    // For other errors (network drop, RLS permission, transient query error), do NOT log out the user
+                    if (error || !data) {
+                        console.error('AuthGuard: Unable to verify user status due to error:', error);
                         return;
                     }
 

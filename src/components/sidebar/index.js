@@ -51,7 +51,7 @@ const mainNav = [
   },
   { label: "Economic Calendar", href: "/economic-calendar", icon: PricingIcon },
   { label: "Credit History", href: "/credit-history", icon: CreditHistoryIcon },
-  { label: "Broker", href: "/broker", icon: BrokerIcon },
+  // { label: "Broker", href: "/broker", icon: BrokerIcon },
   { label: "Profile", href: "/profile", icon: SettingsIcon },
 ];
 

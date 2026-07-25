@@ -38,7 +38,7 @@ const Topbar = ({ onMenuClick }) => {
         try {
             const { data, error } = await supabase
                 .from('users')
-                .select('first_name, last_name, email ')
+                .select('first_name, last_name, email')
                 .eq('id', userId)
                 .single();
 

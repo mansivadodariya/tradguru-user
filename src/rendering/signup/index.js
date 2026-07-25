@@ -68,10 +68,17 @@ const Signup = () => {
 
                     console.log('Signup checkSession: supabase data =', data, 'error =', error);
 
-                    // User deleted/not found
-                    if (error || !data) {
+                    // User deleted/not found (PGRST116 is Supabase error for 0 rows returned)
+                    const isUserDeleted = error?.code === 'PGRST116' || (!data && !error);
+                    if (isUserDeleted) {
                         clearAuthSession();
                         toast.error('Your account has been deleted. Please contact admin.');
+                        return;
+                    }
+
+                    // For other transient errors (network drop, RLS timeout), do not log out the user
+                    if (error || !data) {
+                        console.error('Signup checkSession: Failed to verify user status due to error:', error);
                         return;
                     }
 
