@@ -51,7 +51,7 @@ const brokerList = [
             'Real-time credit balance updating',
             'Zero platform subscription required'
         ],
-        websiteUrl: 'https://newera.com',
+        websiteUrl: 'https://newera365.com/',
         canSync: true
     },
     {
@@ -69,7 +69,7 @@ const brokerList = [
             'Automated risk management & drawdown limits',
             'Institutional grade liquidity pools'
         ],
-        websiteUrl: 'https://algomatic.com',
+        websiteUrl: 'https://algomaticbot.com/',
         canSync: false
     },
     {
@@ -226,16 +226,13 @@ export default function BrokerPage() {
                             <div className={styles.cardFooter}>
                                 {broker.canSync ? (
                                     <div className={styles.actionGroup}>
-                                        <a
-                                            href={broker.websiteUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className={styles.linkBtn}
+                                        <button
+                                            type="button"
+                                            className={styles.syncBtn}
+                                            onClick={() => handleConnectClick(broker)}
                                         >
-                                            <span>Visit Official Platform</span>
-                                            <ExternalLinkIcon />
-                                        </a>
-                                    
+                                            Sync MT5 Account
+                                        </button>
                                     </div>
                                 ) : (
                                     <a

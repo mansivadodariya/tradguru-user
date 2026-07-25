@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import styles from './tradersSection.module.scss';
 import LineText from '@/components/lineText';
 import RightIcon from '@/icons/rightIcon';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const SearchIcon = '/assets/icons/search.svg'
 const TradeSnapImage = '/assets/images/trade-snap.png';
@@ -18,6 +20,7 @@ const tradersData = [
         icon: SearchIcon,
         image: TradeSnapImage,
         linkText: 'Explore',
+        link: '/tradesnap',
     },
     {
         id: 2,
@@ -26,6 +29,7 @@ const tradersData = [
         icon: SearchIcon,
         image: FxGuruImage,
         linkText: 'Explore',
+        link: '/ai-chat',
     },
     {
         id: 3,
@@ -34,10 +38,13 @@ const tradersData = [
         icon: SearchIcon,
         image: AiStrategyImage,
         linkText: 'Explore',
+        link: '/ai-strategy',
     }
 ];
 
 export default function TradersSection() {
+    const router = useRouter();
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -118,6 +125,8 @@ export default function TradersSection() {
                             className={styles.items}
                             variants={cardVariants}
                             whileHover="hover"
+                            onClick={() => router.push(item.link)}
+                            style={{ cursor: 'pointer' }}
                         >
                             <div
                                 className={styles.icon}
@@ -131,12 +140,12 @@ export default function TradersSection() {
                             <p>
                                 {item.description}
                             </p>
-                            <div className={styles.readmore}>
+                            <Link href={item.link} className={styles.readmore} onClick={(e) => e.stopPropagation()}>
                                 <span>
                                     {item.linkText}
                                 </span>
                                 <RightIcon />
-                            </div>
+                            </Link>
                             <motion.div
                                 className={styles.imageAlignment}
                                 variants={imageVariants}

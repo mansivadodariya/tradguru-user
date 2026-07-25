@@ -19,7 +19,7 @@ const partnersData = [
         badge: 'Liquidity Gateway',
         logo: <img src={NeweraLogo} alt="Newera Brokerage" style={{ filter: 'brightness(1.5)' }} />,
         description: 'Native volume-to-credit integration engine powering your Trader Master AI usage credits directly through MT5 trading volume.',
-        href: 'https://newera.com',
+        href: 'https://newera365.com/',
         isExternal: true
     },
     {
@@ -28,7 +28,7 @@ const partnersData = [
         badge: 'Algo Execution',
         logo: <img src={AlgomaticLogo} alt="Algomatic Quant Broker" style={{ filter: 'brightness(1.5)' }} />,
         description: 'High-performance quantitative brokerage infrastructure offering direct FIX API access, strategy hosting, and automated risk engine.',
-        href: 'https://algomatic.com',
+        href: 'https://algomaticbot.com/',
         isExternal: true
     },
     {

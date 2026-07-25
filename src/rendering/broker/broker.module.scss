@@ -534,6 +534,28 @@
             .cardFooter {
                 border-top-color: #2D2D34;
 
+                .linkBtn {
+                    color: #E2E8F0;
+
+                    &:hover {
+                        color: #60A5FA;
+                    }
+
+                    svg {
+                        stroke: currentColor;
+                    }
+                }
+
+                .syncBtn {
+                    background: #0B56DB;
+                    color: #FFFFFF;
+
+                    &:hover {
+                        background: #2563EB;
+                        box-shadow: 0 4px 12px rgba(11, 86, 219, 0.4);
+                    }
+                }
+
                 .secondaryBtn {
                     background: #252529;
                     color: #D1D5DB;
