@@ -160,14 +160,7 @@ export default function Dashboard() {
                 icon: iconFour
 
             },
-            {
-                title: 'Brokers & Infrastructure',
-                desc: 'Explore supported MT5 brokers, platforms, and sliding partner integrations.',
-                cta: 'View Brokers',
-                href: '/broker',
-                accent: styles.qaBlue,
-                icon: iconThree
-            },
+ 
             {
                 title: 'Manage Profile',
                 desc: 'Update your personal information, account settings, and profile preferences easily.',
@@ -463,7 +456,7 @@ export default function Dashboard() {
                 </div>
             </section>
 
-            <EcosystemSection />
+            {/* <EcosystemSection /> */}
         </div>
     );
 }
