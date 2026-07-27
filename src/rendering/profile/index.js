@@ -41,6 +41,16 @@ export default function Profile() {
         if (!user) { router.replace('/login'); return; }
         const id = user.id || user.user_id || '';
         setUserId(id);
+
+        // Pre-fill from local storage initial fallback
+        setForm({
+            first_name: user.first_name || '',
+            last_name: user.last_name || '',
+            email: user.email || '',
+            phone_number: user.phone_number || '',
+            referral_code: user.referral_code || '',
+        });
+
         fetchProfile(id);
     }, []);
 
@@ -61,7 +71,13 @@ export default function Profile() {
                 referral_code: data.referral_code || '',
             });
         } catch (err) {
-            toast.error(err.message || 'Failed to load profile.');
+            const rawMsg = err?.message || String(err || '');
+            const isFetchErr = rawMsg.includes('Failed to fetch') || rawMsg.includes('TypeError');
+            const displayMsg = isFetchErr
+                ? 'Unable to connect to server. Please check your internet connection.'
+                : (err.message || 'Failed to load profile.');
+
+            toast.error(displayMsg, { id: 'fetch-profile-error' });
         } finally {
             setLoading(false);
         }

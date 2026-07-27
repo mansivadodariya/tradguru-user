@@ -45,8 +45,8 @@ const mainNav = [
     href: "/ai-strategy",
     icon: AiIcon,
     subItems: [
-      { label: "AI Strategy", href: "/ai-strategy/strategy", icon: StrategyIcon },
       { label: "Live Analysis", href: "/ai-strategy/live", icon: LiveAnalysisIcon },
+      { label: "AI Strategy", href: "/ai-strategy/strategy", icon: StrategyIcon },
     ]
   },
   { label: "Economic Calendar", href: "/economic-calendar", icon: PricingIcon },
