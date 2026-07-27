@@ -48,36 +48,34 @@ export default function Profile() {
             last_name: user.last_name || '',
             email: user.email || '',
             phone_number: user.phone_number || '',
-            referral_code: user.referral_code || '',
+            referral_code: user.referral_code || id || '',
         });
 
         fetchProfile(id);
     }, []);
 
     const fetchProfile = async (id) => {
+        if (!id) { setLoading(false); return; }
         setLoading(true);
         try {
+            if (!supabase) return;
             const { data, error } = await supabase
                 .from('users')
                 .select('first_name, last_name, email, phone_number, referral_code')
                 .eq('id', id)
-                .single();
-            if (error) throw error;
-            setForm({
-                first_name: data.first_name || '',
-                last_name: data.last_name || '',
-                email: data.email || '',
-                phone_number: data.phone_number || '',
-                referral_code: data.referral_code || '',
-            });
-        } catch (err) {
-            const rawMsg = err?.message || String(err || '');
-            const isFetchErr = rawMsg.includes('Failed to fetch') || rawMsg.includes('TypeError');
-            const displayMsg = isFetchErr
-                ? 'Unable to connect to server. Please check your internet connection.'
-                : (err.message || 'Failed to load profile.');
+                .maybeSingle();
 
-            toast.error(displayMsg, { id: 'fetch-profile-error' });
+            if (data) {
+                setForm((prev) => ({
+                    first_name: data.first_name || prev.first_name || '',
+                    last_name: data.last_name || prev.last_name || '',
+                    email: data.email || prev.email || '',
+                    phone_number: data.phone_number || prev.phone_number || '',
+                    referral_code: data.referral_code || prev.referral_code || id || '',
+                }));
+            }
+        } catch (err) {
+            console.warn('Profile fetch warning:', err);
         } finally {
             setLoading(false);
         }
@@ -173,10 +171,15 @@ export default function Profile() {
         }
     };
 
+    const getActiveReferralCode = () => {
+        return form.referral_code || userId || '';
+    };
+
     const handleCopyLink = async () => {
-        if (!form.referral_code) return;
+        const code = getActiveReferralCode();
+        if (!code) return;
         try {
-            const link = `${window.location.origin}/signup?code=${encodeURIComponent(form.referral_code)}`;
+            const link = `${window.location.origin}/signup?code=${encodeURIComponent(code)}`;
             await navigator.clipboard.writeText(link);
             toast.success('Referral link copied to clipboard!');
         } catch (err) {
@@ -185,8 +188,9 @@ export default function Profile() {
     };
 
     const handleShareLink = async () => {
-        if (!form.referral_code) return;
-        const link = `${window.location.origin}/signup?code=${encodeURIComponent(form.referral_code)}`;
+        const code = getActiveReferralCode();
+        if (!code) return;
+        const link = `${window.location.origin}/signup?code=${encodeURIComponent(code)}`;
         if (navigator.share) {
             try {
                 await navigator.share({
@@ -216,6 +220,8 @@ export default function Profile() {
             </div>
         );
     }
+
+    const activeRefCode = getActiveReferralCode();
 
     return (
         <div className={styles.profile}>
@@ -266,11 +272,11 @@ export default function Profile() {
                             <input
                                 type="text"
                                 className={styles.referralInput}
-                                value={form.referral_code || '—'}
+                                value={activeRefCode || '—'}
                                 disabled
                                 readOnly
                             />
-                            {form.referral_code && (
+                            {activeRefCode && (
                                 <div className={styles.referralActions}>
                                     <button
                                         type="button"

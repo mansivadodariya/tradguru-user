@@ -160,7 +160,6 @@ export default function Dashboard() {
                 icon: iconFour
 
             },
- 
             {
                 title: 'Manage Profile',
                 desc: 'Update your personal information, account settings, and profile preferences easily.',
