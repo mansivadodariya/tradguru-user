@@ -48,6 +48,12 @@ export async function POST(request) {
             .eq('id', userId);
 
         if (error) {
+            if (error.code === '23505' || error.message?.includes('users_phone_number_key') || error.details?.includes('phone_number')) {
+                return NextResponse.json(
+                    { error: 'This phone number is already in use by another account.' },
+                    { status: 400, headers: corsHeaders }
+                );
+            }
             throw error;
         }
 
