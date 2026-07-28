@@ -27,7 +27,7 @@ export const brokerList = [
             { id: '2', type: 'server', title: 'Best IB Rewards', sub: 'High volume rebate structure' },
             { id: '3', type: 'shield', title: 'Best Spreads', sub: 'Raw ECN tightest spreads' }
         ],
-        websiteUrl: 'https://newera365-app.vercel.app/en',
+        websiteUrl: 'https://trade.newera365.com/client/register/6a68798de0aaa',
         canSync: true
     },
     {
