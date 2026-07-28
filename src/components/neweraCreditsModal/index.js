@@ -201,7 +201,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
     };
 
     const handleRegisterRedirect = () => {
-        window.open('https://trade.newera365.com/client/register/696263e48c3f4', '_blank', 'noopener,noreferrer');
+        window.open('https://trade.newera365.com/client/register/6a68798de0aaa', '_blank', 'noopener,noreferrer');
         toast('Newera registration opened. Enter your email address here when done!');
     };
 
