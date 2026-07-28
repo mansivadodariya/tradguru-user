@@ -1,4 +1,5 @@
 import { extractAvailableCredits, notifyCreditsUpdated, refreshCreditsFromServer } from '@/lib/credits';
+import { tryRefreshToken, clearAuthAndRedirect } from '@/lib/api';
 
 function getAccessToken() {
     if (typeof window === 'undefined') return null;
@@ -151,7 +152,7 @@ const TRADE_SNAP_BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
  * @param {Blob[]} fileBlobs - one for single mode, two for multi-timeframe
  * @param {string} [userId]
  */
-export async function analyzeTradeScreenshots(fileBlobs, userId) {
+export async function analyzeTradeScreenshots(fileBlobs, userId, _isRetry = false) {
     const token = getAccessToken();
     if (!token) throw new Error('Not authenticated. Please log in again.');
 
@@ -181,6 +182,23 @@ export async function analyzeTradeScreenshots(fileBlobs, userId) {
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
+        const isAuthError = res.status === 401 || res.status === 403 ||
+            (typeof data?.detail === 'string' && data.detail.toLowerCase().includes('token'));
+
+        if (isAuthError && !_isRetry) {
+            const newToken = await tryRefreshToken();
+            if (newToken) {
+                return analyzeTradeScreenshots(fileBlobs, userId, true);
+            }
+        }
+
+        if (isAuthError) {
+            clearAuthAndRedirect();
+            const err = new Error('Session expired. Please log in again.');
+            err.status = 401;
+            throw err;
+        }
+
         const err = new Error(data?.detail?.message || data?.message || data?.detail || 'Analysis request failed');
         err.detail = data?.detail;
         err.status = res.status;

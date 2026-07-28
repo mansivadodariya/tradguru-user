@@ -49,15 +49,7 @@ const partnersData = [
         href: 'https://fundedmaster.com/',
         isExternal: true
     },
-    {
-        id: 'asic',
-        title: 'ASIC Regulated Partner',
-        badge: 'Tier-1 Regulation',
-        logo: <img src={AsicLogo} alt="ASIC Regulatory Partner" style={{ filter: 'brightness(1.5)' }} />,
-        description: 'Backed by Tier-1 Australian Securities & Investments Commission regulation, ensuring segregated client funds and negative balance protection.',
-        href: 'https://asic.gov.au',
-        isExternal: true
-    }
+
 ];
 
 export default function EcosystemSection() {

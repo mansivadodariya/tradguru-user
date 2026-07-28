@@ -9,13 +9,13 @@ let refreshPromise = null;
 
 import { clearAuthSession } from '@/lib/authSession';
 
-function clearAuthAndRedirect() {
+export function clearAuthAndRedirect() {
     if (typeof window === 'undefined') return;
     clearAuthSession();
     window.dispatchEvent(new CustomEvent('auth:unauthorized'));
 }
 
-async function tryRefreshToken() {
+export async function tryRefreshToken() {
     const refreshToken = typeof window !== 'undefined'
         ? localStorage.getItem('refresh_token')
         : null;

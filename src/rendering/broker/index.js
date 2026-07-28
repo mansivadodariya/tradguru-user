@@ -108,24 +108,7 @@ const brokerList = [
         websiteUrl: 'https://fundedmaster.com/',
         canSync: false
     },
-    {
-        id: 'asic',
-        name: 'ASIC Regulated Partner',
-        subtitle: 'Tier-1 Regulation',
-        logo: AsicIcon,
-        category: 'Regulated Partners',
-        status: 'Verified Partner',
-        statusType: 'connected',
-        description: 'Backed by Tier-1 Australian Securities & Investments Commission regulation, ensuring segregated client funds and negative balance protection.',
-        features: [
-            'Segregated client bank accounts (Tier-1 banks)',
-            'Negative balance protection guaranteed',
-            'Regular independent financial audits',
-            'Strict compliance & investor protection'
-        ],
-        websiteUrl: 'https://asic.gov.au',
-        canSync: false
-    },
+
 
 ];
 
