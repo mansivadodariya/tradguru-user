@@ -1,0 +1,398 @@
+@use '../../../scss/main.scss' as *;
+@use '../../../scss/breakpoints/breakpoints.scss' as *;
+
+.brokerDetailPage {
+    padding: 0 0 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    &.publicContainer {
+        max-width: 1200px;
+        margin: 125px auto 80px;
+        padding: 0 24px;
+
+        @include respond-to(sm) {
+            margin: 95px auto 50px;
+            padding: 0 16px;
+        }
+    }
+
+    .topNav {
+        display: flex;
+        align-items: center;
+
+        .backLink {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #F3F4F6;
+            border: 1px solid #E5E7EB;
+            color: #4B5563;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background: #0B56DB;
+                border-color: #0B56DB;
+                color: #FFFFFF;
+                transform: translateX(-2px);
+            }
+        }
+    }
+
+    .heroBanner {
+        background: linear-gradient(135deg, #0e0f12 0%, #072a6b 100%);
+        border-radius: 20px;
+        padding: 36px 32px;
+        color: #FFFFFF;
+        box-shadow: 0 10px 30px rgba(6, 57, 149, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+
+        .logoRow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+
+            .logoBox {
+                height: 52px;
+                display: flex;
+                align-items: center;
+
+                img {
+                    max-height: 48px;
+                    max-width: 180px;
+                    object-fit: contain;
+                }
+            }
+
+            .badges {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+
+                .categoryBadge {
+                    background: rgba(255, 255, 255, 0.15);
+                    border: 1px solid rgba(255, 255, 255, 0.25);
+                    color: #FFFFFF;
+                    padding: 4px 14px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
+                .statusBadge {
+                    background: rgba(16, 185, 129, 0.25);
+                    color: #34D399;
+                    border: 1px solid rgba(16, 185, 129, 0.4);
+                    padding: 4px 14px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+            }
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            line-height: 1.2;
+            font-family: var(--font-plus-jakarta);
+
+            @include respond-to(md) {
+                font-size: 26px;
+            }
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.85);
+            margin: 0;
+            font-weight: 500;
+        }
+    }
+
+    .contentGrid {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 24px;
+
+        @include respond-to(md) {
+            grid-template-columns: 1fr;
+        }
+
+        .mainContent {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+
+            .cardSection {
+                background: #FFFFFF;
+                border: 1px solid #E5E7EB;
+                border-radius: 16px;
+                padding: 28px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+
+                h3 {
+                    font-size: 18px;
+                    font-weight: 700;
+                    color: #111827;
+                    margin: 0 0 14px 0;
+                }
+
+                .description {
+                    font-size: 15px;
+                    line-height: 1.65;
+                    color: #4B5563;
+                    margin: 0;
+                }
+
+                .featureList {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+
+                    .featureItem {
+                        display: flex;
+                        align-items: flex-start;
+                        gap: 12px;
+                        font-size: 15px;
+                        color: #1F2937;
+                        font-weight: 500;
+
+                        .checkIconBox {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            background: rgba(16, 185, 129, 0.12);
+                            border-radius: 50%;
+                            padding: 4px;
+                            margin-top: 2px;
+                            flex-shrink: 0;
+                        }
+                    }
+                }
+            }
+        }
+
+        .sidebar {
+            .actionCard {
+                background: #FFFFFF;
+                border: 1px solid #E5E7EB;
+                border-radius: 16px;
+                padding: 24px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                position: sticky;
+                top: 24px;
+
+                h4 {
+                    font-size: 17px;
+                    font-weight: 700;
+                    color: #111827;
+                    margin: 0;
+                }
+
+                p {
+                    font-size: 14px;
+                    color: #6B7280;
+                    line-height: 1.5;
+                    margin: 0;
+                }
+
+                .urlBox {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    background: #F8FAFC;
+                    border: 1px solid #E2E8F0;
+                    padding: 10px 14px;
+                    border-radius: 10px;
+                    font-size: 13px;
+                    color: #0B56DB;
+                    font-weight: 600;
+                    word-break: break-all;
+                    font-family: monospace;
+                }
+
+                .visitOfficialBtn {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px;
+                    padding: 13px 20px;
+                    background: #0B56DB;
+                    color: #FFFFFF;
+                    border-radius: 12px;
+                    font-size: 15px;
+                    font-weight: 600;
+                    text-decoration: none;
+                    transition: all 0.2s ease;
+                    box-shadow: 0 4px 14px rgba(11, 86, 219, 0.25);
+
+                    &:hover {
+                        background: #0843AD;
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 18px rgba(11, 86, 219, 0.35);
+                    }
+                }
+
+                .syncBtn {
+                    padding: 12px 20px;
+                    background: linear-gradient(135deg, #0e0f12 0%, #072a6b 100%);
+                    color: #FFFFFF;
+                    border: none;
+                    border-radius: 12px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+
+                    &:hover {
+                        opacity: 0.92;
+                        transform: translateY(-1px);
+                    }
+                }
+            }
+        }
+    }
+}
+
+.notFound {
+    padding: 60px 20px;
+    text-align: center;
+
+    h2 {
+        font-size: 24px;
+        color: #111827;
+        margin: 0 0 8px 0;
+    }
+
+    p {
+        color: #6B7280;
+        margin: 0 0 20px 0;
+    }
+
+    .backBtn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: #0B56DB;
+        color: #FFFFFF;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+}
+
+:global(.dark) {
+    .brokerDetailPage {
+        .topNav {
+            .backLink {
+                background: #1A1A1E;
+                border-color: #2D2D34;
+                color: #E2E8F0;
+
+                &:hover {
+                    background: #0B56DB;
+                    border-color: #0B56DB;
+                    color: #FFFFFF;
+                }
+            }
+        }
+
+        .heroBanner {
+            border-color: #2D2D34;
+        }
+
+        .contentGrid {
+            .mainContent {
+                .cardSection {
+                    background: #1A1A1E;
+                    border-color: #2D2D34;
+
+                    h3 {
+                        color: #FFFFFF;
+                    }
+
+                    .description {
+                        color: #9CA3AF;
+                    }
+
+                    .featureList .featureItem {
+                        color: #E2E8F0;
+
+                        .checkIconBox {
+                            background: rgba(16, 185, 129, 0.2);
+                        }
+                    }
+                }
+            }
+
+            .sidebar {
+                .actionCard {
+                    background: #1A1A1E;
+                    border-color: #2D2D34;
+
+                    h4 {
+                        color: #FFFFFF;
+                    }
+
+                    p {
+                        color: #9CA3AF;
+                    }
+
+                    .urlBox {
+                        background: #0F172A;
+                        border-color: #1E293B;
+                        color: #60A5FA;
+                    }
+
+                    .visitOfficialBtn {
+                        background: #0B56DB;
+                        color: #FFFFFF;
+
+                        &:hover {
+                            background: #2563EB;
+                        }
+                    }
+
+                    .syncBtn {
+                        background: linear-gradient(135deg, #0e0f12 0%, #072a6b 100%);
+                        border: 1px solid #2D2D34;
+                        color: #FFFFFF;
+                    }
+                }
+            }
+        }
+    }
+
+    .notFound {
+        h2 {
+            color: #FFFFFF;
+        }
+
+        p {
+            color: #9CA3AF;
+        }
+    }
+}

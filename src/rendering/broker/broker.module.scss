@@ -166,21 +166,36 @@
         .tabs {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             background: #F3F4F6;
             padding: 4px;
             border-radius: 10px;
+            overflow-x: auto;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
 
             .tabBtn {
-                padding: 8px 16px;
+                padding: 8px 14px;
                 border-radius: 8px;
                 border: none;
                 background: transparent;
                 color: #656363;
-                font-size: 14px;
+                font-size: 13.5px;
                 font-weight: 500;
                 cursor: pointer;
                 transition: all 0.2s ease;
+                flex-shrink: 0;
+                white-space: nowrap;
+
+                @include respond-to(sm) {
+                    padding: 7px 12px;
+                    font-size: 13px;
+                }
 
                 &:hover {
                     color: #0B56DB;
@@ -198,6 +213,11 @@
         .searchBox {
             position: relative;
             min-width: 260px;
+
+            @include respond-to(sm) {
+                width: 100%;
+                min-width: 100%;
+            }
 
             input {
                 width: 100%;
@@ -229,15 +249,17 @@
 
     .brokersGrid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 24px;
 
         @include respond-to(md) {
             grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
         }
 
         @include respond-to(sm) {
             grid-template-columns: 1fr;
+            gap: 16px;
         }
     }
 
@@ -246,7 +268,7 @@
         background: #FFFFFF;
         border-radius: 16px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-        padding: 32px;
+        padding: 24px 24px 0 24px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -255,7 +277,7 @@
         transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
         @include respond-to(sm) {
-            padding: 24px;
+            padding: 20px 20px 0 20px;
         }
 
         &::before {
@@ -273,20 +295,12 @@
         }
 
         &:hover {
-            transform: translateY(-8px);
+            transform: translateY(-6px);
             border-color: rgba(11, 86, 219, 0.35);
             box-shadow: 0 20px 45px rgba(11, 86, 219, 0.12);
 
             &::before {
                 opacity: 0.25;
-            }
-
-            .linkBtn {
-                color: #0B56DB;
-
-                svg {
-                    transform: translateX(4px);
-                }
             }
         }
 
@@ -295,23 +309,46 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             background: linear-gradient(135deg, #0e0f12 0%, #072a6b 100%);
-            padding: 16px 20px;
+            padding: 14px 18px;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.12);
             box-shadow: 0 6px 20px rgba(6, 57, 149, 0.2);
 
             .logoBox {
-                height: 48px;
+                height: 44px;
                 display: flex;
                 align-items: center;
                 justify-content: flex-start;
 
                 img {
-                    max-height: 42px;
-                    max-width: 150px;
+                    max-height: 40px;
+                    max-width: 140px;
                     object-fit: contain;
+                }
+            }
+
+            .eyeBtn {
+                background: rgba(255, 255, 255, 0.12);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: #FFFFFF;
+                width: 36px;
+                height: 36px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                flex-shrink: 0;
+
+                &:hover {
+                    background: #0B56DB;
+                    border-color: #0B56DB;
+                    color: #FFFFFF;
+                    transform: scale(1.08);
+                    box-shadow: 0 4px 12px rgba(11, 86, 219, 0.4);
                 }
             }
 
@@ -345,75 +382,128 @@
 
         .cardBody {
             flex: 1;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
 
             h3 {
                 margin: 0 0 8px 0;
                 color: #1A1A1A;
-                font-size: 22px;
+                font-size: 20px;
                 font-weight: 700;
                 line-height: 1.3;
                 font-family: var(--font-plus-jakarta);
 
                 @include respond-to(sm) {
-                    font-size: 19px;
+                    font-size: 18px;
                 }
             }
 
             .description {
                 color: rgba(26, 26, 26, 0.72);
-                font-size: 15px;
-                line-height: 24px;
+                font-size: 14.5px;
+                line-height: 22px;
                 margin: 0;
 
                 @include respond-to(sm) {
-                    font-size: 14px;
-                    line-height: 22px;
+                    font-size: 13.5px;
+                    line-height: 20px;
                 }
             }
         }
 
         .cardFooter {
-            padding-top: 18px;
             border-top: 1px solid rgba(26, 26, 26, 0.08);
+            padding: 16px 20px 20px 20px;
+            margin: 0;
 
-            .actionGroup {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 12px;
+            @include respond-to(sm) {
+                padding: 14px 16px 16px 16px;
             }
 
-            .linkBtn {
+            .actionGroup {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                width: 100%;
+                align-items: center;
+            }
+
+            .linkBtn, .syncBtn {
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                color: #1A1A1A;
-                font-size: 15px;
+                justify-content: center;
+                gap: 6px;
+                padding: 10px 12px;
+                background: #F3F4F6;
+                border: 1px solid #E5E7EB;
+                color: #1F2937;
+                border-radius: 10px;
+                font-size: 13px;
                 font-weight: 600;
                 text-decoration: none;
-                transition: all 0.2s ease;
+                cursor: pointer;
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+                @include respond-to(sm) {
+                    padding: 9px 8px;
+                    font-size: 12px;
+                }
+
+                &:hover {
+                    background: #E5E7EB;
+                    color: #0B56DB;
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+                }
+
+                span {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
 
                 svg {
-                    transition: transform 0.2s ease;
+                    flex-shrink: 0;
                 }
             }
 
-            .syncBtn {
-                padding: 8px 14px;
-                border-radius: 8px;
-                background: #0B56DB;
+            .detailBtn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                padding: 10px 12px;
+                background: linear-gradient(135deg, #0B56DB 0%, #063995 100%);
                 color: #FFFFFF;
+                border-radius: 10px;
                 font-size: 13px;
                 font-weight: 600;
+                text-decoration: none;
                 border: none;
                 cursor: pointer;
-                transition: all 0.2s ease;
-                white-space: nowrap;
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 4px 14px rgba(11, 86, 219, 0.25);
+
+                @include respond-to(sm) {
+                    padding: 9px 8px;
+                    font-size: 12px;
+                }
 
                 &:hover {
-                    background: #0844B1;
-                    box-shadow: 0 4px 12px rgba(11, 86, 219, 0.25);
+                    background: linear-gradient(135deg, #0843AD 0%, #042B75 100%);
+                    color: #FFFFFF;
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 18px rgba(11, 86, 219, 0.38);
+                }
+
+                span {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                svg {
+                    flex-shrink: 0;
+                    stroke: #FFFFFF;
                 }
             }
         }
@@ -508,11 +598,7 @@
                 box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
             }
 
-            .cardHeader .logoBox {
-                background: #252529;
-                border-color: #374151;
-            }
-
+         
             .cardBody {
                 h3 {
                     color: #FFFFFF;
@@ -534,36 +620,26 @@
             .cardFooter {
                 border-top-color: #2D2D34;
 
-                .linkBtn {
+                .linkBtn, .syncBtn {
+                    background: #252529;
+                    border-color: #374151;
                     color: #E2E8F0;
 
                     &:hover {
+                        background: #374151;
                         color: #60A5FA;
                     }
-
-                    svg {
-                        stroke: currentColor;
-                    }
                 }
 
-                .syncBtn {
-                    background: #0B56DB;
+                .detailBtn {
+                    background: linear-gradient(135deg, #0B56DB 0%, #063995 100%);
                     color: #FFFFFF;
+                    box-shadow: 0 4px 14px rgba(11, 86, 219, 0.35);
 
                     &:hover {
-                        background: #2563EB;
-                        box-shadow: 0 4px 12px rgba(11, 86, 219, 0.4);
-                    }
-                }
-
-                .secondaryBtn {
-                    background: #252529;
-                    color: #D1D5DB;
-                    border-color: #374151;
-
-                    &:hover {
-                        background: #374151;
+                        background: linear-gradient(135deg, #2563EB 0%, #0B56DB 100%);
                         color: #FFFFFF;
+                        box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
                     }
                 }
             }
