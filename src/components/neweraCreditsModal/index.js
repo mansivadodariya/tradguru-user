@@ -73,7 +73,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
             }
             try {
                 setLoading(true);
-                // 1. Try newera_credits_sync
+                // 1. Try newera_credits_sync first
                 const { data: syncData } = await supabase
                     .from('newera_credits_sync')
                     .select('email, mt5_id, welcome_credits_awarded, deposit_credits_awarded')
@@ -92,7 +92,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                     return;
                 }
 
-                // 2. Try mt5_accounts fallback
+                // 2. Try mt5_accounts fallback (If mt5 account exists, welcome credits phase 1 is already linked!)
                 const { data: mt5Data } = await supabase
                     .from('mt5_accounts')
                     .select('email, login')
@@ -104,7 +104,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                 if (mt5Data && mt5Data.login) {
                     setLogin(String(mt5Data.login));
                     if (mt5Data.email) setEmail(mt5Data.email);
-                    setWelcomeAwarded(false);
+                    setWelcomeAwarded(true); // Account already linked, phase 1 complete!
                     setDepositAwarded(false);
                     setHasExistingLink(true);
                 } else {
@@ -192,14 +192,10 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
         }
     }, [activeUserId, email, login, welcomeAwarded, depositAwarded, onSuccess, onClose]);
 
-    // Single hit on mount/open and on tab visibility change (No continuous interval polling)
+    // Hit syncCredits when tab visibility changes to visible (e.g. after depositing in another tab)
     useEffect(() => {
         if (!activeUserId || !hasExistingLink || !welcomeAwarded || loading) return;
 
-        // 1. Single hit when popup opens / on enter
-        syncCredits();
-
-        // 2. Hit when tab visibility changes to visible
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 syncCredits();
@@ -264,7 +260,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                     if (supabase) {
                         await supabase
                             .from('newera_credits_sync')
-                            .insert({
+                            .upsert({
                                 user_id: uid,
                                 email: email,
                                 mt5_id: Number(login),
