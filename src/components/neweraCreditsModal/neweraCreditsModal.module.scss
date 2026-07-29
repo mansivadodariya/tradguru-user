@@ -291,6 +291,31 @@ $newera-border: #E2E8F0;
     animation: spin 0.8s linear infinite;
 }
 
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    gap: 16px;
+
+    p {
+        font-size: 14px;
+        color: rgba(26, 26, 26, 0.65);
+        font-weight: 500;
+        margin: 0;
+    }
+}
+
+.spinnerLarge {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(15, 34, 64, 0.15);
+    border-radius: 50%;
+    border-top-color: $newera-navy;
+    animation: spin 0.8s linear infinite;
+}
+
 .error {
     color: $newera-red;
     font-size: 12px;
@@ -321,6 +346,113 @@ $newera-border: #E2E8F0;
         color: #1A1A1A;
         transform: rotate(90deg);
     }
+}
+
+.phaseContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: left;
+}
+
+.autoStatusCard {
+    background: $newera-bg-light;
+    border: 1px solid $newera-border;
+    border-radius: 18px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+}
+
+.accountInfoBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 34, 64, 0.06);
+    border: 1px solid rgba(15, 34, 64, 0.12);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $newera-navy;
+
+    svg {
+        color: $newera-navy;
+    }
+}
+
+.statusMessage {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #2D3748;
+    font-weight: 500;
+    margin: 0;
+
+    strong {
+        color: $newera-navy;
+        font-weight: 700;
+    }
+}
+
+.statusIndicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(26, 26, 26, 0.6);
+    background: #ffffff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid $newera-border;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    flex-wrap: wrap;
+    justify-content: center;
+
+    svg {
+        color: #10B981;
+        flex-shrink: 0;
+    }
+}
+
+.recheckBtn {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    color: #2563EB;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 12px;
+    padding: 3px 10px;
+    margin-left: 4px;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+        background: rgba(59, 130, 246, 0.2);
+        color: #1D4ED8;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.pulseDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #3B82F6;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
 }
 
 /* Dark Mode Overrides */
@@ -400,6 +532,46 @@ $newera-border: #E2E8F0;
         &:hover:not(:disabled) {
             background: #3b5e96;
         }
+    }
+
+    .autoStatusCard {
+        background: #181B22;
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .accountInfoBadge {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.15);
+        color: #60A5FA;
+
+        svg {
+            color: #60A5FA;
+        }
+    }
+
+    .statusMessage {
+        color: rgba(243, 244, 246, 0.85);
+
+        strong {
+            color: #ffffff;
+        }
+    }
+
+    .statusIndicator {
+        background: #1E222B;
+        border-color: rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .loadingContainer {
+        p {
+            color: rgba(243, 244, 246, 0.7);
+        }
+    }
+
+    .spinnerLarge {
+        border-color: rgba(255, 255, 255, 0.15);
+        border-top-color: #60A5FA;
     }
 
     .inputWrapper {

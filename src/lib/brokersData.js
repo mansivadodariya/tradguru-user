@@ -30,78 +30,78 @@ export const brokerList = [
         websiteUrl: 'https://trade.newera365.com/client/register/6a68798de0aaa',
         canSync: true
     },
-    {
-        id: 'algomatic',
-        name: 'Algomatic Quant',
-        subtitle: 'Algo Execution Engine',
-        logo: AlgomaticIcon,
-        category: 'Algo Brokers',
-        badge: '📊 Quant Brokerage Infrastructure',
-        status: 'Partner',
-        statusType: 'partner',
-        description: 'High-performance quantitative brokerage infrastructure offering direct FIX API access, strategy hosting, and automated risk engines.',
-        features: [
-            'Quantitative model hosting & execution',
-            'Direct FIX API & webhooks connectivity',
-            'Automated risk management & drawdown limits',
-            'Institutional grade liquidity pools'
-        ],
-        highlights: [
-            { id: '1', type: 'link', title: '24/5 Automated Trading', sub: 'Non-stop algo execution' },
-            { id: '2', type: 'server', title: 'Price Gap Arbitrage Engine', sub: 'Real-time gap detection' },
-            { id: '3', type: 'shield', title: 'Broker Agnostic', sub: 'Universal MT4/MT5 compatibility' }
-        ],
-        websiteUrl: 'https://algomaticbot.com/',
-        canSync: false
-    },
-    {
-        id: 'edufins',
-        name: 'Edufins Academy',
-        subtitle: 'Trading Education Platform',
-        logo: EdufinsIcon,
-        category: 'Learning Platforms',
-        badge: '🎓 Forex & CFD Trading Academy',
-        status: 'Education Partner',
-        statusType: 'supported',
-        description: 'Premier financial trading academy offering structured forex courses, live market analysis webinars, risk management tools, and professional trader mentoring.',
-        features: [
-            'Comprehensive Forex & CFD trading courses',
-            'Live market analysis & trading webinars',
-            'Arbitrage & algorithmic trading education',
-            'Risk management frameworks & trading tools'
-        ],
-        highlights: [
-            { id: '1', type: 'link', title: 'Forex Courses', sub: 'Structured CFD & FX learning' },
-            { id: '2', type: 'server', title: 'Live Webinars', sub: 'Real-time market analysis' },
-            { id: '3', type: 'shield', title: 'Trader Mentoring', sub: 'Risk frameworks & tools' }
-        ],
-        websiteUrl: 'https://edufins.com',
-        canSync: false
-    },
-    {
-        id: 'funded-master',
-        name: 'Funded Master',
-        subtitle: 'Prop Trading Community',
-        logo: FundedMasterLogo,
-        category: 'Prop Trading',
-        badge: '🏆 Prop Trading Firm',
-        status: 'Partner',
-        statusType: 'partner',
-        description: 'To win the game, you need strong support and diligent preparation. Join For Traders Community — traders worldwide (18+) can apply and trade in financial markets.',
-        features: [
-            'Global traders application (18+ years old)',
-            'Strong support & diligent preparation community',
-            'Financial markets trading access & evaluation',
-            'Up to 90% profit splits for disciplined traders'
-        ],
-        highlights: [
-            { id: '1', type: 'link', title: 'Global Traders 18+', sub: 'Worldwide trader access' },
-            { id: '2', type: 'server', title: 'Trader Community', sub: 'Strong support & preparation' },
-            { id: '3', type: 'shield', title: 'Up to 90% Split', sub: 'Disciplined evaluation' }
-        ],
-        websiteUrl: 'https://fundedmaster.com/',
-        canSync: false
-    }
+    // {
+    //     id: 'algomatic',
+    //     name: 'Algomatic Quant',
+    //     subtitle: 'Algo Execution Engine',
+    //     logo: AlgomaticIcon,
+    //     category: 'Algo Brokers',
+    //     badge: '📊 Quant Brokerage Infrastructure',
+    //     status: 'Partner',
+    //     statusType: 'partner',
+    //     description: 'High-performance quantitative brokerage infrastructure offering direct FIX API access, strategy hosting, and automated risk engines.',
+    //     features: [
+    //         'Quantitative model hosting & execution',
+    //         'Direct FIX API & webhooks connectivity',
+    //         'Automated risk management & drawdown limits',
+    //         'Institutional grade liquidity pools'
+    //     ],
+    //     highlights: [
+    //         { id: '1', type: 'link', title: '24/5 Automated Trading', sub: 'Non-stop algo execution' },
+    //         { id: '2', type: 'server', title: 'Price Gap Arbitrage Engine', sub: 'Real-time gap detection' },
+    //         { id: '3', type: 'shield', title: 'Broker Agnostic', sub: 'Universal MT4/MT5 compatibility' }
+    //     ],
+    //     websiteUrl: 'https://algomaticbot.com/',
+    //     canSync: false
+    // },
+    // {
+    //     id: 'edufins',
+    //     name: 'Edufins Academy',
+    //     subtitle: 'Trading Education Platform',
+    //     logo: EdufinsIcon,
+    //     category: 'Learning Platforms',
+    //     badge: '🎓 Forex & CFD Trading Academy',
+    //     status: 'Education Partner',
+    //     statusType: 'supported',
+    //     description: 'Premier financial trading academy offering structured forex courses, live market analysis webinars, risk management tools, and professional trader mentoring.',
+    //     features: [
+    //         'Comprehensive Forex & CFD trading courses',
+    //         'Live market analysis & trading webinars',
+    //         'Arbitrage & algorithmic trading education',
+    //         'Risk management frameworks & trading tools'
+    //     ],
+    //     highlights: [
+    //         { id: '1', type: 'link', title: 'Forex Courses', sub: 'Structured CFD & FX learning' },
+    //         { id: '2', type: 'server', title: 'Live Webinars', sub: 'Real-time market analysis' },
+    //         { id: '3', type: 'shield', title: 'Trader Mentoring', sub: 'Risk frameworks & tools' }
+    //     ],
+    //     websiteUrl: 'https://edufins.com',
+    //     canSync: false
+    // },
+    // {
+    //     id: 'funded-master',
+    //     name: 'Funded Master',
+    //     subtitle: 'Prop Trading Community',
+    //     logo: FundedMasterLogo,
+    //     category: 'Prop Trading',
+    //     badge: '🏆 Prop Trading Firm',
+    //     status: 'Partner',
+    //     statusType: 'partner',
+    //     description: 'To win the game, you need strong support and diligent preparation. Join For Traders Community — traders worldwide (18+) can apply and trade in financial markets.',
+    //     features: [
+    //         'Global traders application (18+ years old)',
+    //         'Strong support & diligent preparation community',
+    //         'Financial markets trading access & evaluation',
+    //         'Up to 90% profit splits for disciplined traders'
+    //     ],
+    //     highlights: [
+    //         { id: '1', type: 'link', title: 'Global Traders 18+', sub: 'Worldwide trader access' },
+    //         { id: '2', type: 'server', title: 'Trader Community', sub: 'Strong support & preparation' },
+    //         { id: '3', type: 'shield', title: 'Up to 90% Split', sub: 'Disciplined evaluation' }
+    //     ],
+    //     websiteUrl: 'https://fundedmaster.com/',
+    //     canSync: false
+    // }
 ];
 
 export function getBrokerById(id) {

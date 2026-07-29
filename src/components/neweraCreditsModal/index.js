@@ -1,23 +1,55 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import styles from './neweraCreditsModal.module.scss';
 import Input from '@/components/input';
 import { neweraApi } from '@/lib/api';
 import { toast } from '@/components/toast';
 import { useTheme } from '@/context/ThemeContext';
 import { supabase } from '@/lib/supabaseClient';
-import { notifyCreditsUpdated, refreshCreditsFromServer } from '@/lib/credits';
+import { getStoredUserId } from '@/lib/authSession';
+import { extractAvailableCredits, notifyCreditsUpdated, refreshCreditsFromServer } from '@/lib/credits';
+
+function parseCreditAmount(res) {
+    if (!res) return null;
+    const candidates = [
+        extractAvailableCredits(res),
+        extractAvailableCredits(res?.data),
+        res?.data?.credits_given,
+        res?.data?.credits,
+        res?.credits_given,
+        res?.credits,
+        res?.data?.data?.credits_given,
+        res?.data?.data?.credits,
+        res?.data?.available_credits,
+        res?.data?.availableCredits,
+    ];
+    for (const val of candidates) {
+        if (val !== undefined && val !== null && val !== '') {
+            const num = Number(val);
+            if (!isNaN(num)) return num;
+        }
+    }
+    return null;
+}
 
 export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
+    const activeUserId = userId || getStoredUserId();
     const [email, setEmail] = useState('');
     const [login, setLogin] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
+    const [welcomeAwarded, setWelcomeAwarded] = useState(false);
+    const [depositAwarded, setDepositAwarded] = useState(false);
     const [hasExistingLink, setHasExistingLink] = useState(false);
+    const [autoSyncing, setAutoSyncing] = useState(false);
+    const [syncChecked, setSyncChecked] = useState(false);
+    const [syncStatusMessage, setSyncStatusMessage] = useState('');
+    const isSyncingRef = useRef(false);
     const { theme } = useTheme();
 
-    React.useEffect(() => {
+    useEffect(() => {
         try {
             const stored = localStorage.getItem('user');
             if (stored) {
@@ -31,31 +63,21 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
         }
     }, []);
 
-    React.useEffect(() => {
+    // 1. Fetch account link and flags from Supabase newera_credits_sync or mt5_accounts
+    useEffect(() => {
         const fetchLinkedAccount = async () => {
-            if (!userId || !supabase) return;
+            const uid = userId || getStoredUserId();
+            if (!uid || !supabase) {
+                setLoading(false);
+                return;
+            }
             try {
-                // 1. Try mt5_accounts
-                const { data: mt5Data } = await supabase
-                    .from('mt5_accounts')
-                    .select('email, login')
-                    .eq('user_id', userId)
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
-
-                if (mt5Data && mt5Data.login) {
-                    setLogin(String(mt5Data.login));
-                    if (mt5Data.email) setEmail(mt5Data.email);
-                    setHasExistingLink(true);
-                    return;
-                }
-
-                // 2. Try newera_credits_sync fallback
+                setLoading(true);
+                // 1. Try newera_credits_sync
                 const { data: syncData } = await supabase
                     .from('newera_credits_sync')
-                    .select('email, mt5_id')
-                    .eq('user_id', userId)
+                    .select('email, mt5_id, welcome_credits_awarded, deposit_credits_awarded')
+                    .eq('user_id', uid)
                     .order('created_at', { ascending: false })
                     .limit(1)
                     .maybeSingle();
@@ -63,38 +85,132 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                 if (syncData && syncData.mt5_id) {
                     setLogin(String(syncData.mt5_id));
                     if (syncData.email) setEmail(syncData.email);
+                    setWelcomeAwarded(Boolean(syncData.welcome_credits_awarded));
+                    setDepositAwarded(Boolean(syncData.deposit_credits_awarded));
                     setHasExistingLink(true);
+                    setLoading(false);
+                    return;
+                }
+
+                // 2. Try mt5_accounts fallback
+                const { data: mt5Data } = await supabase
+                    .from('mt5_accounts')
+                    .select('email, login')
+                    .eq('user_id', uid)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (mt5Data && mt5Data.login) {
+                    setLogin(String(mt5Data.login));
+                    if (mt5Data.email) setEmail(mt5Data.email);
+                    setWelcomeAwarded(false);
+                    setDepositAwarded(false);
+                    setHasExistingLink(true);
+                } else {
+                    setWelcomeAwarded(false);
+                    setDepositAwarded(false);
                 }
             } catch (err) {
                 console.error('Error fetching linked account:', err);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchLinkedAccount();
     }, [userId]);
 
-    const syncCredits = async () => {
-        if (!userId) return;
+    // Helper for syncing Phase 2 or Phase 3 (triggered on mount, tab refresh, or tab visibility change)
+    const syncCredits = useCallback(async () => {
+        const uid = activeUserId;
+        if (!uid || !email || !login || isSyncingRef.current) return;
+        isSyncingRef.current = true;
+        setAutoSyncing(true);
+
         try {
-            const freshCredits = await refreshCreditsFromServer();
-            if (freshCredits !== null && freshCredits !== undefined && Number(freshCredits) > 0) {
-                if (onSuccess) onSuccess(freshCredits);
+            const res = await neweraApi.linkAccount(uid, email, login);
+
+            // Synchronize flags returned by API response if available
+            const apiRes = res?.data || res;
+            if (apiRes) {
+                if (apiRes.welcome_credits_awarded !== undefined && apiRes.welcome_credits_awarded !== null) {
+                    setWelcomeAwarded(Boolean(apiRes.welcome_credits_awarded));
+                }
+                if (apiRes.deposit_credits_awarded !== undefined && apiRes.deposit_credits_awarded !== null) {
+                    setDepositAwarded(Boolean(apiRes.deposit_credits_awarded));
+                }
+            }
+
+            let earnedAmount = parseCreditAmount(res);
+
+            // Fallback check from server stats
+            if (earnedAmount === null || earnedAmount === undefined || earnedAmount <= 0) {
+                const freshCredits = await refreshCreditsFromServer();
+                if (freshCredits !== null && freshCredits !== undefined) {
+                    const freshNum = Number(freshCredits);
+                    if (freshNum > 0) {
+                        earnedAmount = freshNum;
+                    }
+                }
+            }
+
+            if (earnedAmount !== null && earnedAmount !== undefined && earnedAmount > 0) {
+                // If in Phase 2 (welcomeAwarded = true, depositAwarded = false), update deposit_credits_awarded in DB
+                if (welcomeAwarded && !depositAwarded && supabase) {
+                    try {
+                        await supabase
+                            .from('newera_credits_sync')
+                            .update({ deposit_credits_awarded: true })
+                            .eq('user_id', uid);
+                        setDepositAwarded(true);
+                    } catch (dbErr) {
+                        console.error("Error updating deposit_credits_awarded:", dbErr);
+                    }
+                    toast.success(`Congratulations! You have received ${earnedAmount} deposit credits!`);
+                } else if (welcomeAwarded && depositAwarded) {
+                    toast.success(`Congratulations! You have received ${earnedAmount} trading credits!`);
+                } else {
+                    toast.success(`Congratulations! You have received ${earnedAmount} credits!`);
+                }
+
+                notifyCreditsUpdated(earnedAmount);
+                if (onSuccess) onSuccess(earnedAmount);
                 onClose?.();
+                return;
+            } else {
+                setSyncChecked(true);
+                setSyncStatusMessage('Checked just now. No new credits available yet.');
             }
         } catch (err) {
-            console.warn("Background auto-sync failed:", err);
+            console.warn("Credit sync failed:", err);
+            setSyncChecked(true);
+            setSyncStatusMessage('Failed to check credits. Retry below.');
+        } finally {
+            isSyncingRef.current = false;
+            setAutoSyncing(false);
         }
-    };
+    }, [activeUserId, email, login, welcomeAwarded, depositAwarded, onSuccess, onClose]);
 
-    React.useEffect(() => {
-        if (!userId || !hasExistingLink) return;
+    // Single hit on mount/open and on tab visibility change (No continuous interval polling)
+    useEffect(() => {
+        if (!activeUserId || !hasExistingLink || !welcomeAwarded || loading) return;
 
-        const interval = setInterval(() => {
-            syncCredits();
-        }, 5000);
+        // 1. Single hit when popup opens / on enter
+        syncCredits();
 
-        return () => clearInterval(interval);
-    }, [userId, hasExistingLink]);
+        // 2. Hit when tab visibility changes to visible
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                syncCredits();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [activeUserId, hasExistingLink, welcomeAwarded, loading, syncCredits]);
 
     const logoSrc = theme === 'dark' ? '/assets/icons/Img1.svg' : '/assets/images/LightNewera.png';
 
@@ -105,8 +221,10 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
         }
     };
 
+    // Phase 1 - Submit account connection
     const handleLinkAccount = async (e) => {
         e.preventDefault();
+        const uid = activeUserId;
         if (!email.trim() || !email.includes('@')) {
             setError('Please enter a valid email address.');
             return;
@@ -120,75 +238,64 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
             return;
         }
 
-        setLoading(true);
+        setSubmitting(true);
         setError('');
 
         try {
-            const res = await neweraApi.linkAccount(userId, email, login);
+            const res = await neweraApi.linkAccount(uid, email, login);
             if (res.success) {
-                // Store the linked account in mt5_accounts
+                // Store in mt5_accounts
                 try {
                     if (supabase) {
-                        const { error: dbError } = await supabase
+                        await supabase
                             .from('mt5_accounts')
                             .upsert({
-                                user_id: userId,
+                                user_id: uid,
                                 email: email,
                                 login: Number(login)
                             }, { onConflict: 'login' });
-                        if (dbError) {
-                            console.error("Failed to save MT5 account to database:", dbError);
-                        }
                     }
                 } catch (dbErr) {
                     console.error("Database insert error for mt5_accounts:", dbErr);
                 }
 
-                // Also store the linked account in newera_credits_sync
+                // Store in newera_credits_sync setting welcome_credits_awarded = true
                 try {
                     if (supabase) {
-                        const { error: dbError } = await supabase
+                        await supabase
                             .from('newera_credits_sync')
                             .insert({
-                                user_id: userId,
+                                user_id: uid,
                                 email: email,
                                 mt5_id: Number(login),
-                                welcome_credits_awarded: true
+                                welcome_credits_awarded: true,
+                                deposit_credits_awarded: false
                             });
-                        if (dbError) {
-                            console.error("Failed to save newera_credits_sync to database:", dbError);
-                        }
                     }
                 } catch (dbErr) {
                     console.error("Database insert error for newera_credits_sync:", dbErr);
                 }
 
                 setHasExistingLink(true);
+                setWelcomeAwarded(true);
 
-                const creditsVal = res.data?.available_credits ?? res.data?.availableCredits ?? res.data?.data?.available_credits;
-                if (creditsVal !== undefined && creditsVal !== null) {
-                    notifyCreditsUpdated(creditsVal);
-                    if (Number(creditsVal) > 0) {
-                        toast.success(res.message || 'Account linked successfully! Credits updated.');
-                        if (onSuccess) {
-                            onSuccess(creditsVal);
-                        }
-                        onClose?.();
-                        return;
-                    }
-                } else {
+                let earnedAmount = parseCreditAmount(res);
+                if (earnedAmount === null || earnedAmount <= 0) {
                     const freshCredits = await refreshCreditsFromServer();
-                    if (freshCredits !== null && freshCredits !== undefined && Number(freshCredits) > 0) {
-                        toast.success(res.message || 'Account linked successfully! Credits updated.');
-                        if (onSuccess) {
-                            onSuccess(freshCredits);
-                        }
-                        onClose?.();
-                        return;
+                    if (freshCredits !== null && freshCredits !== undefined) {
+                        earnedAmount = Number(freshCredits);
                     }
                 }
 
-                toast.success('Account linked successfully! Waiting for credits to update from trades.');
+                if (earnedAmount !== null && earnedAmount > 0) {
+                    notifyCreditsUpdated(earnedAmount);
+                    toast.success(`Congratulations! You have received ${earnedAmount} welcome credits for linking your MT5 account.`);
+                    if (onSuccess) onSuccess(earnedAmount);
+                    onClose?.();
+                    return;
+                }
+
+                toast.success('Account linked successfully! Welcome credits will update shortly.');
             } else {
                 setError(res.message || 'Failed to link account.');
             }
@@ -196,7 +303,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
             setError(err?.message || 'An error occurred. Please try again.');
             toast.error(err?.message || 'Failed to link Newera account.');
         } finally {
-            setLoading(false);
+            setSubmitting(false);
         }
     };
 
@@ -205,13 +312,18 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
         toast('Newera registration opened. Enter your email address here when done!');
     };
 
+    // Determine current phase (Only rendered when loading is false)
+    const isPhase1 = !welcomeAwarded;
+    const isPhase2 = welcomeAwarded && !depositAwarded;
+    const isPhase3 = welcomeAwarded && depositAwarded;
+
     return (
         <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="modal-title">
             <div className={styles.box}>
                 {/* Visual Brand Border accent */}
                 <div className={styles.accentLayer}></div>
                 
-                {/* Newera Customized Logo Header */}
+                {/* Newera Logo Header */}
                 <div className={styles.brandHeader}>
                     <div className={styles.logoWrapper}>
                         <img src={logoSrc} alt="Newera Logo" className={styles.logoImg} />
@@ -219,91 +331,211 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                 </div>
 
                 <div className={styles.content}>
-                    
-                    <h2 id="modal-title" className={styles.title}>
-                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            <path d="M12 8v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            <path d="M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                        Out of Credits</h2>
-                    
-                    <div className={styles.welcomeText}>
-                        <p>Looks like you have run out of trading credits.</p>
-                    </div>
-
-                    <div className={styles.optionsContainer}>
-                        {/* Register card */}
-                        <div className={styles.optionCard}>
-                            <div className={styles.optionHeader}>
-                                <span className={styles.badgeStep}>1</span>
-                                <h3>Create New Account</h3>
-                            </div>
-                            <p className={styles.optionDesc}>
-                                Don't have a Newera account? Register one in a new tab to start trading.
-                            </p>
-                            <button 
-                                type="button" 
-                                className={styles.registerBtn} 
-                                onClick={handleRegisterRedirect}
-                            >
-                                Register Account
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                                    <polyline points="15 3 21 3 21 9"></polyline>
-                                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                                </svg>
-                            </button>
+                    {/* While checking database status, render Loading view */}
+                    {loading ? (
+                        <div className={styles.loadingContainer}>
+                            <div className={styles.spinnerLarge}></div>
+                            <p>Loading account details...</p>
                         </div>
+                    ) : (
+                        <>
+                            {/* Phase 1 Header & Content */}
+                            {isPhase1 && (
+                                <>
+                                    <h2 id="modal-title" className={styles.title}>
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                            <path d="M12 8v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                            <path d="M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                        Welcome Bonus
+                                    </h2>
+                                    <div className={styles.welcomeText}>
+                                        <p>Connect your Newera trading account and receive your welcome credits instantly.</p>
+                                    </div>
 
-                        {/* Link account card */}
-                        <div className={styles.optionCard}>
-                            <div className={styles.optionHeader}>
-                                <span className={styles.badgeStep}>2</span>
-                                <h3>Link Existing Account</h3>
-                            </div>
-                            <p className={styles.optionDesc}>
-                                Enter your Newera email address below to claim your credits.
-                            </p>
+                                    <div className={styles.optionsContainer}>
+                                        {/* Step 1: Register card */}
+                                        <div className={styles.optionCard}>
+                                            <div className={styles.optionHeader}>
+                                                <span className={styles.badgeStep}>1</span>
+                                                <h3>Create New Account</h3>
+                                            </div>
+                                            <p className={styles.optionDesc}>
+                                                Don't have a Newera account? Register one in a new tab to start trading.
+                                            </p>
+                                            <button 
+                                                type="button" 
+                                                className={styles.registerBtn} 
+                                                onClick={handleRegisterRedirect}
+                                            >
+                                                Register Account
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                                </svg>
+                                            </button>
+                                        </div>
 
-                            <form onSubmit={handleLinkAccount} className={styles.linkForm}>
-                                <div className={styles.inputWrapper}>
-                                    <Input
-                                        type="email"
-                                        placeholder="Enter Email Address"
-                                        name="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        disabled={true}
-                                        required
-                                    />
+                                        {/* Step 2: Link account card */}
+                                        <div className={styles.optionCard}>
+                                            <div className={styles.optionHeader}>
+                                                <span className={styles.badgeStep}>2</span>
+                                                <h3>Link Existing Account</h3>
+                                            </div>
+                                            <p className={styles.optionDesc}>
+                                                Enter your Newera MT5 Login ID below to claim your credits.
+                                            </p>
+
+                                            <form onSubmit={handleLinkAccount} className={styles.linkForm}>
+                                                <div className={styles.inputWrapper}>
+                                                    <Input
+                                                        type="email"
+                                                        placeholder="Enter Email Address"
+                                                        name="email"
+                                                        value={email}
+                                                        onChange={(e) => setEmail(e.target.value)}
+                                                        disabled={true}
+                                                        required
+                                                    />
+                                                </div>
+                                                <div className={styles.inputWrapper}>
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="Enter Login ID"
+                                                        name="login"
+                                                        value={login}
+                                                        onChange={handleLoginChange}
+                                                        required
+                                                    />
+                                                </div>
+                                                {error && <p className={styles.error} role="alert">{error}</p>}
+                                                <button 
+                                                    type="submit" 
+                                                    className={styles.submitBtn} 
+                                                    disabled={submitting || !email.trim() || !login.trim()}
+                                                >
+                                                    {submitting ? (
+                                                        <>
+                                                            <span className={styles.spinner}></span>
+                                                            Linking...
+                                                        </>
+                                                    ) : 'Link Account'}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Phase 2 Header & Content: Deposit Bonus */}
+                            {isPhase2 && (
+                                <div className={styles.phaseContainer}>
+                                    <h2 id="modal-title" className={styles.title}>
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                        Deposit & Earn More Credits
+                                    </h2>
+
+                                    <div className={styles.autoStatusCard}>
+                                        {login && (
+                                            <div className={styles.accountInfoBadge}>
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="12" cy="7" r="4"></circle>
+                                                </svg>
+                                                MT5 Account: #{login}
+                                            </div>
+                                        )}
+
+                                        <p className={styles.statusMessage}>
+                                            Deposit <strong>$100</strong> into your Newera trading account to receive additional credits.
+                                        </p>
+
+                                        <div className={styles.statusIndicator}>
+                                            {autoSyncing ? (
+                                                <>
+                                                    <div className={styles.pulseDot}></div>
+                                                    <span>Syncing credits from Newera...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                                    </svg>
+                                                    <span>{syncStatusMessage || 'Checked just now.'}</span>
+                                                    <button 
+                                                        type="button" 
+                                                        className={styles.recheckBtn} 
+                                                        onClick={syncCredits}
+                                                        disabled={autoSyncing}
+                                                    >
+                                                        Check Again
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className={styles.inputWrapper}>
-                                    <Input
-                                        type="text"
-                                        placeholder="Enter Login ID"
-                                        name="login"
-                                        value={login}
-                                        onChange={handleLoginChange}
-                                        required
-                                    />
+                            )}
+
+                            {/* Phase 3 Header & Content: Per Lot Credits */}
+                            {isPhase3 && (
+                                <div className={styles.phaseContainer}>
+                                    <h2 id="modal-title" className={styles.title}>
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                        Earn Credits by Trading
+                                    </h2>
+
+                                    <div className={styles.autoStatusCard}>
+                                        {login && (
+                                            <div className={styles.accountInfoBadge}>
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="12" cy="7" r="4"></circle>
+                                                </svg>
+                                                MT5 Account: #{login}
+                                            </div>
+                                        )}
+
+                                        <p className={styles.statusMessage}>
+                                            You've used all your available credits. Continue trading with your Newera account and earn credits for every lot traded.
+                                        </p>
+
+                                        <div className={styles.statusIndicator}>
+                                            {autoSyncing ? (
+                                                <>
+                                                    <div className={styles.pulseDot}></div>
+                                                    <span>Syncing trading volume...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                                    </svg>
+                                                    <span>{syncStatusMessage || 'Checked just now.'}</span>
+                                                    <button 
+                                                        type="button" 
+                                                        className={styles.recheckBtn} 
+                                                        onClick={syncCredits}
+                                                        disabled={autoSyncing}
+                                                    >
+                                                        Check Again
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                                {error && <p className={styles.error} role="alert">{error}</p>}
-                                <button 
-                                    type="submit" 
-                                    className={styles.submitBtn} 
-                                    disabled={loading || !email.trim() || !login.trim()}
-                                >
-                                    {loading ? (
-                                        <>
-                                            <span className={styles.spinner}></span>
-                                            Linking...
-                                        </>
-                                    ) : 'Link Account'}
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+                            )}
+                        </>
+                    )}
                 </div>
 
                 <button className={styles.closeBtn} onClick={onClose} aria-label="Close modal">✕</button>

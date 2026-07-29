@@ -5,7 +5,7 @@ import AuthGuard from '@/components/authGuard';
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
 import NeweraCreditsModal from '@/components/neweraCreditsModal';
-import { CREDITS_UPDATED_EVENT, notifyCreditsUpdated, refreshCreditsFromServer } from '@/lib/credits';
+import { extractAvailableCredits, CREDITS_UPDATED_EVENT, notifyCreditsUpdated, refreshCreditsFromServer } from '@/lib/credits';
 import { captureUtmParameters } from '@/lib/utm';
 import { getStoredUserId } from '@/lib/authSession';
 import { dashboardApi, neweraApi } from '@/lib/api';
@@ -25,40 +25,51 @@ const layout = ({ children }) => {
             if (supabase) {
                 let email = '';
                 let login = null;
+                let welcomeAwarded = false;
+                let depositAwarded = false;
 
-                // 1. Try mt5_accounts
-                const { data: mt5Data, error: mt5Error } = await supabase
-                    .from('mt5_accounts')
-                    .select('email, login')
+                // 1. Try newera_credits_sync first
+                const { data: syncData, error: syncError } = await supabase
+                    .from('newera_credits_sync')
+                    .select('email, mt5_id, welcome_credits_awarded, deposit_credits_awarded')
                     .eq('user_id', uid)
                     .order('created_at', { ascending: false })
                     .limit(1)
                     .maybeSingle();
 
-                if (mt5Data && mt5Data.email && mt5Data.login) {
-                    email = mt5Data.email;
-                    login = mt5Data.login;
+                if (syncData && syncData.email && syncData.mt5_id) {
+                    email = syncData.email;
+                    login = syncData.mt5_id;
+                    welcomeAwarded = Boolean(syncData.welcome_credits_awarded);
+                    depositAwarded = Boolean(syncData.deposit_credits_awarded);
                 } else {
-                    // 2. Try newera_credits_sync fallback
-                    const { data: syncData, error: syncError } = await supabase
-                        .from('newera_credits_sync')
-                        .select('email, mt5_id')
+                    // 2. Try mt5_accounts fallback
+                    const { data: mt5Data, error: mt5Error } = await supabase
+                        .from('mt5_accounts')
+                        .select('email, login')
                         .eq('user_id', uid)
                         .order('created_at', { ascending: false })
                         .limit(1)
                         .maybeSingle();
 
-                    if (syncData && syncData.email && syncData.mt5_id) {
-                        email = syncData.email;
-                        login = syncData.mt5_id;
+                    if (mt5Data && mt5Data.email && mt5Data.login) {
+                        email = mt5Data.email;
+                        login = mt5Data.login;
                     }
                 }
 
                 if (email && login) {
                     try {
                         const res = await neweraApi.linkAccount(uid, email, login);
-                        const updatedCredits = res?.data?.available_credits ?? res?.data?.availableCredits ?? res?.data?.data?.available_credits;
+                        const updatedCredits = extractAvailableCredits(res) ?? extractAvailableCredits(res?.data) ?? res?.data?.credits_given ?? res?.credits_given;
                         if (res.success && updatedCredits !== undefined && updatedCredits !== null && Number(updatedCredits) > 0) {
+                            if (welcomeAwarded && !depositAwarded) {
+                                await supabase
+                                    .from('newera_credits_sync')
+                                    .update({ deposit_credits_awarded: true })
+                                    .eq('user_id', uid);
+                            }
+                            notifyCreditsUpdated(Number(updatedCredits));
                             setShowCreditsModal(false);
                             return; // Successfully linked/synced in background and has credits, do not show modal!
                         }
@@ -123,6 +134,28 @@ const layout = ({ children }) => {
                 });
         }
 
+        const handleTabVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                const activeUid = getStoredUserId();
+                if (activeUid) {
+                    dashboardApi.getStats(activeUid)
+                        .then((res) => {
+                            const currentCredits = res?.data?.available_credits;
+                            if (currentCredits !== undefined && currentCredits !== null) {
+                                if (Number(currentCredits) <= 0) {
+                                    checkAndAutoSyncOrShowModal(activeUid);
+                                } else {
+                                    setShowCreditsModal(false);
+                                }
+                            }
+                        })
+                        .catch((err) => {
+                            console.warn("Failed to check credits on tab switch:", err);
+                        });
+                }
+            }
+        };
+
         const onCreditsUpdated = (e) => {
             const currentCredits = e?.detail?.available_credits;
             if (currentCredits !== undefined && currentCredits !== null) {
@@ -141,8 +174,10 @@ const layout = ({ children }) => {
         };
 
         window.addEventListener(CREDITS_UPDATED_EVENT, onCreditsUpdated);
+        document.addEventListener('visibilitychange', handleTabVisibilityChange);
         return () => {
             window.removeEventListener(CREDITS_UPDATED_EVENT, onCreditsUpdated);
+            document.removeEventListener('visibilitychange', handleTabVisibilityChange);
         };
     }, []);
 

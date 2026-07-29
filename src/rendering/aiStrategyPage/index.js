@@ -70,12 +70,6 @@ export default function AiStrategyPage() {
                 </div>
 
                 <div className={styles.promptWrapper}>
-
-
-
-
-
-
                     {/* Image Showcase Box 2: stratagyImage.png */}
                     <motion.div
                         className={styles.bannerBox}

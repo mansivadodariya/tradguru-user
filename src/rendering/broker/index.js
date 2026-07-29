@@ -76,34 +76,36 @@ export default function BrokerPage() {
                 </p>
             </div>
 
-            {/* Controls Bar: Category Tabs & Search */}
-            <div className={styles.controlsRow}>
-                <div className={styles.tabs}>
-                    {['All', ...Array.from(new Set(brokerList.map((b) => b.category)))].map((tab) => (
-                        <button
-                            key={tab}
-                            className={`${styles.tabBtn} ${selectedTab === tab ? styles.active : ''}`}
-                            onClick={() => setSelectedTab(tab)}
-                        >
-                            {tab}
-                        </button>
-                    ))}
-                </div>
+            {/* Controls Bar: Category Tabs & Search (Only shown if more than 1 broker) */}
+            {brokerList.length > 1 && (
+                <div className={styles.controlsRow}>
+                    <div className={styles.tabs}>
+                        {['All', ...Array.from(new Set(brokerList.map((b) => b.category)))].map((tab) => (
+                            <button
+                                key={tab}
+                                className={`${styles.tabBtn} ${selectedTab === tab ? styles.active : ''}`}
+                                onClick={() => setSelectedTab(tab)}
+                            >
+                                {tab}
+                            </button>
+                        ))}
+                    </div>
 
-                <div className={styles.searchBox}>
-                    <SearchIcon />
-                    <input
-                        type="text"
-                        placeholder="Search brokers or platforms..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+                    <div className={styles.searchBox}>
+                        <SearchIcon />
+                        <input
+                            type="text"
+                            placeholder="Search brokers or platforms..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Brokers Grid */}
             {filteredBrokers.length > 0 ? (
-                <div className={styles.brokersGrid}>
+                <div className={`${styles.brokersGrid} ${filteredBrokers.length === 1 ? styles.singleItem : ''}`}>
                     {filteredBrokers.map((broker) => (
                         <BrokerCard
                             key={broker.id}

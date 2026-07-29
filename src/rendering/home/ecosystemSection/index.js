@@ -49,7 +49,7 @@ export default function EcosystemSection() {
                 </div>
 
                 <motion.div
-                    className={styles.grid}
+                    className={`${styles.grid} ${brokerList.length === 1 ? styles.singleItem : ''}`}
                     variants={containerVariants}
                     initial="hidden"
                     whileInView="visible"
