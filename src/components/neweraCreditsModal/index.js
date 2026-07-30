@@ -46,6 +46,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
     const [autoSyncing, setAutoSyncing] = useState(false);
     const [syncChecked, setSyncChecked] = useState(false);
     const [syncStatusMessage, setSyncStatusMessage] = useState('');
+    const [depositThreshold, setDepositThreshold] = useState('100');
     const isSyncingRef = useRef(false);
     const { theme } = useTheme();
 
@@ -61,6 +62,28 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
         } catch (e) {
             console.error('Error reading user email for Newera link:', e);
         }
+    }, []);
+
+    // Fetch dynamic deposit threshold setting from system_settings table
+    useEffect(() => {
+        const fetchDepositThreshold = async () => {
+            if (!supabase) return;
+            try {
+                const { data } = await supabase
+                    .from('system_settings')
+                    .select('value')
+                    .eq('key', 'newera_deposit_threshold')
+                    .maybeSingle();
+
+                if (data && data.value) {
+                    setDepositThreshold(String(data.value));
+                }
+            } catch (err) {
+                console.error('Error fetching newera_deposit_threshold setting:', err);
+            }
+        };
+
+        fetchDepositThreshold();
     }, []);
 
     // 1. Fetch account link and flags from Supabase newera_credits_sync or mt5_accounts
@@ -447,7 +470,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                         )}
 
                                         <p className={styles.statusMessage}>
-                                            Deposit <strong>$100</strong> into your Newera trading account to receive additional credits.
+                                            Deposit <strong>{String(depositThreshold).startsWith('$') ? depositThreshold : `$${depositThreshold}`}</strong> into your Newera trading account to receive additional credits.
                                         </p>
 
                                         <div className={styles.statusIndicator}>
