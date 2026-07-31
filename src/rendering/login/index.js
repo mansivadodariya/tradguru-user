@@ -149,35 +149,34 @@ const Login = () => {
         setPhoneError('');
 
         try {
-            const apiRes = await fetch('/api/v1/user/phone', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: pendingPhoneUserId, phone_number: phoneNumber }),
+            const stored = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {};
+            const firstName = stored.first_name || '';
+            const lastName = stored.last_name || '';
+
+            const apiRes = await profileApi.updateProfile({
+                first_name: firstName,
+                last_name: lastName,
+                phone_number: phoneNumber,
             });
-            const apiData = await apiRes.json();
-            if (!apiRes.ok || apiData.error) {
-                throw new Error(apiData.error || 'Failed to save phone number.');
-            }
 
             if (typeof window !== 'undefined') {
-                const stored = localStorage.getItem('user');
-                if (stored) {
-                    const parsed = JSON.parse(stored);
-                    parsed.phone_number = phoneNumber;
-                    localStorage.setItem('user', JSON.stringify(parsed));
-                }
+                const parsed = JSON.parse(localStorage.getItem('user') || '{}');
+                parsed.phone_number = phoneNumber;
+                localStorage.setItem('user', JSON.stringify(parsed));
                 document.cookie = 'has_phone=true; path=/; SameSite=Lax';
                 window.dispatchEvent(new CustomEvent('user:updated'));
             }
 
-            toast.success('Phone number saved successfully!');
+            toast.success(apiRes?.message || 'Profile completed successfully!');
             window.location.assign(redirectTo);
         } catch (err) {
             console.error('Failed to save phone number:', err);
             const msg = String(err.message || '');
             let userFriendlyMsg = 'Failed to save phone number.';
-            if (msg.includes('unique constraint') || msg.includes('duplicate key') || msg.includes('already exists')) {
+            if (msg.includes('unique constraint') || msg.includes('duplicate key') || msg.includes('already exists') || msg.includes('already in use')) {
                 userFriendlyMsg = 'This phone number is already in use.';
+            } else if (msg) {
+                userFriendlyMsg = msg;
             }
             setPhoneError(userFriendlyMsg);
             toast.error(userFriendlyMsg);

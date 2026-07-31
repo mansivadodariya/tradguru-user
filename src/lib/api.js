@@ -260,4 +260,24 @@ export const neweraApi = {
     }
 };
 
+export const profileApi = {
+    getProfile: () =>
+        request('/profile', {
+            method: 'GET',
+            headers: getAuthHeaders(),
+        }),
+
+    updateProfile: ({ first_name = '', last_name = '', phone_number = '' } = {}) =>
+        request('/profile', {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                first_name,
+                last_name,
+                phone_number,
+            }),
+        }),
+};
+
+
 

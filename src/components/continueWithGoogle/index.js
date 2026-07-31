@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './continueWithGoogle.module.scss';
-import { authApi } from '@/lib/api';
+import { authApi, profileApi } from '@/lib/api';
 import {
     persistAuthSession,
     extractAccessToken,
@@ -25,14 +25,16 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard', onPendingPhone }) => {
     const btnContainerRef = useRef(null);
     const redirectRef = useRef(redirectTo);
 
+    useEffect(() => {
+        redirectRef.current = redirectTo;
+    }, [redirectTo]);
+
     // States for phone number step (fallback if no onPendingPhone prop is passed)
     const [showPhoneModal, setShowPhoneModal] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState('');
     const [phoneError, setPhoneError] = useState('');
     const [savingPhone, setSavingPhone] = useState(false);
     const [userId, setUserId] = useState('');
-
-    redirectRef.current = redirectTo;
 
     const callbackRef = useRef(null);
 
@@ -147,28 +149,26 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard', onPendingPhone }) => {
         setPhoneError('');
 
         try {
-            const apiRes = await fetch('/api/v1/user/phone', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: userId, phone_number: phoneNumber }),
+            const stored = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {};
+            const firstName = stored.first_name || '';
+            const lastName = stored.last_name || '';
+
+            const apiRes = await profileApi.updateProfile({
+                first_name: firstName,
+                last_name: lastName,
+                phone_number: phoneNumber,
             });
-            const apiData = await apiRes.json();
-            if (!apiRes.ok || apiData.error) {
-                throw new Error(apiData.error || 'Failed to save phone number.');
-            }
 
             // Update user in localStorage
             if (typeof window !== 'undefined') {
-                const stored = localStorage.getItem('user');
-                if (stored) {
-                    const parsed = JSON.parse(stored);
-                    parsed.phone_number = phoneNumber;
-                    localStorage.setItem('user', JSON.stringify(parsed));
-                }
+                const parsed = JSON.parse(localStorage.getItem('user') || '{}');
+                parsed.phone_number = phoneNumber;
+                localStorage.setItem('user', JSON.stringify(parsed));
+                document.cookie = 'has_phone=true; path=/; SameSite=Lax';
                 window.dispatchEvent(new CustomEvent('user:updated'));
             }
 
-            toast.success('Phone number saved successfully!');
+            toast.success(apiRes?.message || 'Profile completed successfully!');
             setShowPhoneModal(false);
 
             const target = redirectRef.current || '/dashboard';
@@ -180,8 +180,15 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard', onPendingPhone }) => {
             }
         } catch (err) {
             console.error('Failed to save phone number:', err);
-            setPhoneError(err.message || 'Failed to save phone number.');
-            toast.error(err.message || 'Failed to save phone number.');
+            const msg = String(err.message || '');
+            let userFriendlyMsg = 'Failed to complete profile.';
+            if (msg.includes('unique constraint') || msg.includes('duplicate key') || msg.includes('already exists') || msg.includes('already in use')) {
+                userFriendlyMsg = 'This phone number is already in use.';
+            } else if (msg) {
+                userFriendlyMsg = msg;
+            }
+            setPhoneError(userFriendlyMsg);
+            toast.error(userFriendlyMsg);
         } finally {
             setSavingPhone(false);
         }

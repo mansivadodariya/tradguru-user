@@ -8,6 +8,7 @@ import Button from '@/components/button';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from '@/components/toast';
 import { isValidPhoneNumber } from 'react-phone-number-input';
+import { profileApi } from '@/lib/api';
 
 const ArrowIcon = '/assets/icons/arrow.svg';
 
@@ -55,27 +56,51 @@ export default function Profile() {
     }, []);
 
     const fetchProfile = async (id) => {
-        if (!id) { setLoading(false); return; }
         setLoading(true);
         try {
-            if (!supabase) return;
-            const { data, error } = await supabase
-                .from('users')
-                .select('first_name, last_name, email, phone_number, referral_code')
-                .eq('id', id)
-                .maybeSingle();
-
-            if (data) {
+            const apiRes = await profileApi.getProfile();
+            const profileData = apiRes?.data || apiRes || {};
+            if (profileData) {
                 setForm((prev) => ({
-                    first_name: data.first_name || prev.first_name || '',
-                    last_name: data.last_name || prev.last_name || '',
-                    email: data.email || prev.email || '',
-                    phone_number: data.phone_number || prev.phone_number || '',
-                    referral_code: data.referral_code || prev.referral_code || id || '',
+                    first_name: profileData.first_name || prev.first_name || '',
+                    last_name: profileData.last_name || prev.last_name || '',
+                    email: profileData.email || prev.email || '',
+                    phone_number: profileData.phone_number || prev.phone_number || '',
+                    referral_code: profileData.referral_code || prev.referral_code || id || '',
                 }));
+
+                const stored = getUserFromStorage() || {};
+                const updated = {
+                    ...stored,
+                    first_name: profileData.first_name || stored.first_name || '',
+                    last_name: profileData.last_name || stored.last_name || '',
+                    email: profileData.email || stored.email || '',
+                    phone_number: profileData.phone_number || stored.phone_number || '',
+                };
+                localStorage.setItem('user', JSON.stringify(updated));
+                window.dispatchEvent(new Event('user:updated'));
             }
         } catch (err) {
             console.warn('Profile fetch warning:', err);
+            // Fallback query from supabase if backend fetch fails
+            if (supabase && id) {
+                try {
+                    const { data } = await supabase
+                        .from('users')
+                        .select('first_name, last_name, email, phone_number, referral_code')
+                        .eq('id', id)
+                        .maybeSingle();
+                    if (data) {
+                        setForm((prev) => ({
+                            first_name: data.first_name || prev.first_name || '',
+                            last_name: data.last_name || prev.last_name || '',
+                            email: data.email || prev.email || '',
+                            phone_number: data.phone_number || prev.phone_number || '',
+                            referral_code: data.referral_code || prev.referral_code || id || '',
+                        }));
+                    }
+                } catch (_) { /* ignore */ }
+            }
         } finally {
             setLoading(false);
         }
@@ -138,20 +163,11 @@ export default function Profile() {
 
         setSaving(true);
         try {
-            const apiRes = await fetch('/api/v1/user/profile', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId,
-                    first_name: form.first_name.trim(),
-                    last_name: form.last_name.trim(),
-                    phone_number: form.phone_number,
-                }),
+            const apiRes = await profileApi.updateProfile({
+                first_name: form.first_name.trim(),
+                last_name: form.last_name.trim(),
+                phone_number: form.phone_number,
             });
-            const apiData = await apiRes.json();
-            if (!apiRes.ok || apiData.error) {
-                throw new Error(apiData.error || 'Failed to update profile.');
-            }
 
             const stored = getUserFromStorage() || {};
             const updated = {
@@ -163,7 +179,7 @@ export default function Profile() {
             localStorage.setItem('user', JSON.stringify(updated));
             window.dispatchEvent(new Event('user:updated'));
 
-            toast.success('Profile updated successfully.');
+            toast.success(apiRes?.message || 'Profile updated successfully.');
         } catch (err) {
             toast.error(err.message || 'Failed to update profile.');
         } finally {
