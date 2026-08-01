@@ -10,7 +10,7 @@ import Button from '@/components/button';
 import ContinueWithGoogle from '@/components/continueWithGoogle';
 import { getAuthRedirectTarget, getStoredUser, getStoredUserId, clearAuthSession } from '@/lib/authSession';
 import { useSearchParams } from 'next/navigation';
-import { authApi } from '@/lib/api';
+import { authApi, profileApi } from '@/lib/api';
 import { validateSignup } from '@/lib/validation';
 import { toast } from '@/components/toast';
 import { supabase } from '@/lib/supabaseClient';

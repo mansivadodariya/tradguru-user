@@ -6,7 +6,7 @@ import styles from './login.module.scss';
 import Input from '@/components/input';
 import Button from '@/components/button';
 import ContinueWithGoogle from '@/components/continueWithGoogle';
-import { authApi } from '@/lib/api';
+import { authApi, profileApi } from '@/lib/api';
 import { persistAuthSession, getAuthRedirectTarget, getStoredUser, getStoredUserId, clearAuthSession } from '@/lib/authSession';
 import { validateLogin } from '@/lib/validation';
 import { toast } from '@/components/toast';

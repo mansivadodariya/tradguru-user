@@ -61,11 +61,11 @@ const ForgotPassword = () => {
                     </div>
                     <div className={styles.text}>
                         <h2>Forgot Password</h2>
-                        <p>Enter your email and we&apos;ll send you a link to reset your password.</p>
+                        <p>Enter your email and we&apos;ll send you a link to reset your password. Please check your spam folder as well.</p>
                     </div>
                     {sent ? (
                         <div className={styles.success} role="status">
-                            <p>Check your email for a reset link.</p>
+                            <p>Check your email for a reset link. Please check your spam folder if you don&apos;t see it in your inbox.</p>
                             <div className={styles.accountText}>
 
                                 <Link href="/login">Back to Log in</Link>

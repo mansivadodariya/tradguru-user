@@ -422,7 +422,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                                 <div className={styles.inputWrapper}>
                                                     <Input
                                                         type="text"
-                                                        placeholder="Enter Login ID"
+                                                        placeholder="Enter MT5 ID"
                                                         name="login"
                                                         value={login}
                                                         onChange={handleLoginChange}
