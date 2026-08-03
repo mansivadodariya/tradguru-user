@@ -12,13 +12,6 @@ const ExternalLinkIcon = () => (
     </svg>
 );
 
-const EyeIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-        <circle cx="12" cy="12" r="3" />
-    </svg>
-);
-
 const ChevronRightIcon = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="9 18 15 12 9 6" />
@@ -48,7 +41,7 @@ const ShieldHighlightIcon = () => (
     </svg>
 );
 
-export default function BrokerCard({ broker, detailHref, onConnect }) {
+export default function BrokerCard({ broker, detailHref }) {
     if (!broker) return null;
 
     const href = detailHref || `/broker/${broker.id}`;
@@ -63,9 +56,11 @@ export default function BrokerCard({ broker, detailHref, onConnect }) {
         <div className={styles.brokerCard}>
             {/* Top Banner Header with Graphic */}
             <div className={styles.bannerHeader}>
-                <div className={styles.logoWrapper}>
-                    <img src={broker.logo} alt={broker.name} />
-                </div>
+                {broker.logo && (
+                    <div className={styles.logoWrapper}>
+                        <img src={broker.logo} alt={broker.name || 'Broker Logo'} />
+                    </div>
+                )}
                 <svg className={styles.chartGraphic} viewBox="0 0 400 120" fill="none" preserveAspectRatio="none">
                     <line x1="0" y1="30" x2="400" y2="30" stroke="rgba(255,255,255,0.06)" strokeDasharray="3 3" />
                     <line x1="0" y1="60" x2="400" y2="60" stroke="rgba(255,255,255,0.06)" strokeDasharray="3 3" />
@@ -106,16 +101,16 @@ export default function BrokerCard({ broker, detailHref, onConnect }) {
                     </defs>
                 </svg>
             </div>
-        
 
             {/* Title & Description */}
             <div className={styles.cardBody}>
-                <h3 className={styles.cardTitle}>{broker.name}</h3>
-                <p className={styles.cardDescription}>{broker.description}</p>
+                {broker.name && <h3 className={styles.cardTitle}>{broker.name}</h3>}
+                {broker.subtitle && <span className={styles.subtitleTag}>{broker.subtitle}</span>}
+                {broker.description && <p className={styles.cardDescription}>{broker.description}</p>}
             </div>
 
-            {/* 3 Mini Highlights Grid (Matching Image 2) */}
-            {broker.highlights && broker.highlights.length > 0 && (
+            {/* Mini Highlights Grid */}
+            {Array.isArray(broker.highlights) && broker.highlights.length > 0 && (
                 <div className={styles.highlightsGrid}>
                     {broker.highlights.map((hl, idx) => (
                         <div key={hl.id || idx} className={styles.highlightItem}>
@@ -123,8 +118,8 @@ export default function BrokerCard({ broker, detailHref, onConnect }) {
                                 {renderHighlightIcon(hl.type, idx)}
                             </div>
                             <div className={styles.highlightText}>
-                                <span className={styles.hlTitle}>{hl.title}</span>
-                                <span className={styles.hlSub}>{hl.sub}</span>
+                                {hl.title && <span className={styles.hlTitle}>{hl.title}</span>}
+                                {hl.sub && <span className={styles.hlSub}>{hl.sub}</span>}
                             </div>
                         </div>
                     ))}
@@ -133,15 +128,17 @@ export default function BrokerCard({ broker, detailHref, onConnect }) {
 
             {/* Footer Action Buttons */}
             <div className={styles.cardFooter}>
-                <a
-                    href={broker.websiteUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.visitSiteBtn}
-                >
-                    <ExternalLinkIcon />
-                    <span>Visit Site</span>
-                </a>
+                {broker.websiteUrl && (
+                    <a
+                        href={broker.websiteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.visitSiteBtn}
+                    >
+                        <ExternalLinkIcon />
+                        <span>Visit Site</span>
+                    </a>
+                )}
 
                 <Link href={href} className={styles.viewDetailsBtn}>
                     <span className={styles.btnLabel}>View Details</span>
@@ -151,3 +148,4 @@ export default function BrokerCard({ broker, detailHref, onConnect }) {
         </div>
     );
 }
+

@@ -1,13 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styles from './brokerDetail.module.scss';
-import NeweraCreditsModal from '@/components/neweraCreditsModal';
-import { getStoredUserId } from '@/lib/authSession';
-import { getBrokerById, brokerList } from '@/lib/brokersData';
-import toast from 'react-hot-toast';
+import { fetchBrokerById, getBrokerById, brokerList } from '@/lib/brokersData';
 
 const BackArrowIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -40,9 +37,20 @@ const GlobeIcon = () => (
 
 export default function BrokerDetailPage({ brokerId, isPublicLanding = false }) {
     const router = useRouter();
-    const broker = getBrokerById(brokerId) || brokerList[0];
-    const [showCreditsModal, setShowCreditsModal] = useState(false);
-    const userId = getStoredUserId();
+    const [broker, setBroker] = useState(() => getBrokerById(brokerId) || brokerList[0]);
+
+    useEffect(() => {
+        let isMounted = true;
+        async function loadBroker() {
+            if (!brokerId) return;
+            const data = await fetchBrokerById(brokerId);
+            if (isMounted && data) {
+                setBroker(data);
+            }
+        }
+        loadBroker();
+        return () => { isMounted = false; };
+    }, [brokerId]);
 
     const backPath = isPublicLanding ? '/#ecosystem' : '/broker';
 
@@ -85,96 +93,84 @@ export default function BrokerDetailPage({ brokerId, isPublicLanding = false }) 
             {/* Main Header Banner */}
             <div className={styles.heroBanner}>
                 <div className={styles.logoRow}>
-                    <div className={styles.logoBox}>
-                        <img src={broker.logo} alt={broker.name} style={{ filter: 'brightness(1.5)' }} />
-                    </div>
-                    <div className={styles.badges}>
-                        <span className={styles.categoryBadge}>{broker.category}</span>
-                        {broker.status && <span className={styles.statusBadge}>{broker.status}</span>}
-                    </div>
+                    {broker.logo && (
+                        <div className={styles.logoBox}>
+                            <img src={broker.logo} alt={broker.name || 'Broker Logo'} style={{ filter: 'brightness(1.5)' }} />
+                        </div>
+                    )}
+                    {broker.category && (
+                        <div className={styles.badges}>
+                            <span className={styles.categoryBadge}>{broker.category}</span>
+                        </div>
+                    )}
                 </div>
 
-                <h1 className={styles.title}>{broker.name}</h1>
-                <p className={styles.subtitle}>{broker.subtitle}</p>
+                {broker.name && <h1 className={styles.title}>{broker.name}</h1>}
+                {broker.subtitle && <p className={styles.subtitle}>{broker.subtitle}</p>}
             </div>
 
             {/* Content Layout */}
             <div className={styles.contentGrid}>
                 {/* Left Column: Details */}
                 <div className={styles.mainContent}>
-                    <div className={styles.cardSection}>
-                        <h3>About {broker.name}</h3>
-                        <p className={styles.description}>{broker.description}</p>
-                    </div>
+                    {broker.description && (
+                        <div className={styles.cardSection}>
+                            <h3>About {broker.name}</h3>
+                            <p className={styles.description}>{broker.description}</p>
+                        </div>
+                    )}
 
-                    <div className={styles.cardSection}>
-                        <h3>Key Features & Capabilities</h3>
-                        <ul className={styles.featureList}>
-                            {broker.features.map((feat, idx) => (
-                                <li key={idx} className={styles.featureItem}>
-                                    <span className={styles.checkIconBox}>
-                                        <CheckIcon />
-                                    </span>
-                                    <span>{feat}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                    {Array.isArray(broker.features) && broker.features.length > 0 && (
+                        <div className={styles.cardSection}>
+                            <h3>Key Features & Capabilities</h3>
+                            <ul className={styles.featureList}>
+                                {broker.features.map((feat, idx) => (
+                                    <li key={idx} className={styles.featureItem}>
+                                        <span className={styles.checkIconBox}>
+                                            <CheckIcon />
+                                        </span>
+                                        <span>{feat}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
 
                     <div className={styles.cardSection}>
                         <h3>Integration & Trading Infrastructure</h3>
                         <p className={styles.description}>
-                            Trader Master directly connects with verified brokerage APIs and MT5 trading environments 
-                            to ensure execution speed, real-time volume logging, and secure data sync.
+                            Trader Master connects with verified brokerage APIs and market trading environments 
+                            to ensure execution speed, real-time logging, and secure data sync.
                         </p>
                     </div>
                 </div>
 
                 {/* Right Column: Actions Sidebar */}
-                <div className={styles.sidebar}>
-                    <div className={styles.actionCard}>
-                        <h4>Official Site & Access</h4>
-                        <p>Access the official platform directly to open accounts, manage funds, or review trading terms.</p>
+                {broker.websiteUrl && (
+                    <div className={styles.sidebar}>
+                        <div className={styles.actionCard}>
+                            <h4>Official Site & Access</h4>
+                            <p>Access the official platform directly to open accounts, manage funds, or review trading terms.</p>
 
-                        <div className={styles.urlBox}>
-                            <GlobeIcon />
-                            <span>{broker.websiteUrl}</span>
-                        </div>
+                            <div className={styles.urlBox}>
+                                <GlobeIcon />
+                                <span>{broker.websiteUrl}</span>
+                            </div>
 
-                        <a
-                            href={broker.websiteUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={styles.visitOfficialBtn}
-                        >
-                            <span>Visit Official Site</span>
-                            <ExternalLinkIcon />
-                        </a>
-
-                        {broker.canSync && (
-                            <button
-                                type="button"
-                                className={styles.syncBtn}
-                                onClick={() => setShowCreditsModal(true)}
+                            <a
+                                href={broker.websiteUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.visitOfficialBtn}
                             >
-                                Sync MT5 Account
-                            </button>
-                        )}
+                                <span>Visit Official Site</span>
+                                <ExternalLinkIcon />
+                            </a>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
-
-            {/* Credits Sync Modal */}
-            {showCreditsModal && (
-                <NeweraCreditsModal
-                    userId={userId}
-                    onClose={() => setShowCreditsModal(false)}
-                    onSuccess={() => {
-                        setShowCreditsModal(false);
-                        toast.success("Broker MT5 Account successfully synced!");
-                    }}
-                />
-            )}
         </div>
     );
 }
+

@@ -1,12 +1,26 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import styles from './ecosystemSection.module.scss';
 import LineText from '@/components/lineText';
 import BrokerCard from '@/components/brokerCard';
-import { brokerList } from '@/lib/brokersData';
+import { fetchBrokers, brokerList } from '@/lib/brokersData';
 
 export default function EcosystemSection() {
+    const [brokers, setBrokers] = useState(brokerList);
+
+    useEffect(() => {
+        let isMounted = true;
+        async function loadBrokers() {
+            const data = await fetchBrokers();
+            if (isMounted && data && data.length > 0) {
+                setBrokers(data);
+            }
+        }
+        loadBrokers();
+        return () => { isMounted = false; };
+    }, []);
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -49,13 +63,13 @@ export default function EcosystemSection() {
                 </div>
 
                 <motion.div
-                    className={`${styles.grid} ${brokerList.length === 1 ? styles.singleItem : ''}`}
+                    className={styles.grid}
                     variants={containerVariants}
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: true, amount: 0.1 }}
                 >
-                    {brokerList.map((broker) => (
+                    {brokers.map((broker) => (
                         <motion.div
                             key={broker.id}
                             variants={cardVariants}
@@ -71,3 +85,4 @@ export default function EcosystemSection() {
         </section>
     );
 }
+

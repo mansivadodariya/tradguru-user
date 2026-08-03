@@ -248,29 +248,24 @@
     }
 
     .brokersGrid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: stretch;
         gap: 24px;
 
-        @include respond-to(md) {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+        > * {
+            flex: 0 1 360px;
+            width: 100%;
+            max-width: 380px;
         }
 
         @include respond-to(sm) {
-            grid-template-columns: 1fr;
             gap: 16px;
-        }
-
-        &.singleItem {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
 
             > * {
-                max-width: 500px;
-                width: 100%;
+                flex: 1 1 100%;
+                max-width: 100%;
             }
         }
     }

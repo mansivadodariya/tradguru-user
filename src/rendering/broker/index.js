@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import styles from './broker.module.scss';
 import NeweraCreditsModal from '@/components/neweraCreditsModal';
 import { getStoredUserId } from '@/lib/authSession';
-import { brokerList } from '@/lib/brokersData';
+import { fetchBrokers, brokerList } from '@/lib/brokersData';
 import toast from 'react-hot-toast';
 
 import BrokerCard from '@/components/brokerCard';
@@ -41,20 +41,33 @@ const EyeIcon = () => (
 );
 
 export default function BrokerPage() {
+    const [brokers, setBrokers] = useState(brokerList);
     const [selectedTab, setSelectedTab] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [showCreditsModal, setShowCreditsModal] = useState(false);
     const userId = getStoredUserId();
 
+    useEffect(() => {
+        let isMounted = true;
+        async function loadBrokers() {
+            const data = await fetchBrokers();
+            if (isMounted && data && data.length > 0) {
+                setBrokers(data);
+            }
+        }
+        loadBrokers();
+        return () => { isMounted = false; };
+    }, []);
+
     const filteredBrokers = useMemo(() => {
-        return brokerList.filter((broker) => {
+        return brokers.filter((broker) => {
             const matchesTab = selectedTab === 'All' || broker.category === selectedTab;
             const matchesSearch = broker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 broker.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 broker.description.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesTab && matchesSearch;
         });
-    }, [selectedTab, searchQuery]);
+    }, [brokers, selectedTab, searchQuery]);
 
     const handleConnectClick = (broker) => {
         if (broker.canSync) {
@@ -77,10 +90,10 @@ export default function BrokerPage() {
             </div>
 
             {/* Controls Bar: Category Tabs & Search (Only shown if more than 1 broker) */}
-            {brokerList.length > 1 && (
+            {brokers.length > 1 && (
                 <div className={styles.controlsRow}>
                     <div className={styles.tabs}>
-                        {['All', ...Array.from(new Set(brokerList.map((b) => b.category)))].map((tab) => (
+                        {['All', ...Array.from(new Set(brokers.map((b) => b.category)))].map((tab) => (
                             <button
                                 key={tab}
                                 className={`${styles.tabBtn} ${selectedTab === tab ? styles.active : ''}`}
@@ -105,7 +118,7 @@ export default function BrokerPage() {
 
             {/* Brokers Grid */}
             {filteredBrokers.length > 0 ? (
-                <div className={`${styles.brokersGrid} ${filteredBrokers.length === 1 ? styles.singleItem : ''}`}>
+                <div className={styles.brokersGrid}>
                     {filteredBrokers.map((broker) => (
                         <BrokerCard
                             key={broker.id}
@@ -136,3 +149,4 @@ export default function BrokerPage() {
         </div>
     );
 }
+
