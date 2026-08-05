@@ -25,10 +25,6 @@ export function proxy(request) {
   const isLoggedIn = Boolean(token);
   const hasPhone = request.cookies.get("has_phone")?.value === "true";
 
-  if (pathname === "/ai-strategy" && isLoggedIn) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
   const isAuthRoute = AUTH_ROUTES.some((p) => pathname.startsWith(p));
 

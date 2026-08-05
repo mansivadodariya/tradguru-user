@@ -10,6 +10,8 @@ import { toast } from '@/components/toast';
 import { isValidPhoneNumber } from 'react-phone-number-input';
 import { profileApi } from '@/lib/api';
 
+import { useLanguage } from '@/context/LanguageContext';
+
 const ArrowIcon = '/assets/icons/arrow.svg';
 
 function getUserFromStorage() {
@@ -23,6 +25,7 @@ function getUserFromStorage() {
 
 export default function Profile() {
     const router = useRouter();
+    const { t } = useLanguage();
 
     const [userId, setUserId] = useState('');
     const [loading, setLoading] = useState(true);
@@ -43,7 +46,6 @@ export default function Profile() {
         const id = user.id || user.user_id || '';
         setUserId(id);
 
-        // Pre-fill from local storage initial fallback
         setForm({
             first_name: user.first_name || '',
             last_name: user.last_name || '',
@@ -82,7 +84,6 @@ export default function Profile() {
             }
         } catch (err) {
             console.warn('Profile fetch warning:', err);
-            // Fallback query from supabase if backend fetch fails
             if (supabase && id) {
                 try {
                     const { data } = await supabase
@@ -143,7 +144,6 @@ export default function Profile() {
     const handleChange = (e) => {
         const { name, value } = e.target;
         let sanitized = value;
-        // Block numbers and special characters for name fields — only allow letters and spaces
         if (name === 'first_name' || name === 'last_name') {
             sanitized = value.replace(/[^a-zA-Z\s]/g, '');
         }
@@ -242,26 +242,26 @@ export default function Profile() {
     return (
         <div className={styles.profile}>
             <div className={styles.header}>
-                <h1>Profile</h1>
-                <p>Manage your personal details</p>
+                <h1>{t('nav.profile', 'Profile')}</h1>
+                <p>{t('profile.manageDetails', 'Manage your personal details')}</p>
             </div>
 
             <div className={styles.card}>
                 <form onSubmit={handleSave} noValidate>
                     <div className={styles.row}>
                         <Input
-                            label="First Name"
+                            label={t('auth.firstNameLabel', 'First Name')}
                             name="first_name"
-                            placeholder="First name"
+                            placeholder={t('auth.firstNameLabel', 'First name')}
                             value={form.first_name}
                             onChange={handleChange}
                             error={errors.first_name}
                             maxLength={50}
                         />
                         <Input
-                            label="Last Name"
+                            label={t('auth.lastNameLabel', 'Last Name')}
                             name="last_name"
-                            placeholder="Last name"
+                            placeholder={t('auth.lastNameLabel', 'Last name')}
                             value={form.last_name}
                             onChange={handleChange}
                             error={errors.last_name}
@@ -270,20 +270,20 @@ export default function Profile() {
                     </div>
 
                     <div className={styles.field}>
-                        <label className={styles.label}>Email</label>
+                        <label className={styles.label}>{t('auth.emailLabel', 'Email')}</label>
                         <div className={styles.emailDisplay}>{form.email || '—'}</div>
                     </div>
 
                     <PhoneInput
-                        label="Phone Number"
+                        label={t('profile.phoneLabel', 'Phone Number')}
                         value={form.phone_number}
                         onChange={setPhone}
-                        placeholder="Phone number"
+                        placeholder={t('profile.phoneLabel', 'Phone number')}
                         error={errors.phone_number}
                     />
 
                     <div className={styles.field}>
-                        <label className={styles.label}>Referral Code</label>
+                        <label className={styles.label}>{t('profile.referralCode', 'Referral Code')}</label>
                         <div className={styles.referralWrapper}>
                             <input
                                 type="text"
@@ -323,13 +323,13 @@ export default function Profile() {
                             )}
                         </div>
                         <p className={styles.hint}>
-                            Share this link with others. It will automatically fill the referral code when they sign up!
+                            {t('profile.referralHint', 'Share this link with others. It will automatically fill the referral code when they sign up!')}
                         </p>
                     </div>
 
                     <div className={styles.actions}>
                         <Button
-                            text={saving ? 'Saving...' : 'Save Changes'}
+                            text={saving ? t('common.loading', 'Saving...') : t('common.save', 'Save Changes')}
                             type="submit"
                             disabled={saving}
                             icon={ArrowIcon}

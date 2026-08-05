@@ -3,6 +3,7 @@ import React from 'react'
 import { motion } from 'framer-motion';
 import styles from './tradingDesk.module.scss';
 import LineText from '@/components/lineText';
+import { useLanguage } from '@/context/LanguageContext';
 
 const MessageIcon = '/assets/icons/message.svg';
 const TechnicalIcon = '/assets/icons/Technical.svg';
@@ -11,6 +12,8 @@ const BuiltIcon = '/assets/icons/Built.svg';
 const DeskImage = '/assets/images/desk.png';
 
 export default function TradingDesk() {
+    const { t } = useLanguage();
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -57,7 +60,7 @@ export default function TradingDesk() {
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.5 }}
                             >
-                                <LineText text="Try the prompt" start />
+                                <LineText text={t('home.tradingDeskLine', 'Try the prompt')} start />
                             </motion.div>
                             <div className={styles.content}>
                                 <motion.h2
@@ -66,7 +69,7 @@ export default function TradingDesk() {
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.5, delay: 0.1 }}
                                 >
-                                    A trading desk that talks back
+                                    {t('home.tradingDeskTitle', 'A trading desk that talks back')}
                                 </motion.h2>
                                 <motion.p
                                     initial={{ opacity: 0, y: 20 }}
@@ -74,8 +77,7 @@ export default function TradingDesk() {
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.5, delay: 0.2 }}
                                 >
-                                    A glimpse of how a typical Trader Master conversation flows. Specific, structured, and
-                                    always tied to risk.
+                                    {t('home.tradingDeskSubtitle', 'A glimpse of how a typical Trader Master conversation flows. Specific, structured, and always tied to risk.')}
                                 </motion.p>
                             </div>
                             <motion.div 
@@ -98,10 +100,10 @@ export default function TradingDesk() {
                                     />
                                     <div>
                                         <h3>
-                                            Real time market answers
+                                            {t('home.deskBox1Title', 'Real time market answers')}
                                         </h3>
                                         <p>
-                                            Get instant answer about any currency pair, asset, or market condition.
+                                            {t('home.deskBox1Desc', 'Get instant answer about any currency pair, asset, or market condition.')}
                                         </p>
                                     </div>
                                 </motion.div>
@@ -119,11 +121,10 @@ export default function TradingDesk() {
                                     />
                                     <div>
                                         <h3>
-                                            Technical analysis made easy
+                                            {t('home.deskBox2Title', 'Technical analysis made easy')}
                                         </h3>
                                         <p>
-                                            Ask for trend, support & resistance, patterns, indicators,
-                                            and more instantly.
+                                            {t('home.deskBox2Desc', 'Ask for trend, support & resistance, patterns, indicators, and more instantly.')}
                                         </p>
                                     </div>
                                 </motion.div>
@@ -141,11 +142,10 @@ export default function TradingDesk() {
                                     />
                                     <div>
                                         <h3>
-                                            Structured & reliable insights
+                                            {t('home.deskBox3Title', 'Structured & reliable insights')}
                                         </h3>
                                         <p>
-                                            The Trader Master provides clear, well structured analysis backed by
-                                            data and logic.
+                                            {t('home.deskBox3Desc', 'The Trader Master provides clear, well structured analysis backed by data and logic.')}
                                         </p>
                                     </div>
                                 </motion.div>
@@ -163,10 +163,10 @@ export default function TradingDesk() {
                                     />
                                     <div>
                                         <h3>
-                                            Built for traders
+                                            {t('home.deskBox4Title', 'Built for traders')}
                                         </h3>
                                         <p>
-                                            whether you’re a beginner or pro, The Trader Master helps you trade smarter with confidence.
+                                            {t('home.deskBox4Desc', 'whether you’re a beginner or pro, The Trader Master helps you trade smarter with confidence.')}
                                         </p>
                                     </div>
                                 </motion.div>

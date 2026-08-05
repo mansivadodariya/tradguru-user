@@ -6,44 +6,46 @@ import LineText from '@/components/lineText';
 import RightIcon from '@/icons/rightIcon';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 const SearchIcon = '/assets/icons/search.svg'
 const TradeSnapImage = '/assets/images/trade-snap.png';
 const FxGuruImage = '/assets/images/fx-guru.png';
 const AiStrategyImage = '/assets/images/ai-strategy.png';
 
-const tradersData = [
-    {
-        id: 1,
-        title: 'AI Trade',
-        description: 'Drag in a screenshot from MT5 or trading view. The Trader Master identifies structure, key levels, and gives you a graded setup with risk/reward math.',
-        icon: SearchIcon,
-        image: TradeSnapImage,
-        linkText: 'Explore',
-        link: '/tradesnap',
-    },
-    {
-        id: 2,
-        title: 'AI Chat',
-        description: 'Ask anything pair commentary session bias news interpretation, each prompt cost a one credits your full chat history stays available.',
-        icon: SearchIcon,
-        image: FxGuruImage,
-        linkText: 'Explore',
-        link: '/ai-chat',
-    },
-    {
-        id: 3,
-        title: 'AI Strategy',
-        description: 'Describe your trading style. get a complete strategy with entry rules, filters and a backtest report you can export.',
-        icon: SearchIcon,
-        image: AiStrategyImage,
-        linkText: 'Explore',
-        link: '/ai-strategy',
-    }
-];
-
 export default function TradersSection() {
     const router = useRouter();
+    const { t } = useLanguage();
+
+    const tradersData = [
+        {
+            id: 1,
+            title: t('nav.aiTrade', 'AI Trade'),
+            description: t('home.aiTradeDesc', 'Drag in a screenshot from MT5 or trading view. The Trader Master identifies structure, key levels, and gives you a graded setup with risk/reward math.'),
+            icon: SearchIcon,
+            image: TradeSnapImage,
+            linkText: t('home.explore', 'Explore'),
+            link: '/tradesnap',
+        },
+        {
+            id: 2,
+            title: t('nav.aiChat', 'AI Chat'),
+            description: t('home.aiChatDesc', 'Ask anything pair commentary session bias news interpretation, each prompt cost a one credits your full chat history stays available.'),
+            icon: SearchIcon,
+            image: FxGuruImage,
+            linkText: t('home.explore', 'Explore'),
+            link: '/ai-chat',
+        },
+        {
+            id: 3,
+            title: t('nav.aiStrategy', 'AI Strategy'),
+            description: t('home.aiStrategyDesc', 'Describe your trading style. get a complete strategy with entry rules, filters and a backtest report you can export.'),
+            icon: SearchIcon,
+            image: AiStrategyImage,
+            linkText: t('home.explore', 'Explore'),
+            link: '/ai-strategy',
+        }
+    ];
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -92,7 +94,7 @@ export default function TradersSection() {
     return (
         <div className={styles.tradersSection}>
             <div className='container'>
-                <LineText text="AI For MT5 Traders" />
+                <LineText text={t('home.lineText', 'AI For MT5 Traders')} />
                 <div className={styles.title}>
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
@@ -100,7 +102,7 @@ export default function TradersSection() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
                     >
-                        Built for every part of your trading workflow
+                        {t('home.tradersTitle', 'Built for every part of your trading workflow')}
                     </motion.h2>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -108,8 +110,7 @@ export default function TradersSection() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                     >
-                        From single-chart questions to full strategy generation each module shares the same credit pool and your
-                        linked MT5 context.
+                        {t('home.tradersSubtitle', 'From single-chart questions to full strategy generation each module shares the same credit pool and your linked MT5 context.')}
                     </motion.p>
                 </div>
                 <motion.div

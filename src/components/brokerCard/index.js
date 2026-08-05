@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import styles from './brokerCard.module.scss';
+import { useLanguage } from '@/context/LanguageContext';
 
 const ExternalLinkIcon = () => (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -42,6 +43,7 @@ const ShieldHighlightIcon = () => (
 );
 
 export default function BrokerCard({ broker, detailHref }) {
+    const { t, tDynamic } = useLanguage();
     if (!broker) return null;
 
     const href = detailHref || `/broker/${broker.id}`;
@@ -52,13 +54,17 @@ export default function BrokerCard({ broker, detailHref }) {
         return <ShieldHighlightIcon />;
     };
 
+    const name = tDynamic(broker, 'name', 'name_ar') || broker.name;
+    const subtitle = tDynamic(broker, 'subtitle', 'subtitle_ar') || broker.subtitle;
+    const description = tDynamic(broker, 'description', 'description_ar') || broker.description;
+
     return (
         <div className={styles.brokerCard}>
             {/* Top Banner Header with Graphic */}
             <div className={styles.bannerHeader}>
                 {broker.logo && (
                     <div className={styles.logoWrapper}>
-                        <img src={broker.logo} alt={broker.name || 'Broker Logo'} />
+                        <img src={broker.logo} alt={name || 'Broker Logo'} />
                     </div>
                 )}
                 <svg className={styles.chartGraphic} viewBox="0 0 400 120" fill="none" preserveAspectRatio="none">
@@ -104,25 +110,29 @@ export default function BrokerCard({ broker, detailHref }) {
 
             {/* Title & Description */}
             <div className={styles.cardBody}>
-                {broker.name && <h3 className={styles.cardTitle}>{broker.name}</h3>}
-                {broker.subtitle && <span className={styles.subtitleTag}>{broker.subtitle}</span>}
-                {broker.description && <p className={styles.cardDescription}>{broker.description}</p>}
+                {name && <h3 className={styles.cardTitle}>{name}</h3>}
+                {subtitle && <span className={styles.subtitleTag}>{subtitle}</span>}
+                {description && <p className={styles.cardDescription}>{description}</p>}
             </div>
 
             {/* Mini Highlights Grid */}
             {Array.isArray(broker.highlights) && broker.highlights.length > 0 && (
                 <div className={styles.highlightsGrid}>
-                    {broker.highlights.map((hl, idx) => (
-                        <div key={hl.id || idx} className={styles.highlightItem}>
-                            <div className={`${styles.iconBox} ${styles[`iconType_${idx}`]}`}>
-                                {renderHighlightIcon(hl.type, idx)}
+                    {broker.highlights.map((hl, idx) => {
+                        const hlTitle = tDynamic(hl, 'title', 'title_ar') || hl.title;
+                        const hlSub = tDynamic(hl, 'sub', 'sub_ar') || hl.sub;
+                        return (
+                            <div key={hl.id || idx} className={styles.highlightItem}>
+                                <div className={`${styles.iconBox} ${styles[`iconType_${idx}`]}`}>
+                                    {renderHighlightIcon(hl.type, idx)}
+                                </div>
+                                <div className={styles.highlightText}>
+                                    {hlTitle && <span className={styles.hlTitle}>{hlTitle}</span>}
+                                    {hlSub && <span className={styles.hlSub}>{hlSub}</span>}
+                                </div>
                             </div>
-                            <div className={styles.highlightText}>
-                                {hl.title && <span className={styles.hlTitle}>{hl.title}</span>}
-                                {hl.sub && <span className={styles.hlSub}>{hl.sub}</span>}
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
 
@@ -136,12 +146,12 @@ export default function BrokerCard({ broker, detailHref }) {
                         className={styles.visitSiteBtn}
                     >
                         <ExternalLinkIcon />
-                        <span>Visit Site</span>
+                        <span>{t('broker.visitSite', 'Visit Site')}</span>
                     </a>
                 )}
 
                 <Link href={href} className={styles.viewDetailsBtn}>
-                    <span className={styles.btnLabel}>View Details</span>
+                    <span className={styles.btnLabel}>{t('broker.viewDetails', 'View Details')}</span>
                     <ChevronRightIcon />
                 </Link>
             </div>

@@ -12,6 +12,7 @@ import AnalysisResultItem from './AnalysisResultItem';
 import NextScreenshotTimer from './NextScreenshotTimer';
 import Modal from './Modal';
 import Loader from '@/components/loader';
+import { useLanguage } from '@/context/LanguageContext';
 import {
     MonitorIcon,
     MonitorOffIcon,
@@ -45,7 +46,7 @@ function getUserId() {
 }
 
 export default function TradeSnap() {
-
+    const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState('single');
     const [error, setError] = useState(null);
 
@@ -623,14 +624,14 @@ export default function TradeSnap() {
             <h3>
                 {sharing 
                     ? loadingText 
-                    : (isScreenShareSupported ? 'No screen sharing active' : 'Screen sharing not supported')}
+                    : (isScreenShareSupported ? t('tradeSnap.noScreenSharing', 'No screen sharing active') : t('tradeSnap.screenShareNotSupported', 'Screen sharing not supported'))}
             </h3>
             <p>
                 {sharing 
-                    ? 'Please wait while we load your screen' 
+                    ? t('tradeSnap.waitScreenLoading', 'Please wait while we load your screen') 
                     : (isScreenShareSupported 
-                        ? 'Click "Start Sharing" to begin' 
-                        : 'Screen sharing is not supported on mobile Safari or iOS devices. Please open on desktop Chrome, Edge, or Mac Safari.')}
+                        ? t('tradeSnap.clickStartSharing', 'Click "Start Sharing" to begin') 
+                        : t('tradeSnap.desktopRequiredDesc', 'Screen sharing is not supported on mobile Safari or iOS devices. Please open on desktop Chrome, Edge, or Mac Safari.'))}
             </p>
         </div>
     );
@@ -638,7 +639,7 @@ export default function TradeSnap() {
     const renderAutoCaptureSelect = (id, value, onChange, options) => (
         <div className={styles.autoCapture}>
             <CameraIcon />
-            <label htmlFor={id}>Auto Capture</label>
+            <label htmlFor={id}>{t('tradeSnap.autoCapture', 'Auto Capture')}</label>
             <select id={id} value={value ?? ''} onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}>
                 {options.map((o) => (
                     <option key={o.value || 'off'} value={o.value}>
@@ -661,9 +662,9 @@ export default function TradeSnap() {
                         <div className={styles.mobileIconWrap}>
                             <MonitorIcon className={styles.mobileMonitor} />
                         </div>
-                        <h3>Desktop View Required</h3>
+                        <h3>{t('tradeSnap.desktopViewRequired', 'Desktop View Required')}</h3>
                         <p>
-                            AI Trade uses screen sharing and requires a desktop or laptop computer with Chrome, Edge, or macOS Safari. Screen sharing is not supported on mobile devices or iOS Safari.
+                            {t('tradeSnap.mobileNoticeText', 'AI Trade uses screen sharing and requires a desktop or laptop computer with Chrome, Edge, or macOS Safari. Screen sharing is not supported on mobile devices or iOS Safari.')}
                         </p>
                     </motion.div>
                 </div>
@@ -676,14 +677,13 @@ export default function TradeSnap() {
             <div className={styles.title}>
                 <div className={styles.titleRow}>
                     <div>
-                        <h2>AI Trade</h2>
+                        <h2>{t('nav.aiTrade', 'AI Trade')}</h2>
                         <p>
-                            Capture your screen, analyze chart movements, and get AI trade insights with single or multi-timeframe
-                            views.
+                            {t('tradeSnap.subtitle', 'Capture your screen, analyze chart movements, and get AI trade insights with single or multi-timeframe views.')}
                         </p>
                     </div>
                     <button type="button" className={styles.historyBtn} onClick={openHistory}>
-                        History
+                        {t('tradeSnap.history', 'History')}
                     </button>
                 </div>
             </div>
@@ -697,7 +697,7 @@ export default function TradeSnap() {
                     onClick={() => requestTabSwitch('single')}
                 >
                     <MonitorIcon />
-                    Single Timeframe
+                    {t('tradeSnap.singleTimeframe', 'Single Timeframe')}
                 </button>
                 <button
                     type="button"
@@ -705,7 +705,7 @@ export default function TradeSnap() {
                     onClick={() => requestTabSwitch('multi')}
                 >
                     <ChartIcon />
-                    Multi Timeframe
+                    {t('tradeSnap.multiTimeframe', 'Multi Timeframe')}
                 </button>
 
             </div>
@@ -719,12 +719,12 @@ export default function TradeSnap() {
                                     {isSharing ? (
                                         <>
                                             <LiveIcon />
-                                            Live Screen Share
+                                            {t('tradeSnap.liveScreenShare', 'Live Screen Share')}
                                         </>
                                     ) : (
                                         <>
                                             <MonitorOffIcon />
-                                            Screen Preview
+                                            {t('tradeSnap.screenPreview', 'Screen Preview')}
                                         </>
                                     )}
                                 </h3>
@@ -747,7 +747,7 @@ export default function TradeSnap() {
                                         onLoadedMetadata={() => videoRef.current?.play().catch(console.error)}
                                     />
                                 ) : (
-                                    renderVideoPlaceholder(isSharing, 'Loading screen share...')
+                                    renderVideoPlaceholder(isSharing, t('tradeSnap.loadingScreenShare', 'Loading screen share...'))
                                 )}
                             </div>
                             <div className={styles.panelActions}>

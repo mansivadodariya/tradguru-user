@@ -51,9 +51,19 @@
         }
 
         .logo {
+            display: flex;
+            align-items: center;
+            align-self: center;
+
+            a {
+                display: inline-flex;
+                align-items: center;
+            }
+
             img {
                 display: block;
                 max-width: 165px;
+                height: auto;
                 cursor: pointer;
 
                 @include respond-to('md') {

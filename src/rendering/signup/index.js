@@ -17,6 +17,9 @@ import { supabase } from '@/lib/supabaseClient';
 import { isValidPhoneNumber } from 'react-phone-number-input';
 import { getUtmParameters } from '@/lib/utm';
 
+import { useLanguage } from '@/context/LanguageContext';
+import LanguageToggle from '@/components/languageToggle';
+
 const LineImage = '/assets/images/line.png';
 const AuthIcon = '/assets/icons/auth.svg';
 const ArrowIcon = '/assets/icons/arrow.svg';
@@ -27,6 +30,7 @@ const Lock = '/assets/icons/lock.svg';
 const Signup = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { t } = useLanguage();
     const codeFromQuery = searchParams.get('code') || searchParams.get('referral_code') || '';
     const redirectTo = getAuthRedirectTarget(searchParams);
     const [form, setForm] = useState({
@@ -121,12 +125,10 @@ const Signup = () => {
 
     const set = (field) => (e) => {
         let val = e.target.value.trimStart();
-        // Block numbers and special characters for name fields — only allow letters and spaces
         if (field === 'first_name' || field === 'last_name') {
             val = val.replace(/[^a-zA-Z\s]/g, '');
         }
         setForm((f) => ({ ...f, [field]: val }));
-        // clear field error on change
         if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }));
     };
 
@@ -245,14 +247,14 @@ const Signup = () => {
                             <img src={AuthIcon} alt="" aria-hidden="true" onClick={() => router.push("/")} />
                         </div>
                         <div className={styles.text}>
-                            <h2>Check your email</h2>
-                            <p>We sent a verification link to <strong>{form.email}</strong>. Click the link to activate your account.</p>
+                            <h2>{t('auth.checkEmail', 'Check your email')}</h2>
+                            <p>{t('auth.verificationSent', `We sent a verification link to ${form.email}. Click the link to activate your account.`)}</p>
                             <p className={styles.note}>
-                                <strong>Note:</strong> If you don't find the email in your inbox, please check your spam folder.
+                                {t('auth.spamNote', "Note: If you don't find the email in your inbox, please check your spam folder.")}
                             </p>
                         </div>
                         <div className={styles.accountText}>
-                            <p><Link href="/login">Back to Log in</Link></p>
+                            <p><Link href="/login">{t('auth.backToLogin', 'Back to Log in')}</Link></p>
                         </div>
                     </div>
                 </div>
@@ -274,24 +276,24 @@ const Signup = () => {
                     {pendingPhoneUserId ? (
                         <>
                             <div className={styles.text}>
-                                <h2>Complete Your Profile</h2>
-                                <p>Please enter your phone number to continue.</p>
+                                <h2>{t('auth.completeProfile', 'Complete Your Profile')}</h2>
+                                <p>{t('auth.enterPhoneDesc', 'Please enter your phone number to continue.')}</p>
                             </div>
                             <form onSubmit={handleSavePhoneNumber} noValidate>
                                 <div className={styles.spacingGrid}>
                                     <PhoneInput
-                                        label="Phone Number"
+                                        label={t('profile.phoneLabel', 'Phone Number')}
                                         value={phoneNumber}
                                         onChange={(val) => {
                                             setPhoneNumber(val || '');
                                             setPhoneError('');
                                         }}
-                                        placeholder="Phone number"
+                                        placeholder={t('profile.phoneLabel', 'Phone number')}
                                         error={phoneError}
                                         defaultCountry="AE"
                                     />
                                     <Button
-                                        text={savingPhone ? 'Saving...' : 'Continue'}
+                                        text={savingPhone ? t('auth.saving', 'Saving...') : t('auth.continue', 'Continue')}
                                         type="submit"
                                         disabled={savingPhone}
                                         icon={ArrowIcon}
@@ -304,7 +306,7 @@ const Signup = () => {
                                         }}
                                         className={styles.backBtn}
                                     >
-                                        Back to Home
+                                        {t('auth.backToHome', 'Back to Home')}
                                     </button>
                                 </div>
                             </form>
@@ -312,31 +314,31 @@ const Signup = () => {
                     ) : (
                         <>
                             <div className={styles.text}>
-                                <h2>Sign Up</h2>
-                                <p>Get set up so you can start your first onboarding experience.</p>
+                                <h2>{t('auth.signupHeader', 'Sign Up')}</h2>
+                                <p>{t('auth.signupDesc', 'Get set up so you can start your trading experience.')}</p>
                             </div>
                             <form onSubmit={handleSubmit} noValidate>
                                 <div className={styles.spacingGrid}>
                                     <div className={styles.twoCol}>
-                                        <Input icon={Profile} placeholder="First Name" name="first_name" value={form.first_name} onChange={set('first_name')} error={errors.first_name} maxLength={50} />
-                                        <Input icon={Profile} placeholder="Last Name" name="last_name" value={form.last_name} onChange={set('last_name')} error={errors.last_name} maxLength={50} />
+                                        <Input icon={Profile} placeholder={t('auth.firstNameLabel', 'First Name')} name="first_name" value={form.first_name} onChange={set('first_name')} error={errors.first_name} maxLength={50} />
+                                        <Input icon={Profile} placeholder={t('auth.lastNameLabel', 'Last Name')} name="last_name" value={form.last_name} onChange={set('last_name')} error={errors.last_name} maxLength={50} />
                                     </div>
-                                    <Input icon={EmailIcon} placeholder="Email" type="email" name="email" value={form.email} onChange={set('email')} error={errors.email} maxLength={100} />
+                                    <Input icon={EmailIcon} placeholder={t('auth.emailPlaceholder', 'Email')} type="email" name="email" value={form.email} onChange={set('email')} error={errors.email} maxLength={100} />
                                     <PhoneInput
                                         label=""
-                                        placeholder="Phone no"
+                                        placeholder={t('profile.phoneLabel', 'Phone no')}
                                         value={form.phone_number}
                                         onChange={setPhone}
                                         error={errors.phone_number}
                                         defaultCountry="AE"
                                     />
                                     <div className={styles.twoCol}>
-                                        <Input icon={Lock} placeholder="Password" type="password" name="password" value={form.password} onChange={set('password')} error={errors.password} maxLength={50} />
-                                        <Input icon={Lock} placeholder="Confirm Password" type="password" name="confirmPassword" value={form.confirmPassword} onChange={set('confirmPassword')} error={errors.confirmPassword} maxLength={50} />
+                                        <Input icon={Lock} placeholder={t('auth.passwordPlaceholder', 'Password')} type="password" name="password" value={form.password} onChange={set('password')} error={errors.password} maxLength={50} />
+                                        <Input icon={Lock} placeholder={t('auth.confirmPasswordPlaceholder', 'Confirm Password')} type="password" name="confirmPassword" value={form.confirmPassword} onChange={set('confirmPassword')} error={errors.confirmPassword} maxLength={50} />
                                     </div>
                                     <Input
                                         icon={Profile}
-                                        placeholder="Referral Code (Optional)"
+                                        placeholder={t('auth.referralOptional', 'Referral Code (Optional)')}
                                         name="referral_code"
                                         value={form.referral_code}
                                         onChange={set('referral_code')}
@@ -346,16 +348,16 @@ const Signup = () => {
                                     <Button
                                         type="submit"
                                         fullWidth
-                                        text={loading ? 'Signing up...' : 'Sign up'}
+                                        text={loading ? t('auth.signingUpBtn', 'Signing up...') : t('auth.signupHeader', 'Sign up')}
                                         icon={ArrowIcon}
                                         disabled={loading}
                                     />
                                 </div>
                             </form>
                             <div className={styles.accountText}>
-                                <p>Already have an account? <Link href="/login">Log in</Link></p>
+                                <p>{t('auth.alreadyHaveAccount', 'Already have an account?')} <Link href="/login">{t('auth.loginHeader', 'Log in')}</Link></p>
                             </div>
-                            <div className={styles.orText}><span>or</span></div>
+                            <div className={styles.orText}><span>{t('auth.or', 'or')}</span></div>
                             <ContinueWithGoogle redirectTo={redirectTo} onPendingPhone={setPendingPhoneUserId} />
                         </>
                     )}

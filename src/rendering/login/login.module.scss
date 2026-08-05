@@ -107,6 +107,10 @@
             margin-top: -8px;
             text-align: right;
 
+            :global([dir="rtl"]) & {
+                text-align: left;
+            }
+
             a {
                 color: #0B56DB;
                 font-size: 14px;

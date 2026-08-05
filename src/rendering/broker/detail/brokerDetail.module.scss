@@ -62,6 +62,10 @@
             margin-bottom: 20px;
             flex-wrap: wrap;
 
+            :global([dir="rtl"]) & {
+                flex-direction: row-reverse;
+            }
+
             .logoBox {
                 height: 52px;
                 display: flex;
@@ -231,6 +235,12 @@
                     font-weight: 600;
                     word-break: break-all;
                     font-family: monospace;
+
+                    :global([dir="rtl"]) & {
+                        direction: ltr;
+                        text-align: left;
+                        justify-content: flex-end;
+                    }
                 }
 
                 .visitOfficialBtn {
@@ -247,6 +257,12 @@
                     text-decoration: none;
                     transition: all 0.2s ease;
                     box-shadow: 0 4px 14px rgba(11, 86, 219, 0.25);
+
+                    svg {
+                        :global([dir="rtl"]) & {
+                            transform: scaleX(-1);
+                        }
+                    }
 
                     &:hover {
                         background: #0843AD;

@@ -5,12 +5,13 @@ import styles from './footer.module.scss';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from '@/components/toast';
 import Loader from '@/components/loader';
+import { useLanguage } from '@/context/LanguageContext';
 
 const FooterLogo = '/assets/logo/logoWhite.svg';
 
 const ArrowUpIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <g clip-path="url(#clip0_5885_2914)">
+        <g clipPath="url(#clip0_5885_2914)">
             <path d="M21.4264 8.79752L21.4182 8.78939L13.0278 0.387937C12.9611 0.321633 12.8875 0.262725 12.8081 0.212237L12.5666 0.0804497L12.4018 0.0255211H12.281C12.0958 -0.00850704 11.906 -0.00850704 11.7209 0.0255211H11.4793L11.2926 0.124362C11.1885 0.180884 11.0925 0.251054 11.007 0.333008L2.58365 8.78939C2.01959 9.34897 2.01593 10.2599 2.57551 10.824L2.58365 10.8321C3.15224 11.3746 4.04675 11.3746 4.61539 10.8321L9.63428 5.82417C9.8508 5.61187 10.1985 5.61527 10.4108 5.83184C10.5096 5.93258 10.5658 6.06749 10.5678 6.20857V22.5612C10.5677 23.3558 11.2118 23.9999 12.0064 24C12.8009 24 13.445 23.356 13.4452 22.5614V6.20857C13.4494 5.90535 13.6987 5.66294 14.0019 5.66721C14.143 5.66922 14.2779 5.72538 14.3786 5.82417L19.3756 10.8321C19.9456 11.3816 20.8483 11.3816 21.4183 10.8321C21.9824 10.2725 21.986 9.36158 21.4264 8.79752Z" fill="#0B56DB" />
         </g>
         <defs>
@@ -46,6 +47,7 @@ const DribbbleIcon = () => (
 );
 
 export default function Footer() {
+    const { t } = useLanguage();
     const [email, setEmail] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
@@ -56,12 +58,12 @@ export default function Footer() {
         const trimmedEmail = email.trim();
 
         if (!trimmedEmail) {
-            toast.error('Please enter an email address.');
+            toast.error(t('footer.invalidEmail', 'Please enter a valid email address.'));
             return;
         }
 
         if (!emailRegex.test(trimmedEmail)) {
-            toast.error('Please enter a valid email address.');
+            toast.error(t('footer.invalidEmail', 'Please enter a valid email address.'));
             return;
         }
 
@@ -78,12 +80,12 @@ export default function Footer() {
 
             if (error) {
                 if (error.code === '23505') {
-                    toast.error('This email is already subscribed.');
+                    toast.error(t('footer.alreadySubscribed', 'This email is already subscribed.'));
                 } else {
                     toast.error(error.message || 'Failed to subscribe.');
                 }
             } else {
-                toast.success('Successfully subscribed to the newsletter!');
+                toast.success(t('footer.subscribedSuccess', 'Successfully subscribed to the newsletter!'));
                 setEmail('');
             }
         } catch (err) {
@@ -107,14 +109,12 @@ export default function Footer() {
                             <img src={FooterLogo} alt="Trader Master Logo" />
                         </Link>
                         <p>
-                            AI-powered Forex intelligence for serious traders. Chart reading,
-                            trade analysis, and strategy generation — built around MT5 and the
-                            Newera brokerage stack.
+                            {t('footer.description', 'AI-powered Forex intelligence for serious traders. Chart reading, trade analysis, and strategy generation — built around MT5 and the Newera brokerage stack.')}
                         </p>
                         <form className={styles.newsletter} onSubmit={handleSubscribe}>
                             <input
                                 type="email"
-                                placeholder="Your@gmail.com"
+                                placeholder={t('footer.newsletterPlaceholder', 'Your@gmail.com')}
                                 value={email}
                                 onChange={handleEmailInput}
                                 disabled={submitting}
@@ -133,16 +133,16 @@ export default function Footer() {
 
                     <div className={styles.linkcol}>
                         <div className={styles.linkCol}>
-                            <h4>Product</h4>
+                            <h4>{t('footer.product', 'Product')}</h4>
                             <ul>
-                                <li><Link href="/tradesnap">AI Trade</Link></li>
-                                <li><Link href="/ai-chat">AI Chat</Link></li>
-                                <li><Link href="/ai-strategy">AI Strategy</Link></li>
+                                <li><Link href="/tradesnap">{t('nav.aiTrade', 'AI Trade')}</Link></li>
+                                <li><Link href="/ai-chat">{t('nav.aiChat', 'AI Chat')}</Link></li>
+                                <li><Link href="/ai-strategy">{t('nav.aiStrategy', 'AI Strategy')}</Link></li>
                             </ul>
                         </div>
 
                         <div className={styles.linkCol}>
-                            <h4>Company</h4>
+                            <h4>{t('footer.company', 'Company')}</h4>
                             <ul>
                                 <li>
                                     <Link
@@ -151,42 +151,37 @@ export default function Footer() {
                                         rel="noopener noreferrer"
                                         aria-label="Edufins"
                                     >
-                                        Edufins
+                                        {t('nav.edufins', 'Edufins')}
                                     </Link>
                                 </li>
                                 <li>
-
-
                                     <Link
                                         href="https://fundedmaster.com/"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         aria-label="Funded Master"
                                     >
-                                        Funded Master
+                                        {t('nav.fundedMaster', 'Funded Master')}
                                     </Link>
                                 </li>
-
                             </ul>
                         </div>
 
                         <div className={styles.linkCol}>
-                            <h4>Legal</h4>
+                            <h4>{t('footer.legal', 'Legal')}</h4>
                             <ul>
-                                <li><Link href="/privacy-policy">Privacy Policy</Link></li>
-                                <li><Link href="/terms-and-conditions">Terms & Conditions</Link></li>
+                                <li><Link href="/privacy-policy">{t('footer.privacyPolicy', 'Privacy Policy')}</Link></li>
+                                <li><Link href="/terms-and-conditions">{t('footer.termsAndConditions', 'Terms & Conditions')}</Link></li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-
-
                 <div className={styles.bottomSection}>
                     <div className={styles.warningBlock}>
-                        <h5>© {new Date().getFullYear()} Trader Master. All rights reserved.</h5>                        <p>
-                            Risk warning: Forex trading carries substantial risk. Trader Master provides analytical
-                            tools and does not handle deposits or withdrawals. All funds are managed by Newera.
+                        <h5>© {new Date().getFullYear()} Trader Master. {t('footer.allRightsReserved', 'All rights reserved.')}</h5>
+                        <p>
+                            {t('footer.riskWarning', 'Risk warning: Forex trading carries substantial risk. Trader Master provides analytical tools and does not handle deposits or withdrawals. All funds are managed by Newera.')}
                         </p>
                     </div>
 

@@ -12,6 +12,7 @@ import AiIcon from "@/icons/aiIcon";
 import BrokerIcon from "@/icons/brokerIcon";
 import { clearAuthSession } from '@/lib/authSession';
 import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 const SidebarLogo = "/assets/logo/logo.svg";
 const SidebarLogoWhite = "/assets/logo/logoWhite.svg";
@@ -36,23 +37,23 @@ const CreditHistoryIcon = () => (
   </svg>
 );
 
-const mainNav = [
-  { label: "Dashboard", href: "/dashboard", icon: DashboardIcon },
-  { label: "AI Trade", href: "/trade-snap", icon: TradeIcon },
-  { label: "AI Chat", href: "/ai-assistant", icon: AssistantIcon },
+const getMainNav = (t) => [
+  { label: t('nav.dashboard', 'Dashboard'), href: "/dashboard", icon: DashboardIcon },
+  { label: t('nav.aiTrade', 'AI Trade'), href: "/trade-snap", icon: TradeIcon },
+  { label: t('nav.aiChat', 'AI Chat'), href: "/ai-assistant", icon: AssistantIcon },
   {
-    label: "AI Strategy",
+    label: t('nav.aiStrategy', 'AI Strategy'),
     href: "/ai-strategy",
     icon: AiIcon,
     subItems: [
-      { label: "Live Analysis", href: "/ai-strategy/live", icon: LiveAnalysisIcon },
-      { label: "AI Strategy", href: "/ai-strategy/strategy", icon: StrategyIcon },
+      { label: t('nav.liveAnalysis', 'Live Analysis'), href: "/ai-strategy/live", icon: LiveAnalysisIcon },
+      { label: t('nav.aiStrategy', 'AI Strategy'), href: "/ai-strategy/strategy", icon: StrategyIcon },
     ]
   },
-  { label: "Economic Calendar", href: "/economic-calendar", icon: PricingIcon },
-  { label: "Credit History", href: "/credit-history", icon: CreditHistoryIcon },
-  { label: "Broker", href: "/broker", icon: BrokerIcon },
-  { label: "Profile", href: "/profile", icon: SettingsIcon },
+  { label: t('nav.economicCalendar', 'Economic Calendar'), href: "/economic-calendar", icon: PricingIcon },
+  { label: t('nav.creditHistory', 'Credit History'), href: "/credit-history", icon: CreditHistoryIcon },
+  { label: t('nav.broker', 'Broker'), href: "/broker", icon: BrokerIcon },
+  { label: t('nav.profile', 'Profile'), href: "/profile", icon: SettingsIcon },
 ];
 
 /** Match current route to nav item (handles trailing slashes and nested paths). */
@@ -149,6 +150,7 @@ const Sidebar = ({ onClose }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { theme } = useTheme();
+  const { t } = useLanguage();
 
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -162,6 +164,7 @@ const Sidebar = ({ onClose }) => {
   };
 
   const logoSrc = theme === 'dark' ? SidebarLogoWhite : SidebarLogo;
+  const mainNav = getMainNav(t);
 
   return (
     <>
@@ -182,7 +185,7 @@ const Sidebar = ({ onClose }) => {
         <div className={styles.sidebarFooter}>
           <button className={styles.logoutBtn} onClick={() => setConfirmOpen(true)} type="button">
             <LogoutIcon />
-            <span>Logout</span>
+            <span>{t('nav.logout', 'Logout')}</span>
           </button>
         </div>
       </aside>
@@ -190,11 +193,11 @@ const Sidebar = ({ onClose }) => {
       {confirmOpen && (
         <div className={styles.confirmOverlay} onClick={() => setConfirmOpen(false)}>
           <div className={styles.confirmBox} onClick={(e) => e.stopPropagation()}>
-            <h3>Log out?</h3>
-            <p>Are you sure you want to log out?</p>
+            <h3>{t('topbar.logoutConfirmTitle', 'Log out?')}</h3>
+            <p>{t('topbar.logoutConfirmMessage', 'Are you sure you want to log out?')}</p>
             <div className={styles.confirmActions}>
-              <button type="button" className={styles.cancelBtn} onClick={() => setConfirmOpen(false)}>Cancel</button>
-              <button type="button" className={styles.confirmLogoutBtn} onClick={doLogout}>Log out</button>
+              <button type="button" className={styles.cancelBtn} onClick={() => setConfirmOpen(false)}>{t('topbar.cancel', 'Cancel')}</button>
+              <button type="button" className={styles.confirmLogoutBtn} onClick={doLogout}>{t('nav.logout', 'Log out')}</button>
             </div>
           </div>
         </div>

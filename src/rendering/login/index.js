@@ -14,6 +14,9 @@ import PhoneInput from '@/components/phoneInput';
 import { isValidPhoneNumber } from 'react-phone-number-input';
 import { supabase } from '@/lib/supabaseClient';
 
+import { useLanguage } from '@/context/LanguageContext';
+import LanguageToggle from '@/components/languageToggle';
+
 const LineImage = '/assets/images/line.png';
 const AuthIcon = '/assets/icons/auth.svg';
 const ArrowIcon = '/assets/icons/arrow.svg';
@@ -23,6 +26,7 @@ const Lock = '/assets/icons/lock.svg';
 const Login = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { t } = useLanguage();
     const redirectTo = getAuthRedirectTarget(searchParams);
     const [form, setForm] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState({});
@@ -199,24 +203,24 @@ const Login = () => {
                     {pendingPhoneUserId ? (
                         <>
                             <div className={styles.text}>
-                                <h2>Complete Your Profile</h2>
-                                <p>Please enter your phone number to continue.</p>
+                                <h2>{t('auth.completeProfile', 'Complete Your Profile')}</h2>
+                                <p>{t('auth.enterPhoneDesc', 'Please enter your phone number to continue.')}</p>
                             </div>
                             <form onSubmit={handleSavePhoneNumber} noValidate>
                                 <div className={styles.spacingGrid}>
                                     <PhoneInput
-                                        label="Phone Number"
+                                        label={t('profile.phoneLabel', 'Phone Number')}
                                         value={phoneNumber}
                                         onChange={(val) => {
                                             setPhoneNumber(val || '');
                                             setPhoneError('');
                                         }}
-                                        placeholder="Phone number"
+                                        placeholder={t('profile.phoneLabel', 'Phone number')}
                                         error={phoneError}
                                         defaultCountry="AE"
                                     />
                                     <Button
-                                        text={savingPhone ? 'Saving...' : 'Continue'}
+                                        text={savingPhone ? t('auth.saving', 'Saving...') : t('auth.continue', 'Continue')}
                                         type="submit"
                                         disabled={savingPhone}
                                         icon={ArrowIcon}
@@ -229,7 +233,7 @@ const Login = () => {
                                         }}
                                         className={styles.backBtn}
                                     >
-                                        Back to Home
+                                        {t('auth.backToHome', 'Back to Home')}
                                     </button>
                                 </div>
                             </form>
@@ -237,23 +241,23 @@ const Login = () => {
                     ) : (
                         <>
                             <div className={styles.text}>
-                                <h2>Log In</h2>
-                                <p>Log in to your account to continue building and editing your onboarding flows.</p>
+                                <h2>{t('auth.loginHeader', 'Log In')}</h2>
+                                <p>{t('auth.loginDesc', 'Log in to your account to access AI strategy tools and market analysis.')}</p>
                             </div>
                             <form onSubmit={handleSubmit} noValidate>
                                 <div className={styles.spacingGrid}>
-                                    <Input icon={EmailIcon} placeholder="Email" type="email" name="email" value={form.email} onChange={set('email')} error={errors.email} maxLength={100} />
-                                    <Input icon={Lock} placeholder="Password" type="password" name="password" value={form.password} onChange={set('password')} error={errors.password} maxLength={50} />
+                                    <Input icon={EmailIcon} placeholder={t('auth.emailPlaceholder', 'Email')} type="email" name="email" value={form.email} onChange={set('email')} error={errors.email} maxLength={100} />
+                                    <Input icon={Lock} placeholder={t('auth.passwordPlaceholder', 'Password')} type="password" name="password" value={form.password} onChange={set('password')} error={errors.password} maxLength={50} />
                                     <div className={styles.forgotRow}>
-                                        <Link href="/forgot-password">Forgot password?</Link>
+                                        <Link href="/forgot-password">{t('auth.forgotPasswordQuestion', 'Forgot password?')}</Link>
                                     </div>
-                                    <Button text={loading ? 'Logging in...' : 'Log in'} icon={ArrowIcon} disabled={loading} type="submit" />
+                                    <Button text={loading ? t('auth.loggingInBtn', 'Logging in...') : t('auth.loginBtn', 'Log in')} icon={ArrowIcon} disabled={loading} type="submit" />
                                 </div>
                             </form>
                             <div className={styles.accountText}>
-                                <p>Don&apos;t have an account? <Link href="/signup">Sign up</Link></p>
+                                <p>{t('auth.noAccount', "Don't have an account?")} <Link href="/signup">{t('auth.signupHeader', 'Sign up')}</Link></p>
                             </div>
-                            <div className={styles.orText}><span>or</span></div>
+                            <div className={styles.orText}><span>{t('auth.or', 'or')}</span></div>
                             <ContinueWithGoogle redirectTo={redirectTo} onPendingPhone={setPendingPhoneUserId} />
                         </>
                     )}

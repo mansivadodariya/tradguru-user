@@ -3,51 +3,9 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import styles from './clientSection.module.scss';
 import LineText from '@/components/lineText';
+import { useLanguage } from '@/context/LanguageContext';
 
 const ProfileImage = '/assets/images/profile.png';
-
-const testimonials = [
-    {
-        id: 1,
-        rating: 5,
-        quote: "The chart reads are scarily accurate. I use AI Trade before every London open it catches structure I'd miss half-asleep.",
-        author: "Marcus Okafor",
-        role: "MT5 day trader, London",
-        avatar: ProfileImage
-    },
-    {
-        id: 2,
-        rating: 5,
-        quote: "AI Strategy gave me a mean-reversion system I actually trust. The backtest matched my live results within 4%.",
-        author: "Michael T., Texas",
-        role: "Swing trader, Mumbai",
-        avatar: ProfileImage
-    },
-    {
-        id: 3,
-        rating: 5,
-        quote: "Best part: it's tied to my MT5. No bots, no noise. Every conversation is with someone who's actually trading.",
-        author: "Daniel Reyes",
-        role: "Prop firm trader",
-        avatar: ProfileImage
-    },
-    {
-        id: 4,
-        rating: 5,
-        quote: "No subscription fees. Paying with trading volume credits is a game-changer. Finally, tools made for real day traders.",
-        author: "Sarah L., Sydney",
-        role: "Full-time Scalper",
-        avatar: ProfileImage
-    },
-    {
-        id: 5,
-        rating: 5,
-        quote: "The support structures identified by Trader Master saved me from at least three bad setups this week alone. Incredible math.",
-        author: "Kenji Sato",
-        role: "Risk Manager, Tokyo",
-        avatar: ProfileImage
-    }
-];
 
 const StarIcon = () => (
     <svg width="18" height="17" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -62,8 +20,52 @@ const QuoteIcon = () => (
 );
 
 export default function ClientSection() {
+    const { t } = useLanguage();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [visibleCards, setVisibleCards] = useState(3);
+
+    const testimonials = [
+        {
+            id: 1,
+            rating: 5,
+            quote: t('home.testimonial1Quote', "The chart reads are scarily accurate. I use AI Trade before every London open it catches structure I'd miss half-asleep."),
+            author: t('home.testimonial1Author', "Marcus Okafor"),
+            role: t('home.testimonial1Role', "MT5 day trader, London"),
+            avatar: ProfileImage
+        },
+        {
+            id: 2,
+            rating: 5,
+            quote: t('home.testimonial2Quote', "AI Strategy gave me a mean-reversion system I actually trust. The backtest matched my live results within 4%."),
+            author: t('home.testimonial2Author', "Michael T., Texas"),
+            role: t('home.testimonial2Role', "Swing trader"),
+            avatar: ProfileImage
+        },
+        {
+            id: 3,
+            rating: 5,
+            quote: t('home.testimonial3Quote', "Best part: it's tied to my MT5. No bots, no noise. Every conversation is with someone who's actually trading."),
+            author: t('home.testimonial3Author', "Daniel Reyes"),
+            role: t('home.testimonial3Role', "Prop firm trader"),
+            avatar: ProfileImage
+        },
+        {
+            id: 4,
+            rating: 5,
+            quote: t('home.testimonial4Quote', "No subscription fees. Paying with trading volume credits is a game-changer. Finally, tools made for real day traders."),
+            author: t('home.testimonial4Author', "Sarah L., Sydney"),
+            role: t('home.testimonial4Role', "Full-time Scalper"),
+            avatar: ProfileImage
+        },
+        {
+            id: 5,
+            rating: 5,
+            quote: t('home.testimonial5Quote', "The support structures identified by Trader Master saved me from at least three bad setups this week alone. Incredible math."),
+            author: t('home.testimonial5Author', "Kenji Sato"),
+            role: t('home.testimonial5Role', "Risk Manager, Tokyo"),
+            avatar: ProfileImage
+        }
+    ];
 
     useEffect(() => {
         const updateVisible = () => {
@@ -87,7 +89,7 @@ export default function ClientSection() {
         if (currentIndex < maxIndex) {
             setCurrentIndex(prev => prev + 1);
         } else {
-            setCurrentIndex(0); // Loop back
+            setCurrentIndex(0);
         }
     };
 
@@ -95,7 +97,7 @@ export default function ClientSection() {
         if (currentIndex > 0) {
             setCurrentIndex(prev => prev - 1);
         } else {
-            setCurrentIndex(maxIndex); // Loop to end
+            setCurrentIndex(maxIndex);
         }
     };
 
@@ -127,7 +129,7 @@ export default function ClientSection() {
     return (
         <div className={styles.clientSection}>
             <div className='container'>
-                <LineText text="Traders talking" />
+                <LineText text={t('home.tradersTalkingLine', 'Traders talking')} />
                 <div className={styles.title}>
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
@@ -135,7 +137,7 @@ export default function ClientSection() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
                     >
-                        Used by serious Forex traders
+                        {t('home.tradersTalkingTitle', 'Used by serious Forex traders')}
                     </motion.h2>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -143,8 +145,7 @@ export default function ClientSection() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                     >
-                        Real reviews from active MT5 traders using The Trader
-                        Master daily.
+                        {t('home.tradersTalkingSubtitle', 'Real reviews from active MT5 traders using The Trader Master daily.')}
                     </motion.p>
                 </div>
 
@@ -199,7 +200,6 @@ export default function ClientSection() {
                         </motion.div>
                     </div>
 
-                    {/* Navigation Buttons */}
                     <div className={styles.navigation}>
                         <button
                             className={styles.navBtn}
@@ -207,8 +207,8 @@ export default function ClientSection() {
                             aria-label="Previous testimonials"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <path d="M9.57031 5.92969L3.50031 11.9997L9.57031 18.0697" stroke="#292D32" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M20.5 12H3.67" stroke="#292D32" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M9.57031 5.92969L3.50031 11.9997L9.57031 18.0697" stroke="#292D32" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M20.5 12H3.67" stroke="#292D32" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </button>
                         <button
@@ -217,8 +217,8 @@ export default function ClientSection() {
                             aria-label="Next testimonials"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <path d="M14.4297 5.92969L20.4997 11.9997L14.4297 18.0697" stroke="#292D32" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M3.5 12H20.33" stroke="#292D32" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M14.4297 5.92969L20.4997 11.9997L14.4297 18.0697" stroke="#292D32" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M3.5 12H20.33" stroke="#292D32" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </button>
                     </div>

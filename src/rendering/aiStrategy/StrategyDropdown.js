@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './aiStrategy.module.scss';
+import { useLanguage } from '@/context/LanguageContext';
 
 function ChevronDownIcon({ className, ...props }) {
     return (
@@ -22,10 +23,9 @@ function ChevronDownIcon({ className, ...props }) {
     );
 }
 
-export default function StrategyDropdown({ onSelect }) {
-    const [strategies, setStrategies] = useState([]);
-    const [selectedId, setSelectedId] = useState('');
-    const [loading, setLoading] = useState(true);
+export default function StrategyDropdown({ strategies = [], selectedStrategyId, onSelect, loading = false }) {
+    const { t } = useLanguage();
+    const [selectedId, setSelectedId] = useState(selectedStrategyId || '');
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -86,7 +86,7 @@ export default function StrategyDropdown({ onSelect }) {
 
     return (
         <div className={styles.strategyDropdownContainer} ref={dropdownRef}>
-            <span className={styles.dropdownLabel}>Active Strategy:</span>
+            <bdi className={styles.dropdownLabel}>{t('aiStrategy.activeStrategyLabel', 'Active Strategy:')}</bdi>
             
             <div className={styles.customSelectWrapper}>
                 <button

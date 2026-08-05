@@ -7,10 +7,13 @@ import { getStoredUser, getStoredUserId, clearAuthSession } from '@/lib/authSess
 import { CREDITS_UPDATED_EVENT } from '@/lib/credits';
 import { supabase } from '@/lib/supabaseClient';
 import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
+import LanguageToggle from '@/components/languageToggle';
 
 const Topbar = ({ onMenuClick }) => {
     const router = useRouter();
     const { theme, toggleTheme } = useTheme();
+    const { t } = useLanguage();
     const [user, setUser] = useState(null);
     const [credits, setCredits] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -157,6 +160,7 @@ const Topbar = ({ onMenuClick }) => {
                     </button>
                 </div>
                 <div className={styles.right}>
+                    <LanguageToggle />
                     <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle Theme" type="button">
                         {theme === 'light' ? (
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -177,7 +181,7 @@ const Topbar = ({ onMenuClick }) => {
                                 <path d="M12 6V6.5V7" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
                                 <path d="M15 9.5C15 8.11929 13.6569 7 12 7C10.3431 7 9 8.11929 9 9.5C9 10.8807 10.3431 12 12 12C13.6569 12 15 13.1193 15 14.5C15 15.8807 13.6569 17 12 17C10.3431 17 9 15.8807 9 14.5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
                             </svg>
-                            <span>{credits} credits</span>
+                            <span>{credits} {t('topbar.credits', 'credits')}</span>
                         </div>
                     )}
                     
@@ -204,11 +208,11 @@ const Topbar = ({ onMenuClick }) => {
             {confirmOpen && (
                 <div className={styles.confirmOverlay} onClick={() => setConfirmOpen(false)}>
                     <div className={styles.confirmBox} onClick={(e) => e.stopPropagation()}>
-                        <h3>Log out?</h3>
-                        <p>Are you sure you want to log out?</p>
+                        <h3>{t('topbar.logoutConfirmTitle', 'Log out?')}</h3>
+                        <p>{t('topbar.logoutConfirmMessage', 'Are you sure you want to log out?')}</p>
                         <div className={styles.confirmActions}>
-                            <button type="button" className={styles.cancelBtn} onClick={() => setConfirmOpen(false)}>Cancel</button>
-                            <button type="button" className={styles.logoutBtn} onClick={doLogout}>Log out</button>
+                            <button type="button" className={styles.cancelBtn} onClick={() => setConfirmOpen(false)}>{t('topbar.cancel', 'Cancel')}</button>
+                            <button type="button" className={styles.logoutBtn} onClick={doLogout}>{t('nav.logout', 'Log out')}</button>
                         </div>
                     </div>
                 </div>

@@ -9,6 +9,8 @@ import { fetchBrokers, brokerList } from '@/lib/brokersData';
 import toast from 'react-hot-toast';
 
 import BrokerCard from '@/components/brokerCard';
+import { BrokerCardSkeleton } from '@/components/brokerSkeleton';
+import { useLanguage } from '@/context/LanguageContext';
 
 // Logos from sliding logos section
 const EdufinsIcon = '/assets/icons/edufins.svg';
@@ -41,7 +43,9 @@ const EyeIcon = () => (
 );
 
 export default function BrokerPage() {
-    const [brokers, setBrokers] = useState(brokerList);
+    const { t } = useLanguage();
+    const [brokers, setBrokers] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [selectedTab, setSelectedTab] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [showCreditsModal, setShowCreditsModal] = useState(false);
@@ -50,9 +54,15 @@ export default function BrokerPage() {
     useEffect(() => {
         let isMounted = true;
         async function loadBrokers() {
-            const data = await fetchBrokers();
-            if (isMounted && data && data.length > 0) {
-                setBrokers(data);
+            try {
+                const data = await fetchBrokers();
+                if (isMounted) {
+                    setBrokers(data && data.length > 0 ? data : brokerList);
+                }
+            } catch (_) {
+                if (isMounted) setBrokers(brokerList);
+            } finally {
+                if (isMounted) setIsLoading(false);
             }
         }
         loadBrokers();
@@ -81,16 +91,15 @@ export default function BrokerPage() {
         <div className={styles.brokerPage}>
             {/* Hero Banner */}
             <div className={styles.heroBanner}>
-                <div className={styles.badge}>Broker & Platform Hub</div>
-                <h1>Integrated Brokerage & Trading Infrastructure</h1>
+                <div className={styles.badge}>{t('broker.hubBadge', 'Broker & Platform Hub')}</div>
+                <h1>{t('broker.title', 'Integrated Brokerage & Trading Infrastructure')}</h1>
                 <p>
-                    Connect your MT5 account, view verified broker partners from our sliding marquee stack, 
-                    and earn AI credits automatically through your daily trading volume.
+                    {t('broker.subtitle', 'Connect your MT5 account, view verified broker partners from our sliding marquee stack, and earn AI credits automatically through your daily trading volume.')}
                 </p>
             </div>
 
             {/* Controls Bar: Category Tabs & Search (Only shown if more than 1 broker) */}
-            {brokers.length > 1 && (
+            {!isLoading && brokers.length > 1 && (
                 <div className={styles.controlsRow}>
                     <div className={styles.tabs}>
                         {['All', ...Array.from(new Set(brokers.map((b) => b.category)))].map((tab) => (
@@ -117,7 +126,12 @@ export default function BrokerPage() {
             )}
 
             {/* Brokers Grid */}
-            {filteredBrokers.length > 0 ? (
+            {isLoading ? (
+                <div className={styles.brokersGrid}>
+                    <BrokerCardSkeleton />
+                    <BrokerCardSkeleton />
+                </div>
+            ) : filteredBrokers.length > 0 ? (
                 <div className={styles.brokersGrid}>
                     {filteredBrokers.map((broker) => (
                         <BrokerCard

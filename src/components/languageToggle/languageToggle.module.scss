@@ -1,0 +1,87 @@
+.toggleButton {
+  height: 50px;
+  min-height: 50px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #FFF;
+  border: 1px solid #0B56DB;
+  color: #0B56DB;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(11, 86, 219, 0.08);
+
+  &:hover {
+    background: #0B56DB;
+    color: #FFF;
+    box-shadow: 0 4px 14px rgba(11, 86, 219, 0.25);
+
+    .globeIcon {
+      color: #FFF;
+    }
+  }
+}
+
+.globeIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #0B56DB;
+  transition: color 0.25s ease;
+}
+
+.label {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+:global(html.dark) {
+  .toggleButton {
+    background: rgba(15, 23, 42, 0.8);
+    border-color: rgba(11, 86, 219, 0.5);
+    color: #38bdf8;
+
+    .globeIcon {
+      color: #38bdf8;
+    }
+
+    &:hover {
+      background: #0B56DB;
+      color: #FFF;
+
+      .globeIcon {
+        color: #FFF;
+      }
+    }
+  }
+}
+
+/* Light mode styling / header light mode */
+.toggleButtonLight,
+:global(html:not(.dark)) .toggleButtonLight {
+  background: #F1F5FC;
+  border: 1px solid #0B56DB;
+  color: #0B56DB;
+
+  .globeIcon {
+    color: #0B56DB;
+  }
+
+  &:hover {
+    background: #0B56DB;
+    color: #FFF;
+
+    .globeIcon {
+      color: #FFF;
+    }
+  }
+}
+
+
+

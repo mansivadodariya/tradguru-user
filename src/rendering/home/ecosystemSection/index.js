@@ -4,17 +4,27 @@ import { motion } from 'framer-motion';
 import styles from './ecosystemSection.module.scss';
 import LineText from '@/components/lineText';
 import BrokerCard from '@/components/brokerCard';
+import { BrokerCardSkeleton } from '@/components/brokerSkeleton';
 import { fetchBrokers, brokerList } from '@/lib/brokersData';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function EcosystemSection() {
-    const [brokers, setBrokers] = useState(brokerList);
+    const { t } = useLanguage();
+    const [brokers, setBrokers] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         let isMounted = true;
         async function loadBrokers() {
-            const data = await fetchBrokers();
-            if (isMounted && data && data.length > 0) {
-                setBrokers(data);
+            try {
+                const data = await fetchBrokers();
+                if (isMounted) {
+                    setBrokers(data && data.length > 0 ? data : brokerList);
+                }
+            } catch (_) {
+                if (isMounted) setBrokers(brokerList);
+            } finally {
+                if (isMounted) setIsLoading(false);
             }
         }
         loadBrokers();
@@ -41,7 +51,7 @@ export default function EcosystemSection() {
     return (
         <section className={styles.ecosystemSection} id="ecosystem">
             <div className="container">
-                <LineText text="Ecosystem & Partners" />
+                <LineText text={t('home.ecosystemLine', 'Ecosystem & Partners')} />
                 <div className={styles.title}>
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
@@ -49,7 +59,7 @@ export default function EcosystemSection() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
                     >
-                        Powered by <span>Industry-Leading</span> Brokers & Platforms
+                        {t('home.ecosystemTitlePrefix', 'Powered by')} <span>{t('home.ecosystemTitleHighlight', 'Industry-Leading')}</span> {t('home.ecosystemTitleSuffix', 'Brokers & Platforms')}
                     </motion.h2>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -57,30 +67,36 @@ export default function EcosystemSection() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                     >
-                        Seamlessly trade with top-tier regulated brokers, quant execution engines, and prop firms 
-                        directly connected to Trader Master's AI suite.
+                        {t('home.ecosystemSubtitle', "Seamlessly trade with top-tier regulated brokers, quant execution engines, and prop firms directly connected to Trader Master's AI suite.")}
                     </motion.p>
                 </div>
 
-                <motion.div
-                    className={styles.grid}
-                    variants={containerVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.1 }}
-                >
-                    {brokers.map((broker) => (
-                        <motion.div
-                            key={broker.id}
-                            variants={cardVariants}
-                        >
-                            <BrokerCard
-                                broker={broker}
-                                detailHref={`/brokers/${broker.id}`}
-                            />
-                        </motion.div>
-                    ))}
-                </motion.div>
+                {isLoading ? (
+                    <div className={styles.grid}>
+                        <BrokerCardSkeleton />
+                        <BrokerCardSkeleton />
+                    </div>
+                ) : (
+                    <motion.div
+                        className={styles.grid}
+                        variants={containerVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.1 }}
+                    >
+                        {brokers.map((broker) => (
+                            <motion.div
+                                key={broker.id}
+                                variants={cardVariants}
+                            >
+                                <BrokerCard
+                                    broker={broker}
+                                    detailHref={`/brokers/${broker.id}`}
+                                />
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                )}
             </div>
         </section>
     );

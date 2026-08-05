@@ -35,10 +35,11 @@
     }
 
     button {
-        padding: 6px 29px 6px 6px;
+        padding: 6px 6px 6px 29px;
         background: #0B56DB;
-        display: flex;
+        display: inline-flex;
         align-items: center;
+        justify-content: space-between;
         gap: 18px;
         position: relative;
         color: #FFF;
@@ -49,6 +50,10 @@
         cursor: pointer;
         text-decoration: none;
         line-height: normal;
+
+        :global([dir="rtl"]) & {
+            padding: 6px 29px 6px 6px;
+        }
 
         &:disabled {
             opacity: 0.6;
@@ -70,6 +75,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
 
             img {
                 display: block;
@@ -79,10 +85,11 @@
     }
 
     .linkBtn {
-        padding: 6px 29px 6px 6px;
+        padding: 6px 6px 6px 29px;
         background: #0B56DB;
         display: inline-flex;
         align-items: center;
+        justify-content: space-between;
         gap: 18px;
         color: #fff;
         font-size: 16px;
@@ -91,11 +98,40 @@
         cursor: pointer;
         text-decoration: none;
         line-height: normal;
+
+        :global([dir="rtl"]) & {
+            padding: 6px 29px 6px 6px;
+        }
+
+        &:hover {
+            .icon {
+                img {
+                    transform: rotate(45deg);
+                }
+            }
+        }
     }
 
     .motionInner {
-        display: flex;
+        display: inline-flex;
         align-items: center;
+        justify-content: space-between;
         gap: 18px;
+        width: 100%;
+
+        .icon {
+            width: 38px;
+            height: 38px;
+            background: #FFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+
+            img {
+                display: block;
+                transition: 0.3s ease-in-out;
+            }
+        }
     }
 }

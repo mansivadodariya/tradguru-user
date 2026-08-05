@@ -3,9 +3,11 @@ import React, { useState } from 'react'
 import Link from 'next/link';
 import styles from './header.module.scss';
 import Button from '../button';
+import LanguageToggle from '../languageToggle';
 import { useRouter, usePathname } from 'next/navigation';
 import { authNavigate, getAuthHref } from '@/lib/authRedirect';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/context/LanguageContext';
 
 const Logo = '/assets/logo/logo.svg';
 const ArrowIcon = '/assets/icons/arrow.svg';
@@ -13,6 +15,7 @@ const ArrowIcon = '/assets/icons/arrow.svg';
 export default function Header() {
     const router = useRouter()
     const pathname = usePathname()
+    const { t } = useLanguage();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const navClass = (href) =>
@@ -31,10 +34,10 @@ export default function Header() {
                             </Link>
                         </div>
                         <div className={styles.menuAlignment}>
-                            <Link href="/" aria-label='Home' className={navClass('/')}>Home</Link>
-                            <Link href="/tradesnap" aria-label='AI Trade' className={navClass('/tradesnap')}>AI Trade</Link>
-                            <Link href="/ai-chat" aria-label='AI Chat' className={navClass('/ai-chat')}>AI Chat</Link>
-                            <Link href="/ai-strategy" aria-label='AI Strategy' className={navClass('/ai-strategy')}>AI Strategy</Link>
+                            <Link href="/" aria-label='Home' className={navClass('/')}>{t('nav.home', 'Home')}</Link>
+                            <Link href="/tradesnap" aria-label='AI Trade' className={navClass('/tradesnap')}>{t('nav.aiTrade', 'AI Trade')}</Link>
+                            <Link href="/ai-chat" aria-label='AI Chat' className={navClass('/ai-chat')}>{t('nav.aiChat', 'AI Chat')}</Link>
+                            <Link href="/ai-strategy" aria-label='AI Strategy' className={navClass('/ai-strategy')}>{t('nav.aiStrategy', 'AI Strategy')}</Link>
                             <Link
                                 href="https://www.edufins.com/"
                                 target="_blank"
@@ -42,7 +45,7 @@ export default function Header() {
                                 aria-label="Edufins"
                                 className={styles.navLink}
                             >
-                                Edufins
+                                {t('nav.edufins', 'Edufins')}
                             </Link>
                             <Link
                                 href="https://fundedmaster.com/"
@@ -51,11 +54,12 @@ export default function Header() {
                                 aria-label="Funded Master"
                                 className={styles.navLink}
                             >
-                                Funded Master
+                                {t('nav.fundedMaster', 'Funded Master')}
                             </Link>
                         </div>
-                        <div className={styles.buttonHide}>
-                            <Button text="Get Started" icon={ArrowIcon} onClick={() => authNavigate(router, '/dashboard')} />
+                        <div className={styles.buttonHide} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <LanguageToggle light />
+                            <Button text={t('nav.getStarted', 'Get Started')} icon={ArrowIcon} onClick={() => authNavigate(router, '/dashboard')} />
                         </div>
                         <div className={styles.mobilemenu} onClick={() => setIsMobileMenuOpen(true)} style={{ cursor: 'pointer' }}>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M96 160C96 142.3 110.3 128 128 128L512 128C529.7 128 544 142.3 544 160C544 177.7 529.7 192 512 192L128 192C110.3 192 96 177.7 96 160zM96 320C96 302.3 110.3 288 128 288L512 288C529.7 288 544 302.3 544 320C544 337.7 529.7 352 512 352L128 352C110.3 352 96 337.7 96 320zM544 480C544 497.7 529.7 512 512 512L128 512C110.3 512 96 497.7 96 480C96 462.3 110.3 448 128 448L512 448C529.7 448 544 462.3 544 480z"></path>
@@ -85,10 +89,10 @@ export default function Header() {
                             </svg>
                         </div>
                         <div className={styles.body}>
-                            <Link href="/" aria-label='Home' onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
-                            <Link href={getAuthHref('/trade-snap')} aria-label='AI Trade' onClick={() => setIsMobileMenuOpen(false)}>AI Trade</Link>
-                            <Link href={getAuthHref('/ai-assistant')} aria-label='AI Chat' onClick={() => setIsMobileMenuOpen(false)}>AI Chat</Link>
-                            <Link href="/ai-strategy" aria-label='AI Strategy' onClick={() => setIsMobileMenuOpen(false)}>AI Strategy</Link>
+                            <Link href="/" aria-label='Home' onClick={() => setIsMobileMenuOpen(false)}>{t('nav.home', 'Home')}</Link>
+                            <Link href={getAuthHref('/trade-snap')} aria-label='AI Trade' onClick={() => setIsMobileMenuOpen(false)}>{t('nav.aiTrade', 'AI Trade')}</Link>
+                            <Link href={getAuthHref('/ai-assistant')} aria-label='AI Chat' onClick={() => setIsMobileMenuOpen(false)}>{t('nav.aiChat', 'AI Chat')}</Link>
+                            <Link href="/ai-strategy" aria-label='AI Strategy' onClick={() => setIsMobileMenuOpen(false)}>{t('nav.aiStrategy', 'AI Strategy')}</Link>
                             <Link
                                 href="https://www.edufins.com/"
                                 target="_blank"
@@ -96,7 +100,7 @@ export default function Header() {
                                 aria-label="Edufins"
                                 className={styles.navLink}
                             >
-                                Edufins
+                                {t('nav.edufins', 'Edufins')}
                             </Link>
                             <Link
                                 href="https://fundedmaster.com/"
@@ -105,11 +109,14 @@ export default function Header() {
                                 aria-label="Funded Master"
                                 className={styles.navLink}
                             >
-                                Funded Master
+                                {t('nav.fundedMaster', 'Funded Master')}
                             </Link>
+                            <div style={{ marginTop: '12px' }}>
+                                <LanguageToggle light />
+                            </div>
                         </div>
                         <div className={styles.headerFooter}>
-                            <Button text="Get Started" icon={ArrowIcon} onClick={() => { authNavigate(router, '/dashboard'); setIsMobileMenuOpen(false); }} />
+                            <Button text={t('nav.getStarted', 'Get Started')} icon={ArrowIcon} onClick={() => { authNavigate(router, '/dashboard'); setIsMobileMenuOpen(false); }} />
                         </div>
                     </motion.div>
                 )}

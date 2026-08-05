@@ -2,10 +2,12 @@
 import React, { useEffect, useRef } from "react";
 import styles from "./economicCalendar.module.scss";
 import { useTheme } from "@/context/ThemeContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function EconomicCalendar() {
   const widgetContainerRef = useRef(null);
   const { theme } = useTheme();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -15,7 +17,7 @@ export default function EconomicCalendar() {
     script.innerHTML = JSON.stringify({
       colorTheme: theme,
       isTransparent: true,
-      locale: "en",
+      locale: language === 'ar' ? 'ar' : 'en',
       countryFilter: "ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,za,tr,gb,us,eu",
       importanceFilter: "-1,0,1",
       width: "100%",
@@ -31,14 +33,14 @@ export default function EconomicCalendar() {
         widgetContainerRef.current.innerHTML = "";
       }
     };
-  }, [theme]);
+  }, [theme, language]);
 
   return (
     <section className={styles.economicCalendar}>
       <div className={styles.header}>
-        <h1>Economic Calendar</h1>
+        <h1>{t('nav.economicCalendar', 'Economic Calendar')}</h1>
         <p>
-          Track global market-moving events in real time and plan your trades around key macro releases.
+          {t('economicCalendar.subtitle', 'Track global market-moving events in real time and plan your trades around key macro releases.')}
         </p>
       </div>
 

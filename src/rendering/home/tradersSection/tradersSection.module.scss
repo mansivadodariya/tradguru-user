@@ -90,6 +90,11 @@
                 height: 150px;
                 opacity: 0.3;
                 filter: blur(55.29999923706055px);
+
+                :global([dir="rtl"]) & {
+                    right: auto;
+                    left: 0;
+                }
             }
 
             .imageAlignment {
@@ -97,6 +102,11 @@
                 bottom: 0;
                 right: 0;
                 z-index: 9;
+
+                :global([dir="rtl"]) & {
+                    right: auto;
+                    left: 0;
+                }
 
                 @include respond-to('sm') {
                     position: inherit;
@@ -106,6 +116,10 @@
                 img {
                     display: block;
                     max-width: 160px;
+
+                    :global([dir="rtl"]) & {
+                        transform: scaleX(-1);
+                    }
 
                     @include respond-to('sm') {
                         max-width: 130px;
@@ -133,6 +147,12 @@
                 cursor: pointer;
                 position: relative;
                 z-index: 10;
+
+                svg {
+                    :global([dir="rtl"]) & {
+                        transform: rotate(180deg);
+                    }
+                }
 
                 span {
                     display: block;

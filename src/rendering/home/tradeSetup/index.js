@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import styles from './tradeSetup.module.scss';
 import LineText from '@/components/lineText';
 import Button from '@/components/button';
+import { useLanguage } from '@/context/LanguageContext';
 
 const ScreenshotIcon = '/assets/icons/Screenshot.svg';
 const LineArrowIcon = '/assets/icons/line-arrow.svg';
@@ -17,6 +18,8 @@ const ArrowIcon = '/assets/icons/arrow.svg';
 
 export default function TradeSetup() {
     const router = useRouter();
+    const { t } = useLanguage();
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -71,7 +74,7 @@ export default function TradeSetup() {
     return (
         <div className={styles.tradeSetup}>
             <div className='container'>
-                <LineText text="How It Works" />
+                <LineText text={t('home.tradeSetupLine', 'How It Works')} />
                 <div className={styles.title}>
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
@@ -79,7 +82,7 @@ export default function TradeSetup() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                     >
-                        Analyze Any Trade setup in 3 simple steps
+                        {t('home.tradeSetupTitle', 'Analyze Any Trade setup in 3 simple steps')}
                     </motion.h2>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -87,8 +90,7 @@ export default function TradeSetup() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.5, delay: 0.15 }}
                     >
-                        Upload a chart and let AI uncover the setup behind
-                        the price action.
+                        {t('home.tradeSetupSubtitle', 'Upload a chart and let AI uncover the setup behind the price action.')}
                     </motion.p>
                 </div>
                 <motion.div
@@ -110,11 +112,11 @@ export default function TradeSetup() {
                                 variants={iconVariants}
                             />
                             <h3>
-                                Upload Screenshot
+                                {t('home.stepUploadTitle', 'Upload Screenshot')}
                             </h3>
                         </div>
                         <p>
-                            Drop your chart image from any platform.
+                            {t('home.stepUploadDesc', 'Drop your chart image from any platform.')}
                         </p>
                         <motion.div
                             className={styles.counter}
@@ -155,11 +157,11 @@ export default function TradeSetup() {
                                 variants={iconVariants}
                             />
                             <h3>
-                                AI Process the chart
+                                {t('home.stepProcessTitle', 'AI Process the chart')}
                             </h3>
                         </div>
                         <p>
-                            AI Trade scans price action structure and momentum.
+                            {t('home.stepProcessDesc', 'AI Trade scans price action structure and momentum.')}
                         </p>
                         <motion.div
                             className={styles.counter}
@@ -201,11 +203,11 @@ export default function TradeSetup() {
                                 variants={iconVariants}
                             />
                             <h3>
-                                Receive Smart Insights
+                                {t('home.stepInsightsTitle', 'Receive Smart Insights')}
                             </h3>
                         </div>
                         <p>
-                            Get a complete AI generated trading setup instantly.
+                            {t('home.stepInsightsDesc', 'Get a complete AI generated trading setup instantly.')}
                         </p>
                         <motion.div
                             className={styles.counter}
@@ -217,14 +219,14 @@ export default function TradeSetup() {
                 </motion.div>
                 <div className={styles.box}>
                     <div className={styles.content}>
-                        <LineText text="AI Trade" start />
+                        <LineText text={t('nav.aiTrade', 'AI Trade')} start />
                         <h3>
-                            Turn screenshot into trading opportunities
+                            {t('home.turnScreenshotTitle', 'Turn screenshot into trading opportunities')}
                         </h3>
                         <p>
-                            Upload a chart and let AI uncover the setup behind the price action.
+                            {t('home.turnScreenshotDesc', 'Upload a chart and let AI uncover the setup behind the price action.')}
                         </p>
-                        <Button icon={ArrowIcon} text="Try AI Trade Now" onClick={() => authNavigate(router, '/trade-snap')} />
+                        <Button icon={ArrowIcon} text={t('home.tryAiTradeNow', 'Try AI Trade Now')} onClick={() => authNavigate(router, '/trade-snap')} />
                     </div>
                     <div className={styles.image}>
                         <img src={SnapImage} alt='SnapImage' />

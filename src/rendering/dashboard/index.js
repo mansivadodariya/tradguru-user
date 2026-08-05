@@ -8,6 +8,8 @@ import { dashboardApi } from '@/lib/api';
 import { getStoredUser, getStoredUserId } from '@/lib/authSession';
 import Loader from '@/components/loader';
 import EcosystemSection from '../home/ecosystemSection';
+import { useLanguage } from '@/context/LanguageContext';
+
 const CardIcon = '/assets/icons/dashboardCard.svg'
 const iconOne = '/assets/icons/IconOne.svg'
 const iconTwo = '/assets/icons/IconTwo.svg'
@@ -47,28 +49,20 @@ function timeAgo(dateLike) {
 function formatSummary(text) {
     if (!text || typeof text !== 'string') return '';
     try {
-        // 1. Decode unicode escape sequences like \u2014
         let decoded = text.replace(/\\u([0-9a-fA-F]{4})/g, (match, grp) => {
             return String.fromCharCode(parseInt(grp, 16));
         });
 
-        // 2. Normalize literal newlines
         decoded = decoded.replace(/\\n/g, '\n');
-
-        // 3. Convert markdown bold **text** to HTML <strong>text</strong>
         let formatted = decoded.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-
-        // Convert markdown italic *text* to HTML <em>text</em>
         formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
-        // 4. Handle leading bullet points
         if (formatted.startsWith('- ')) {
             formatted = '• ' + formatted.substring(2);
         } else if (formatted.startsWith('-\t')) {
             formatted = '• ' + formatted.substring(2);
         }
 
-        // 5. Replace subsequent newlines and bullets
         formatted = formatted.replace(/\n-\s*/g, '<br />• ');
         formatted = formatted.replace(/\n/g, '<br />');
 
@@ -81,6 +75,7 @@ function formatSummary(text) {
 
 export default function Dashboard() {
     const router = useRouter();
+    const { t } = useLanguage();
     const [userId, setUserId] = useState('');
     const [stats, setStats] = useState(null);
     const [recentActivity, setRecentActivity] = useState([]);
@@ -135,116 +130,79 @@ export default function Dashboard() {
     const quickActions = useMemo(
         () => [
             {
-                title: 'Upload Trade Screenshot',
-                desc: 'Upload any chart screenshot and get AI analysis instantly.',
-                cta: 'Upload Now',
+                title: t('dashboard.snapChart', 'Upload Trade Screenshot'),
+                desc: t('tradeSnap.dropzoneText', 'Upload any chart screenshot and get AI analysis instantly.'),
+                cta: t('common.exploreNow', 'Upload Now'),
                 href: '/trade-snap',
                 accent: styles.qaBlue,
                 icon: iconOne
             },
             {
-                title: 'Ask AI Chat',
-                desc: 'Ask any trading or finance related question to AI.',
-                cta: 'Ask Now',
+                title: t('dashboard.askAssistant', 'Ask AI Chat'),
+                desc: t('aiChat.subtitle', 'Ask any trading or finance related question to AI.'),
+                cta: t('common.exploreNow', 'Ask Now'),
                 href: '/ai-assistant?tab=chat',
                 accent: styles.qaPurple,
                 icon: iconTwo
-
             },
             {
-                title: 'Economic Calendar',
-                desc: 'Track high-impact news and plan trades around events.',
-                cta: 'Open Calendar',
+                title: t('nav.economicCalendar', 'Economic Calendar'),
+                desc: t('home.tradingDeskSubtitle', 'Track high-impact news and plan trades around events.'),
+                cta: t('common.exploreNow', 'Open Calendar'),
                 href: '/economic-calendar',
                 accent: styles.qaOrange,
                 icon: iconFour
-
             },
             {
-                title: 'Manage Profile',
-                desc: 'Update your personal information, account settings, and profile preferences easily.',
-                cta: 'Manage Now',
+                title: t('nav.profile', 'Manage Profile'),
+                desc: t('common.learnMore', 'Update your personal information, account settings, and profile preferences easily.'),
+                cta: t('common.exploreNow', 'Manage Now'),
                 href: '/profile',
                 accent: styles.qaGreen,
                 icon: iconThree
             }
         ],
-        []
+        [t]
     );
 
     const recents = useMemo(() => {
         const normalize = (item, index) => {
-
             const type = item?.type || item?.activity_type || item?.kind || "";
-
             const normalizedType = String(type)
                 .toLowerCase()
                 .includes("blog")
                 ? "blog"
                 : "chat";
 
-            // Extract short_response from summary JSON
             let summary = "";
-
-            // safer summary extraction
             if (typeof item?.summary === "string") {
-
-                // try parse json
                 try {
                     const parsed = JSON.parse(item.summary);
                     summary = parsed?.short_response || "";
                 } catch {
-
-                    // fallback raw string cleanup
                     summary = item.summary
                         .replace('{"short_response":"', "")
                         .replace('{"short_response": "', "")
                         .replace(/"}$/, "")
                         .replace(/\\"/g, '"');
                 }
-
             } else if (item?.summary?.short_response) {
                 summary = item.summary.short_response;
             }
 
-
             return {
                 type: normalizedType,
-                id:
-                    item?.id ||
-                    item?.activity_id ||
-                    item?.chat_id ||
-                    item?.created_at ||
-                    index,
-
-                title:
-                    item?.title ||
-                    item?.question ||
-                    item?.message ||
-                    "Recent item",
-
+                id: item?.id || item?.activity_id || item?.chat_id || item?.created_at || index,
+                title: item?.title || item?.question || item?.message || "Recent item",
                 summary,
-
                 pair: item?.pair || item?.symbol || "",
-
-                created_at:
-                    item?.created_at ||
-                    item?.createdAt ||
-                    item?.time ||
-                    "",
+                created_at: item?.created_at || item?.createdAt || item?.time || "",
             };
         };
 
-        return (Array.isArray(recentActivity)
-            ? recentActivity
-            : []
-        )
+        return (Array.isArray(recentActivity) ? recentActivity : [])
             .map(normalize)
-            .sort(
-                (a, b) =>
-                    new Date(b.created_at || 0).getTime() -
-                    new Date(a.created_at || 0).getTime()
-            )
+            .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
             .slice(0, 8);
     }, [recentActivity]);
 
@@ -254,61 +212,55 @@ export default function Dashboard() {
         params.set('open', String(item.id));
         router.push(`/ai-assistant?${params.toString()}`);
     };
+
     const getGreeting = () => {
         const hour = new Date().getHours();
-
-        if (hour < 12) {
-            return "Good Morning";
-        } else if (hour < 17) {
-            return "Good Afternoon";
-        } else if (hour < 21) {
-            return "Good Evening";
-        } else {
-            return "Good Night";
-        }
+        if (hour < 12) return t('dashboard.goodMorning', 'Good Morning');
+        else if (hour < 17) return t('dashboard.goodAfternoon', 'Good Afternoon');
+        else if (hour < 21) return t('dashboard.goodEvening', 'Good Evening');
+        else return t('dashboard.goodNight', 'Good Night');
     };
+
     const statsData = [
         {
             id: 1,
-            label: "Total Trade Analysis",
+            label: t('dashboard.recentAnalyses', 'Total Trade Analysis'),
             value: stats?.total_analysis_history ?? "—",
             delta: "Analysis History",
             icon: state1,
         },
         {
             id: 2,
-            label: "Total Chats",
+            label: t('nav.aiChat', 'Total Chats'),
             value: stats?.total_chat_history ?? "—",
             delta: "Chat History",
             icon: state2,
         },
         {
             id: 3,
-            label: "Available Credits",
+            label: t('dashboard.creditsBalance', 'Available Credits'),
             value: stats?.available_credits ?? "—",
             delta: `Total Credits: ${stats?.total_credits ?? 0}`,
             icon: state3,
         },
         {
             id: 4,
-            label: "Total Credits",
+            label: t('topbar.credits', 'Total Credits'),
             value: stats?.total_credits ?? "—",
             delta: "Total Credits",
             icon: state4,
         },
     ];
+
     return (
         <div className={styles.dashboard}>
-
             <section className={styles.hero}>
                 <div className={styles.heroText}>
-                    <div className={styles.heroKicker}>AI Powered insights ready</div>
+                    <div className={styles.heroKicker}>{t('home.heroTitle', 'AI Powered insights ready')}</div>
                     <h1>
                         {greeting}, <span>{name}</span>
                     </h1>
-                    {/* <p>Your Edge is Up 3.2% This Month. 4 new high confidence signals waiting for review.</p> */}
                 </div>
-
             </section>
 
             <section className={styles.statsGrid}>
@@ -337,21 +289,19 @@ export default function Dashboard() {
 
             <section className={styles.section}>
                 <div className={styles.sectionHeader}>
-                    <h2>Quick Actions</h2>
+                    <h2>{t('dashboard.quickActions', 'Quick Actions')}</h2>
                 </div>
                 <div className={styles.quickGrid}>
                     {quickActions.map((qa) => (
                         <div key={qa.title} className={`${styles.qaCard} `}>
-
                             <div className={styles.qaBody}>
-                                <img src={qa.icon} alt={qa.label} />
+                                <img src={qa.icon} alt={qa.title} />
                                 <h3>{qa.title}</h3>
                                 <p>{qa.desc}</p>
                                 <div className={styles.dividerLine}></div>
                                 <Link href={qa.href} className={styles.qaFooter} aria-label={qa.cta}>
                                     <div className={styles.icon}>
                                         <img src={ArrowIcon} alt={ArrowIcon} />
-
                                     </div>
                                     <span>{qa.cta}</span>
                                 </Link>
@@ -363,8 +313,7 @@ export default function Dashboard() {
 
             <section className={styles.section}>
                 <div className={styles.sectionHeader}>
-                    <h2>Recent</h2>
-
+                    <h2>{t('dashboard.recentAnalyses', 'Recent')}</h2>
                 </div>
 
                 <div className={styles.recentCard}>
@@ -373,10 +322,10 @@ export default function Dashboard() {
                             <table className={styles.recentTable}>
                                 <thead>
                                     <tr>
-                                        <th>Time</th>
-                                        <th>Type</th>
-                                        <th>Title</th>
-                                        <th>Summary</th>
+                                        <th>{t('dashboard.time', 'Time')}</th>
+                                        <th>{t('dashboard.type', 'Type')}</th>
+                                        <th>{t('dashboard.title', 'Title')}</th>
+                                        <th>{t('dashboard.summary', 'Summary')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -393,19 +342,18 @@ export default function Dashboard() {
                         </div>
                     ) : recents.length === 0 ? (
                         <div className={styles.recentEmpty}>
-                            No recent chats or blogs yet.
+                            {t('dashboard.noRecentActivity', 'No recent chats or blogs yet.')}
                         </div>
                     ) : (
                         <div className={styles.tableWrapper}>
                             <table className={styles.recentTable}>
                                 <thead>
                                     <tr>
-                                        <th>Time</th>
-                                        <th>Title</th>
-                                        <th>Summary</th>
+                                        <th>{t('dashboard.time', 'Time')}</th>
+                                        <th>{t('dashboard.title', 'Title')}</th>
+                                        <th>{t('dashboard.summary', 'Summary')}</th>
                                     </tr>
                                 </thead>
-
                                 <tbody>
                                     {recents.map((item) => (
                                         <tr
@@ -418,8 +366,6 @@ export default function Dashboard() {
                                                     {timeAgo(item.created_at)}
                                                 </div>
                                             </td>
-
-
                                             <td>
                                                 <div
                                                     className={styles.recentTitle}
@@ -428,11 +374,8 @@ export default function Dashboard() {
                                                     {item.title}
                                                 </div>
                                             </td>
-
                                             <td>
-                                                <div
-                                                    className={styles.recentSummary}
-                                                >
+                                                <div className={styles.recentSummary}>
                                                     {item.summary ? (
                                                         <div
                                                             dangerouslySetInnerHTML={{
@@ -444,8 +387,6 @@ export default function Dashboard() {
                                                     )}
                                                 </div>
                                             </td>
-
-
                                         </tr>
                                     ))}
                                 </tbody>
@@ -454,8 +395,6 @@ export default function Dashboard() {
                     )}
                 </div>
             </section>
-
-            {/* <EcosystemSection /> */}
         </div>
     );
 }

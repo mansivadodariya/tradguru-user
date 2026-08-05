@@ -15,6 +15,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import ReportPanel from './ReportPanel';
+import { useLanguage } from '@/context/LanguageContext';
 
 const UploadIcon = '/assets/icons/upload-xs.svg';
 const Logo = '/assets/icons/AIChat.svg';
@@ -92,6 +93,7 @@ const buildAssistantMessage = (parsed) => ({
 });
 
 const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
+    const { t } = useLanguage();
 
     // Authentication & Identification
     const [userId, setUserId] = useState(null);
@@ -641,16 +643,16 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                         </div>
                         <div className={styles.headerInfo}>
                             <h3>Trader Master Copilot</h3>
-                            <span>Active Pair: {selectedPair}</span>
+                            <span>{t('aiChat.activePair', 'Active Pair')}: {selectedPair}</span>
                         </div>
                         <div className={styles.headerAction}>
                             <Button
-                                text="Create New Chat"
+                                text={t('aiChat.createNewChat', 'Create New Chat')}
                                 icon={UploadIcon}
                                 onClick={handleCreateNew}
                             />
                             <button className={styles.historyBtn} onClick={() => setHistoryModalOpen(true)}>
-                                History
+                                {t('aiChat.history', 'History')}
                             </button>
                         </div>
                     </div>
@@ -658,8 +660,8 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                         {chatMessages.length === 0 ? (
                             <div className={styles.welcomeContainer}>
                                 <div className={styles.welcomeIcon}></div>
-                                <h2>Welcome to Trader Master Copilot</h2>
-                                <p>Select a major pair below, ask a question, and get deep insights on forex market movement and trends instantly.</p>
+                                <h2>{t('aiChat.copilotTitle', 'Welcome to Trader Master Copilot')}</h2>
+                                <p>{t('aiChat.copilotSubtitle', 'Select a major pair below, ask a question, and get deep insights on forex market movement and trends instantly.')}</p>
                             </div>
                         ) : (
                             chatMessages.map((msg, index) => (
@@ -750,7 +752,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                 {/* Chat input box */}
                 <div className={styles.inputArea}>
                     <textarea
-                        placeholder="Ask anything about forex trading, chart and strategies.."
+                        placeholder={t('aiChat.askPlaceholder', 'Ask anything about forex trading, chart and strategies..')}
                         className={styles.textarea}
                         value={chatInput}
                         onChange={(e) => setChatInput(e.target.value.trimStart())}

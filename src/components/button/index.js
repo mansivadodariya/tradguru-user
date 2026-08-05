@@ -25,12 +25,12 @@ export default function Button({
 
     const content = (
         <>
+            <span className={styles.btnText}>{text}</span>
             {icon && (
                 <div className={styles.icon}>
                     <img src={icon} alt="" />
                 </div>
             )}
-            {text}
         </>
     );
 

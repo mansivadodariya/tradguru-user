@@ -1,0 +1,202 @@
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeletonPulse {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 235, 252, 0.4) 0%,
+    rgba(226, 235, 252, 0.9) 50%,
+    rgba(226, 235, 252, 0.4) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite ease-in-out;
+  border-radius: 6px;
+}
+
+:global(html.dark) .skeletonPulse {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* Card Skeleton */
+.cardSkeleton {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px 0 rgba(11, 86, 219, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 420px;
+}
+
+:global(html.dark) .cardSkeleton {
+  background: #151d30;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.3);
+}
+
+.bannerHeader {
+  height: 120px;
+  background: linear-gradient(135deg, #0B56DB 0%, #1e40af 100%);
+  position: relative;
+  padding: 16px 20px;
+}
+
+.logoCircle {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+}
+
+.cardBody {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.titleLine {
+  width: 60%;
+  height: 24px;
+}
+
+.subtitleLine {
+  width: 35%;
+  height: 16px;
+}
+
+.descLine1 {
+  width: 100%;
+  height: 14px;
+  margin-top: 8px;
+}
+
+.descLine2 {
+  width: 80%;
+  height: 14px;
+}
+
+.highlightsGrid {
+  padding: 0 24px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.highlightItem {
+  height: 42px;
+  border-radius: 10px;
+}
+
+.cardFooter {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(226, 232, 240, 0.6);
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+:global(html.dark) .cardFooter {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.btnSkeleton {
+  width: 110px;
+  height: 38px;
+  border-radius: 10px;
+}
+
+/* Detail Page Skeleton */
+.detailSkeleton {
+  padding: 40px 0 80px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.detailBanner {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 40px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+:global(html.dark) .detailBanner {
+  background: #151d30;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.detailLogo {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+}
+
+.detailTitle {
+  width: 40%;
+  height: 36px;
+}
+
+.detailSub {
+  width: 25%;
+  height: 20px;
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 32px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detailCardSection {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+:global(html.dark) .detailCardSection {
+  background: #151d30;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.sectionTitle {
+  width: 30%;
+  height: 24px;
+}
+
+.paragraphLine {
+  width: 100%;
+  height: 16px;
+}
+
+.featureBox {
+  height: 24px;
+  width: 85%;
+  border-radius: 6px;
+}

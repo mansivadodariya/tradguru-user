@@ -1,8 +1,9 @@
 import Script from "next/script";
-import { Geist, Geist_Mono, Plus_Jakarta_Sans, Roboto } from "next/font/google";
+import { Plus_Jakarta_Sans, Roboto } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/toast";
 import WhatsappButton from "@/components/whatsappButton";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 const plusSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
@@ -55,16 +56,24 @@ export default function RootLayout({ children }) {
                 } else {
                   document.documentElement.classList.remove('dark');
                 }
+
+                var storedLang = localStorage.getItem('app_language');
+                if (storedLang === 'ar') {
+                  document.documentElement.setAttribute('lang', 'ar');
+                  document.documentElement.setAttribute('dir', 'rtl');
+                }
               } catch (_) {}
             `,
           }}
         />
       </head>
       <body>
-        <ToastProvider>
-          {children}
-          <WhatsappButton />
-        </ToastProvider>
+        <LanguageProvider>
+          <ToastProvider>
+            {children}
+            <WhatsappButton />
+          </ToastProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

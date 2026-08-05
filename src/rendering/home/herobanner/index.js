@@ -7,6 +7,8 @@ import LineText from '@/components/lineText';
 import Button from '@/components/button';
 import { useRouter } from 'next/navigation';
 import { authNavigate } from '@/lib/authRedirect';
+import { useLanguage } from '@/context/LanguageContext';
+
 const ArrowIcon = '/assets/icons/arrow.svg';
 const HeroTextImage = '/assets/images/hero-text.png';
 
@@ -52,31 +54,33 @@ const imageVariants = {
 };
 
 export default function Herobanner() {
-    const router = useRouter()
+    const router = useRouter();
+    const { language, t } = useLanguage();
+
     return (
         <div className={styles.herobanner}>
             <div className='container-xs2'>
                 <motion.div
+                    key={language}
                     className={styles.topContentAlignment}
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
                 >
                     <motion.div variants={itemVariants}>
-                        <LineText text="AI For MT5 Traders" />
+                        <LineText text={t('home.lineText', 'AI For MT5 Traders')} />
                     </motion.div>
 
                     <motion.h1 variants={itemVariants}>
-                        Trade Smarter With AI-Powered Forex Intelligence
+                        {t('home.heroTitle', 'Trade Smarter With AI-Powered Forex Intelligence')}
                     </motion.h1>
 
                     <motion.p variants={itemVariants}>
-                        Trader Master reads your charts, analyses your trades, and builds your strategies through a conversational prompt interface designed exclusively for Forex
-                        and MT5 traders.
+                        {t('home.heroSubtitle', 'Trader Master reads your charts, analyses your trades, and builds your strategies through a conversational prompt interface designed exclusively for Forex and MT5 traders.')}
                     </motion.p>
 
                     <motion.div className={styles.buttonCenter} variants={itemVariants}>
-                        <Button icon={ArrowIcon} text="Get Started" onClick={() => authNavigate(router, '/dashboard')} />
+                        <Button icon={ArrowIcon} text={t('nav.getStarted', 'Get Started')} onClick={() => authNavigate(router, '/dashboard')} />
                     </motion.div>
 
                     <motion.div className={styles.centerImage} variants={imageVariants}>

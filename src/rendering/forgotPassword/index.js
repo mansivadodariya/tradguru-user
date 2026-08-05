@@ -8,6 +8,8 @@ import Button from '@/components/button';
 import { authApi } from '@/lib/api';
 import { validateForgotPassword } from '@/lib/validation';
 import { toast } from '@/components/toast';
+import { useLanguage } from '@/context/LanguageContext';
+import LanguageToggle from '@/components/languageToggle';
 
 const LineImage = '/assets/images/line.png';
 const AuthIcon = '/assets/icons/auth.svg';
@@ -15,6 +17,7 @@ const ArrowIcon = '/assets/icons/arrow.svg';
 
 const ForgotPassword = () => {
     const router = useRouter();
+    const { t } = useLanguage();
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -60,25 +63,24 @@ const ForgotPassword = () => {
                         <img src={AuthIcon} alt="" aria-hidden="true" />
                     </div>
                     <div className={styles.text}>
-                        <h2>Forgot Password</h2>
-                        <p>Enter your email and we&apos;ll send you a link to reset your password. Please check your spam folder as well.</p>
+                        <h2>{t('auth.forgotPasswordTitle', 'Forgot Password')}</h2>
+                        <p>{t('auth.forgotPasswordDesc', "Enter your email and we'll send you a link to reset your password. Please check your spam folder as well.")}</p>
                     </div>
                     {sent ? (
                         <div className={styles.success} role="status">
-                            <p>Check your email for a reset link. Please check your spam folder if you don&apos;t see it in your inbox.</p>
+                            <p>{t('auth.checkResetEmail', "Check your email for a reset link. Please check your spam folder if you don't see it in your inbox.")}</p>
                             <div className={styles.accountText}>
-
-                                <Link href="/login">Back to Log in</Link>
+                                <Link href="/login">{t('auth.backToLogin', 'Back to Log in')}</Link>
                             </div>
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} noValidate>
                             <div className={styles.spacingGrid}>
-                                <Input label="Email" placeholder=" johnfrans@gmail.com" type="email" name="email" value={email} onChange={handleEmailChange} error={emailError} maxLength={100} />
+                                <Input label={t('auth.emailLabel', 'Email')} placeholder={t('auth.emailPlaceholder', 'Email')} type="email" name="email" value={email} onChange={handleEmailChange} error={emailError} maxLength={100} />
                                 <Button
                                     type="submit"
                                     fullWidth
-                                    text={loading ? 'Sending...' : 'Send Reset Link'}
+                                    text={loading ? t('auth.sending', 'Sending...') : t('auth.sendResetBtn', 'Send Reset Link')}
                                     icon={ArrowIcon}
                                     disabled={loading}
                                 />

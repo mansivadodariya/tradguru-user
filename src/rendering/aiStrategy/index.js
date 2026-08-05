@@ -9,6 +9,7 @@ import { toast } from 'react-hot-toast';
 import dynamic from 'next/dynamic';
 import StrategyDropdown from './StrategyDropdown';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/context/LanguageContext';
 import {
     pairs,
     formatPairCurrency,
@@ -33,6 +34,7 @@ const AnalysisPanel = dynamic(() => import('./AnalysisPanel'), { ssr: false });
 
 
 export default function AiStrategy({ initialTab = 'live' }) {
+    const { t } = useLanguage();
     const activeTab = initialTab;
     const router = useRouter();
     const [symbol, setSymbol] = useState('XAUUSD');
@@ -628,11 +630,15 @@ export default function AiStrategy({ initialTab = 'live' }) {
             {/* Page Title */}
             <div className={styles.header}>
                 <div className={styles.titleArea}>
-                    <h2>{activeTab === 'live' ? 'Live Analysis Feed' : 'AI Strategy'}</h2>
+                    <h2>
+                        {activeTab === 'live'
+                            ? t('aiStrategy.liveAnalysisFeedTitle', 'Live Analysis Feed')
+                            : t('aiStrategy.title', 'AI Strategy')}
+                    </h2>
                     <p>
                         {activeTab === 'live' 
-                            ? 'Real-Time FX Live Grid providing instant market feeds and strategy indicators.'
-                            : 'Real-time technical metrics, scanner signals, and AI Expert Advisor strategies streamed from MetaTrader 5.'
+                            ? t('aiStrategy.liveAnalysisFeedSubtitle', 'Real-Time FX Live Grid providing instant market feeds and strategy indicators.')
+                            : t('aiStrategy.subtitle', 'Real-time technical metrics, scanner signals, and AI Expert Advisor strategies streamed from MetaTrader 5.')
                         }
                     </p>
                 </div>

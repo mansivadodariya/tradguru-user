@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, memo } from 'react';
 import styles from './aiStrategy.module.scss';
 import { SearchIcon } from './icons';
+import { useLanguage } from '@/context/LanguageContext';
 
 const PAIRS = [
     "XAU/USD",
@@ -283,6 +284,7 @@ const WatchlistItem = memo(({ pair, isActive, globalTimeframe, addLog, onClick, 
 WatchlistItem.displayName = 'WatchlistItem';
 
 export default function WatchlistPanel({ selectedSymbol, onSelectSymbol, globalTimeframe, addLog, activeAnalysis, onActivePriceUpdate }) {
+    const { t } = useLanguage();
     const [searchQuery, setSearchQuery] = useState('');
 
     const filteredPairs = PAIRS.filter(pair =>
@@ -292,7 +294,7 @@ export default function WatchlistPanel({ selectedSymbol, onSelectSymbol, globalT
     return (
         <div className={styles.watchlistPanel}>
             <div className={styles.watchlistHeader}>
-                <h3>Watchlist</h3>
+                <h3>{t('aiStrategy.watchlistTitle', 'Watchlist')}</h3>
                 <span className={styles.watchlistCount}>{PAIRS.length} pairs</span>
             </div>
 
@@ -301,7 +303,7 @@ export default function WatchlistPanel({ selectedSymbol, onSelectSymbol, globalT
                 <SearchIcon className={styles.searchIcon} />
                 <input
                     type="text"
-                    placeholder="Search pairs..."
+                    placeholder={t('aiStrategy.searchPairs', 'Search pairs...')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className={styles.watchlistSearchInput}

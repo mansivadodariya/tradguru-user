@@ -9,6 +9,7 @@ import WinIcon from '@/icons/winIcon';
 import StructureIcon from '@/icons/structureIcon';
 import { useRouter } from 'next/navigation';
 import { authNavigate } from '@/lib/authRedirect';
+import { useLanguage } from '@/context/LanguageContext';
 
 const UploadIcon = '/assets/icons/upload-xs.svg';
 const PlayIcon = '/assets/icons/play.svg';
@@ -57,6 +58,8 @@ const imageVariants = {
 
 export default function TradeSnapBanner() {
     const router = useRouter();
+    const { t } = useLanguage();
+
     return (
         <div className={styles.tradeSnapBanner}>
             <div className={styles.widthFull}>
@@ -69,20 +72,19 @@ export default function TradeSnapBanner() {
                             animate="visible"
                         >
                             <motion.div variants={itemVariants}>
-                                <LineText text="AI Trade" start />
+                                <LineText text={t('nav.aiTrade', 'AI Trade')} start />
                             </motion.div>
                             <motion.div className={styles.title} variants={itemVariants}>
                                 <h1>
-                                    Snap a chart.Read the trade.
+                                    {t('tradeSnap.title', 'Snap a chart. Read the trade.')}
                                 </h1>
                                 <p>
-                                    Drag any chart screenshot into AI Trade and let Trader Master identify structure, mark levels, and grade the setup against your
-                                    risk profile.
+                                    {t('tradeSnap.subtitle', 'Drag any chart screenshot into AI Trade and let Trader Master identify structure, mark levels, and grade the setup against your risk profile.')}
                                 </p>
                             </motion.div>
                             <motion.div className={styles.buttonAlignment} variants={itemVariants}>
-                                <Button text="Upload Chart" icon={UploadIcon} onClick={() => authNavigate(router, '/trade-snap')} />
-                                <Button outline text="View Demo" icon={PlayIcon} onClick={() => authNavigate(router, '/trade-snap')} />
+                                <Button text={t('tradeSnap.analyzeBtn', 'Upload Chart')} icon={UploadIcon} onClick={() => authNavigate(router, '/trade-snap')} />
+                                <Button outline text={t('common.learnMore', 'View Demo')} icon={PlayIcon} onClick={() => authNavigate(router, '/trade-snap')} />
                             </motion.div>
                             <motion.div className={styles.tagAlignment} variants={itemVariants}>
                                 <motion.button
@@ -91,7 +93,7 @@ export default function TradeSnapBanner() {
                                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
                                 >
                                     <AiIcon />
-                                    AI Powered Analysis
+                                    {t('tradeSnap.aiAnalysisTag', 'AI Powered Analysis')}
                                 </motion.button>
                                 <motion.button
                                     whileHover={{ scale: 1.05, y: -2, backgroundColor: "rgba(11, 86, 219, 0.08)" }}
@@ -99,7 +101,7 @@ export default function TradeSnapBanner() {
                                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
                                 >
                                     <WinIcon />
-                                    Smart Risk Detection
+                                    {t('tradeSnap.riskTag', 'Smart Risk Detection')}
                                 </motion.button>
                                 <motion.button
                                     whileHover={{ scale: 1.05, y: -2, backgroundColor: "rgba(11, 86, 219, 0.08)" }}
@@ -107,7 +109,7 @@ export default function TradeSnapBanner() {
                                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
                                 >
                                     <StructureIcon />
-                                    Structure & Liquidity
+                                    {t('tradeSnap.structureTag', 'Structure & Liquidity')}
                                 </motion.button>
                             </motion.div>
                         </motion.div>

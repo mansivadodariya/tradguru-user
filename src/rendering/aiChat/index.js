@@ -5,11 +5,13 @@ import styles from './aiChat.module.scss';
 import LineText from '@/components/lineText';
 import { useRouter } from 'next/navigation';
 import { authNavigate } from '@/lib/authRedirect';
+import { useLanguage } from '@/context/LanguageContext';
 
 const SearchMd = '/assets/icons/search-md.svg';
 
 export default function AiChat() {
     const router = useRouter();
+    const { t } = useLanguage();
     const [prompt, setPrompt] = useState('');
 
     const handleSend = () => {
@@ -27,14 +29,13 @@ export default function AiChat() {
         <div className={styles.aiChat}>
             <div className='container-xs4'>
                 <div className={styles.titleWrapper}>
-                    <LineText text="Hello, i am AI Chat your AI creative tool" />
+                    <LineText text={t('aiChat.lineText', 'Hello, I am AI Chat your creative assistant')} />
                     <div className={styles.title}>
                         <h1>
-                            Ask anything on Finance
+                            {t('aiChat.title', 'AI Forex Assistant')}
                         </h1>
                         <p>
-                            The only AI Chat that screens stocks, analyzes charts, and delivers deep fundamental research - all in one conversation. Built for
-                            every Indian investor.
+                            {t('aiChat.subtitle', 'Ask questions about currency pairs, technical setups, economic news, or risk management.')}
                         </p>
                     </div>
                 </div>
@@ -44,7 +45,7 @@ export default function AiChat() {
                         <div className={styles.chatContainer}>
                             <div className={styles.inputWrapper}>
                                 <textarea
-                                    placeholder="Ask anything about forex trading, chart and strategies.."
+                                    placeholder={t('aiChat.inputPlaceholder', 'Ask AI about any pair, indicator, or market setup...')}
                                     className={styles.chatInput}
                                     rows={4}
                                     value={prompt}
@@ -65,9 +66,9 @@ export default function AiChat() {
                                     </svg>
                                 </button>
                                 <div className={styles.suggestions}>
-                                    <button type="button" onClick={() => authNavigate(router, '/ai-assistant')}>Which pharma stocks are oversold?</button>
-                                    <button type="button" onClick={() => authNavigate(router, '/ai-assistant')}>Fundamental analysis of reliance</button>
-                                    <button type="button" onClick={() => authNavigate(router, '/ai-assistant')}>Bullish Continuation</button>
+                                    <button type="button" onClick={() => authNavigate(router, '/ai-assistant')}>{t('aiChat.suggestedQuestion1', 'Analyze EUR/USD key levels for today')}</button>
+                                    <button type="button" onClick={() => authNavigate(router, '/ai-assistant')}>{t('aiChat.suggestedQuestion2', 'What is the impact of the upcoming NFP release?')}</button>
+                                    <button type="button" onClick={() => authNavigate(router, '/ai-assistant')}>{t('aiChat.suggestedQuestion3', 'Explain how to calculate position size for 1% risk')}</button>
                                 </div>
                             </div>
                         </div>
@@ -79,9 +80,9 @@ export default function AiChat() {
                                 <div className={styles.iconBox}>
                                     <img src={SearchMd} alt='SearchMd' />
                                 </div>
-                                <h3>Chart Analysis</h3>
+                                <h3>{t('nav.aiTrade', 'Chart Analysis')}</h3>
                             </div>
-                            <p>Upload any forex chart and get instant AI-powered analysis with trend identification, support/resistance levels, and trade opportunities.</p>
+                            <p>{t('home.step2Desc', 'Upload any forex chart and get instant AI-powered analysis with trend identification, support/resistance levels, and trade opportunities.')}</p>
                         </div>
 
                         <div className={styles.card} onClick={() => authNavigate(router, '/ai-assistant')} style={{ cursor: 'pointer' }}>
@@ -89,9 +90,9 @@ export default function AiChat() {
                                 <div className={styles.iconBox}>
                                     <img src={SearchMd} alt='SearchMd' />
                                 </div>
-                                <h3>Trading Insights</h3>
+                                <h3>{t('nav.aiChat', 'Trading Insights')}</h3>
                             </div>
-                            <p>Ask questions about forex strategies, market conditions, technical indicators, and get expert-level answers instantly.</p>
+                            <p>{t('aiChat.subtitle', 'Ask questions about forex strategies, market conditions, technical indicators, and get expert-level answers instantly.')}</p>
                         </div>
 
                         <div className={styles.card} onClick={() => authNavigate(router, '/ai-strategy')} style={{ cursor: 'pointer' }}>
@@ -99,9 +100,9 @@ export default function AiChat() {
                                 <div className={styles.iconBox}>
                                     <img src={SearchMd} alt='SearchMd' />
                                 </div>
-                                <h3>Strategy Builder</h3>
+                                <h3>{t('nav.aiStrategy', 'Strategy Builder')}</h3>
                             </div>
-                            <p>Create and refine your trading strategies with AI guidance tailored to your risk tolerance and goals.</p>
+                            <p>{t('aiStrategy.subtitle', 'Create and refine your trading strategies with AI guidance tailored to your risk tolerance and goals.')}</p>
                         </div>
                     </div>
                 </div>

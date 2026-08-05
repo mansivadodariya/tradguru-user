@@ -153,7 +153,32 @@
             :global(.PhoneInputCountrySelect) {
                 background-color: #1a1a1e !important;
                 color: #ffffff !important;
+
+                option {
+                    background-color: #1a1a1e !important;
+                    color: #ffffff !important;
+                    padding: 8px 12px !important;
+                }
             }
+        }
+    }
+}
+
+:global([dir="rtl"]) {
+    .phoneInput {
+        :global(.PhoneInputCountry) {
+            border-right: none !important;
+            border-left: 1px solid rgba(26, 26, 26, 0.12) !important;
+            padding: 0 0 0 10px !important;
+        }
+
+        :global(.PhoneInputCountrySelectArrow) {
+            margin-left: 0 !important;
+            margin-right: 2px !important;
+        }
+
+        :global(.PhoneInputInput) {
+            padding: 0 12px 0 0 !important;
         }
     }
 }

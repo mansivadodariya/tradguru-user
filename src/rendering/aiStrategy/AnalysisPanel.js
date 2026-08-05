@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import styles from './aiStrategy.module.scss';
+import { useLanguage } from '@/context/LanguageContext';
 
 // SVG Icon Components
 const ChevronIcon = ({ isOpen, className }) => (
@@ -152,6 +153,7 @@ function formatVolVal(val) {
 }
 
 export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAnalysisLoaded }) {
+    const { language, t } = useLanguage();
     const [analysis, setAnalysis] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -203,12 +205,13 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
         setError(null);
 
         const cleanSymbol = symbol.replace('/', '').toUpperCase();
-        const url = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.thetradermaster.com'}/api/v1/chart/analysis?symbol=${cleanSymbol}`;
+        const url = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.thetradermaster.com'}/api/v1/chart/analysis?symbol=${cleanSymbol}&lang=${language}`;
 
         try {
             const res = await fetch(url, {
                 headers: {
                     'accept': 'application/json',
+                    'Accept-Language': language,
                     'ngrok-skip-browser-warning': 'true'
                 }
             });
@@ -405,7 +408,7 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
             {/* 2. EVIDENCE ACCORDION */}
             <div className={styles.premiumAccordion}>
                 <div className={styles.premiumAccordionHeader} onClick={() => toggleMainAccordion('evidence')}>
-                    <span>EVIDENCE</span>
+                    <span>{t('aiStrategy.evidenceTitle', 'EVIDENCE')}</span>
                     <ChevronIcon isOpen={expandedAccordions.evidence} />
                 </div>
                 {expandedAccordions.evidence && (
@@ -455,7 +458,7 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
             {/* 3. TREND ANALYSIS ACCORDION */}
             <div className={styles.premiumAccordion}>
                 <div className={styles.premiumAccordionHeader} onClick={() => toggleMainAccordion('trend')}>
-                    <span>TREND ANALYSIS</span>
+                    <span>{t('aiStrategy.trendTitle', 'TREND ANALYSIS')}</span>
                     <ChevronIcon isOpen={expandedAccordions.trend} />
                 </div>
                 {expandedAccordions.trend && (
@@ -533,7 +536,7 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
             {/* 4. MOMENTUM ACCORDION */}
             <div className={styles.premiumAccordion}>
                 <div className={styles.premiumAccordionHeader} onClick={() => toggleMainAccordion('momentum')}>
-                    <span>MOMENTUM</span>
+                    <span>{t('aiStrategy.momentumTitle', 'MOMENTUM')}</span>
                     <ChevronIcon isOpen={expandedAccordions.momentum} />
                 </div>
                 {expandedAccordions.momentum && (
@@ -710,7 +713,7 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
             {/* 6. AI SUMMARY ACCORDION */}
             <div className={styles.premiumAccordion}>
                 <div className={styles.premiumAccordionHeader} onClick={() => toggleMainAccordion('ai')}>
-                    <span>AI INTELLIGENCE SUMMARY</span>
+                    <span>{t('aiStrategy.intelligenceSummary', 'AI INTELLIGENCE SUMMARY')}</span>
                     <ChevronIcon isOpen={expandedAccordions.ai} />
                 </div>
                 {expandedAccordions.ai && (

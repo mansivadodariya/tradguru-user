@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styles from './brokerDetail.module.scss';
 import { fetchBrokerById, getBrokerById, brokerList } from '@/lib/brokersData';
+import { BrokerDetailSkeleton } from '@/components/brokerSkeleton';
+import { useLanguage } from '@/context/LanguageContext';
 
 const BackArrowIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -37,15 +39,26 @@ const GlobeIcon = () => (
 
 export default function BrokerDetailPage({ brokerId, isPublicLanding = false }) {
     const router = useRouter();
-    const [broker, setBroker] = useState(() => getBrokerById(brokerId) || brokerList[0]);
+    const { t, tDynamic, language } = useLanguage();
+    const [broker, setBroker] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         let isMounted = true;
         async function loadBroker() {
-            if (!brokerId) return;
-            const data = await fetchBrokerById(brokerId);
-            if (isMounted && data) {
-                setBroker(data);
+            if (!brokerId) {
+                if (isMounted) setIsLoading(false);
+                return;
+            }
+            try {
+                const data = await fetchBrokerById(brokerId);
+                if (isMounted) {
+                    setBroker(data || getBrokerById(brokerId));
+                }
+            } catch (_) {
+                if (isMounted) setBroker(getBrokerById(brokerId));
+            } finally {
+                if (isMounted) setIsLoading(false);
             }
         }
         loadBroker();
@@ -68,17 +81,32 @@ export default function BrokerDetailPage({ brokerId, isPublicLanding = false }) 
         }
     };
 
+    if (isLoading) {
+        return (
+            <div className={`${styles.brokerDetailPage} ${isPublicLanding ? styles.publicContainer : ''}`}>
+                <BrokerDetailSkeleton />
+            </div>
+        );
+    }
+
     if (!broker) {
         return (
             <div className={styles.notFound}>
-                <h2>Broker Not Found</h2>
-                <p>The requested broker or platform does not exist.</p>
+                <h2>{t('broker.notFoundTitle', 'Broker Not Found')}</h2>
+                <p>{t('broker.notFoundDesc', 'The requested broker or platform does not exist.')}</p>
                 <Link href={backPath} className={styles.backBtn}>
-                    <BackArrowIcon /> Back to Brokers
+                    <BackArrowIcon /> {t('broker.backToBrokers', 'Back to Brokers')}
                 </Link>
             </div>
         );
     }
+
+    const name = tDynamic(broker, 'name', 'name_ar') || broker.name;
+    const subtitle = tDynamic(broker, 'subtitle', 'subtitle_ar') || broker.subtitle;
+    const description = tDynamic(broker, 'description', 'description_ar') || broker.description;
+    const featuresList = (language === 'ar' && Array.isArray(broker.features_ar) && broker.features_ar.length > 0)
+        ? broker.features_ar
+        : (broker.features || []);
 
     return (
         <div className={`${styles.brokerDetailPage} ${isPublicLanding ? styles.publicContainer : ''}`}>
@@ -86,7 +114,7 @@ export default function BrokerDetailPage({ brokerId, isPublicLanding = false }) 
             <div className={styles.topNav}>
                 <button type="button" className={styles.backLink} onClick={handleBackClick}>
                     <BackArrowIcon />
-                    <span>Back to Brokers & Platforms</span>
+                    <span>{t('broker.backToBrokersFull', 'Back to Brokers & Platforms')}</span>
                 </button>
             </div>
 
@@ -95,7 +123,7 @@ export default function BrokerDetailPage({ brokerId, isPublicLanding = false }) 
                 <div className={styles.logoRow}>
                     {broker.logo && (
                         <div className={styles.logoBox}>
-                            <img src={broker.logo} alt={broker.name || 'Broker Logo'} style={{ filter: 'brightness(1.5)' }} />
+                            <img src={broker.logo} alt={name || 'Broker Logo'} style={{ filter: 'brightness(1.5)' }} />
                         </div>
                     )}
                     {broker.category && (
@@ -105,26 +133,26 @@ export default function BrokerDetailPage({ brokerId, isPublicLanding = false }) 
                     )}
                 </div>
 
-                {broker.name && <h1 className={styles.title}>{broker.name}</h1>}
-                {broker.subtitle && <p className={styles.subtitle}>{broker.subtitle}</p>}
+                {name && <h1 className={styles.title}>{name}</h1>}
+                {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
             </div>
 
             {/* Content Layout */}
             <div className={styles.contentGrid}>
                 {/* Left Column: Details */}
                 <div className={styles.mainContent}>
-                    {broker.description && (
+                    {description && (
                         <div className={styles.cardSection}>
-                            <h3>About {broker.name}</h3>
-                            <p className={styles.description}>{broker.description}</p>
+                            <h3>{language === 'ar' ? `عن ${name}` : `About ${name}`}</h3>
+                            <p className={styles.description}>{description}</p>
                         </div>
                     )}
 
-                    {Array.isArray(broker.features) && broker.features.length > 0 && (
+                    {Array.isArray(featuresList) && featuresList.length > 0 && (
                         <div className={styles.cardSection}>
-                            <h3>Key Features & Capabilities</h3>
+                            <h3>{t('broker.featuresHeader', 'Key Features & Capabilities')}</h3>
                             <ul className={styles.featureList}>
-                                {broker.features.map((feat, idx) => (
+                                {featuresList.map((feat, idx) => (
                                     <li key={idx} className={styles.featureItem}>
                                         <span className={styles.checkIconBox}>
                                             <CheckIcon />
@@ -137,10 +165,9 @@ export default function BrokerDetailPage({ brokerId, isPublicLanding = false }) 
                     )}
 
                     <div className={styles.cardSection}>
-                        <h3>Integration & Trading Infrastructure</h3>
+                        <h3>{t('broker.infraHeader', 'Integration & Trading Infrastructure')}</h3>
                         <p className={styles.description}>
-                            Trader Master connects with verified brokerage APIs and market trading environments 
-                            to ensure execution speed, real-time logging, and secure data sync.
+                            {t('broker.infraDesc', 'Trader Master connects with verified brokerage APIs and market trading environments to ensure execution speed, real-time logging, and secure data sync.')}
                         </p>
                     </div>
                 </div>
@@ -149,8 +176,8 @@ export default function BrokerDetailPage({ brokerId, isPublicLanding = false }) 
                 {broker.websiteUrl && (
                     <div className={styles.sidebar}>
                         <div className={styles.actionCard}>
-                            <h4>Official Site & Access</h4>
-                            <p>Access the official platform directly to open accounts, manage funds, or review trading terms.</p>
+                            <h4>{t('broker.officialSiteTitle', 'Official Site & Access')}</h4>
+                            <p>{t('broker.officialSiteDesc', 'Access the official platform directly to open accounts, manage funds, or review trading terms.')}</p>
 
                             <div className={styles.urlBox}>
                                 <GlobeIcon />
@@ -163,7 +190,7 @@ export default function BrokerDetailPage({ brokerId, isPublicLanding = false }) 
                                 rel="noopener noreferrer"
                                 className={styles.visitOfficialBtn}
                             >
-                                <span>Visit Official Site</span>
+                                <span>{t('broker.visitOfficialSite', 'Visit Official Site')}</span>
                                 <ExternalLinkIcon />
                             </a>
                         </div>

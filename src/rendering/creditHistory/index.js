@@ -5,6 +5,8 @@ import styles from './creditHistory.module.scss';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from '@/components/toast';
 
+import { useLanguage } from '@/context/LanguageContext';
+
 function getUserFromStorage() {
     try {
         const stored = localStorage.getItem('user');
@@ -16,6 +18,7 @@ function getUserFromStorage() {
 
 export default function CreditHistory() {
     const router = useRouter();
+    const { t } = useLanguage();
     const [userId, setUserId] = useState('');
     const [creditHistory, setCreditHistory] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -83,14 +86,14 @@ export default function CreditHistory() {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h1>Credit History</h1>
-                <p>Track your credit usage, deposits, and rewards</p>
+                <h1>{t('creditHistory.title', 'Credit History')}</h1>
+                <p>{t('creditHistory.subtitle', 'Track your credit usage, deposits, and rewards')}</p>
             </div>
 
             <div className={styles.card}>
                 <div className={styles.historyHeader}>
-                    <h2>Transaction History</h2>
-                    <p>Details of all your credit transactions</p>
+                    <h2>{t('creditHistory.transactionHistory', 'Transaction History')}</h2>
+                    <p>{t('creditHistory.detailsDesc', 'Details of all your credit transactions')}</p>
                 </div>
 
                 {loading ? (
@@ -99,7 +102,7 @@ export default function CreditHistory() {
                     </div>
                 ) : creditHistory.length === 0 ? (
                     <div className={styles.emptyState}>
-                        No credit transactions found.
+                        {t('creditHistory.noTransactions', 'No credit transactions found.')}
                     </div>
                 ) : (
                     <>
@@ -107,10 +110,10 @@ export default function CreditHistory() {
                             <table className={styles.historyTable}>
                                 <thead>
                                     <tr>
-                                        <th>Date & Time</th>
-                                        <th>Type</th>
-                                        <th>Amount</th>
-                                        <th>Description</th>
+                                        <th>{t('creditHistory.dateTime', 'Date & Time')}</th>
+                                        <th>{t('dashboard.type', 'Type')}</th>
+                                        <th>{t('creditHistory.amount', 'Amount')}</th>
+                                        <th>{t('creditHistory.description', 'Description')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -121,7 +124,7 @@ export default function CreditHistory() {
                                             </td>
                                             <td>
                                                 <span className={`${styles.badge} ${item.transaction_type === 'add' ? styles.badgeAdd : styles.badgeDeduct}`}>
-                                                    {item.transaction_type === 'add' ? 'Credit' : 'Debit'}
+                                                    {item.transaction_type === 'add' ? t('creditHistory.credit', 'Credit') : t('creditHistory.debit', 'Debit')}
                                                 </span>
                                             </td>
                                             <td className={`${styles.amountCell} ${item.transaction_type === 'add' ? styles.amountAdd : styles.amountDeduct}`}>
@@ -144,10 +147,10 @@ export default function CreditHistory() {
                                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                                     disabled={currentPage === 1}
                                 >
-                                    Previous
+                                    {t('common.previous', 'Previous')}
                                 </button>
                                 <span className={styles.paginationInfo}>
-                                    Page {currentPage} of {totalPages}
+                                    {t('common.page', 'Page')} {currentPage} {t('common.of', 'of')} {totalPages}
                                 </span>
                                 <button
                                     type="button"
@@ -155,7 +158,7 @@ export default function CreditHistory() {
                                     onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                                     disabled={currentPage === totalPages}
                                 >
-                                    Next
+                                    {t('common.next', 'Next')}
                                 </button>
                             </div>
                         )}
