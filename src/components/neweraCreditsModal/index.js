@@ -36,7 +36,6 @@ function parseCreditAmount(res) {
 export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
     const activeUserId = userId || getStoredUserId();
     const [email, setEmail] = useState('');
-    const [login, setLogin] = useState('');
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -99,14 +98,13 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                 // 1. Try newera_credits_sync first
                 const { data: syncData } = await supabase
                     .from('newera_credits_sync')
-                    .select('email, mt5_id, welcome_credits_awarded, deposit_credits_awarded')
+                    .select('email, welcome_credits_awarded, deposit_credits_awarded')
                     .eq('user_id', uid)
                     .order('created_at', { ascending: false })
                     .limit(1)
                     .maybeSingle();
 
-                if (syncData && syncData.mt5_id) {
-                    setLogin(String(syncData.mt5_id));
+                if (syncData) {
                     if (syncData.email) setEmail(syncData.email);
                     setWelcomeAwarded(Boolean(syncData.welcome_credits_awarded));
                     setDepositAwarded(Boolean(syncData.deposit_credits_awarded));
@@ -115,19 +113,18 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                     return;
                 }
 
-                // 2. Try mt5_accounts fallback (If mt5 account exists, welcome credits phase 1 is already linked!)
+                // 2. Try mt5_accounts fallback
                 const { data: mt5Data } = await supabase
                     .from('mt5_accounts')
-                    .select('email, login')
+                    .select('email')
                     .eq('user_id', uid)
                     .order('created_at', { ascending: false })
                     .limit(1)
                     .maybeSingle();
 
-                if (mt5Data && mt5Data.login) {
-                    setLogin(String(mt5Data.login));
-                    if (mt5Data.email) setEmail(mt5Data.email);
-                    setWelcomeAwarded(true); // Account already linked, phase 1 complete!
+                if (mt5Data && mt5Data.email) {
+                    setEmail(mt5Data.email);
+                    setWelcomeAwarded(true);
                     setDepositAwarded(false);
                     setHasExistingLink(true);
                 } else {
@@ -144,15 +141,15 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
         fetchLinkedAccount();
     }, [userId]);
 
-    // Helper for syncing Phase 2 or Phase 3 (triggered on mount, tab refresh, or tab visibility change)
+    // Helper for syncing Phase 2 or Phase 3
     const syncCredits = useCallback(async () => {
         const uid = activeUserId;
-        if (!uid || !email || !login || isSyncingRef.current) return;
+        if (!uid || !email || isSyncingRef.current) return;
         isSyncingRef.current = true;
         setAutoSyncing(true);
 
         try {
-            const res = await neweraApi.linkAccount(uid, email, login);
+            const res = await neweraApi.linkAccount(uid, email);
 
             // Synchronize flags returned by API response if available
             const apiRes = res?.data || res;
@@ -213,7 +210,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
             isSyncingRef.current = false;
             setAutoSyncing(false);
         }
-    }, [activeUserId, email, login, welcomeAwarded, depositAwarded, onSuccess, onClose]);
+    }, [activeUserId, email, welcomeAwarded, depositAwarded, onSuccess, onClose]);
 
     // Hit syncCredits when tab visibility changes to visible (e.g. after depositing in another tab)
     useEffect(() => {
@@ -244,16 +241,9 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
     const handleLinkAccount = async (e) => {
         e.preventDefault();
         const uid = activeUserId;
-        if (!email.trim() || !email.includes('@')) {
+        const normalizedEmail = email.trim().toLowerCase();
+        if (!normalizedEmail || !normalizedEmail.includes('@')) {
             setError('Please enter a valid email address.');
-            return;
-        }
-        if (!login.trim()) {
-            setError('Login ID is required.');
-            return;
-        }
-        if (login.length > 20) {
-            setError('Login ID cannot exceed 20 characters.');
             return;
         }
 
@@ -261,7 +251,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
         setError('');
 
         try {
-            const res = await neweraApi.linkAccount(uid, email, login);
+            const res = await neweraApi.linkAccount(uid, normalizedEmail);
             if (res.success) {
                 // Store in mt5_accounts
                 try {
@@ -270,9 +260,8 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                             .from('mt5_accounts')
                             .upsert({
                                 user_id: uid,
-                                email: email,
-                                login: Number(login)
-                            }, { onConflict: 'login' });
+                                email: normalizedEmail,
+                            }, { onConflict: 'user_id' });
                     }
                 } catch (dbErr) {
                     console.error("Database insert error for mt5_accounts:", dbErr);
@@ -285,8 +274,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                             .from('newera_credits_sync')
                             .upsert({
                                 user_id: uid,
-                                email: email,
-                                mt5_id: Number(login),
+                                email: normalizedEmail,
                                 welcome_credits_awarded: true,
                                 deposit_credits_awarded: false
                             });
@@ -308,7 +296,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
 
                 if (earnedAmount !== null && earnedAmount > 0) {
                     notifyCreditsUpdated(earnedAmount);
-                    toast.success(`Congratulations! You have received ${earnedAmount} welcome credits for linking your MT5 account.`);
+                    toast.success(`Congratulations! You have received ${earnedAmount} welcome credits for linking your Newera account.`);
                     if (onSuccess) onSuccess(earnedAmount);
                     onClose?.();
                     return;
@@ -404,7 +392,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                                 <h3>Link Existing Account</h3>
                                             </div>
                                             <p className={styles.optionDesc}>
-                                                Enter your Newera MT5 Login ID below to claim your credits.
+                                                Enter your Newera account email address below to claim your credits.
                                             </p>
 
                                             <form onSubmit={handleLinkAccount} className={styles.linkForm}>
@@ -415,17 +403,6 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                                         name="email"
                                                         value={email}
                                                         onChange={(e) => setEmail(e.target.value)}
-                                                        disabled={true}
-                                                        required
-                                                    />
-                                                </div>
-                                                <div className={styles.inputWrapper}>
-                                                    <Input
-                                                        type="text"
-                                                        placeholder="Enter MT5 ID"
-                                                        name="login"
-                                                        value={login}
-                                                        onChange={handleLoginChange}
                                                         required
                                                     />
                                                 </div>
@@ -433,7 +410,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                                 <button 
                                                     type="submit" 
                                                     className={styles.submitBtn} 
-                                                    disabled={submitting || !email.trim() || !login.trim()}
+                                                    disabled={submitting || !email.trim() || !email.includes('@')}
                                                 >
                                                     {submitting ? (
                                                         <>
@@ -459,13 +436,13 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                     </h2>
 
                                     <div className={styles.autoStatusCard}>
-                                        {login && (
+                                        {email && (
                                             <div className={styles.accountInfoBadge}>
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                                    <circle cx="12" cy="7" r="4"></circle>
+                                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                                    <polyline points="22,6 12,13 2,6"></polyline>
                                                 </svg>
-                                                MT5 Account: #{login}
+                                                Linked Email: {email}
                                             </div>
                                         )}
 
@@ -512,13 +489,13 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                     </h2>
 
                                     <div className={styles.autoStatusCard}>
-                                        {login && (
+                                        {email && (
                                             <div className={styles.accountInfoBadge}>
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                                    <circle cx="12" cy="7" r="4"></circle>
+                                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                                    <polyline points="22,6 12,13 2,6"></polyline>
                                                 </svg>
-                                                MT5 Account: #{login}
+                                                Linked Email: {email}
                                             </div>
                                         )}
 
