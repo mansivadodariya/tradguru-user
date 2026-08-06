@@ -92,8 +92,19 @@ $border: rgba(18, 18, 18, 0.10);
 .historyTable {
     width: 100%;
     border-collapse: collapse;
-    text-align: start;
     min-width: 500px;
+
+    th, td {
+        text-align: start !important;
+
+        :global(html[dir="rtl"]) & {
+            text-align: right !important;
+        }
+
+        :global(html[dir="ltr"]) & {
+            text-align: left !important;
+        }
+    }
 
     th {
         padding: 12px 16px;

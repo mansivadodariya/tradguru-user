@@ -176,6 +176,11 @@
         justify-content: center;
         gap: 16px;
         margin-top: 48px;
+        direction: ltr !important;
+
+        :global(html[dir="rtl"]) & {
+            direction: ltr !important;
+        }
 
         .navBtn {
             width: 50px;

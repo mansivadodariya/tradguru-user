@@ -463,17 +463,26 @@ $border: rgba(18, 18, 18, 0.10);
     width: 100%;
     border-collapse: collapse;
 
+    th, td {
+        text-align: start !important;
+
+        :global(html[dir="rtl"]) & {
+            text-align: right !important;
+        }
+
+        :global(html[dir="ltr"]) & {
+            text-align: left !important;
+        }
+    }
+
     thead {
         background: #F1F5FC;
 
         th {
             padding: 16px 18px;
-            text-align: start;
-
             font-size: 14px;
             font-weight: 500;
             color: #64748B;
-
             border-bottom: 1px solid #E2E8F0;
             white-space: nowrap;
         }
@@ -498,11 +507,29 @@ $border: rgba(18, 18, 18, 0.10);
     }
 }
 
+.recentTime {
+    text-align: inherit !important;
+    :global(html[dir="rtl"]) & {
+        text-align: right !important;
+    }
+    :global(html[dir="ltr"]) & {
+        text-align: left !important;
+    }
+}
+
 .recentTitle {
     font-size: 14px;
     font-weight: 600;
     color: #111827;
     line-height: 1.5;
+    text-align: inherit !important;
+
+    :global(html[dir="rtl"]) & {
+        text-align: right !important;
+    }
+    :global(html[dir="ltr"]) & {
+        text-align: left !important;
+    }
 
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -519,6 +546,14 @@ $border: rgba(18, 18, 18, 0.10);
     font-size: 13px;
     line-height: 1.6;
     color: rgba(17, 24, 39, 0.72);
+    text-align: inherit !important;
+
+    :global(html[dir="rtl"]) & {
+        text-align: right !important;
+    }
+    :global(html[dir="ltr"]) & {
+        text-align: left !important;
+    }
 
     display: -webkit-box;
     -webkit-line-clamp: 2;

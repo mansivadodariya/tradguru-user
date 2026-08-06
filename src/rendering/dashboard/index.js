@@ -363,20 +363,20 @@ export default function Dashboard() {
                                             className={styles.tableRow}
                                         >
                                             <td>
-                                                <div {...getBidiProps(timeAgo(item.created_at), styles.recentTime)}>
+                                                <div className={styles.recentTime}>
                                                     {timeAgo(item.created_at)}
                                                 </div>
                                             </td>
                                             <td>
                                                 <div
-                                                    {...getBidiProps(item.title, styles.recentTitle)}
+                                                    className={styles.recentTitle}
                                                     title={item.title}
                                                 >
                                                     {item.title}
                                                 </div>
                                             </td>
                                             <td>
-                                                <div {...getBidiProps(item.summary, styles.recentSummary)}>
+                                                <div className={styles.recentSummary}>
                                                     {item.summary ? (
                                                         <div
                                                             dangerouslySetInnerHTML={{
