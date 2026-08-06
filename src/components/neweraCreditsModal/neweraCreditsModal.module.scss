@@ -21,14 +21,14 @@ $newera-border: #E2E8F0;
 }
 
 .box {
-    max-width: 700px;
+    max-width: 620px !important;
     width: 100%;
     background: #ffffff;
     border: 1px solid rgba(15, 34, 64, 0.15);
-    border-radius: 24px;
+    border-radius: 20px !important;
     box-shadow: 0 25px 60px rgba(15, 34, 64, 0.15);
     position: relative;
-    padding: 40px 32px 32px;
+    padding: 32px 24px 24px !important;
     overflow: hidden;
     animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -47,7 +47,7 @@ $newera-border: #E2E8F0;
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    margin-bottom: 24px;
+    margin-bottom: 18px !important;
 }
 
 .logoWrapper {
@@ -59,7 +59,7 @@ $newera-border: #E2E8F0;
 }
 
 .logoImg {
-    width: 220px;
+    width: 200px !important;
     max-width: 100%;
     height: auto;
     display: block;
@@ -76,27 +76,28 @@ $newera-border: #E2E8F0;
 }
 
 .brandText {
-    font-family: var(--font-plus-jakarta);
-    font-size: 16px;
-    font-weight: 800;
+    font-family: var(--font-plus-jakarta) !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
     color: $newera-navy;
     letter-spacing: 2px;
 }
 
 .content {
-    text-align: center;
+    text-align: center !important;
 }
 
 .title {
-    font-family: var(--font-plus-jakarta);
-    font-size: 24px;
-    font-weight: 800;
-    color: #1A1A1A;
-    margin: 0 0 16px;
+    font-family: var(--font-plus-jakarta) !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    color: #1A1A1A !important;
+    margin: 0 0 8px !important;
     letter-spacing: -0.5px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center !important;
+    text-align: center !important;
     gap: 8px;
 
     svg {
@@ -106,42 +107,46 @@ $newera-border: #E2E8F0;
 }
 
 .welcomeText {
-    margin-bottom: 28px;
+    margin-bottom: 20px !important;
+    text-align: center !important;
 
     span {
         display: block;
         color: $newera-red;
-        font-size: 18px;
-        font-weight: 700;
+        font-size: 18px !important;
+        font-weight: 700 !important;
         margin-bottom: 6px;
-        font-family: var(--font-plus-jakarta);
+        font-family: var(--font-plus-jakarta) !important;
+        text-align: center !important;
     }
 
     p {
-        font-size: 14px;
-        color: rgba(26, 26, 26, 0.65);
-        font-weight: 500;
+        font-size: 13px !important;
+        color: rgba(26, 26, 26, 0.65) !important;
+        font-weight: 500 !important;
         margin: 0;
+        text-align: center !important;
     }
 }
 
 .optionsContainer {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 20px !important;
     text-align: left;
-    margin-bottom: 8px;
+    margin-bottom: 8px !important;
 
     @include respond-to('sm') {
         grid-template-columns: 1fr;
+        gap: 14px !important;
     }
 }
 
 .optionCard {
     background: $newera-bg-light;
     border: 1px solid $newera-border;
-    border-radius: 18px;
-    padding: 24px;
+    border-radius: 16px !important;
+    padding: 20px !important;
     display: flex;
     flex-direction: column;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -157,26 +162,26 @@ $newera-border: #E2E8F0;
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 12px;
+    margin-bottom: 8px !important;
 
     h3 {
-        font-family: var(--font-plus-jakarta);
-        font-size: 15px;
-        font-weight: 700;
-        color: #1A1A1A;
+        font-family: var(--font-plus-jakarta) !important;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        color: #1A1A1A !important;
         margin: 0;
-        line-height: 1.3;
+        line-height: 1.3 !important;
     }
 }
 
 .badgeStep {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
     background: $newera-navy;
-    color: #ffffff;
-    font-size: 11px;
-    font-weight: 700;
+    color: #ffffff !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -184,22 +189,22 @@ $newera-border: #E2E8F0;
 }
 
 .optionDesc {
-    font-size: 13px;
-    line-height: 1.5;
-    color: rgba(26, 26, 26, 0.6);
-    margin: 0 0 20px;
-    flex-grow: 1;
+    font-size: 12.5px !important;
+    line-height: 1.45 !important;
+    color: rgba(26, 26, 26, 0.6) !important;
+    margin: 0 0 16px !important;
 }
 
 .registerBtn {
+    margin-top: auto;
     width: 100%;
     background: #000000; /* Matching the black buttons in Newera's layout */
-    color: #ffffff;
+    color: #ffffff !important;
     border: none;
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-size: 14px;
-    font-weight: 600;
+    border-radius: 12px !important;
+    padding: 11px 16px !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -227,9 +232,10 @@ $newera-border: #E2E8F0;
 }
 
 .linkForm {
+    margin-top: auto;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px !important;
 }
 
 .inputWrapper {
@@ -241,15 +247,15 @@ $newera-border: #E2E8F0;
         }
 
         :global(.inputWrapper) {
-            border-radius: 12px;
+            border-radius: 12px !important;
             background: #ffffff;
             border-color: $newera-border;
-            padding: 2px 8px;
+            padding: 2px 8px !important;
 
             input {
-                font-size: 13px;
-                height: 38px;
-                color: #1A1A1A;
+                font-size: 12.5px !important;
+                height: 36px !important;
+                color: #1A1A1A !important;
             }
         }
     }
@@ -258,12 +264,12 @@ $newera-border: #E2E8F0;
 .submitBtn {
     width: 100%;
     background: $newera-navy;
-    color: #ffffff;
+    color: #ffffff !important;
     border: none;
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-size: 14px;
-    font-weight: 600;
+    border-radius: 12px !important;
+    padding: 11px 16px !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -478,16 +484,16 @@ $newera-border: #E2E8F0;
     }
 
     .brandText {
-        color: #ffffff;
+        color: #ffffff !important;
     }
 
     .title {
-        color: #ffffff;
+        color: #ffffff !important;
     }
 
     .welcomeText {
         p {
-            color: rgba(243, 244, 246, 0.7);
+            color: rgba(243, 244, 246, 0.7) !important;
         }
     }
 
@@ -503,34 +509,34 @@ $newera-border: #E2E8F0;
 
     .optionHeader {
         h3 {
-            color: #ffffff;
+            color: #ffffff !important;
         }
     }
 
     .badgeStep {
-        background: #ffffff;
-        color: #111318;
+        background: #ffffff !important;
+        color: #111318 !important;
     }
 
     .optionDesc {
-        color: rgba(243, 244, 246, 0.5);
+        color: rgba(243, 244, 246, 0.5) !important;
     }
 
     .registerBtn {
-        background: #ffffff;
-        color: #111318;
+        background: #ffffff !important;
+        color: #111318 !important;
 
         &:hover {
-            background: #e2e8f0;
+            background: #e2e8f0 !important;
         }
     }
 
     .submitBtn {
-        background: #2b4875;
-        color: #ffffff;
+        background: #2b4875 !important;
+        color: #ffffff !important;
 
         &:hover:not(:disabled) {
-            background: #3b5e96;
+            background: #3b5e96 !important;
         }
     }
 

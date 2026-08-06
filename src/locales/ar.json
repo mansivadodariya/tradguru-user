@@ -332,5 +332,27 @@
   },
   "economicCalendar": {
     "subtitle": "تتبع الأحداث المؤثرة على السوق العالمي في الوقت الفعلي وخطط لتداولاتك حول الإصدارات الاقتصادية الكبرى."
+  },
+  "neweraModal": {
+    "welcomeBonus": "مكافأة الترحيب",
+    "welcomeBonusSub": "ربط حساب التداول الخاص بك في Newera واحصل على رصيدك الترحيبي فوراً.",
+    "createNewAccount": "إنشاء حساب جديد",
+    "createNewAccountDesc": "ليس لديك حساب Newera؟ سجل حساباً في تبويب جديد لبدء التداول.",
+    "registerAccountBtn": "تسجيل حساب",
+    "linkExistingAccount": "ربط حساب حالي",
+    "linkExistingAccountDesc": "أدخل البريد الإلكتروني لحسابك في Newera أدناه للمطالبة برصيدك.",
+    "enterEmailPlaceholder": "أدخل البريد الإلكتروني",
+    "linkAccountBtn": "ربط الحساب",
+    "linkingBtn": "جاري الربط...",
+    "linkedEmail": "البريد الإلكتروني المرتبط:",
+    "depositBonusTitle": "إيداع وكسب المزيد من الرصيد",
+    "depositBonusDesc": "قم بإيداع {threshold} في حساب تداول Newera الخاص بك للحصول على رصيد إضافي.",
+    "syncingCredits": "جاري المزامنة مع Newera...",
+    "checkedJustNow": "تم التحقق للتو.",
+    "checkAgainBtn": "إعادة التحقق",
+    "earnByTradingTitle": "كسب الرصيد من خلال التداول",
+    "earnByTradingDesc": "لقد استخدمت كل الرصيد المتاح. واصل التداول مع حساب Newera الخاص بك واكسب رصيداً لكل عقد يتم تداوله.",
+    "syncingVolume": "جاري مزامنة حجم التداول...",
+    "loadingDetails": "جاري تحميل تفاصيل الحساب..."
   }
 }

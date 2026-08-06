@@ -7,7 +7,8 @@ import { neweraApi } from '@/lib/api';
 import { toast } from '@/components/toast';
 import { useTheme } from '@/context/ThemeContext';
 import { supabase } from '@/lib/supabaseClient';
-import { getStoredUserId } from '@/lib/authSession';
+import { useLanguage } from '@/context/LanguageContext';
+import { getBidiProps } from '@/lib/bidi';
 import { extractAvailableCredits, notifyCreditsUpdated, refreshCreditsFromServer } from '@/lib/credits';
 
 function parseCreditAmount(res) {
@@ -48,6 +49,7 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
     const [depositThreshold, setDepositThreshold] = useState('100');
     const isSyncingRef = useRef(false);
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     useEffect(() => {
         try {
@@ -342,7 +344,9 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                     {loading ? (
                         <div className={styles.loadingContainer}>
                             <div className={styles.spinnerLarge}></div>
-                            <p>Loading account details...</p>
+                            <p {...getBidiProps(t('neweraModal.loadingDetails', 'Loading account details...'))}>
+                                {t('neweraModal.loadingDetails', 'Loading account details...')}
+                            </p>
                         </div>
                     ) : (
                         <>
@@ -350,15 +354,16 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                             {isPhase1 && (
                                 <>
                                     <h2 id="modal-title" className={styles.title}>
-                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                            <path d="M12 8v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                            <path d="M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="12" cy="12" r="10" fill="#DC2626" />
+                                            <path d="M12 7v6M12 16.5h.01" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
-                                        Welcome Bonus
+                                        <span>{t('neweraModal.welcomeBonus', 'Welcome Bonus')}</span>
                                     </h2>
                                     <div className={styles.welcomeText}>
-                                        <p>Connect your Newera trading account and receive your welcome credits instantly.</p>
+                                        <p>
+                                            {t('neweraModal.welcomeBonusSub', 'Connect your Newera trading account and receive your welcome credits instantly.')}
+                                        </p>
                                     </div>
 
                                     <div className={styles.optionsContainer}>
@@ -366,17 +371,21 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                         <div className={styles.optionCard}>
                                             <div className={styles.optionHeader}>
                                                 <span className={styles.badgeStep}>1</span>
-                                                <h3>Create New Account</h3>
+                                                <h3 {...getBidiProps(t('neweraModal.createNewAccount', 'Create New Account'))}>
+                                                    {t('neweraModal.createNewAccount', 'Create New Account')}
+                                                </h3>
                                             </div>
-                                            <p className={styles.optionDesc}>
-                                                Don't have a Newera account? Register one in a new tab to start trading.
+                                            <p {...getBidiProps(t('neweraModal.createNewAccountDesc', "Don't have a Newera account? Register one in a new tab to start trading."), styles.optionDesc)}>
+                                                {t('neweraModal.createNewAccountDesc', "Don't have a Newera account? Register one in a new tab to start trading.")}
                                             </p>
                                             <button 
                                                 type="button" 
                                                 className={styles.registerBtn} 
                                                 onClick={handleRegisterRedirect}
                                             >
-                                                Register Account
+                                                <span {...getBidiProps(t('neweraModal.registerAccountBtn', 'Register Account'))}>
+                                                    {t('neweraModal.registerAccountBtn', 'Register Account')}
+                                                </span>
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                                                     <polyline points="15 3 21 3 21 9"></polyline>
@@ -389,17 +398,19 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                         <div className={styles.optionCard}>
                                             <div className={styles.optionHeader}>
                                                 <span className={styles.badgeStep}>2</span>
-                                                <h3>Link Existing Account</h3>
+                                                <h3 {...getBidiProps(t('neweraModal.linkExistingAccount', 'Link Existing Account'))}>
+                                                    {t('neweraModal.linkExistingAccount', 'Link Existing Account')}
+                                                </h3>
                                             </div>
-                                            <p className={styles.optionDesc}>
-                                                Enter your Newera account email address below to claim your credits.
+                                            <p {...getBidiProps(t('neweraModal.linkExistingAccountDesc', 'Enter your Newera account email address below to claim your credits.'), styles.optionDesc)}>
+                                                {t('neweraModal.linkExistingAccountDesc', 'Enter your Newera account email address below to claim your credits.')}
                                             </p>
 
                                             <form onSubmit={handleLinkAccount} className={styles.linkForm}>
                                                 <div className={styles.inputWrapper}>
                                                     <Input
                                                         type="email"
-                                                        placeholder="Enter Email Address"
+                                                        placeholder={t('neweraModal.enterEmailPlaceholder', 'Enter Email Address')}
                                                         name="email"
                                                         value={email}
                                                         onChange={(e) => setEmail(e.target.value)}
@@ -415,9 +426,15 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                                     {submitting ? (
                                                         <>
                                                             <span className={styles.spinner}></span>
-                                                            Linking...
+                                                            <span {...getBidiProps(t('neweraModal.linkingBtn', 'Linking...'))}>
+                                                                {t('neweraModal.linkingBtn', 'Linking...')}
+                                                            </span>
                                                         </>
-                                                    ) : 'Link Account'}
+                                                    ) : (
+                                                        <span {...getBidiProps(t('neweraModal.linkAccountBtn', 'Link Account'))}>
+                                                            {t('neweraModal.linkAccountBtn', 'Link Account')}
+                                                        </span>
+                                                    )}
                                                 </button>
                                             </form>
                                         </div>
@@ -428,11 +445,11 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                             {/* Phase 2 Header & Content: Deposit Bonus */}
                             {isPhase2 && (
                                 <div className={styles.phaseContainer}>
-                                    <h2 id="modal-title" className={styles.title}>
+                                    <h2 id="modal-title" className={styles.title} {...getBidiProps(t('neweraModal.depositBonusTitle', 'Deposit & Earn More Credits'))}>
                                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
-                                        Deposit & Earn More Credits
+                                        {t('neweraModal.depositBonusTitle', 'Deposit & Earn More Credits')}
                                     </h2>
 
                                     <div className={styles.autoStatusCard}>
@@ -442,19 +459,23 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                                                     <polyline points="22,6 12,13 2,6"></polyline>
                                                 </svg>
-                                                Linked Email: {email}
+                                                <span {...getBidiProps(`${t('neweraModal.linkedEmail', 'Linked Email:')} ${email}`)}>
+                                                    {t('neweraModal.linkedEmail', 'Linked Email:')} {email}
+                                                </span>
                                             </div>
                                         )}
 
-                                        <p className={styles.statusMessage}>
-                                            Deposit <strong>{String(depositThreshold).startsWith('$') ? depositThreshold : `$${depositThreshold}`}</strong> into your Newera trading account to receive additional credits.
+                                        <p {...getBidiProps(t('neweraModal.depositBonusDesc', 'Deposit {threshold} into your Newera trading account to receive additional credits.').replace('{threshold}', String(depositThreshold).startsWith('$') ? depositThreshold : `$${depositThreshold}`), styles.statusMessage)}>
+                                            {t('neweraModal.depositBonusDesc', 'Deposit {threshold} into your Newera trading account to receive additional credits.').replace('{threshold}', String(depositThreshold).startsWith('$') ? depositThreshold : `$${depositThreshold}`)}
                                         </p>
 
                                         <div className={styles.statusIndicator}>
                                             {autoSyncing ? (
                                                 <>
                                                     <div className={styles.pulseDot}></div>
-                                                    <span>Syncing credits from Newera...</span>
+                                                    <span {...getBidiProps(t('neweraModal.syncingCredits', 'Syncing credits from Newera...'))}>
+                                                        {t('neweraModal.syncingCredits', 'Syncing credits from Newera...')}
+                                                    </span>
                                                 </>
                                             ) : (
                                                 <>
@@ -462,14 +483,18 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                                                         <polyline points="22 4 12 14.01 9 11.01"></polyline>
                                                     </svg>
-                                                    <span>{syncStatusMessage || 'Checked just now.'}</span>
+                                                    <span {...getBidiProps(syncStatusMessage || t('neweraModal.checkedJustNow', 'Checked just now.'))}>
+                                                        {syncStatusMessage || t('neweraModal.checkedJustNow', 'Checked just now.')}
+                                                    </span>
                                                     <button 
                                                         type="button" 
                                                         className={styles.recheckBtn} 
                                                         onClick={syncCredits}
                                                         disabled={autoSyncing}
                                                     >
-                                                        Check Again
+                                                        <span {...getBidiProps(t('neweraModal.checkAgainBtn', 'Check Again'))}>
+                                                            {t('neweraModal.checkAgainBtn', 'Check Again')}
+                                                        </span>
                                                     </button>
                                                 </>
                                             )}
@@ -481,11 +506,11 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                             {/* Phase 3 Header & Content: Per Lot Credits */}
                             {isPhase3 && (
                                 <div className={styles.phaseContainer}>
-                                    <h2 id="modal-title" className={styles.title}>
+                                    <h2 id="modal-title" className={styles.title} {...getBidiProps(t('neweraModal.earnByTradingTitle', 'Earn Credits by Trading'))}>
                                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
-                                        Earn Credits by Trading
+                                        {t('neweraModal.earnByTradingTitle', 'Earn Credits by Trading')}
                                     </h2>
 
                                     <div className={styles.autoStatusCard}>
@@ -495,19 +520,23 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                                                     <polyline points="22,6 12,13 2,6"></polyline>
                                                 </svg>
-                                                Linked Email: {email}
+                                                <span {...getBidiProps(`${t('neweraModal.linkedEmail', 'Linked Email:')} ${email}`)}>
+                                                    {t('neweraModal.linkedEmail', 'Linked Email:')} {email}
+                                                </span>
                                             </div>
                                         )}
 
-                                        <p className={styles.statusMessage}>
-                                            You've used all your available credits. Continue trading with your Newera account and earn credits for every lot traded.
+                                        <p {...getBidiProps(t('neweraModal.earnByTradingDesc', "You've used all your available credits. Continue trading with your Newera account and earn credits for every lot traded."), styles.statusMessage)}>
+                                            {t('neweraModal.earnByTradingDesc', "You've used all your available credits. Continue trading with your Newera account and earn credits for every lot traded.")}
                                         </p>
 
                                         <div className={styles.statusIndicator}>
                                             {autoSyncing ? (
                                                 <>
                                                     <div className={styles.pulseDot}></div>
-                                                    <span>Syncing trading volume...</span>
+                                                    <span {...getBidiProps(t('neweraModal.syncingVolume', 'Syncing trading volume...'))}>
+                                                        {t('neweraModal.syncingVolume', 'Syncing trading volume...')}
+                                                    </span>
                                                 </>
                                             ) : (
                                                 <>
@@ -515,14 +544,18 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                                                         <polyline points="22 4 12 14.01 9 11.01"></polyline>
                                                     </svg>
-                                                    <span>{syncStatusMessage || 'Checked just now.'}</span>
+                                                    <span {...getBidiProps(syncStatusMessage || t('neweraModal.checkedJustNow', 'Checked just now.'))}>
+                                                        {syncStatusMessage || t('neweraModal.checkedJustNow', 'Checked just now.')}
+                                                    </span>
                                                     <button 
                                                         type="button" 
                                                         className={styles.recheckBtn} 
                                                         onClick={syncCredits}
                                                         disabled={autoSyncing}
                                                     >
-                                                        Check Again
+                                                        <span {...getBidiProps(t('neweraModal.checkAgainBtn', 'Check Again'))}>
+                                                            {t('neweraModal.checkAgainBtn', 'Check Again')}
+                                                        </span>
                                                     </button>
                                                 </>
                                             )}
