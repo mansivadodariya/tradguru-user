@@ -13,6 +13,7 @@ import NextScreenshotTimer from './NextScreenshotTimer';
 import Modal from './Modal';
 import Loader from '@/components/loader';
 import { useLanguage } from '@/context/LanguageContext';
+import { getBidiProps } from '@/lib/bidi';
 import {
     MonitorIcon,
     MonitorOffIcon,
@@ -766,14 +767,14 @@ export default function TradeSnap() {
                                         ) : (
                                             <button type="button" className={styles.btnPrimary} onClick={handleScreenshot}>
                                                 <CameraIcon />
-                                                Capture Screenshot
+                                                {t('tradeSnap.captureScreenshot', 'Capture Screenshot')}
                                             </button>
                                         )}
                                     </>
                                 ) : (
                                     <button type="button" className={styles.btnPrimaryWide} onClick={startScreenShare}>
                                         <PlayIcon />
-                                        Start Sharing
+                                        {t('tradeSnap.startSharing', 'Start Sharing')}
                                     </button>
                                 )}
                             </div>
@@ -784,11 +785,11 @@ export default function TradeSnap() {
                                 <div className={styles.panelHeader}>
                                     <h3>
                                         {isSharing ? (
-                                            <span className={styles.liveDot}>Lower Timeframe</span>
+                                            <span className={styles.liveDot}>{t('tradeSnap.lowerTimeframe', 'Lower Timeframe')}</span>
                                         ) : (
                                             <>
                                                 <MonitorOffIcon />
-                                                Lower Timeframe
+                                                {t('tradeSnap.lowerTimeframe', 'Lower Timeframe')}
                                             </>
                                         )}
                                     </h3>
@@ -815,7 +816,7 @@ export default function TradeSnap() {
                                         <>
                                             <button type="button" className={styles.btnDanger} onClick={stopScreenShare}>
                                                 <StopIcon />
-                                                Stop
+                                                {t('tradeSnap.stop', 'Stop')}
                                             </button>
                                             {autoCaptureInterval1 ? (
                                                 <NextScreenshotTimer
@@ -826,14 +827,14 @@ export default function TradeSnap() {
                                             ) : (
                                                 <button type="button" className={styles.btnPrimary} onClick={captureScreenshot1}>
                                                     <CameraIcon />
-                                                    Capture
+                                                    {t('tradeSnap.capture', 'Capture')}
                                                 </button>
                                             )}
                                         </>
                                     ) : (
                                         <button type="button" className={styles.btnPrimary} onClick={startScreenShare}>
                                             <PlayIcon />
-                                            Start Sharing
+                                            {t('tradeSnap.startSharing', 'Start Sharing')}
                                         </button>
                                     )}
                                 </div>
@@ -843,11 +844,11 @@ export default function TradeSnap() {
                                 <div className={styles.panelHeader}>
                                     <h3>
                                         {isSharing2 ? (
-                                            <span className={styles.liveDot}>Higher Timeframe</span>
+                                            <span className={styles.liveDot}>{t('tradeSnap.higherTimeframe', 'Higher Timeframe')}</span>
                                         ) : (
                                             <>
                                                 <MonitorOffIcon />
-                                                Higher Timeframe
+                                                {t('tradeSnap.higherTimeframe', 'Higher Timeframe')}
                                             </>
                                         )}
                                     </h3>
@@ -874,7 +875,7 @@ export default function TradeSnap() {
                                         <>
                                             <button type="button" className={styles.btnDanger} onClick={stopScreenShare2}>
                                                 <StopIcon />
-                                                Stop
+                                                {t('tradeSnap.stop', 'Stop')}
                                             </button>
                                             {autoCaptureInterval2 ? (
                                                 <NextScreenshotTimer
@@ -885,14 +886,14 @@ export default function TradeSnap() {
                                             ) : (
                                                 <button type="button" className={styles.btnPrimary} onClick={captureScreenshot2}>
                                                     <CameraIcon />
-                                                    Capture
+                                                    {t('tradeSnap.capture', 'Capture')}
                                                 </button>
                                             )}
                                         </>
                                     ) : (
                                         <button type="button" className={styles.btnPrimary} onClick={startScreenShare2}>
                                             <PlayIcon />
-                                            Start Sharing
+                                            {t('tradeSnap.startSharing', 'Start Sharing')}
                                         </button>
                                     )}
                                 </div>
@@ -903,7 +904,7 @@ export default function TradeSnap() {
                                     <div className={styles.snapshotHeader}>
                                         <h3>
                                             <CameraIcon />
-                                            Latest Timeframe Snapshot
+                                            {t('tradeSnap.latestSnapshot', 'Latest Timeframe Snapshot')}
                                         </h3>
                                         <button
                                             type="button"
@@ -911,7 +912,7 @@ export default function TradeSnap() {
                                             onClick={analyzeMulti}
                                             disabled={isAnalyzingMulti || !capturedImage1 || !capturedImage2}
                                         >
-                                            {isAnalyzingMulti ? 'Analyzing...' : 'Analyze'}
+                                            {isAnalyzingMulti ? t('tradeSnap.analyzing', 'Analyzing...') : t('tradeSnap.analyze', 'Analyze')}
                                         </button>
                                     </div>
                                     <div className={styles.dualSnapshot}>
@@ -919,14 +920,14 @@ export default function TradeSnap() {
                                             {capturedImage1 ? (
                                                 <img src={capturedImage1} alt="Lower timeframe" />
                                             ) : (
-                                                <div className={styles.snapshotEmpty}>Capture lower timeframe</div>
+                                                <div className={styles.snapshotEmpty}>{t('tradeSnap.captureLowerTimeframe', 'Capture lower timeframe')}</div>
                                             )}
                                         </div>
                                         <div>
                                             {capturedImage2 ? (
                                                 <img src={capturedImage2} alt="Higher timeframe" />
                                             ) : (
-                                                <div className={styles.snapshotEmpty}>Capture higher timeframe</div>
+                                                <div className={styles.snapshotEmpty}>{t('tradeSnap.captureHigherTimeframe', 'Capture higher timeframe')}</div>
                                             )}
                                         </div>
                                     </div>
@@ -1035,18 +1036,20 @@ export default function TradeSnap() {
             <Modal
                 open={historyOpen}
                 onClose={() => setHistoryOpen(false)}
-                title="AI Trade History"
-                description="Your past AI Trade analyses"
+                title={t('tradeSnap.historyTitle', 'AI Trade History')}
+                description={t('tradeSnap.historyDesc', 'Your past AI Trade analyses')}
                 footer={
                     <button type="button" className={styles.btnGhost} onClick={() => setHistoryOpen(false)}>
-                        Close
+                        {t('common.close', 'Close')}
                     </button>
                 }
             >
                 {historyLoading ? (
                     <Loader centered />
                 ) : historyItems.length === 0 ? (
-                    <div className={styles.recentEmpty}>No history yet.</div>
+                    <div {...getBidiProps(t('tradeSnap.noHistoryYet', 'No history yet.'), styles.recentEmpty)}>
+                        {t('tradeSnap.noHistoryYet', 'No history yet.')}
+                    </div>
                 ) : (
                     <div className={styles.historyList}>
                         {historyItems.map((h, i) => {

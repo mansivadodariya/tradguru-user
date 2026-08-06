@@ -468,7 +468,7 @@ $border: rgba(18, 18, 18, 0.10);
 
         th {
             padding: 16px 18px;
-            text-align: left;
+            text-align: start;
 
             font-size: 14px;
             font-weight: 500;
@@ -492,6 +492,7 @@ $border: rgba(18, 18, 18, 0.10);
             td {
                 padding: 18px;
                 vertical-align: top;
+                unicode-bidi: plaintext;
             }
         }
     }
@@ -509,6 +510,9 @@ $border: rgba(18, 18, 18, 0.10);
     overflow: hidden;
 
     max-width: 280px;
+    unicode-bidi: plaintext;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .recentSummary {
@@ -520,6 +524,9 @@ $border: rgba(18, 18, 18, 0.10);
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    unicode-bidi: plaintext;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 
     span[style*="red"] {
         color: #EF4444 !important;
@@ -536,6 +543,7 @@ $border: rgba(18, 18, 18, 0.10);
     font-size: 13px;
     color: #64748B;
     white-space: nowrap;
+    unicode-bidi: plaintext;
 }
 
 // Skeleton shimmer

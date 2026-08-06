@@ -16,6 +16,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import ReportPanel from './ReportPanel';
 import { useLanguage } from '@/context/LanguageContext';
+import { getBidiProps, bidiMarkdownComponents } from '@/lib/bidi';
 
 const UploadIcon = '/assets/icons/upload-xs.svg';
 const Logo = '/assets/icons/AIChat.svg';
@@ -672,7 +673,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                     {msg.role === 'user' && msg.pair && (
                                         <span className={styles.pairBadge}>{msg.pair}</span>
                                     )}
-                                    <div className={msg.role === 'user' ? styles.userMessage : styles.assistantMessage}>
+                                    <div {...getBidiProps(msg.content, msg.role === 'user' ? styles.userMessage : styles.assistantMessage)}>
                                         {msg.role === 'user' ? (
                                             msg.content
                                         ) : (
@@ -680,7 +681,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                                 {msg.fullReport ? (
                                                     <>
                                                         <div className={styles.chatMarkdown}>
-                                                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                                                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>
                                                                 {msg.content}
                                                             </ReactMarkdown>
                                                         </div>
@@ -693,7 +694,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                                     </>
                                                 ) : (
                                                     <div className={styles.chatMarkdown}>
-                                                        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                                                        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>
                                                             {msg.content}
                                                         </ReactMarkdown>
                                                     </div>
@@ -841,7 +842,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
             <Modal
                 open={historyModalOpen}
                 onClose={() => setHistoryModalOpen(false)}
-                title="Chat History"
+                title={t('aiChat.history', 'Chat History')}
             >
                 <div className={styles.historyModalContent}>
                     <div className={styles.allMessage}>
@@ -856,7 +857,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                     key={item.id || index}
                                     onClick={() => handleSelectChat(item)}
                                 >
-                                    <p className={styles.truncate}>
+                                    <p {...getBidiProps(getQuestionText(item), styles.truncate)}>
                                         {getQuestionText(item)}
                                     </p>
                                     <div

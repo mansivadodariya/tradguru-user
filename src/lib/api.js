@@ -245,11 +245,12 @@ export const tradeSnapApi = {
 };
 
 export const neweraApi = {
-    linkAccount: async (user_id, email, login) => {
+    linkAccount: async (user_id, email) => {
+        const cleanEmail = String(email || '').trim().toLowerCase();
         const res = await request('/newera/credit', {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ email, login: Number(login) }),
+            body: JSON.stringify({ email: cleanEmail }),
         });
 
         return {

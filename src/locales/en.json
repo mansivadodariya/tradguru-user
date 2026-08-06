@@ -50,7 +50,8 @@
     "learnMore": "Learn More",
     "exploreNow": "Explore Now",
     "copy": "Copy",
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "close": "Close"
   },
   "home": {
     "lineText": "AI For MT5 Traders",
@@ -126,11 +127,12 @@
     "readyDeskSubtitle": "Claim credits, and start asking Trader Master in under five minutes."
   },
   "tradeSnap": {
-    "title": "AI Trade Snap Analysis",
-    "subtitle": "Drop your chart image below to receive instant institutional technical analysis.",
+    "title": "AI Trade",
+    "subtitle": "Capture your screen, analyze chart movements, and get AI trade insights with single or multi-timeframe views.",
     "dropzoneText": "Drag and drop your chart here or click to browse",
     "analyzeBtn": "Analyze Chart",
-    "analyzing": "Analyzing chart with AI...",
+    "analyzing": "Analyzing...",
+    "analyze": "Analyze",
     "analysisResult": "Analysis Summary",
     "trend": "Detected Trend",
     "entryZone": "Recommended Entry",
@@ -140,7 +142,35 @@
     "confidenceScore": "AI Confidence Score",
     "aiAnalysisTag": "AI Powered Analysis",
     "riskTag": "Smart Risk Detection",
-    "structureTag": "Structure & Liquidity"
+    "structureTag": "Structure & Liquidity",
+    "history": "History",
+    "historyTitle": "AI Trade History",
+    "historyDesc": "Your past AI Trade analyses",
+    "noHistoryYet": "No history yet.",
+    "singleTimeframe": "Single Timeframe",
+    "multiTimeframe": "Multi Timeframe",
+    "screenPreview": "Screen Preview",
+    "liveScreenShare": "Live Screen Share",
+    "loadingScreenShare": "Loading screen share...",
+    "noScreenSharing": "No screen sharing active",
+    "screenShareNotSupported": "Screen sharing not supported",
+    "waitScreenLoading": "Please wait while we load your screen",
+    "clickStartSharing": "Click \"Start Sharing\" to begin",
+    "desktopRequiredDesc": "Screen sharing is not supported on mobile Safari or iOS devices. Please open on desktop Chrome, Edge, or Mac Safari.",
+    "desktopViewRequired": "Desktop View Required",
+    "mobileNoticeText": "AI Trade uses screen sharing and requires a desktop or laptop computer with Chrome, Edge, or macOS Safari. Screen sharing is not supported on mobile devices or iOS Safari.",
+    "startSharing": "Start Sharing",
+    "stopSharing": "Stop Sharing",
+    "takeSnapshot": "Capture Screenshot",
+    "autoCapture": "Auto Capture",
+    "lowerTimeframe": "Lower Timeframe",
+    "higherTimeframe": "Higher Timeframe",
+    "captureScreenshot": "Capture Screenshot",
+    "capture": "Capture",
+    "stop": "Stop",
+    "latestSnapshot": "Latest Timeframe Snapshot",
+    "captureLowerTimeframe": "Capture lower timeframe",
+    "captureHigherTimeframe": "Capture higher timeframe"
   },
   "aiChat": {
     "title": "AI Forex Assistant",
@@ -185,7 +215,8 @@
     "confidence": "CONFIDENCE",
     "builderTitle": "Turn Market Concepts into Executable Trading Strategies",
     "builderDesc": "Describe your rules, technical indicators, or risk parameters. Get automated strategy signals, backtest reports, and direct MT5 integration.",
-    "quantScoreDesc": "Get a weighted 0-100 score analyzing Trend, Momentum, Volume pressure, and Pivots across multiple timeframes."
+    "quantScoreDesc": "Get a weighted 0-100 score analyzing Trend, Momentum, Volume pressure, and Pivots across multiple timeframes.",
+    "activeStrategyLabel": "Active Strategy:"
   },
   "broker": {
     "hubBadge": "Broker & Platform Hub",
@@ -198,7 +229,16 @@
     "bestRewards": "Best IB Rewards",
     "bestSpreads": "Best Spreads",
     "visitSite": "Visit Site",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "backToBrokers": "Back to Brokers",
+    "backToBrokersFull": "Back to Brokers & Platforms",
+    "aboutHeader": "About",
+    "featuresHeader": "Key Features & Capabilities",
+    "infraHeader": "Integration & Trading Infrastructure",
+    "infraDesc": "Trader Master connects with verified brokerage APIs and market trading environments to ensure execution speed, real-time logging, and secure data sync.",
+    "officialSiteTitle": "Official Site & Access",
+    "officialSiteDesc": "Access the official platform directly to open accounts, manage funds, or review trading terms.",
+    "visitOfficialSite": "Visit Official Site"
   },
   "dashboard": {
     "welcome": "Welcome back",
@@ -237,19 +277,6 @@
     "phoneLabel": "Phone Number",
     "referralCode": "Referral Code",
     "referralHint": "Share this link with others. It will automatically fill the referral code when they sign up!"
-  },
-  "broker": {
-    "visitSite": "Visit Site",
-    "viewDetails": "View Details",
-    "backToBrokers": "Back to Brokers",
-    "backToBrokersFull": "Back to Brokers & Platforms",
-    "aboutHeader": "About",
-    "featuresHeader": "Key Features & Capabilities",
-    "infraHeader": "Integration & Trading Infrastructure",
-    "infraDesc": "Trader Master connects with verified brokerage APIs and market trading environments to ensure execution speed, real-time logging, and secure data sync.",
-    "officialSiteTitle": "Official Site & Access",
-    "officialSiteDesc": "Access the official platform directly to open accounts, manage funds, or review trading terms.",
-    "visitOfficialSite": "Visit Official Site"
   },
   "auth": {
     "loginTitle": "Log In to Trader Master",
@@ -302,30 +329,6 @@
     "spamNote": "Note: If you don't find the email in your inbox, please check your spam folder.",
     "backToLogin": "Back to Log in",
     "referralOptional": "Referral Code (Optional)"
-  },
-  "aiStrategy": {
-    "activeStrategyLabel": "Active Strategy:"
-  },
-  "tradeSnap": {
-    "title": "AI Trade",
-    "subtitle": "Capture your screen, analyze chart movements, and get AI trade insights with single or multi-timeframe views.",
-    "history": "History",
-    "singleTimeframe": "Single Timeframe",
-    "multiTimeframe": "Multi Timeframe",
-    "screenPreview": "Screen Preview",
-    "liveScreenShare": "Live Screen Share",
-    "loadingScreenShare": "Loading screen share...",
-    "noScreenSharing": "No screen sharing active",
-    "screenShareNotSupported": "Screen sharing not supported",
-    "waitScreenLoading": "Please wait while we load your screen",
-    "clickStartSharing": "Click \"Start Sharing\" to begin",
-    "desktopRequiredDesc": "Screen sharing is not supported on mobile Safari or iOS devices. Please open on desktop Chrome, Edge, or Mac Safari.",
-    "desktopViewRequired": "Desktop View Required",
-    "mobileNoticeText": "AI Trade uses screen sharing and requires a desktop or laptop computer with Chrome, Edge, or macOS Safari. Screen sharing is not supported on mobile devices or iOS Safari.",
-    "startSharing": "Start Sharing",
-    "stopSharing": "Stop Sharing",
-    "takeSnapshot": "Capture Screenshot",
-    "autoCapture": "Auto Capture"
   },
   "economicCalendar": {
     "subtitle": "Track global market-moving events in real time and plan your trades around key macro releases."

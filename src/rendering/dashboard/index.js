@@ -9,6 +9,7 @@ import { getStoredUser, getStoredUserId } from '@/lib/authSession';
 import Loader from '@/components/loader';
 import EcosystemSection from '../home/ecosystemSection';
 import { useLanguage } from '@/context/LanguageContext';
+import { getBidiProps } from '@/lib/bidi';
 
 const CardIcon = '/assets/icons/dashboardCard.svg'
 const iconOne = '/assets/icons/IconOne.svg'
@@ -362,20 +363,20 @@ export default function Dashboard() {
                                             className={styles.tableRow}
                                         >
                                             <td>
-                                                <div className={styles.recentTime}>
+                                                <div {...getBidiProps(timeAgo(item.created_at), styles.recentTime)}>
                                                     {timeAgo(item.created_at)}
                                                 </div>
                                             </td>
                                             <td>
                                                 <div
-                                                    className={styles.recentTitle}
+                                                    {...getBidiProps(item.title, styles.recentTitle)}
                                                     title={item.title}
                                                 >
                                                     {item.title}
                                                 </div>
                                             </td>
                                             <td>
-                                                <div className={styles.recentSummary}>
+                                                <div {...getBidiProps(item.summary, styles.recentSummary)}>
                                                     {item.summary ? (
                                                         <div
                                                             dangerouslySetInnerHTML={{

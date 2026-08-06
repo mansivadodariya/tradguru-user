@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
 import styles from './tradeSnap.module.scss';
+import { getBidiProps } from '@/lib/bidi';
 
 export default function Modal({ open, onClose, title, description, children, footer }) {
     useEffect(() => {
@@ -18,8 +19,8 @@ export default function Modal({ open, onClose, title, description, children, foo
         <div className={styles.modalOverlay} role="dialog" aria-modal="true" onClick={onClose}>
             <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.modalHeader}>
-                    <h2>{title}</h2>
-                    {description && <p>{description}</p>}
+                    {title && <h2 {...getBidiProps(title)}>{title}</h2>}
+                    {description && <p {...getBidiProps(description)}>{description}</p>}
                     <button type="button" className={styles.modalClose} onClick={onClose} aria-label="Close">
                         ✕
                     </button>

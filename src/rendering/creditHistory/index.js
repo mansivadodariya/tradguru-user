@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { toast } from '@/components/toast';
 
 import { useLanguage } from '@/context/LanguageContext';
+import { getBidiProps } from '@/lib/bidi';
 
 function getUserFromStorage() {
     try {
@@ -119,7 +120,7 @@ export default function CreditHistory() {
                                 <tbody>
                                     {currentItems.map((item) => (
                                         <tr key={item.id} className={styles.tableRow}>
-                                            <td className={styles.dateTimeCell}>
+                                            <td {...getBidiProps(formatDateTime(item.created_at), styles.dateTimeCell)}>
                                                 {formatDateTime(item.created_at)}
                                             </td>
                                             <td>
@@ -130,7 +131,7 @@ export default function CreditHistory() {
                                             <td className={`${styles.amountCell} ${item.transaction_type === 'add' ? styles.amountAdd : styles.amountDeduct}`}>
                                                 {item.transaction_type === 'add' ? `+${item.amount}` : `-${item.amount}`}
                                             </td>
-                                            <td className={styles.descCell}>
+                                            <td {...getBidiProps(item.description, styles.descCell)}>
                                                 {item.description || '—'}
                                             </td>
                                         </tr>

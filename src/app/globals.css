@@ -135,3 +135,52 @@ html.dark, html.dark body {
 html.dark .children-wrapper {
   background-color: #0f0f11;
 }
+
+/* Mixed Language (Arabic & English Bidi) Rules */
+.message,
+[dir="auto"],
+.bidi-auto {
+  unicode-bidi: plaintext;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  text-align: start;
+}
+
+/* Force LTR direction and left alignment for English content inside RTL dashboard */
+[dir="rtl"] .message[lang="en"],
+[dir="rtl"] .message[data-lang="en"],
+.message.ltr,
+.bidi-ltr,
+[dir="auto"].bidi-ltr,
+[dir="auto"][data-dir="ltr"] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Force RTL direction and right alignment for Arabic content */
+[dir="rtl"] .message[lang="ar"],
+[dir="rtl"] .message[data-lang="ar"],
+.message.rtl,
+.bidi-rtl,
+[dir="auto"].bidi-rtl,
+[dir="auto"][data-dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Table Cell Auto Directionality & Column Alignment */
+table th,
+table td,
+table td [dir="auto"],
+table td .bidi-auto,
+table td .bidi-ltr,
+table td .bidi-rtl,
+table th [dir="auto"],
+table th .bidi-auto,
+table th .bidi-ltr,
+table th .bidi-rtl {
+  text-align: start !important;
+  unicode-bidi: plaintext;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}

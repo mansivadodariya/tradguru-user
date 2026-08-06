@@ -833,7 +833,11 @@ $success: #10b981;
 
 .modalHeader {
     position: relative;
-    padding: 24px 24px 12px;
+    padding: 24px 56px 12px 24px;
+
+    [dir="rtl"] & {
+        padding: 24px 24px 12px 56px;
+    }
 
     h2 {
         margin: 0 0 6px;
@@ -860,6 +864,14 @@ $success: #10b981;
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    [dir="rtl"] & {
+        right: auto;
+        left: 16px;
+    }
 }
 
 .modalBody {

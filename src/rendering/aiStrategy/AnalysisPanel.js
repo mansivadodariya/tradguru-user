@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './aiStrategy.module.scss';
 import { useLanguage } from '@/context/LanguageContext';
+import { getBidiProps } from '@/lib/bidi';
 
 // SVG Icon Components
 const ChevronIcon = ({ isOpen, className }) => (
@@ -723,7 +724,7 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
                                 <BrainRobotIcon />
                                 <h5>AI ANALYSIS</h5>
                             </div>
-                            <h4 className={styles.purpleAiHeadline}>
+                            <h4 {...getBidiProps(ai_summary.headline, styles.purpleAiHeadline)}>
                                 {ai_summary.headline}
                             </h4>
 
@@ -731,19 +732,19 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
                                 {ai_summary.trend && (
                                     <div className={styles.aiBulletSection}>
                                         <span className={styles.sectionLabel} style={{ color: '#0B56DB' }}>TREND</span>
-                                        <p>{ai_summary.trend}</p>
+                                        <p {...getBidiProps(ai_summary.trend)}>{ai_summary.trend}</p>
                                     </div>
                                 )}
                                 {ai_summary.momentum && (
                                     <div className={styles.aiBulletSection}>
                                         <span className={styles.sectionLabel} style={{ color: '#a855f7' }}>MOMENTUM</span>
-                                        <p>{ai_summary.momentum}</p>
+                                        <p {...getBidiProps(ai_summary.momentum)}>{ai_summary.momentum}</p>
                                     </div>
                                 )}
                                 {ai_summary.volume && (
                                     <div className={styles.aiBulletSection}>
                                         <span className={styles.sectionLabel} style={{ color: '#fbbf24' }}>VOLUME</span>
-                                        <p>{ai_summary.volume}</p>
+                                        <p {...getBidiProps(ai_summary.volume)}>{ai_summary.volume}</p>
                                     </div>
                                 )}
                             </div>

@@ -8,6 +8,7 @@ import rehypeRaw from 'rehype-raw';
 import styles from './aiAssistant.module.scss';
 import { ATR } from 'technicalindicators';
 import { useTheme } from '@/context/ThemeContext';
+import { getBidiProps, bidiMarkdownComponents } from '@/lib/bidi';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -370,8 +371,8 @@ const ReportPanel = ({ fullReport, visualData, isLoading, scrollToTopSignal, onD
             if (widgetMatch) return renderWidget(widgetMatch[1], widgetMatch[2], pIdx);
             if (!part.trim()) return null;
             return (
-                <div key={pIdx} className={styles.reportMarkdown}>
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{part}</ReactMarkdown>
+                <div key={pIdx} {...getBidiProps(part, styles.reportMarkdown)}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>{part}</ReactMarkdown>
                 </div>
             );
         });
