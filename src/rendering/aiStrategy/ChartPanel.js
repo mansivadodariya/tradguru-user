@@ -235,7 +235,7 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
         const rect = containerRef.current.getBoundingClientRect();
         const chart = createChart(containerRef.current, {
             width: rect.width || 600,
-            height: 450,
+            height: rect.height || 450,
             layout: {
                 background: { type: 'solid', color: 'transparent' },
                 textColor: isDark ? '#94a3b8' : '#64748b',
@@ -260,7 +260,7 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
             },
             rightPriceScale: {
                 borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(18, 18, 18, 0.08)',
-                scaleMargins: { top: 0.1, bottom: 0.2 },
+                scaleMargins: { top: 0.05, bottom: 0.04 },
             },
         });
 
@@ -318,12 +318,21 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
         };
 
         const handleResize = () => {
-            if (containerRef.current && chartRef.current) {
+            if (containerRef.current && chartRef.current?.chart) {
                 const r = containerRef.current.getBoundingClientRect();
-                chartRef.current.chart.applyOptions({ width: r.width, height: 450 });
+                if (r.width > 0 && r.height > 0) {
+                    chartRef.current.chart.applyOptions({ width: r.width, height: r.height });
+                }
             }
         };
         window.addEventListener('resize', handleResize);
+
+        const resizeObserver = new ResizeObserver(() => {
+            handleResize();
+        });
+        if (containerRef.current) {
+            resizeObserver.observe(containerRef.current);
+        }
 
         // Subscribe to crosshair hover moves to dynamically show OHLC
         chart.subscribeCrosshairMove((param) => {
@@ -400,6 +409,7 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
         fetchAndPlotData();
 
         return () => {
+            if (resizeObserver) resizeObserver.disconnect();
             window.removeEventListener('resize', handleResize);
             chart.remove();
             chartRef.current = null;
@@ -521,6 +531,23 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
                             )}
                         </div>
                     )}
+                </div>
+
+                <div className={styles.chartLegendHeaderGroup}>
+                    <div className={styles.chartLegend}>
+                        <div className={styles.legendItem}>
+                            <span className={`${styles.legendColor} ${styles.ema20}`} />
+                            <span>EMA 20</span>
+                        </div>
+                        <div className={styles.legendItem}>
+                            <span className={`${styles.legendColor} ${styles.ema50}`} />
+                            <span>EMA 50</span>
+                        </div>
+                        <div className={styles.legendItem}>
+                            <span className={`${styles.legendColor} ${styles.supertrend}`} />
+                            <span>SuperTrend</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 

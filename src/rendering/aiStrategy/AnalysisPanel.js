@@ -171,7 +171,7 @@ export default function AnalysisPanel({ symbol, strategyId, activeAnalysis, onAn
 
     // Score Sub-details Toggles
     const [scoreSubToggles, setScoreSubToggles] = useState({
-        trend: false,
+        trend: true,
         momentum: false,
         volume: false,
         structure: false

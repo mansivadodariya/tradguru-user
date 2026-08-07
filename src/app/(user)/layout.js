@@ -14,9 +14,37 @@ import './layout.scss';
 
 const layout = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(false);
     const [showCreditsModal, setShowCreditsModal] = useState(false);
     const [userId, setUserId] = useState('');
     const isCheckingRef = React.useRef(false);
+
+    useEffect(() => {
+        try {
+            const stored = localStorage.getItem('sidebar_collapsed');
+            if (stored === 'true') {
+                setIsCollapsed(true);
+            }
+        } catch { /* ignore */ }
+    }, []);
+
+    const toggleCollapse = () => {
+        setIsCollapsed((prev) => {
+            const next = !prev;
+            try {
+                localStorage.setItem('sidebar_collapsed', String(next));
+            } catch { /* ignore */ }
+            return next;
+        });
+    };
+
+    const handleMenuClick = () => {
+        if (typeof window !== 'undefined' && window.innerWidth <= 1200) {
+            setIsSidebarOpen(true);
+        } else {
+            toggleCollapse();
+        }
+    };
 
     const checkAndShowModalIfZero = (currentCredits) => {
         if (currentCredits !== undefined && currentCredits !== null) {
@@ -104,15 +132,19 @@ const layout = ({ children }) => {
     return (
         <AuthGuard>
             <ThemeProvider>
-                <div className='user-layout'>
-                    <div className={`sidebar-wrapper ${isSidebarOpen ? 'open' : ''}`}>
-                        <Sidebar onClose={() => setIsSidebarOpen(false)} />
+                <div className={`user-layout ${isCollapsed ? 'collapsed' : ''}`}>
+                    <div className={`sidebar-wrapper ${isCollapsed ? 'collapsed' : ''} ${isSidebarOpen ? 'open' : ''}`}>
+                        <Sidebar
+                            onClose={() => setIsSidebarOpen(false)}
+                            isCollapsed={isCollapsed}
+                            onToggleCollapse={toggleCollapse}
+                        />
                     </div>
                     {isSidebarOpen && (
                         <div className='sidebar-overlay' onClick={() => setIsSidebarOpen(false)} />
                     )}
                     <div className='children-wrapper'>
-                        <Topbar onMenuClick={() => setIsSidebarOpen(true)} />
+                        <Topbar onMenuClick={handleMenuClick} />
                         <div className='children-spacing'>
                             {children}
                         </div>

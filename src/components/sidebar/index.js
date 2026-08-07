@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import styles from "./sidebar.module.scss";
@@ -10,12 +10,15 @@ import PricingIcon from "@/icons/pricingIcon";
 import SettingsIcon from "@/icons/settingsIcon";
 import AiIcon from "@/icons/aiIcon";
 import BrokerIcon from "@/icons/brokerIcon";
-import { clearAuthSession } from '@/lib/authSession';
+import { clearAuthSession, getStoredUser } from '@/lib/authSession';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { getBidiProps } from '@/lib/bidi';
+const UpgradeIcon = '/assets/icons/Upgrade.svg';
 
 const SidebarLogo = "/assets/logo/logo.svg";
 const SidebarLogoWhite = "/assets/logo/logoWhite.svg";
+const SmallLogo = "/assets/logo/smallLogo.svg";
 const LiveAnalysisIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
@@ -37,6 +40,19 @@ const CreditHistoryIcon = () => (
   </svg>
 );
 
+const ChevronLeftIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="15 18 9 12 15 6" />
+  </svg>
+);
+
+const ChevronRightIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 18 15 12 9 6" />
+  </svg>
+);
+
+
 const getMainNav = (t) => [
   { label: t('nav.dashboard', 'Dashboard'), href: "/dashboard", icon: DashboardIcon },
   { label: t('nav.aiTrade', 'AI Trade'), href: "/trade-snap", icon: TradeIcon },
@@ -52,6 +68,7 @@ const getMainNav = (t) => [
   },
   { label: t('nav.economicCalendar', 'Economic Calendar'), href: "/economic-calendar", icon: PricingIcon },
   { label: t('nav.creditHistory', 'Credit History'), href: "/credit-history", icon: CreditHistoryIcon },
+  { label: t('nav.plans', 'Subscription Plans'), href: "/plans", icon: PricingIcon },
   { label: t('nav.broker', 'Broker'), href: "/broker", icon: BrokerIcon },
   { label: t('nav.profile', 'Profile'), href: "/profile", icon: SettingsIcon },
 ];
@@ -64,7 +81,7 @@ function isNavItemActive(pathname, href) {
   return current === target || current.startsWith(`${target}/`);
 }
 
-const NavItem = ({ item, pathname, onNavigate }) => {
+const NavItem = ({ item, pathname, onNavigate, isCollapsed }) => {
   const Icon = item.icon;
   const router = useRouter();
   const isParentActive = isNavItemActive(pathname, item.href);
@@ -78,6 +95,51 @@ const NavItem = ({ item, pathname, onNavigate }) => {
   }, [isActive]);
 
   if (item.subItems) {
+    if (isCollapsed) {
+      return (
+        <div className={`${styles.menuGroup} ${styles.collapsedMenuGroup}`}>
+          <div
+            className={styles.menu}
+            data-active={isActive ? 'true' : undefined}
+            onClick={() => {
+              if (item.subItems && item.subItems.length > 0) {
+                router.push(item.subItems[0].href);
+                onNavigate?.();
+              }
+            }}
+          >
+            <div className={styles.icon}>
+              <Icon />
+            </div>
+            <span className={styles.tooltip}>{item.label}</span>
+            <div className={styles.flyoutMenu}>
+              <div className={styles.flyoutHeader}>{item.label}</div>
+              <div className={styles.flyoutList}>
+                {item.subItems.map(sub => {
+                  const isSubActive = isNavItemActive(pathname, sub.href);
+                  const SubIcon = sub.icon;
+                  return (
+                    <Link
+                      key={sub.href}
+                      href={sub.href}
+                      className={styles.flyoutLink}
+                      data-active={isSubActive ? 'true' : undefined}
+                      onClick={onNavigate}
+                    >
+                      <div className={styles.subMenuIcon}>
+                        <SubIcon />
+                      </div>
+                      <span>{sub.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className={styles.menuGroup}>
         <div
@@ -133,7 +195,8 @@ const NavItem = ({ item, pathname, onNavigate }) => {
       <div className={styles.icon}>
         <Icon />
       </div>
-      <span>{item.label}</span>
+      {!isCollapsed && <span>{item.label}</span>}
+      {isCollapsed && <span className={styles.tooltip}>{item.label}</span>}
     </Link>
   );
 };
@@ -146,13 +209,53 @@ const LogoutIcon = () => (
   </svg>
 );
 
-const Sidebar = ({ onClose }) => {
+import { motion, AnimatePresence } from 'framer-motion';
+
+const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { theme } = useTheme();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const profileRef = useRef(null);
+
+  useEffect(() => {
+    function loadUser() {
+      const stored = getStoredUser();
+      if (stored) setUser(stored);
+    }
+    loadUser();
+
+    window.addEventListener('user:updated', loadUser);
+    return () => window.removeEventListener('user:updated', loadUser);
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const firstName = user?.first_name || '';
+  const lastName = user?.last_name || '';
+  const displayName = [firstName, lastName].filter(Boolean).join(' ') || user?.name || user?.email || 'User Profile';
+
+  const initials = (() => {
+    if (firstName || lastName) {
+      return `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.slice(0, 2).toUpperCase();
+    }
+    return 'U';
+  })();
 
   const handleNavigate = () => {
     onClose?.();
@@ -168,9 +271,34 @@ const Sidebar = ({ onClose }) => {
 
   return (
     <>
-      <aside className={styles.sidebar}>
-        <div className={styles.logo} onClick={() => router.push('/')}>
-          <img src={logoSrc} alt="SidebarLogo" />
+      <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
+        <div className={styles.logoHeader}>
+          {!isCollapsed ? (
+            <div className={styles.logo} onClick={() => router.push('/')}>
+              <img src={logoSrc} alt="SidebarLogo" />
+            </div>
+          ) : (
+            <div className={styles.logoMark} onClick={() => router.push('/')}>
+              <img src={SmallLogo} alt="Trader Master" className={styles.smallLogoImg} />
+              <span className={styles.tooltip}>Trader Master</span>
+            </div>
+          )}
+          {onToggleCollapse && (
+            <button
+              type="button"
+              className={styles.toggleBtn}
+              onClick={onToggleCollapse}
+              aria-label={isCollapsed ? t('sidebar.expand', 'Expand sidebar') : t('sidebar.collapse', 'Collapse sidebar')}
+            >
+              {language === 'ar'
+                ? (isCollapsed ? <ChevronLeftIcon /> : <ChevronRightIcon />)
+                : (isCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />)
+              }
+              <span className={styles.tooltip}>
+                {isCollapsed ? t('sidebar.expand', 'Expand sidebar') : t('sidebar.collapse', 'Collapse sidebar')}
+              </span>
+            </button>
+          )}
         </div>
         <div className={styles.sidebarmenu}>
           {mainNav.map((item) => (
@@ -179,14 +307,144 @@ const Sidebar = ({ onClose }) => {
               item={item}
               pathname={pathname}
               onNavigate={handleNavigate}
+              isCollapsed={isCollapsed}
             />
           ))}
         </div>
-        <div className={styles.sidebarFooter}>
-          <button className={styles.logoutBtn} onClick={() => setConfirmOpen(true)} type="button">
-            <LogoutIcon />
-            <span>{t('nav.logout', 'Logout')}</span>
-          </button>
+        {!isCollapsed ? (
+          <div className={styles.sidebarBody}>
+            <div className={styles.box}>
+              <div className={styles.contentRelative}>
+                <div className={styles.iconText}>
+                  <img src={UpgradeIcon} alt='UpgradeIcon' />
+                  <h3 {...getBidiProps(t('sidebar.upgradeTitle', 'Upgrade to pro'))}>
+                    {t('sidebar.upgradeTitle', 'Upgrade to pro')}
+                  </h3>
+                </div>
+                <p {...getBidiProps(t('sidebar.upgradeDesc', 'Unlock advanced analytics more AI insights & unlimited saves.'))}>
+                  {t('sidebar.upgradeDesc', 'Unlock advanced analytics more AI insights & unlimited saves.')}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose?.();
+                    router.push('/plans');
+                  }}
+                >
+                  <span {...getBidiProps(t('sidebar.upgradeBtn', 'Upgrade Now'))}>
+                    {t('sidebar.upgradeBtn', 'Upgrade Now')}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.sidebarBodyCompact}>
+            <button
+              type="button"
+              className={styles.compactUpgradeBtn}
+              onClick={() => {
+                onClose?.();
+                router.push('/plans');
+              }}
+            >
+              <img src={UpgradeIcon} alt='UpgradeIcon' />
+              <span className={styles.tooltip}>
+                {t('sidebar.upgradeTitle', 'Upgrade to pro')}
+              </span>
+            </button>
+          </div>
+        )}
+        <div className={styles.sidebarFooter} ref={profileRef}>
+          <div
+            className={`${styles.userProfileCard} ${isCollapsed ? styles.collapsedProfileCard : ''}`}
+            onClick={() => setProfileDropdownOpen((prev) => !prev)}
+            aria-expanded={profileDropdownOpen}
+          >
+            <div className={styles.avatarBox}>
+              {user?.profile_picture ? (
+                <img src={user.profile_picture} alt={displayName} className={styles.avatarImg} />
+              ) : (
+                <div className={styles.avatarInitials}>{initials}</div>
+              )}
+            </div>
+
+            {!isCollapsed && (
+              <div className={styles.userInfo}>
+                <span className={styles.userName}>{displayName}</span>
+                {user?.email && <span className={styles.userEmail}>{user.email}</span>}
+              </div>
+            )}
+
+            {!isCollapsed && (
+              <div className={styles.chevronBox}>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ transform: profileDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}
+                >
+                  <polyline points="18 15 12 9 6 15" />
+                </svg>
+              </div>
+            )}
+
+            {isCollapsed && (
+              <span className={styles.tooltip}>{displayName}</span>
+            )}
+          </div>
+
+          <AnimatePresence>
+            {profileDropdownOpen && (
+              <motion.div
+                className={`${styles.profileMenuDropdown} ${isCollapsed ? styles.collapsedMenuDropdown : ''}`}
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                transition={{ duration: 0.15, ease: 'easeOut' }}
+              >
+                <div className={styles.dropdownHeader}>
+                  <p className={styles.dropdownName}>{displayName}</p>
+                  {user?.email && <p className={styles.dropdownEmail}>{user.email}</p>}
+                </div>
+
+                <div className={styles.dropdownDivider} />
+
+                <button
+                  type="button"
+                  className={styles.dropdownItem}
+                  onClick={() => {
+                    setProfileDropdownOpen(false);
+                    onClose?.();
+                    router.push('/profile');
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  <span>{t('nav.profile', 'Profile')}</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`${styles.dropdownItem} ${styles.logoutOption}`}
+                  onClick={() => {
+                    setProfileDropdownOpen(false);
+                    setConfirmOpen(true);
+                  }}
+                >
+                  <LogoutIcon />
+                  <span>{t('nav.logout', 'Log out')}</span>
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </aside>
 

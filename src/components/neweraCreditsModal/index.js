@@ -34,6 +34,30 @@ function parseCreditAmount(res) {
     return null;
 }
 
+function renderWithBoldPlaceholders(templateText, replacements) {
+    let parts = [templateText];
+
+    Object.entries(replacements).forEach(([placeholder, value]) => {
+        const nextParts = [];
+        parts.forEach((part) => {
+            if (typeof part === 'string' && part.includes(placeholder)) {
+                const subParts = part.split(placeholder);
+                subParts.forEach((sub, idx) => {
+                    nextParts.push(sub);
+                    if (idx < subParts.length - 1) {
+                        nextParts.push(<strong key={`${placeholder}-${idx}`}>{value}</strong>);
+                    }
+                });
+            } else {
+                nextParts.push(part);
+            }
+        });
+        parts = nextParts;
+    });
+
+    return parts;
+}
+
 export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
     const activeUserId = userId || getStoredUserId();
     const [email, setEmail] = useState('');
@@ -46,7 +70,10 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
     const [autoSyncing, setAutoSyncing] = useState(false);
     const [syncChecked, setSyncChecked] = useState(false);
     const [syncStatusMessage, setSyncStatusMessage] = useState('');
-    const [depositThreshold, setDepositThreshold] = useState('100');
+    const [welcomeCredits, setWelcomeCredits] = useState('100');
+    const [depositThreshold, setDepositThreshold] = useState('150');
+    const [depositCredits, setDepositCredits] = useState('100');
+    const [tradeCreditsPerLot, setTradeCreditsPerLot] = useState('200');
     const isSyncingRef = useRef(false);
     const { theme } = useTheme();
     const { t } = useLanguage();
@@ -65,26 +92,43 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
         }
     }, []);
 
-    // Fetch dynamic deposit threshold setting from system_settings table
+    // Fetch dynamic system settings from system_settings table
     useEffect(() => {
-        const fetchDepositThreshold = async () => {
+        const fetchSystemSettings = async () => {
             if (!supabase) return;
             try {
                 const { data } = await supabase
                     .from('system_settings')
-                    .select('value')
-                    .eq('key', 'newera_deposit_threshold')
-                    .maybeSingle();
+                    .select('key, value')
+                    .in('key', [
+                        'newera_welcome_credits',
+                        'newera_deposit_threshold',
+                        'newera_deposit_credits',
+                        'newera_trade_credits_per_lot'
+                    ]);
 
-                if (data && data.value) {
-                    setDepositThreshold(String(data.value));
+                if (data && Array.isArray(data)) {
+                    data.forEach((item) => {
+                        if (item.key === 'newera_welcome_credits' && item.value) {
+                            setWelcomeCredits(String(item.value));
+                        }
+                        if (item.key === 'newera_deposit_threshold' && item.value) {
+                            setDepositThreshold(String(item.value));
+                        }
+                        if (item.key === 'newera_deposit_credits' && item.value) {
+                            setDepositCredits(String(item.value));
+                        }
+                        if (item.key === 'newera_trade_credits_per_lot' && item.value) {
+                            setTradeCreditsPerLot(String(item.value));
+                        }
+                    });
                 }
             } catch (err) {
-                console.error('Error fetching newera_deposit_threshold setting:', err);
+                console.error('Error fetching Newera system_settings:', err);
             }
         };
 
-        fetchDepositThreshold();
+        fetchSystemSettings();
     }, []);
 
     // 1. Fetch account link and flags from Supabase newera_credits_sync or mt5_accounts
@@ -362,7 +406,10 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                     </h2>
                                     <div className={styles.welcomeText}>
                                         <p>
-                                            {t('neweraModal.welcomeBonusSub', 'Connect your Newera trading account and receive your welcome credits instantly.')}
+                                            {renderWithBoldPlaceholders(
+                                                t('neweraModal.welcomeBonusSub', 'Connect your Newera trading account and receive your {credits} welcome credits instantly.'),
+                                                { '{credits}': welcomeCredits }
+                                            )}
                                         </p>
                                     </div>
 
@@ -375,8 +422,11 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                                     {t('neweraModal.createNewAccount', 'Create New Account')}
                                                 </h3>
                                             </div>
-                                            <p {...getBidiProps(t('neweraModal.createNewAccountDesc', "Don't have a Newera account? Register one in a new tab to start trading."), styles.optionDesc)}>
-                                                {t('neweraModal.createNewAccountDesc', "Don't have a Newera account? Register one in a new tab to start trading.")}
+                                            <p className={styles.optionDesc}>
+                                                {renderWithBoldPlaceholders(
+                                                    t('neweraModal.createNewAccountDesc', "Don't have a Newera account? Register one in a new tab to start trading and get {credits} free credits."),
+                                                    { '{credits}': welcomeCredits }
+                                                )}
                                             </p>
                                             <button 
                                                 type="button" 
@@ -402,8 +452,11 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                                     {t('neweraModal.linkExistingAccount', 'Link Existing Account')}
                                                 </h3>
                                             </div>
-                                            <p {...getBidiProps(t('neweraModal.linkExistingAccountDesc', 'Enter your Newera account email address below to claim your credits.'), styles.optionDesc)}>
-                                                {t('neweraModal.linkExistingAccountDesc', 'Enter your Newera account email address below to claim your credits.')}
+                                            <p className={styles.optionDesc}>
+                                                {renderWithBoldPlaceholders(
+                                                    t('neweraModal.linkExistingAccountDesc', 'Enter your Newera account email address below to claim your {credits} free credits.'),
+                                                    { '{credits}': welcomeCredits }
+                                                )}
                                             </p>
 
                                             <form onSubmit={handleLinkAccount} className={styles.linkForm}>
@@ -414,7 +467,8 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                                         name="email"
                                                         value={email}
                                                         onChange={(e) => setEmail(e.target.value)}
-                                                        required
+                                                            required
+                                                            disabled
                                                     />
                                                 </div>
                                                 {error && <p className={styles.error} role="alert">{error}</p>}
@@ -465,8 +519,14 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                             </div>
                                         )}
 
-                                        <p {...getBidiProps(t('neweraModal.depositBonusDesc', 'Deposit {threshold} into your Newera trading account to receive additional credits.').replace('{threshold}', String(depositThreshold).startsWith('$') ? depositThreshold : `$${depositThreshold}`), styles.statusMessage)}>
-                                            {t('neweraModal.depositBonusDesc', 'Deposit {threshold} into your Newera trading account to receive additional credits.').replace('{threshold}', String(depositThreshold).startsWith('$') ? depositThreshold : `$${depositThreshold}`)}
+                                        <p className={styles.statusMessage}>
+                                            {renderWithBoldPlaceholders(
+                                                t('neweraModal.depositBonusDesc', 'Deposit {threshold} into your Newera trading account to receive {credits} additional credits.'),
+                                                {
+                                                    '{threshold}': String(depositThreshold).startsWith('$') ? depositThreshold : `$${depositThreshold}`,
+                                                    '{credits}': depositCredits
+                                                }
+                                            )}
                                         </p>
 
                                         <div className={styles.statusIndicator}>
@@ -526,8 +586,11 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
                                             </div>
                                         )}
 
-                                        <p {...getBidiProps(t('neweraModal.earnByTradingDesc', "You've used all your available credits. Continue trading with your Newera account and earn credits for every lot traded."), styles.statusMessage)}>
-                                            {t('neweraModal.earnByTradingDesc', "You've used all your available credits. Continue trading with your Newera account and earn credits for every lot traded.")}
+                                        <p className={styles.statusMessage}>
+                                            {renderWithBoldPlaceholders(
+                                                t('neweraModal.earnByTradingDesc', "You've used all your available credits. Continue trading with your Newera account and earn {credits} credits for every lot traded."),
+                                                { '{credits}': tradeCreditsPerLot }
+                                            )}
                                         </p>
 
                                         <div className={styles.statusIndicator}>

@@ -82,10 +82,26 @@ p:last-child {
 
 .sidebar-wrapper {
   width: 270px;
+  position: relative;
+  z-index: 90;
+  overflow: visible !important;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-wrapper.collapsed {
+  width: 64px;
 }
 
 .children-wrapper {
   width: calc(100% - 270px);
+  position: relative;
+  z-index: 1;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-wrapper.collapsed ~ .children-wrapper,
+.user-layout.collapsed .children-wrapper {
+  width: calc(100% - 64px);
 }
 
 .children-spacing {

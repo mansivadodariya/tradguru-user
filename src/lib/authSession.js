@@ -97,6 +97,27 @@ export function persistAuthSession(payload) {
     const user = data.user || {};
     const fullName = user.name || data.name || user.full_name || data.full_name || '';
     const nameParts = fullName.trim().split(/\s+/);
+
+    let existingLogins = [];
+    try {
+        const stored = localStorage.getItem('user');
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed?.last_logins)) existingLogins = parsed.last_logins;
+        }
+    } catch (_) {}
+
+    const incomingLogins = Array.isArray(user.last_logins || data.last_logins)
+        ? (user.last_logins || data.last_logins)
+        : existingLogins;
+
+    const now = new Date().toISOString();
+    let updatedLogins = [...incomingLogins];
+    if (updatedLogins.length === 0 || updatedLogins[updatedLogins.length - 1] !== now) {
+        updatedLogins.push(now);
+    }
+    updatedLogins = updatedLogins.slice(-5);
+
     const sessionUser = {
         id: userId || user.id || user.user_id || '',
         user_id: userId || user.user_id || user.id || '',
@@ -104,6 +125,8 @@ export function persistAuthSession(payload) {
         last_name: user.last_name || data.last_name || nameParts.slice(1).join(' ') || '',
         email: user.email || data.email || '',
         phone_number: user.phone_number || data.phone_number || '',
+        referral_code: user.referral_code || data.referral_code || '',
+        last_logins: updatedLogins,
     };
 
     const hasPhone = Boolean(sessionUser.phone_number);

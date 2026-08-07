@@ -12,6 +12,16 @@ $border: rgba(18, 18, 18, 0.10);
 }
 
 .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    @include respond-to('sm') {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
     h1 {
         font-size: 22px;
         font-weight: 700;
@@ -23,6 +33,173 @@ $border: rgba(18, 18, 18, 0.10);
         font-size: 14px;
         color: rgba(26, 26, 26, 0.55);
         margin: 0;
+    }
+}
+
+.recentActivityBtn {
+    height: 46px;
+    min-height: 46px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #FFF;
+    border: 1px solid #0B56DB;
+    color: #0B56DB;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(11, 86, 219, 0.08);
+
+    svg {
+        color: #0B56DB;
+        transition: color 0.25s ease;
+    }
+
+    &:hover {
+        background: #0B56DB;
+        color: #FFF;
+        box-shadow: 0 4px 14px rgba(11, 86, 219, 0.25);
+
+        svg {
+            color: #FFF;
+        }
+
+        .activityBadgeCount {
+            background: #FFFFFF;
+            color: #0B56DB;
+        }
+    }
+}
+
+.activityBadgeCount {
+    background: #0B56DB;
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    line-height: 1;
+    transition: all 0.25s ease;
+}
+
+/* Modal Popup Overlay */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 20px;
+}
+
+.modalContent {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 580px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+.modalHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #E2E8F0;
+    gap: 12px;
+}
+
+.modalHeaderTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.modalIconBox {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: rgba(11, 86, 219, 0.1);
+    color: $primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.modalTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1E293B;
+    margin: 0 0 2px;
+}
+
+.modalSubtitle {
+    font-size: 13px;
+    color: #64748B;
+    margin: 0;
+}
+
+.modalCloseBtn {
+    background: transparent;
+    border: none;
+    padding: 6px;
+    border-radius: 8px;
+    color: #64748B;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: #F1F5F9;
+        color: #1E293B;
+    }
+}
+
+.modalBody {
+    padding: 20px 24px;
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+.modalFooter {
+    padding: 16px 24px;
+    border-top: 1px solid #E2E8F0;
+    display: flex;
+    justify-content: flex-end;
+    background: #F8FAFC;
+}
+
+.modalDoneBtn {
+    padding: 8px 20px;
+    background: $primary;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    &:hover {
+        background: #0947b8;
     }
 }
 
@@ -161,12 +338,204 @@ $border: rgba(18, 18, 18, 0.10);
     }
 }
 
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid $border;
+
+    @include respond-to('sm') {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.sectionTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sectionIconBox {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: rgba(11, 86, 219, 0.1);
+    color: $primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sectionTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 2px;
+}
+
+.sectionSubtitle {
+    font-size: 13px;
+    color: rgba(26, 26, 26, 0.55);
+    margin: 0;
+}
+
+.maxBadge {
+    background: #F1F5FC;
+    color: $primary;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+    white-space: nowrap;
+
+    :global([dir="rtl"]) & {
+        margin-right: auto;
+    }
+}
+
+.loginList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.loginItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    gap: 12px;
+
+    @include respond-to('sm') {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    &:hover {
+        border-color: #CBD5E1;
+        background: #F1F5F9;
+    }
+}
+
+.latestLoginItem {
+    background: #FFFFFF;
+    border-color: rgba(11, 86, 219, 0.4);
+    box-shadow: 0 2px 10px rgba(11, 86, 219, 0.08);
+
+    &:hover {
+        border-color: $primary;
+        background: #FFFFFF;
+    }
+}
+
+.loginItemLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.deviceIconBox {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #E2E8F0;
+    color: #64748B;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.activeDeviceIcon {
+    background: rgba(11, 86, 219, 0.12);
+    color: $primary;
+}
+
+.loginItemDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.loginTimeRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1E293B;
+}
+
+.loginTime {
+    color: #64748B;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.loginIsoText {
+    font-size: 11px;
+    font-family: monospace;
+    color: #94A3B8;
+}
+
+.loginItemRight {
+    flex-shrink: 0;
+}
+
+.activeBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.activeDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10B981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+}
+
+.pastBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    background: #F1F5FC;
+    color: #64748B;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 20px;
+}
+
+.emptyLogins {
+    padding: 20px;
+    text-align: center;
+    color: #64748B;
+    font-size: 14px;
+}
+
 :global(.dark) {
     .profile {
         .header {
             h1 {
                 color: #ffffff;
             }
+
             p {
                 color: rgba(255, 255, 255, 0.6);
             }
@@ -201,9 +570,152 @@ $border: rgba(18, 18, 18, 0.10);
 
     .iconButton {
         color: rgba(255, 255, 255, 0.6);
+
         &:hover {
             color: #60a5fa;
             background-color: rgba(96, 165, 250, 0.1);
         }
+    }
+
+    .sectionHeader {
+        border-bottom-color: #2d2d34;
+    }
+
+    .sectionTitle {
+        color: #ffffff;
+    }
+
+    .sectionSubtitle {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .maxBadge {
+        background: rgba(11, 86, 219, 0.2);
+        color: #60a5fa;
+    }
+
+    .loginItem {
+        background: #121215;
+        border-color: #2d2d34;
+
+        &:hover {
+            border-color: #3f3f46;
+            background: #18181c;
+        }
+    }
+
+    .latestLoginItem {
+        background: #18181b;
+        border-color: rgba(11, 86, 219, 0.5);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+
+        &:hover {
+            border-color: #0b56db;
+            background: #1c1c20;
+        }
+    }
+
+    .deviceIconBox {
+        background: #27272a;
+        color: #a1a1aa;
+    }
+
+    .activeDeviceIcon {
+        background: rgba(11, 86, 219, 0.25);
+        color: #60a5fa;
+    }
+
+    .loginTimeRow {
+        color: #f4f4f5;
+    }
+
+    .loginTime {
+        color: #a1a1aa;
+    }
+
+    .loginIsoText {
+        color: #71717a;
+    }
+
+    .activeBadge {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .pastBadge {
+        background: #27272a;
+        color: #a1a1aa;
+    }
+
+    .emptyLogins {
+        color: #a1a1aa;
+    }
+
+    .recentActivityBtn {
+    background: rgba(15, 23, 42, 0.8);
+        border-color: rgba(64, 134, 255, 0.5);
+        color: #a8c8ff;
+
+        svg {
+            color: #a8c8ff;
+        }
+
+        .activityBadgeCount {
+            background: rgba(11, 86, 219, 0.8);
+            color: #FFFFFF;
+        }
+
+        &:hover {
+            background: #0B56DB;
+            border-color: #0B56DB;
+            color: #FFFFFF;
+
+            svg {
+                color: #FFFFFF;
+            }
+
+            .activityBadgeCount {
+                background: #FFFFFF;
+                color: #0B56DB;
+            }
+        }
+    }
+
+    .modalContent {
+        background: #18181b;
+        border-color: #27272a;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    .modalHeader {
+        border-bottom-color: #27272a;
+    }
+
+    .modalIconBox {
+        background: rgba(11, 86, 219, 0.25);
+        color: #60a5fa;
+    }
+
+    .modalTitle {
+        color: #f4f4f5;
+    }
+
+    .modalSubtitle {
+        color: #a1a1aa;
+    }
+
+    .modalCloseBtn {
+        color: #a1a1aa;
+
+        &:hover {
+            background: #27272a;
+            color: #ffffff;
+        }
+    }
+
+    .modalFooter {
+        background: #121215;
+        border-top-color: #27272a;
     }
 }

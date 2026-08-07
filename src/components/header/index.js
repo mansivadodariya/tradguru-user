@@ -58,7 +58,7 @@ export default function Header() {
                             </Link>
                         </div>
                         <div className={styles.buttonHide} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <LanguageToggle light />
+                            <LanguageToggle light className={styles.headerLangToggle} />
                             <Button text={t('nav.getStarted', 'Get Started')} icon={ArrowIcon} onClick={() => authNavigate(router, '/dashboard')} />
                         </div>
                         <div className={styles.mobilemenu} onClick={() => setIsMobileMenuOpen(true)} style={{ cursor: 'pointer' }}>

@@ -4,9 +4,11 @@
     "aiTrade": "التداول بالذكاء الاصطناعي",
     "aiChat": "محادثة الذكاء الاصطناعي",
     "aiStrategy": "استراتيجية الذكاء الاصطناعي",
+    "aiStrategyDesc": "إنشاء واختبار وتحسين استراتيجيات التداول المؤتمتة بالذكاء الاصطناعي.",
     "liveAnalysis": "التحليل المباشر",
     "economicCalendar": "التقويم الاقتصادي",
     "creditHistory": "سجل الرصيد",
+    "plans": "باقات الاشتراك",
     "broker": "الوسيط",
     "profile": "الملف الشخصي",
     "edufins": "إديوفينس",
@@ -272,11 +274,31 @@
     "credit": "إضافة رصيد",
     "debit": "خصم رصيد"
   },
+  "plans": {
+    "eyebrow": "باقات الاشتراك",
+    "mainTitle": "ثلاث طرق لشراء الرصيد",
+    "creditsUnit": "رصيد",
+    "buyBtn": "شراء الرصيد",
+    "buyPlanBtn": "ابدأ باقة {plan}",
+    "popular": "الأكثر شعبية",
+    "selectSuccess": "تم اختيار باقة {plan} ({credits} رصيد)",
+    "disclaimer": "أحجام الخدمات المعروضة تفترض إنفاق الرصيد بالكامل على خدمة واحدة، بواقع 15 رصيداً لكل استفسار محادثة و10 لكل تحليل مخطط تلقائي."
+  },
+  "sidebar": {
+    "upgradeTitle": "الترقية إلى الاحترافي",
+    "upgradeDesc": "افتح التحليلات المتقدمة ورؤى الذكاء الاصطناعي الإضافية وحفظ غير محدود.",
+    "upgradeBtn": "ترقية الآن"
+  },
   "profile": {
     "manageDetails": "إدارة تفاصيلك الشخصية",
     "phoneLabel": "رقم الهاتف",
     "referralCode": "رمز الإحالة",
-    "referralHint": "شارك هذا الرابط مع الآخرين. سيتم ملء رمز الإحالة تلقائياً عند تسجيلهم!"
+    "referralHint": "شارك هذا الرابط مع الآخرين. سيتم ملء رمز الإحالة تلقائياً عند تسجيلهم!",
+    "loginActivity": "نشاط تسجيل الدخول الحديث",
+    "loginActivityDesc": "مراقبة آخر 5 جلسات تسجيل دخول لأمان حسابك.",
+    "currentSession": "الجلسة النشطة",
+    "pastSession": "جلسة سابقة",
+    "noLoginData": "لا يوجد سجل تسجيل دخول حديث."
   },
   "auth": {
     "loginTitle": "تسجيل الدخول إلى Trader Master",
@@ -335,23 +357,23 @@
   },
   "neweraModal": {
     "welcomeBonus": "مكافأة الترحيب",
-    "welcomeBonusSub": "ربط حساب التداول الخاص بك في Newera واحصل على رصيدك الترحيبي فوراً.",
+    "welcomeBonusSub": "ربط حساب التداول الخاص بك في Newera واحصل على {credits} رصيد ترحيبي فوراً.",
     "createNewAccount": "إنشاء حساب جديد",
-    "createNewAccountDesc": "ليس لديك حساب Newera؟ سجل حساباً في تبويب جديد لبدء التداول.",
+    "createNewAccountDesc": "ليس لديك حساب Newera؟ سجل حساباً في تبويب جديد لبدء التداول والحصول على {credits} رصيد مجاني.",
     "registerAccountBtn": "تسجيل حساب",
     "linkExistingAccount": "ربط حساب حالي",
-    "linkExistingAccountDesc": "أدخل البريد الإلكتروني لحسابك في Newera أدناه للمطالبة برصيدك.",
+    "linkExistingAccountDesc": "أدخل البريد الإلكتروني لحسابك في Newera أدناه للمطالبة بـ {credits} رصيد مجاني.",
     "enterEmailPlaceholder": "أدخل البريد الإلكتروني",
     "linkAccountBtn": "ربط الحساب",
     "linkingBtn": "جاري الربط...",
     "linkedEmail": "البريد الإلكتروني المرتبط:",
     "depositBonusTitle": "إيداع وكسب المزيد من الرصيد",
-    "depositBonusDesc": "قم بإيداع {threshold} في حساب تداول Newera الخاص بك للحصول على رصيد إضافي.",
+    "depositBonusDesc": "قم بإيداع {threshold} في حساب تداول Newera الخاص بك للحصول على {credits} رصيد إضافي.",
     "syncingCredits": "جاري المزامنة مع Newera...",
     "checkedJustNow": "تم التحقق للتو.",
     "checkAgainBtn": "إعادة التحقق",
     "earnByTradingTitle": "كسب الرصيد من خلال التداول",
-    "earnByTradingDesc": "لقد استخدمت كل الرصيد المتاح. واصل التداول مع حساب Newera الخاص بك واكسب رصيداً لكل عقد يتم تداوله.",
+    "earnByTradingDesc": "لقد استخدمت كل الرصيد المتاح. واصل التداول مع حساب Newera الخاص بك واكسب {credits} رصيداً لكل عقد يتم تداوله.",
     "syncingVolume": "جاري مزامنة حجم التداول...",
     "loadingDetails": "جاري تحميل تفاصيل الحساب..."
   }

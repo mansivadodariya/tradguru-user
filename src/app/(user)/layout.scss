@@ -26,6 +26,10 @@
             &.open {
                 left: 0;
             }
+
+            &.collapsed {
+                width: 270px;
+            }
         }
 
         .children-wrapper {

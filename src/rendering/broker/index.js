@@ -133,8 +133,9 @@ export default function BrokerPage() {
             {/* Brokers Grid */}
             {isLoading ? (
                 <div className={styles.brokersGrid}>
-                    <BrokerCardSkeleton />
-                    <BrokerCardSkeleton />
+                    {Array.from({ length: (brokers && brokers.length > 1) ? brokers.length : 1 }).map((_, idx) => (
+                        <BrokerCardSkeleton key={idx} />
+                    ))}
                 </div>
             ) : filteredBrokers.length > 0 ? (
                 <div className={styles.brokersGrid}>

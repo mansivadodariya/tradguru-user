@@ -4,9 +4,11 @@
     "aiTrade": "AI Trade",
     "aiChat": "AI Chat",
     "aiStrategy": "AI Strategy",
+    "aiStrategyDesc": "Build, test and optimize AI-powered trading strategies.",
     "liveAnalysis": "Live Analysis",
     "economicCalendar": "Economic Calendar",
     "creditHistory": "Credit History",
+    "plans": "Subscription Plans",
     "broker": "Broker",
     "profile": "Profile",
     "edufins": "Edufins",
@@ -272,11 +274,31 @@
     "credit": "Credit",
     "debit": "Debit"
   },
+  "plans": {
+    "eyebrow": "Subscription Plans",
+    "mainTitle": "Three ways to buy credits",
+    "creditsUnit": "Credits",
+    "buyBtn": "Buy Credits",
+    "buyPlanBtn": "Start {plan} Plan",
+    "popular": "MOST POPULAR",
+    "selectSuccess": "Selected {plan} plan ({credits} Credits)",
+    "disclaimer": "Service volumes shown assume the full balance is spent on a single service, at 15 credits per AI Chat query and 10 per Auto Chart analysis."
+  },
+  "sidebar": {
+    "upgradeTitle": "Upgrade to pro",
+    "upgradeDesc": "Unlock advanced analytics more AI insights & unlimited saves.",
+    "upgradeBtn": "Upgrade Now"
+  },
   "profile": {
     "manageDetails": "Manage your personal details",
     "phoneLabel": "Phone Number",
     "referralCode": "Referral Code",
-    "referralHint": "Share this link with others. It will automatically fill the referral code when they sign up!"
+    "referralHint": "Share this link with others. It will automatically fill the referral code when they sign up!",
+    "loginActivity": "Recent Login Activity",
+    "loginActivityDesc": "Monitor your 5 most recent login sessions for account security.",
+    "currentSession": "Active Session",
+    "pastSession": "Past Session",
+    "noLoginData": "No recent login history recorded."
   },
   "auth": {
     "loginTitle": "Log In to Trader Master",
@@ -335,23 +357,23 @@
   },
   "neweraModal": {
     "welcomeBonus": "Welcome Bonus",
-    "welcomeBonusSub": "Connect your Newera trading account and receive your welcome credits instantly.",
+    "welcomeBonusSub": "Connect your Newera trading account and receive your {credits} welcome credits instantly.",
     "createNewAccount": "Create New Account",
-    "createNewAccountDesc": "Don't have a Newera account? Register one in a new tab to start trading.",
+    "createNewAccountDesc": "Don't have a Newera account? Register one in a new tab to start trading and get {credits} free credits.",
     "registerAccountBtn": "Register Account",
     "linkExistingAccount": "Link Existing Account",
-    "linkExistingAccountDesc": "Enter your Newera account email address below to claim your credits.",
+    "linkExistingAccountDesc": "Enter your Newera account email address below to claim your {credits} free credits.",
     "enterEmailPlaceholder": "Enter Email Address",
     "linkAccountBtn": "Link Account",
     "linkingBtn": "Linking...",
     "linkedEmail": "Linked Email:",
     "depositBonusTitle": "Deposit & Earn More Credits",
-    "depositBonusDesc": "Deposit {threshold} into your Newera trading account to receive additional credits.",
+    "depositBonusDesc": "Deposit {threshold} into your Newera trading account to receive {credits} additional credits.",
     "syncingCredits": "Syncing credits from Newera...",
     "checkedJustNow": "Checked just now.",
     "checkAgainBtn": "Check Again",
     "earnByTradingTitle": "Earn Credits by Trading",
-    "earnByTradingDesc": "You've used all your available credits. Continue trading with your Newera account and earn credits for every lot traded.",
+    "earnByTradingDesc": "You've used all your available credits. Continue trading with your Newera account and earn {credits} credits for every lot traded.",
     "syncingVolume": "Syncing trading volume...",
     "loadingDetails": "Loading account details..."
   }

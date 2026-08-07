@@ -2,9 +2,11 @@
 @use '../../scss/breakpoints/breakpoints.scss' as *;
 
 .topbar {
+    height: 65px;
+    box-sizing: border-box;
     border-bottom: 1px solid #E4E4E4;
     background: #FFF;
-    padding: 8px 16px;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -40,11 +42,14 @@
         .credits {
             display: flex;
             align-items: center;
+            height: 40px;
+            min-height: 40px;
+            box-sizing: border-box;
             gap: 6px;
             background: #0b56db;
-            padding: 10px 14px;
+            padding: 0 14px;
             color: #fff;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             white-space: nowrap;
             position: relative;
@@ -401,8 +406,9 @@
 .themeToggle {
     border: 1px solid #D5E1F8;
     background: #F5F8FE;
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
+    box-sizing: border-box;
     border-radius: 50%;
     display: flex;
     align-items: center;

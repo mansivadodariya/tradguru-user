@@ -108,24 +108,7 @@
                         }
                     }
 
-                    .historyBtn {
-                        background: #fff;
-                        border: 1px solid rgba(15, 92, 242, 0.3);
-                        color: #0f5cf2;
-                        height: 52px;
-                        font-size: 14px;
-                        font-weight: 600;
-                        padding: 8px 16px;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        transition: all 0.2s ease;
-                        white-space: nowrap;
-
-                        &:hover {
-                            background: #f4f8ff;
-                            border-color: #0f5cf2;
-                        }
-                    }
+              
                 }
             }
 
@@ -1007,7 +990,7 @@
     justify-content: center;
     align-items: center;
 
-    & > div {
+    &>div {
         margin: 0 auto !important;
     }
 }
@@ -1636,7 +1619,7 @@
         box-shadow: none !important;
     }
 
-    .reportContent > * {
+    .reportContent>* {
         margin-top: 0 !important;
         margin-bottom: 24px !important;
     }
@@ -1691,7 +1674,12 @@
     }
 
     // --- Headings: keep headings attached to the content that follows ---
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         page-break-after: avoid !important;
         break-after: avoid !important;
         page-break-inside: avoid !important;
@@ -1716,6 +1704,7 @@
 
                 .avatar {
                     background: #252529;
+
                     svg {
                         color: #60a5fa;
                     }
@@ -1725,23 +1714,13 @@
                     h3 {
                         color: #ffffff;
                     }
+
                     span {
                         color: rgba(255, 255, 255, 0.5);
                     }
                 }
 
-                .headerAction {
-                    .historyBtn {
-                        background: #252529;
-                        border-color: #2d2d34;
-                        color: #ffffff;
-
-                        &:hover {
-                            background: #2d2d34;
-                            border-color: #60a5fa;
-                        }
-                    }
-                }
+           
             }
 
             .chatBody {
@@ -1753,6 +1732,7 @@
                     h2 {
                         color: #ffffff;
                     }
+
                     p {
                         color: rgba(255, 255, 255, 0.6);
                     }
@@ -1768,7 +1748,8 @@
                         background: #252529;
                         color: #f3f4f6;
 
-                        p, li {
+                        p,
+                        li {
                             color: #f3f4f6;
                         }
                     }
@@ -1795,7 +1776,8 @@
                     .blogContent {
                         color: #f3f4f6;
 
-                        p, li {
+                        p,
+                        li {
                             color: #f3f4f6;
                         }
 
@@ -1804,6 +1786,7 @@
                                 border-color: rgba(96, 165, 250, 0.1);
                                 border-top-color: #60a5fa;
                             }
+
                             p {
                                 color: rgba(255, 255, 255, 0.5);
                             }
@@ -1924,6 +1907,7 @@
 
             .reportEmpty {
                 color: rgba(255, 255, 255, 0.5);
+
                 .reportEmptyTitle {
                     color: #ffffff;
                 }
@@ -1941,6 +1925,7 @@
 
         .reportEmpty {
             color: rgba(255, 255, 255, 0.5);
+
             .reportEmptyTitle {
                 color: #ffffff;
             }
@@ -1970,7 +1955,11 @@
     .reportMarkdown {
         color: #f3f4f6;
 
-        h2, h3, h4, h5, h6 {
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
             color: #ffffff;
         }
 
@@ -1978,7 +1967,8 @@
             border-bottom-color: #2d2d34;
         }
 
-        p, li {
+        p,
+        li {
             color: #d1d5db;
         }
 
@@ -2052,7 +2042,9 @@
         .first {
             .lineText {
                 color: rgba(255, 255, 255, 0.5);
-                &::before, &::after {
+
+                &::before,
+                &::after {
                     background: linear-gradient(to right, transparent, rgba(96, 165, 250, 0.4));
                 }
             }

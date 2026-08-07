@@ -1,0 +1,17 @@
+@use '../../../scss/main.scss' as *;
+@use '../../../scss/breakpoints/breakpoints.scss' as *;
+
+.plansSection {
+    padding: 80px 0;
+    background: #FFFFFF;
+    position: relative;
+    overflow: hidden;
+
+    @include respond-to('md') {
+        padding: 60px 0;
+    }
+
+    @include respond-to('sm') {
+        padding: 40px 0;
+    }
+}

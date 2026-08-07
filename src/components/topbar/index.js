@@ -135,13 +135,6 @@ const Topbar = ({ onMenuClick }) => {
                 </div>
                 <div className={styles.right}>
                     <div className={styles.skeletonCredits} />
-                    <div className={styles.skeletonProfile}>
-                        <div className={styles.skeletonAvatar} />
-                        <div className={styles.skeletonText}>
-                            <div className={styles.skeletonLine} />
-                            <div className={`${styles.skeletonLine} ${styles.skeletonLineShort}`} />
-                        </div>
-                    </div>
                 </div>
             </div>
         );
@@ -160,7 +153,6 @@ const Topbar = ({ onMenuClick }) => {
                     </button>
                 </div>
                 <div className={styles.right}>
-                    <LanguageToggle />
                     <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle Theme" type="button">
                         {theme === 'light' ? (
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -173,6 +165,7 @@ const Topbar = ({ onMenuClick }) => {
                             </svg>
                         )}
                     </button>
+                    <LanguageToggle />
                     {credits !== null && (
                         <div className={styles.credits}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none">
@@ -184,39 +177,8 @@ const Topbar = ({ onMenuClick }) => {
                             <span>{credits} {t('topbar.credits', 'credits')}</span>
                         </div>
                     )}
-                    
-                    <div className={styles.profileSection} ref={dropdownRef}>
-                        <div className={styles.profile} onClick={() => setDropdownOpen((prev) => !prev)}>
-                            <div className={styles.image}>
-                                {profilePicture ? (
-                                    <img src={profilePicture} alt={displayName} />
-                                ) : (
-                                    <div className={styles.avatar}>{initials}</div>
-                                )}
-                            </div>
-                            <div className={styles.content}>
-                                <div>
-                                    <p>{displayName}</p>
-                                    {user?.email && <span>{user.email}</span>}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
-
-            {confirmOpen && (
-                <div className={styles.confirmOverlay} onClick={() => setConfirmOpen(false)}>
-                    <div className={styles.confirmBox} onClick={(e) => e.stopPropagation()}>
-                        <h3>{t('topbar.logoutConfirmTitle', 'Log out?')}</h3>
-                        <p>{t('topbar.logoutConfirmMessage', 'Are you sure you want to log out?')}</p>
-                        <div className={styles.confirmActions}>
-                            <button type="button" className={styles.cancelBtn} onClick={() => setConfirmOpen(false)}>{t('topbar.cancel', 'Cancel')}</button>
-                            <button type="button" className={styles.logoutBtn} onClick={doLogout}>{t('nav.logout', 'Log out')}</button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </>
     );
 };

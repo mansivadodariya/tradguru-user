@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import styles from './profile.module.scss';
 import Input from '@/components/input';
 import PhoneInput from '@/components/phoneInput';
@@ -23,13 +24,30 @@ function getUserFromStorage() {
     }
 }
 
+function parseLogins(rawLogins) {
+    if (!rawLogins) return [];
+    if (Array.isArray(rawLogins)) return rawLogins;
+    if (typeof rawLogins === 'string') {
+        const trimmed = rawLogins.trim();
+        if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+            try {
+                return JSON.parse(trimmed);
+            } catch (_) {}
+        }
+        if (trimmed) return [trimmed];
+    }
+    return [];
+}
+
 export default function Profile() {
     const router = useRouter();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     const [userId, setUserId] = useState('');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [lastLogins, setLastLogins] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [form, setForm] = useState({
         first_name: '',
@@ -54,12 +72,44 @@ export default function Profile() {
             referral_code: user.referral_code || id || '',
         });
 
+        const initialLogins = parseLogins(user.last_logins);
+        if (initialLogins.length > 0) {
+            setLastLogins(initialLogins.slice(-5));
+        }
+
         fetchProfile(id);
     }, []);
 
     const fetchProfile = async (id) => {
         setLoading(true);
         try {
+            // First fetch directly from Supabase if available for accurate real-time user data & last_logins
+            if (supabase && id) {
+                try {
+                    const { data } = await supabase
+                        .from('users')
+                        .select('first_name, last_name, email, phone_number, referral_code, last_logins')
+                        .eq('id', id)
+                        .maybeSingle();
+
+                    if (data) {
+                        const parsedDbLogins = parseLogins(data.last_logins);
+                        if (parsedDbLogins.length > 0) {
+                            setLastLogins(parsedDbLogins.slice(-5));
+                        }
+                        setForm((prev) => ({
+                            first_name: data.first_name || prev.first_name || '',
+                            last_name: data.last_name || prev.last_name || '',
+                            email: data.email || prev.email || '',
+                            phone_number: data.phone_number || prev.phone_number || '',
+                            referral_code: data.referral_code || prev.referral_code || id || '',
+                        }));
+                    }
+                } catch (sbErr) {
+                    console.warn('Supabase profile fetch error:', sbErr);
+                }
+            }
+
             const apiRes = await profileApi.getProfile();
             const profileData = apiRes?.data || apiRes || {};
             if (profileData) {
@@ -71,6 +121,11 @@ export default function Profile() {
                     referral_code: profileData.referral_code || prev.referral_code || id || '',
                 }));
 
+                const fetchedLogins = parseLogins(profileData.last_logins);
+                if (fetchedLogins.length > 0) {
+                    setLastLogins(fetchedLogins.slice(-5));
+                }
+
                 const stored = getUserFromStorage() || {};
                 const updated = {
                     ...stored,
@@ -78,30 +133,13 @@ export default function Profile() {
                     last_name: profileData.last_name || stored.last_name || '',
                     email: profileData.email || stored.email || '',
                     phone_number: profileData.phone_number || stored.phone_number || '',
+                    last_logins: fetchedLogins.length > 0 ? fetchedLogins.slice(-5) : stored.last_logins || [],
                 };
                 localStorage.setItem('user', JSON.stringify(updated));
                 window.dispatchEvent(new Event('user:updated'));
             }
         } catch (err) {
             console.warn('Profile fetch warning:', err);
-            if (supabase && id) {
-                try {
-                    const { data } = await supabase
-                        .from('users')
-                        .select('first_name, last_name, email, phone_number, referral_code')
-                        .eq('id', id)
-                        .maybeSingle();
-                    if (data) {
-                        setForm((prev) => ({
-                            first_name: data.first_name || prev.first_name || '',
-                            last_name: data.last_name || prev.last_name || '',
-                            email: data.email || prev.email || '',
-                            phone_number: data.phone_number || prev.phone_number || '',
-                            referral_code: data.referral_code || prev.referral_code || id || '',
-                        }));
-                    }
-                } catch (_) { /* ignore */ }
-            }
         } finally {
             setLoading(false);
         }
@@ -238,12 +276,31 @@ export default function Profile() {
     }
 
     const activeRefCode = getActiveReferralCode();
+    const displayLogins = (lastLogins.length > 0 ? [...lastLogins] : []).reverse();
 
     return (
         <div className={styles.profile}>
             <div className={styles.header}>
-                <h1>{t('nav.profile', 'Profile')}</h1>
-                <p>{t('profile.manageDetails', 'Manage your personal details')}</p>
+                <div>
+                    <h1>{t('nav.profile', 'Profile')}</h1>
+                    <p>{t('profile.manageDetails', 'Manage your personal details')}</p>
+                </div>
+                <motion.button
+                    type="button"
+                    className={styles.recentActivityBtn}
+                    onClick={() => setIsModalOpen(true)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                    <span>{t('profile.recentActivity', 'Recent Activity')}</span>
+                    {displayLogins.length > 0 && (
+                        <span className={styles.activityBadgeCount}>{displayLogins.length}</span>
+                    )}
+                </motion.button>
             </div>
 
             <div className={styles.card}>
@@ -337,6 +394,125 @@ export default function Profile() {
                     </div>
                 </form>
             </div>
+
+
+            {/* Recent Login Activity Modal Popup */}
+            <AnimatePresence>
+                {isModalOpen && (
+                    <div className={styles.modalOverlay} onClick={() => setIsModalOpen(false)}>
+                        <motion.div
+                            className={styles.modalContent}
+                            initial={{ opacity: 0, scale: 0.94, y: 15 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.94, y: 15 }}
+                            transition={{ duration: 0.2, ease: 'easeOut' }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Modal Header */}
+                            <div className={styles.modalHeader}>
+                                <div className={styles.modalHeaderTitleRow}>
+                                    <div className={styles.modalIconBox}>
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 className={styles.modalTitle}>{t('profile.loginActivity', 'Recent Login Activity')}</h3>
+                                        <p className={styles.modalSubtitle}>{t('profile.loginActivityDesc', 'Monitor your 5 most recent login sessions for account security.')}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    className={styles.modalCloseBtn}
+                                    onClick={() => setIsModalOpen(false)}
+                                    aria-label="Close"
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18" />
+                                        <line x1="6" y1="6" x2="18" y2="18" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            {/* Modal Body */}
+                            <div className={styles.modalBody}>
+                                <div className={styles.loginList}>
+                                    {displayLogins.length > 0 ? (
+                                        displayLogins.map((entry, idx) => {
+                                            const dateObj = new Date(entry);
+                                            const isValidDate = !isNaN(dateObj.getTime());
+                                            
+                                            const dateStr = isValidDate ? dateObj.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', {
+                                                weekday: 'short',
+                                                month: 'short',
+                                                day: 'numeric',
+                                                year: 'numeric'
+                                            }) : entry;
+
+                                            const timeStr = isValidDate ? dateObj.toLocaleTimeString(language === 'ar' ? 'ar-EG' : 'en-US', {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                second: '2-digit',
+                                                hour12: true
+                                            }) : '';
+
+                                            const isLatest = idx === 0;
+
+                                            return (
+                                                <div key={idx} className={`${styles.loginItem} ${isLatest ? styles.latestLoginItem : ''}`}>
+                                                    <div className={styles.loginItemLeft}>
+                                                        <div className={`${styles.deviceIconBox} ${isLatest ? styles.activeDeviceIcon : ''}`}>
+                                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                                                                <line x1="8" y1="21" x2="16" y2="21" />
+                                                                <line x1="12" y1="17" x2="12" y2="21" />
+                                                            </svg>
+                                                        </div>
+                                                        <div className={styles.loginItemDetails}>
+                                                            <div className={styles.loginTimeRow}>
+                                                                <span className={styles.loginDate}>{dateStr}</span>
+                                                                {timeStr && <span className={styles.loginTime}>at {timeStr}</span>}
+                                                            </div>
+                                                            <span className={styles.loginIsoText}>{entry}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className={styles.loginItemRight}>
+                                                        {isLatest ? (
+                                                            <span className={styles.activeBadge}>
+                                                                <span className={styles.activeDot} />
+                                                                {t('profile.currentSession', 'Active Session')}
+                                                            </span>
+                                                        ) : (
+                                                            <span className={styles.pastBadge}>
+                                                                {t('profile.pastSession', 'Past Session')}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className={styles.emptyLogins}>
+                                            <p>{t('profile.noLoginData', 'No recent login history recorded.')}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className={styles.modalFooter}>
+                                <button
+                                    type="button"
+                                    className={styles.modalDoneBtn}
+                                    onClick={() => setIsModalOpen(false)}
+                                >
+                                    {t('common.close', 'Close')}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

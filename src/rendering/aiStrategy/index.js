@@ -642,6 +642,11 @@ export default function AiStrategy({ initialTab = 'live' }) {
                         }
                     </p>
                 </div>
+                {activeTab === 'live' && (
+                    <div className={styles.headerDropdownCorner}>
+                        <StrategyDropdown onSelect={setSelectedStrategyId} />
+                    </div>
+                )}
             </div>
 
             {/* Main Content Area */}
@@ -656,12 +661,6 @@ export default function AiStrategy({ initialTab = 'live' }) {
                             transition={{ duration: 0.2 }}
                             className={styles.liveTabContainer}
                         >
-                            {/* Top Controls Bar: Dropdown + Timeframe */}
-                            <div className={styles.controlsRow}>
-                                <StrategyDropdown onSelect={setSelectedStrategyId} />
-                                
-                               
-                            </div>
 
                             {/* Three Panel Layout */}
                             <div className={styles.threePanelLayout}>

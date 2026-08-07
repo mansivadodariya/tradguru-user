@@ -2,6 +2,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import styles from './tradeSnap.module.scss';
+import HistoryButton from '@/components/historyButton';
 import { analyzeTradeScreenshots, dataUrlToBlob, extractTradesFromPayload } from '@/lib/tradeSnapApi';
 import { getStoredUserId } from '@/lib/authSession';
 import { toast } from '@/components/toast';
@@ -683,9 +684,10 @@ export default function TradeSnap() {
                             {t('tradeSnap.subtitle', 'Capture your screen, analyze chart movements, and get AI trade insights with single or multi-timeframe views.')}
                         </p>
                     </div>
-                    <button type="button" className={styles.historyBtn} onClick={openHistory}>
-                        {t('tradeSnap.history', 'History')}
-                    </button>
+                    <HistoryButton
+                        text={t('tradeSnap.history', 'History')}
+                        onClick={openHistory}
+                    />
                 </div>
             </div>
 

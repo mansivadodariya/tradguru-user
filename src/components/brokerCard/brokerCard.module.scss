@@ -102,13 +102,21 @@
             font-size: 17px;
             font-weight: 700;
             color: #0F172A;
-            margin: 0 0 6px 0;
+            margin: 0 0 2px 0;
             line-height: 1.25;
             font-family: var(--font-plus-jakarta);
 
             @include respond-to(sm) {
                 font-size: 16px;
             }
+        }
+
+        .subtitleTag {
+            font-size: 12px;
+            font-weight: 600;
+            color: #2563EB;
+            margin: 0 0 6px 0;
+            display: inline-block;
         }
 
         .cardDescription {
@@ -255,7 +263,8 @@
     }
 }
 
-:global(.dark) {
+:global(.dark),
+:global(html.dark) {
     .brokerCard {
         background: #1A1A1E;
         border-color: #2D2D34;
@@ -272,8 +281,12 @@
                 color: #FFFFFF;
             }
 
+            .subtitleTag {
+                color: #60A5FA;
+            }
+
             .cardDescription {
-                color: #9CA3AF;
+                color: #D1D5DB;
             }
         }
 

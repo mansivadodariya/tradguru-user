@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './aiAssistant.module.scss';
 import Button from '@/components/button';
+import HistoryButton from '@/components/historyButton';
 import RemoveIcon from '@/icons/removeIcon';
 import DownIcon from '@/icons/downIcon';
 import { toast } from '@/components/toast';
@@ -652,9 +653,10 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                 icon={UploadIcon}
                                 onClick={handleCreateNew}
                             />
-                            <button className={styles.historyBtn} onClick={() => setHistoryModalOpen(true)}>
-                                {t('aiChat.history', 'History')}
-                            </button>
+                            <HistoryButton
+                                text={t('aiChat.history', 'History')}
+                                onClick={() => setHistoryModalOpen(true)}
+                            />
                         </div>
                     </div>
                     <div className={styles.chatBody}>
