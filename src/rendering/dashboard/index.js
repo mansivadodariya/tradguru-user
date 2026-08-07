@@ -139,12 +139,20 @@ export default function Dashboard() {
                 icon: iconOne
             },
             {
+                title: t('nav.aiStrategy', 'AI Strategy'),
+                desc: t('nav.aiStrategyDesc', 'Build, test and optimize AI-powered trading strategies.'),
+                cta: t('common.exploreNow', 'Explore Now'),
+                href: '/ai-strategy',
+                accent: styles.qaGreen,
+                icon: iconTwo
+            },
+            {
                 title: t('dashboard.askAssistant', 'Ask AI Chat'),
                 desc: t('aiChat.subtitle', 'Ask any trading or finance related question to AI.'),
                 cta: t('common.exploreNow', 'Ask Now'),
                 href: '/ai-assistant?tab=chat',
                 accent: styles.qaPurple,
-                icon: iconTwo
+                icon: iconThree
             },
             {
                 title: t('nav.economicCalendar', 'Economic Calendar'),
@@ -154,14 +162,7 @@ export default function Dashboard() {
                 accent: styles.qaOrange,
                 icon: iconFour
             },
-            {
-                title: t('nav.profile', 'Manage Profile'),
-                desc: t('common.learnMore', 'Update your personal information, account settings, and profile preferences easily.'),
-                cta: t('common.exploreNow', 'Manage Now'),
-                href: '/profile',
-                accent: styles.qaGreen,
-                icon: iconThree
-            }
+
         ],
         [t]
     );
