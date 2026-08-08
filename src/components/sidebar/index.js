@@ -68,7 +68,7 @@ const getMainNav = (t) => [
   },
   { label: t('nav.economicCalendar', 'Economic Calendar'), href: "/economic-calendar", icon: PricingIcon },
   { label: t('nav.creditHistory', 'Credit History'), href: "/credit-history", icon: CreditHistoryIcon },
-  { label: t('nav.plans', 'Subscription Plans'), href: "/plans", icon: PricingIcon },
+  // { label: t('nav.plans', 'Subscription Plans'), href: "/plans", icon: PricingIcon },
   { label: t('nav.broker', 'Broker'), href: "/broker", icon: BrokerIcon },
   { label: t('nav.profile', 'Profile'), href: "/profile", icon: SettingsIcon },
 ];
@@ -311,6 +311,7 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
             />
           ))}
         </div>
+        {/* Upgrade to pro section hidden
         {!isCollapsed ? (
           <div className={styles.sidebarBody}>
             <div className={styles.box}>
@@ -355,6 +356,7 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
             </button>
           </div>
         )}
+        */}
         <div className={styles.sidebarFooter} ref={profileRef}>
           <div
             className={`${styles.userProfileCard} ${isCollapsed ? styles.collapsedProfileCard : ''}`}

@@ -6,8 +6,9 @@ import styles from './plansSection.module.scss';
 
 export default function PlansSection() {
     return (
-        <section className={styles.plansSection} id="pricing">
-            <SubscriptionPlansView />
-        </section>
+        // <section className={styles.plansSection} id="pricing">
+        //     <SubscriptionPlansView />
+        // </section>
+        null
     );
 }
