@@ -124,12 +124,22 @@ async function request(path, options = {}, _isRetry = false) {
     return data;
 }
 
+import { getOrCreateDeviceId } from '@/lib/deviceId';
+
 export const authApi = {
-    signup: (body) =>
-        request('/auth/signup', {
+    signup: (body) => {
+        const deviceId = getOrCreateDeviceId();
+        const headers = deviceId ? { 'X-Device-Id': deviceId } : {};
+        return request('/auth/signup', {
             method: 'POST',
-            body: JSON.stringify({ ...body, role_id: DEFAULT_ROLE_ID }),
-        }),
+            headers,
+            body: JSON.stringify({
+                ...body,
+                role_id: DEFAULT_ROLE_ID,
+                ...(deviceId ? { device_id: deviceId } : {})
+            }),
+        });
+    },
 
     verifyEmail: (token) =>
         request(`/auth/verify-email?token=${encodeURIComponent(token)}`),
@@ -158,10 +168,29 @@ export const authApi = {
             body: JSON.stringify({ token, new_password }),
         }),
 
-    googleLogin: (credential) =>
-        request('/auth/google-login', {
+    googleLogin: (credential) => {
+        const deviceId = getOrCreateDeviceId();
+        const headers = deviceId ? { 'X-Device-Id': deviceId } : {};
+        return request('/auth/google-login', {
             method: 'POST',
-            body: JSON.stringify({ credential }),
+            headers,
+            body: JSON.stringify({
+                credential,
+                ...(deviceId ? { device_id: deviceId } : {})
+            }),
+        });
+    },
+
+    sendWhatsAppOtp: (phone_number) =>
+        request('/auth/send-whatsapp-otp', {
+            method: 'POST',
+            body: JSON.stringify({ phone_number }),
+        }),
+
+    verifyWhatsAppOtp: (phone_number, otp) =>
+        request('/auth/verify-whatsapp-otp', {
+            method: 'POST',
+            body: JSON.stringify({ phone_number, otp }),
         }),
 };
 

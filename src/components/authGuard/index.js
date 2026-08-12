@@ -21,7 +21,7 @@ export default function AuthGuard({ children }) {
                 try {
                     const { data, error } = await supabase
                         .from('users')
-                        .select('phone_number, is_active')
+                        .select('phone_number, is_phone_verified, is_active')
                         .eq('id', uid)
                         .single();
 
@@ -50,20 +50,22 @@ export default function AuthGuard({ children }) {
                         return;
                     }
 
-                    const user = getStoredUser();
-                    if (!user?.phone_number) {
-                        if (!data?.phone_number) {
-                            console.log('AuthGuard: No phone number, redirecting to login with need_phone');
-                            router.replace(`/login?need_phone=true&uid=${uid}`);
-                        } else {
-                            console.log('AuthGuard: Phone number found, updating session');
-                            if (user) {
-                                user.phone_number = data.phone_number;
-                                localStorage.setItem('user', JSON.stringify(user));
-                            }
-                            document.cookie = 'has_phone=true; path=/; SameSite=Lax';
-                        }
+                    // Strict Phone Verification Guard:
+                    // Only users with verified phone numbers (is_phone_verified === true) can navigate to dashboard
+                    if (!data.phone_number || data.is_phone_verified !== true) {
+                        console.log('AuthGuard: Phone number missing or not verified (is_phone_verified is false), redirecting to verification popup flow');
+                        router.replace(`/login?need_phone=true&uid=${uid}`);
+                        return;
                     }
+
+                    // Sync verified status to localStorage and cookie
+                    const user = getStoredUser();
+                    if (user) {
+                        user.phone_number = data.phone_number;
+                        user.is_phone_verified = true;
+                        localStorage.setItem('user', JSON.stringify(user));
+                    }
+                    document.cookie = 'has_phone=true; path=/; SameSite=Lax';
                 } catch (e) {
                     console.error('AuthGuard status check error:', e);
                 }

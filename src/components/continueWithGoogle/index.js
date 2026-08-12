@@ -159,10 +159,27 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard', onPendingPhone }) => {
                 phone_number: phoneNumber,
             });
 
+            // Update Supabase users table directly to set is_phone_verified = true
+            const activeUid = stored.id || (typeof window !== 'undefined' ? localStorage.getItem('user_id') : null);
+            if (supabase && activeUid) {
+                try {
+                    await supabase
+                        .from('users')
+                        .update({
+                            phone_number: phoneNumber,
+                            is_phone_verified: true
+                        })
+                        .eq('id', activeUid);
+                } catch (dbErr) {
+                    console.warn("Supabase direct phone verification update error:", dbErr);
+                }
+            }
+
             // Update user in localStorage
             if (typeof window !== 'undefined') {
                 const parsed = JSON.parse(localStorage.getItem('user') || '{}');
                 parsed.phone_number = phoneNumber;
+                parsed.is_phone_verified = true;
                 localStorage.setItem('user', JSON.stringify(parsed));
                 document.cookie = 'has_phone=true; path=/; SameSite=Lax';
                 window.dispatchEvent(new CustomEvent('user:updated'));

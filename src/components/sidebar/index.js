@@ -14,6 +14,7 @@ import { clearAuthSession, getStoredUser } from '@/lib/authSession';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { getBidiProps } from '@/lib/bidi';
+import { supabase } from '@/lib/supabaseClient';
 const UpgradeIcon = '/assets/icons/Upgrade.svg';
 
 const SidebarLogo = "/assets/logo/logo.svg";
@@ -68,7 +69,7 @@ const getMainNav = (t) => [
   },
   { label: t('nav.economicCalendar', 'Economic Calendar'), href: "/economic-calendar", icon: PricingIcon },
   { label: t('nav.creditHistory', 'Credit History'), href: "/credit-history", icon: CreditHistoryIcon },
-  // { label: t('nav.plans', 'Subscription Plans'), href: "/plans", icon: PricingIcon },
+  { label: t('nav.plans', 'Subscription Plans'), href: "/plans", icon: PricingIcon },
   { label: t('nav.broker', 'Broker'), href: "/broker", icon: BrokerIcon },
   { label: t('nav.profile', 'Profile'), href: "/profile", icon: SettingsIcon },
 ];
@@ -211,6 +212,32 @@ const LogoutIcon = () => (
 
 import { motion, AnimatePresence } from 'framer-motion';
 
+const NavSkeleton = ({ count = 6, isCollapsed }) => {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '0 8px', margin: '8px 0' }}>
+      {Array.from({ length: count }).map((_, i) => (
+        <div
+          key={i}
+          style={{
+            height: '42px',
+            borderRadius: '8px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 12px',
+            gap: '12px'
+          }}
+        >
+          <div style={{ width: '20px', height: '20px', borderRadius: '4px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
+          {!isCollapsed && (
+            <div style={{ width: '65%', height: '14px', borderRadius: '4px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
   const pathname = usePathname();
   const router = useRouter();
@@ -220,7 +247,42 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [visibleTabNames, setVisibleTabNames] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = sessionStorage.getItem('visible_tab_names');
+        if (cached) return new Set(JSON.parse(cached));
+      } catch (e) { /* ignore */ }
+    }
+    return null;
+  });
+  const [tabsLoading, setTabsLoading] = useState(() => visibleTabNames === null);
   const profileRef = useRef(null);
+
+  useEffect(() => {
+    async function loadVisibleTabs() {
+      if (!supabase) {
+        setTabsLoading(false);
+        return;
+      }
+      try {
+        const { data, error } = await supabase.rpc('get_visible_dashboard_tabs');
+        if (!error && Array.isArray(data)) {
+          const arr = data.map(t => (t.name || '').toLowerCase());
+          const names = new Set(arr);
+          setVisibleTabNames(names);
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem('visible_tab_names', JSON.stringify(arr));
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to load visible tabs in sidebar:', e);
+      } finally {
+        setTabsLoading(false);
+      }
+    }
+    loadVisibleTabs();
+  }, []);
 
   useEffect(() => {
     function loadUser() {
@@ -266,8 +328,26 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
     router.replace('/login');
   };
 
+  const ROUTE_TAB_MAP = {
+    '/dashboard': 'Dashboard',
+    '/trade-snap': 'AI Trade',
+    '/ai-assistant': 'AI Chat',
+    '/ai-strategy': 'AI Strategy',
+    '/economic-calendar': 'Economic Calendar',
+    '/credit-history': 'Credit History',
+    '/plans': 'Subscription Plans',
+    '/broker': 'Broker',
+    '/profile': 'Profile',
+  };
+
   const logoSrc = theme === 'dark' ? SidebarLogoWhite : SidebarLogo;
-  const mainNav = getMainNav(t);
+  const rawNav = getMainNav(t);
+  const mainNav = visibleTabNames
+    ? rawNav.filter((item) => {
+        const tabName = ROUTE_TAB_MAP[item.href] || item.label;
+        return visibleTabNames.has(tabName.toLowerCase());
+      })
+    : [];
 
   return (
     <>
@@ -301,15 +381,19 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
           )}
         </div>
         <div className={styles.sidebarmenu}>
-          {mainNav.map((item) => (
-            <NavItem
-              key={item.href}
-              item={item}
-              pathname={pathname}
-              onNavigate={handleNavigate}
-              isCollapsed={isCollapsed}
-            />
-          ))}
+          {tabsLoading && !visibleTabNames ? (
+            <NavSkeleton count={6} isCollapsed={isCollapsed} />
+          ) : (
+            mainNav.map((item) => (
+              <NavItem
+                key={item.href}
+                item={item}
+                pathname={pathname}
+                onNavigate={handleNavigate}
+                isCollapsed={isCollapsed}
+              />
+            ))
+          )}
         </div>
         {/* Upgrade to pro section hidden
         {!isCollapsed ? (
