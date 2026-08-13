@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import styles from './signup.module.scss';
 import Input from '@/components/input';
 import PhoneInput from '@/components/phoneInput';
-import WhatsAppOtpModal from '@/components/whatsappOtpModal';
+import FirebasePhoneModal from '@/components/firebasePhoneModal';
 import Button from '@/components/button';
 import ContinueWithGoogle from '@/components/continueWithGoogle';
 import { getAuthRedirectTarget, getStoredUser, getStoredUserId, clearAuthSession } from '@/lib/authSession';
@@ -387,7 +387,7 @@ const Signup = () => {
                 </div>
             </div>
 
-            <WhatsAppOtpModal
+            <FirebasePhoneModal
                 isOpen={showOtpModal}
                 phoneNumber={phoneNumber}
                 onClose={() => setShowOtpModal(false)}

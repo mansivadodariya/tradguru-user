@@ -10,7 +10,7 @@ import PricingIcon from "@/icons/pricingIcon";
 import SettingsIcon from "@/icons/settingsIcon";
 import AiIcon from "@/icons/aiIcon";
 import BrokerIcon from "@/icons/brokerIcon";
-import { clearAuthSession, getStoredUser } from '@/lib/authSession';
+import { clearAuthSession, getStoredUser, getStoredUserId, hydrateUserFromProfile } from '@/lib/authSession';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { getBidiProps } from '@/lib/bidi';
@@ -285,9 +285,15 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
   }, []);
 
   useEffect(() => {
-    function loadUser() {
+    async function loadUser() {
       const stored = getStoredUser();
       if (stored) setUser(stored);
+
+      const uid = getStoredUserId();
+      if (uid && (!stored?.first_name && !stored?.last_name && !stored?.name)) {
+        const hydrated = await hydrateUserFromProfile(uid, stored);
+        if (hydrated) setUser(hydrated);
+      }
     }
     loadUser();
 
@@ -312,6 +318,10 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
   const initials = (() => {
     if (firstName || lastName) {
       return `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase();
+    }
+    if (user?.name) {
+      const parts = user.name.trim().split(/\s+/);
+      return `${parts[0]?.[0] || ''}${parts[1]?.[0] || ''}`.toUpperCase() || 'U';
     }
     if (user?.email) {
       return user.email.slice(0, 2).toUpperCase();

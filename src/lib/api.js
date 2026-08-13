@@ -192,6 +192,16 @@ export const authApi = {
             method: 'POST',
             body: JSON.stringify({ phone_number, otp }),
         }),
+
+    verifyPhoneFirebase: (id_token, userId = '') =>
+        request('/auth/verify-phone-firebase', {
+            method: 'POST',
+            headers: {
+                ...getAuthHeaders(),
+                ...(userId ? { 'X-User-Id': userId } : {}),
+            },
+            body: JSON.stringify({ id_token, user_id: userId }),
+        }),
 };
 
 function getAuthHeaders() {

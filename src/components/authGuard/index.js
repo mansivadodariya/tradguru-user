@@ -64,6 +64,7 @@ export default function AuthGuard({ children }) {
                         user.phone_number = data.phone_number;
                         user.is_phone_verified = true;
                         localStorage.setItem('user', JSON.stringify(user));
+                        window.dispatchEvent(new CustomEvent('user:updated'));
                     }
                     document.cookie = 'has_phone=true; path=/; SameSite=Lax';
                 } catch (e) {

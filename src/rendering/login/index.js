@@ -11,7 +11,7 @@ import { persistAuthSession, getAuthRedirectTarget, getStoredUser, getStoredUser
 import { validateLogin } from '@/lib/validation';
 import { toast } from '@/components/toast';
 import PhoneInput from '@/components/phoneInput';
-import WhatsAppOtpModal from '@/components/whatsappOtpModal';
+import FirebasePhoneModal from '@/components/firebasePhoneModal';
 import { isValidPhoneNumber } from 'react-phone-number-input';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -288,7 +288,7 @@ const Login = () => {
                 </div>
             </div>
 
-            <WhatsAppOtpModal
+            <FirebasePhoneModal
                 isOpen={showOtpModal}
                 phoneNumber={phoneNumber}
                 onClose={() => setShowOtpModal(false)}

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styles from './profile.module.scss';
 import Input from '@/components/input';
 import PhoneInput from '@/components/phoneInput';
-import WhatsAppOtpModal from '@/components/whatsappOtpModal';
+import FirebasePhoneModal from '@/components/firebasePhoneModal';
 import Button from '@/components/button';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from '@/components/toast';
@@ -547,7 +547,7 @@ export default function Profile() {
                 )}
             </AnimatePresence>
 
-            <WhatsAppOtpModal
+            <FirebasePhoneModal
                 isOpen={showOtpModal}
                 phoneNumber={form.phone_number}
                 onClose={() => setShowOtpModal(false)}

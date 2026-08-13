@@ -1,0 +1,236 @@
+@use '../../scss/main.scss' as *;
+@use '../../scss/breakpoints/breakpoints.scss' as *;
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(18, 18, 18, 0.45);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
+}
+
+.modalCard {
+    background: #FFFFFF;
+    border: 1px solid rgba(26, 26, 26, 0.14);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 460px;
+    padding: 36px 28px 32px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    color: #121212;
+    overflow: hidden;
+
+    @include respond-to('sm') {
+        border-radius: 14px;
+        padding: 28px 18px 24px;
+    }
+}
+
+.topGlowLayer {
+    border-radius: 442px;
+    background: #0B56DB;
+    filter: blur(46.8px);
+    width: 90%;
+    height: 18px;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.closeBtn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #F1F5F9;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: #64748B;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    z-index: 10;
+
+    &:hover {
+        background: #E2E8F0;
+        color: #0F172A;
+    }
+}
+
+.modalBody {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.successIconWrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #DCFCE7;
+    border: 2px solid #86EFAC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #121212;
+    margin: 0 0 8px;
+    letter-spacing: -0.3px;
+
+    @include respond-to('sm') {
+        font-size: 20px;
+    }
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #64748B;
+    line-height: 1.5;
+    margin: 0 0 20px;
+    max-width: 380px;
+
+    strong {
+        color: #0B56DB;
+        font-weight: 700;
+    }
+}
+
+.phoneInputContainer {
+    width: 100%;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.customPhoneInput {
+    display: flex;
+    align-items: center;
+    background: #F8FAFC;
+    border: 1px solid rgba(26, 26, 26, 0.15);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #121212;
+    transition: all 0.2s ease;
+
+    &:focus-within {
+        border-color: #0B56DB;
+        box-shadow: 0 0 0 3px rgba(11, 86, 219, 0.15);
+        background: #FFFFFF;
+    }
+
+    :global(.PhoneInputInput) {
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #121212;
+        font-size: 15px;
+        font-weight: 500;
+        width: 100%;
+        margin-left: 8px;
+
+        &::placeholder {
+            color: #94A3B8;
+        }
+    }
+
+    :global(.PhoneInputCountrySelect) {
+        background: #FFFFFF;
+        color: #121212;
+    }
+}
+
+.otpInputsRow {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.otpBox {
+    width: 48px;
+    height: 52px;
+    border-radius: 8px;
+    background: #F8FAFC;
+    border: 1px solid rgba(26, 26, 26, 0.15);
+    color: #121212;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+    transition: all 0.2s ease;
+
+    &:focus {
+        border-color: #0B56DB;
+        box-shadow: 0 0 0 3px rgba(11, 86, 219, 0.15);
+        background: #FFFFFF;
+        transform: translateY(-1px);
+    }
+
+    &.filled {
+        background: #EBF2FC;
+        border-color: #0B56DB;
+        color: #0B56DB;
+    }
+}
+
+.errorBanner {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    color: #DC2626;
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    width: 100%;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.actionBtnWrapper {
+    width: 100%;
+}
+
+.resendRow {
+    margin-top: 16px;
+    font-size: 13px;
+    color: #64748B;
+
+    strong {
+        color: #0B56DB;
+    }
+}
+
+.resendBtn {
+    background: none;
+    border: none;
+    color: #0B56DB;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+
+    &:hover:not(:disabled) {
+        text-decoration: underline;
+    }
+}
