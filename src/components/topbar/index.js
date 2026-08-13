@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './topbar.module.scss';
 import { dashboardApi } from '@/lib/api';
-import { getStoredUser, getStoredUserId, clearAuthSession } from '@/lib/authSession';
+import { getStoredUser, getStoredUserId, clearAuthSession, hydrateUserFromProfile } from '@/lib/authSession';
 import { CREDITS_UPDATED_EVENT } from '@/lib/credits';
 import { supabase } from '@/lib/supabaseClient';
 import { useTheme } from '@/context/ThemeContext';
@@ -31,37 +31,7 @@ const Topbar = ({ onMenuClick }) => {
         }
     };
 
-    const hydrateUserFromProfile = async (userId, currentUser) => {
-        if (!userId) return currentUser || null;
-        const hasBasicIdentity = Boolean(
-            currentUser?.first_name || currentUser?.last_name || currentUser?.name || currentUser?.email
-        );
-        if (hasBasicIdentity) return currentUser;
 
-        try {
-            const { data, error } = await supabase
-                .from('users')
-                .select('first_name, last_name, email')
-                .eq('id', userId)
-                .single();
-
-            if (error || !data) return currentUser || { id: userId, user_id: userId };
-
-            const mergedUser = {
-                ...(currentUser || {}),
-                id: currentUser?.id || currentUser?.user_id || userId,
-                user_id: currentUser?.user_id || currentUser?.id || userId,
-                first_name: data.first_name || currentUser?.first_name || '',
-                last_name: data.last_name || currentUser?.last_name || '',
-                email: data.email || currentUser?.email || '',
-            };
-
-            localStorage.setItem('user', JSON.stringify(mergedUser));
-            return mergedUser;
-        } catch {
-            return currentUser || { id: userId, user_id: userId };
-        }
-    };
 
     useEffect(() => {
         const init = async () => {

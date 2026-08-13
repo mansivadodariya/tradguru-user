@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styles from './profile.module.scss';
 import Input from '@/components/input';
 import PhoneInput from '@/components/phoneInput';
+import FirebasePhoneModal from '@/components/firebasePhoneModal';
 import Button from '@/components/button';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from '@/components/toast';
@@ -48,6 +49,8 @@ export default function Profile() {
     const [saving, setSaving] = useState(false);
     const [lastLogins, setLastLogins] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showOtpModal, setShowOtpModal] = useState(false);
+    const [initialPhone, setInitialPhone] = useState('');
 
     const [form, setForm] = useState({
         first_name: '',
@@ -63,6 +66,7 @@ export default function Profile() {
         if (!user) { router.replace('/login'); return; }
         const id = user.id || user.user_id || '';
         setUserId(id);
+        setInitialPhone(user.phone_number || '');
 
         setForm({
             first_name: user.first_name || '',
@@ -97,6 +101,7 @@ export default function Profile() {
                         if (parsedDbLogins.length > 0) {
                             setLastLogins(parsedDbLogins.slice(-5));
                         }
+                        if (data.phone_number) setInitialPhone(data.phone_number);
                         setForm((prev) => ({
                             first_name: data.first_name || prev.first_name || '',
                             last_name: data.last_name || prev.last_name || '',
@@ -113,6 +118,7 @@ export default function Profile() {
             const apiRes = await profileApi.getProfile();
             const profileData = apiRes?.data || apiRes || {};
             if (profileData) {
+                if (profileData.phone_number) setInitialPhone(profileData.phone_number);
                 setForm((prev) => ({
                     first_name: profileData.first_name || prev.first_name || '',
                     last_name: profileData.last_name || prev.last_name || '',
@@ -194,11 +200,7 @@ export default function Profile() {
         setErrors((prev) => ({ ...prev, phone_number: '' }));
     };
 
-    const handleSave = async (e) => {
-        e.preventDefault();
-        const errs = validate();
-        if (Object.keys(errs).length) { setErrors(errs); return; }
-
+    const performSaveProfile = async () => {
         setSaving(true);
         try {
             const apiRes = await profileApi.updateProfile({
@@ -208,13 +210,30 @@ export default function Profile() {
             });
 
             const stored = getUserFromStorage() || {};
+            if (supabase && stored?.id) {
+                try {
+                    await supabase
+                        .from('users')
+                        .update({
+                            phone_number: form.phone_number,
+                            is_phone_verified: true
+                        })
+                        .eq('id', stored.id);
+                } catch (dbErr) {
+                    console.warn("Supabase direct phone verification update error:", dbErr);
+                }
+            }
+
             const updated = {
                 ...stored,
                 first_name: form.first_name.trim(),
                 last_name: form.last_name.trim(),
                 phone_number: form.phone_number,
+                is_phone_verified: true
             };
             localStorage.setItem('user', JSON.stringify(updated));
+            document.cookie = 'has_phone=true; path=/; SameSite=Lax';
+            setInitialPhone(form.phone_number);
             window.dispatchEvent(new Event('user:updated'));
 
             toast.success(apiRes?.message || 'Profile updated successfully.');
@@ -222,6 +241,20 @@ export default function Profile() {
             toast.error(err.message || 'Failed to update profile.');
         } finally {
             setSaving(false);
+            setShowOtpModal(false);
+        }
+    };
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+        const errs = validate();
+        if (Object.keys(errs).length) { setErrors(errs); return; }
+
+        // Check if phone number is new or changed
+        if (form.phone_number !== initialPhone) {
+            setShowOtpModal(true);
+        } else {
+            performSaveProfile();
         }
     };
 
@@ -513,6 +546,13 @@ export default function Profile() {
                     </div>
                 )}
             </AnimatePresence>
+
+            <FirebasePhoneModal
+                isOpen={showOtpModal}
+                phoneNumber={form.phone_number}
+                onClose={() => setShowOtpModal(false)}
+                onSuccess={performSaveProfile}
+            />
         </div>
     );
 }

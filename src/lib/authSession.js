@@ -68,6 +68,97 @@ export function getStoredUser() {
     return null;
 }
 
+import { supabase } from '@/lib/supabaseClient';
+
+/**
+ * Hydrate missing user identity fields (first_name, last_name, email, profile_picture)
+ * from Supabase or backend API and update localStorage & fire user:updated event.
+ */
+export async function hydrateUserFromProfile(userId, currentUser = null) {
+    if (typeof window === 'undefined') return currentUser;
+    const uid = userId || getStoredUserId();
+    if (!uid) return currentUser;
+
+    const existing = currentUser || getStoredUser() || {};
+    const hasIdentity = Boolean(
+        existing?.first_name || existing?.last_name || existing?.name || existing?.email
+    );
+
+    // If identity fields already exist, return existing user
+    if (hasIdentity) {
+        return existing;
+    }
+
+    try {
+        let profileData = null;
+
+        if (supabase) {
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('first_name, last_name, email, name, phone_number, profile_picture')
+                    .eq('id', uid)
+                    .maybeSingle();
+
+                if (data && !error) {
+                    profileData = data;
+                }
+            } catch (sbErr) {
+                console.warn('Supabase profile hydration warning:', sbErr);
+            }
+        }
+
+        if (!profileData || (!profileData.first_name && !profileData.last_name && !profileData.name && !profileData.email)) {
+            const token = localStorage.getItem('access_token');
+            const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1` : '';
+            if (token && baseUrl) {
+                try {
+                    const res = await fetch(`${baseUrl}/profile`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`,
+                            'ngrok-skip-browser-warning': 'true',
+                        },
+                    });
+                    if (res.ok) {
+                        const resJson = await res.json();
+                        profileData = resJson?.data || resJson;
+                    }
+                } catch (apiErr) {
+                    console.warn('Backend profile fetch error:', apiErr);
+                }
+            }
+        }
+
+        if (profileData) {
+            const fullName = profileData.name || profileData.full_name || '';
+            const nameParts = fullName.trim().split(/\s+/);
+            const firstName = profileData.first_name || (nameParts[0] !== '' ? nameParts[0] : '') || existing.first_name || '';
+            const lastName = profileData.last_name || (nameParts.length > 1 ? nameParts.slice(1).join(' ') : '') || existing.last_name || '';
+
+            const mergedUser = {
+                ...existing,
+                id: uid,
+                user_id: uid,
+                first_name: firstName,
+                last_name: lastName,
+                name: profileData.name || existing.name || (firstName || lastName ? `${firstName} ${lastName}`.trim() : ''),
+                email: profileData.email || existing.email || '',
+                phone_number: profileData.phone_number || existing.phone_number || '',
+                profile_picture: profileData.profile_picture || profileData.picture || existing.profile_picture || '',
+            };
+
+            localStorage.setItem('user', JSON.stringify(mergedUser));
+            window.dispatchEvent(new CustomEvent('user:updated'));
+            return mergedUser;
+        }
+    } catch (e) {
+        console.warn('Failed to hydrate user profile:', e);
+    }
+
+    return existing;
+}
+
 /**
  * Persist tokens + user after email or Google login.
  * @param {object} payload API body (`{ data: { access_token, user_id, user?, ... } }` or flat)
@@ -121,8 +212,8 @@ export function persistAuthSession(payload) {
     const sessionUser = {
         id: userId || user.id || user.user_id || '',
         user_id: userId || user.user_id || user.id || '',
-        first_name: user.first_name || data.first_name || nameParts[0] || '',
-        last_name: user.last_name || data.last_name || nameParts.slice(1).join(' ') || '',
+        first_name: user.first_name || data.first_name || (nameParts[0] !== '' ? nameParts[0] : '') || '',
+        last_name: user.last_name || data.last_name || (nameParts.length > 1 ? nameParts.slice(1).join(' ') : '') || '',
         email: user.email || data.email || '',
         phone_number: user.phone_number || data.phone_number || '',
         referral_code: user.referral_code || data.referral_code || '',
@@ -134,6 +225,12 @@ export function persistAuthSession(payload) {
 
     localStorage.setItem('user', JSON.stringify(sessionUser));
     window.dispatchEvent(new CustomEvent('user:updated'));
+
+    // If sessionUser is missing identity info, trigger async profile hydration
+    if (sessionUser.id && (!sessionUser.first_name && !sessionUser.last_name && !sessionUser.name)) {
+        hydrateUserFromProfile(sessionUser.id, sessionUser);
+    }
+
     return sessionUser;
 }
 
@@ -146,3 +243,21 @@ export function clearAuthSession() {
     document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
     document.cookie = 'has_phone=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
 }
+
+export function setPhoneVerifiedInSession(phoneNumber) {
+    if (typeof window === 'undefined') return;
+    if (phoneNumber) {
+        document.cookie = 'has_phone=true; path=/; SameSite=Lax';
+        const stored = localStorage.getItem('user');
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                parsed.phone_number = phoneNumber;
+                parsed.is_phone_verified = true;
+                localStorage.setItem('user', JSON.stringify(parsed));
+            } catch (_) {}
+        }
+        window.dispatchEvent(new CustomEvent('user:updated'));
+    }
+}
+

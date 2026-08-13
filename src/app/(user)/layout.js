@@ -3,6 +3,7 @@ import Sidebar from '@/components/sidebar';
 import Topbar from '@/components/topbar';
 import AuthGuard from '@/components/authGuard';
 import React, { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { ThemeProvider } from '@/context/ThemeContext';
 import NeweraCreditsModal from '@/components/neweraCreditsModal';
 import { extractAvailableCredits, CREDITS_UPDATED_EVENT, notifyCreditsUpdated, refreshCreditsFromServer } from '@/lib/credits';
@@ -12,11 +13,26 @@ import { dashboardApi, neweraApi } from '@/lib/api';
 import { supabase } from '@/lib/supabaseClient';
 import './layout.scss';
 
+const ROUTE_TAB_MAP = {
+    '/dashboard': 'Dashboard',
+    '/trade-snap': 'AI Trade',
+    '/ai-assistant': 'AI Chat',
+    '/ai-strategy': 'AI Strategy',
+    '/economic-calendar': 'Economic Calendar',
+    '/credit-history': 'Credit History',
+    '/plans': 'Subscription Plans',
+    '/broker': 'Broker',
+    '/profile': 'Profile',
+};
+
 const layout = ({ children }) => {
+    const pathname = usePathname();
+    const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [showCreditsModal, setShowCreditsModal] = useState(false);
     const [userId, setUserId] = useState('');
+    const [isTabAllowed, setIsTabAllowed] = useState(true);
     const isCheckingRef = React.useRef(false);
 
     useEffect(() => {
@@ -128,6 +144,53 @@ const layout = ({ children }) => {
             document.removeEventListener('visibilitychange', handleTabVisibilityChange);
         };
     }, []);
+
+    useEffect(() => {
+        const checkPermission = async () => {
+            if (!supabase) return;
+            const currentTabName = Object.entries(ROUTE_TAB_MAP).find(([route]) =>
+                pathname === route || pathname.startsWith(`${route}/`)
+            )?.[1];
+
+            if (!currentTabName) {
+                setIsTabAllowed(true);
+                return;
+            }
+
+            try {
+                const { data: visibleTabs, error } = await supabase.rpc('get_visible_dashboard_tabs');
+                if (!error && Array.isArray(visibleTabs)) {
+                    const isVisible = visibleTabs.some(
+                        (tab) => tab.name.toLowerCase() === currentTabName.toLowerCase() && tab.is_visible === true
+                    );
+                    setIsTabAllowed(isVisible);
+                } else {
+                    setIsTabAllowed(true);
+                }
+            } catch (err) {
+                setIsTabAllowed(true);
+            }
+        };
+
+        checkPermission();
+    }, [pathname]);
+
+    if (!isTabAllowed) {
+        return (
+            <AuthGuard>
+                <ThemeProvider>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', textAlign: 'center', padding: '20px' }}>
+                        <h1 style={{ fontSize: '5rem', marginBottom: '0.5rem', color: '#ef4444', fontWeight: '800' }}>404</h1>
+                        <h2 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Tab Disabled / Access Denied</h2>
+                        <p style={{ color: '#9ca3af', marginBottom: '1.5rem' }}>This page has been turned off by administrator.</p>
+                        <a href="/dashboard" style={{ padding: '10px 24px', background: '#2563eb', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' }}>
+                            Back to Dashboard
+                        </a>
+                    </div>
+                </ThemeProvider>
+            </AuthGuard>
+        );
+    }
 
     return (
         <AuthGuard>

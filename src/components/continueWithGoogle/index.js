@@ -13,6 +13,7 @@ import { supabase } from '@/lib/supabaseClient';
 import PhoneInput from '@/components/phoneInput';
 import Button from '@/components/button';
 import { isValidPhoneNumber } from 'react-phone-number-input';
+import FirebasePhoneModal from '@/components/firebasePhoneModal';
 
 const GoogleIcon = '/assets/icons/google.svg';
 
@@ -159,10 +160,27 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard', onPendingPhone }) => {
                 phone_number: phoneNumber,
             });
 
+            // Update Supabase users table directly to set is_phone_verified = true
+            const activeUid = stored.id || (typeof window !== 'undefined' ? localStorage.getItem('user_id') : null);
+            if (supabase && activeUid) {
+                try {
+                    await supabase
+                        .from('users')
+                        .update({
+                            phone_number: phoneNumber,
+                            is_phone_verified: true
+                        })
+                        .eq('id', activeUid);
+                } catch (dbErr) {
+                    console.warn("Supabase direct phone verification update error:", dbErr);
+                }
+            }
+
             // Update user in localStorage
             if (typeof window !== 'undefined') {
                 const parsed = JSON.parse(localStorage.getItem('user') || '{}');
                 parsed.phone_number = phoneNumber;
+                parsed.is_phone_verified = true;
                 localStorage.setItem('user', JSON.stringify(parsed));
                 document.cookie = 'has_phone=true; path=/; SameSite=Lax';
                 window.dispatchEvent(new CustomEvent('user:updated'));
@@ -280,39 +298,21 @@ const ContinueWithGoogle = ({ redirectTo = '/dashboard', onPendingPhone }) => {
                 />
             </div>
 
-            {showPhoneModal && (
-                <div className={styles.modalOverlay}>
-                    <div className={styles.modalContent}>
-                        <div className={styles.logoWrapper}>
-                            <img src="/assets/icons/auth.svg" alt="Logo" className={styles.logo} />
-                        </div>
-                        <h3>Complete Your Profile</h3>
-                        <p className={styles.modalSub}>Please enter your phone number to continue.</p>
-                        
-                        <form onSubmit={handleSavePhoneNumber} noValidate>
-                            <PhoneInput
-                                label="Phone Number"
-                                value={phoneNumber}
-                                onChange={(val) => {
-                                    setPhoneNumber(val || '');
-                                    setPhoneError('');
-                                }}
-                                placeholder="Enter phone number"
-                                error={phoneError}
-                                defaultCountry="AE"
-                            />
-                            <div className={styles.modalActions}>
-                                <Button
-                                    text={savingPhone ? 'Saving...' : 'Continue'}
-                                    type="submit"
-                                    disabled={savingPhone}
-                                    fullWidth
-                                />
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            <FirebasePhoneModal
+                isOpen={showPhoneModal}
+                phoneNumber={phoneNumber}
+                onClose={() => setShowPhoneModal(false)}
+                onSuccess={() => {
+                    setShowPhoneModal(false);
+                    const target = redirectRef.current || '/dashboard';
+                    if (typeof window !== 'undefined') {
+                        window.location.assign(target);
+                    } else {
+                        router.replace(target);
+                        router.refresh();
+                    }
+                }}
+            />
         </div>
     );
 };
