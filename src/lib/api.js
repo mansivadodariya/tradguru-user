@@ -95,21 +95,26 @@ async function request(path, options = {}, _isRetry = false) {
             err.status = 401;
             throw err;
         }
-        let errorMessage = data?.detail?.message || data?.message || 'Something went wrong';
-        // Handle string detail that may contain embedded JSON with msg
+        let errorMessage = null;
+
+        // Handle string detail that may contain plain string or embedded JSON
         if (typeof data?.detail === 'string') {
             try {
                 const jsonMatch = data.detail.match(/\{[\s\S]*\}/);
                 if (jsonMatch) {
                     const parsed = JSON.parse(jsonMatch[0]);
-                    if (parsed?.msg) {
-                        errorMessage = parsed.msg;
-                    }
+                    errorMessage = parsed?.msg || parsed?.detail || parsed?.message;
                 }
-            } catch (_) {
+            } catch (_) {}
+            if (!errorMessage) {
                 errorMessage = data.detail;
             }
         }
+
+        if (!errorMessage) {
+            errorMessage = data?.detail?.message || data?.message || (typeof data?.detail === 'string' ? data.detail : null) || data?.error || 'Something went wrong';
+        }
+
         const err = new Error(errorMessage);
         err.detail = data?.detail;
         err.status = res.status;

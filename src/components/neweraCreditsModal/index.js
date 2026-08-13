@@ -350,11 +350,14 @@ export default function NeweraCreditsModal({ userId, onClose, onSuccess }) {
 
                 toast.success('Account linked successfully! Welcome credits will update shortly.');
             } else {
-                setError(res.message || 'Failed to link account.');
+                const apiMsg = res.message || res.detail || 'Failed to link account.';
+                setError(apiMsg);
+                toast.error(apiMsg);
             }
         } catch (err) {
-            setError(err?.message || 'An error occurred. Please try again.');
-            toast.error(err?.message || 'Failed to link Newera account.');
+            const apiMsg = err?.detail || err?.message || 'An error occurred. Please try again.';
+            setError(apiMsg);
+            toast.error(apiMsg);
         } finally {
             setSubmitting(false);
         }
