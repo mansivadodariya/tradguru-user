@@ -1,22 +1,38 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
 import { createChart, CandlestickSeries, LineSeries, AreaSeries } from 'lightweight-charts';
 import styles from './aiAssistant.module.scss';
 import { toast } from '@/components/toast';
+import { useTheme } from '@/context/ThemeContext';
 
-// Available symbols & timeframes
-const POPULAR_SYMBOLS = [
-    { label: 'XAU/USD (Gold)', value: 'XAUUSD' },
-    { label: 'EUR/USD', value: 'EURUSD' },
-    { label: 'GBP/USD', value: 'GBPUSD' },
-    { label: 'BTC/USD', value: 'BTCUSD' },
-    { label: 'ETH/USD', value: 'ETHUSD' },
-    { label: 'USD/JPY', value: 'USDJPY' },
-    { label: 'US30 (Dow Jones)', value: 'US30' },
+// Categorized Symbol Groups (LuxAlgo / TradingView style)
+export const PAIR_GROUPS = [
+    {
+        label: 'MAJOR PAIRS',
+        pairs: ['EUR/USD', 'USD/JPY', 'GBP/USD', 'USD/CHF', 'AUD/USD', 'USD/CAD', 'NZD/USD', 'XAU/USD'],
+    },
+    {
+        label: 'EURO CROSSES',
+        pairs: ['EUR/GBP', 'EUR/CHF', 'EUR/JPY', 'EUR/AUD', 'EUR/CAD', 'EUR/NZD'],
+    },
+    {
+        label: 'POUND CROSSES',
+        pairs: ['GBP/JPY', 'GBP/AUD', 'GBP/CAD', 'GBP/CHF', 'GBP/NZD'],
+    },
+    {
+        label: 'YEN CROSSES',
+        pairs: ['CHF/JPY', 'CAD/JPY', 'AUD/JPY', 'NZD/JPY'],
+    },
+    {
+        label: 'OTHER CROSSES',
+        pairs: ['AUD/CHF', 'AUD/CAD', 'AUD/NZD', 'CAD/CHF', 'NZD/CHF'],
+    },
 ];
 
-const TIMEFRAMES = [
+export const ALL_PAIRS = PAIR_GROUPS.flatMap((g) => g.pairs);
+
+export const TIMEFRAMES = [
     { label: '1m', value: '1m' },
     { label: '5m', value: '5m' },
     { label: '15m', value: '15m' },
@@ -26,7 +42,7 @@ const TIMEFRAMES = [
     { label: '1d', value: '1d' },
 ];
 
-const CHART_TYPES = [
+export const CHART_TYPES = [
     { label: 'Candlestick', value: 'candlestick' },
     { label: 'Line', value: 'line' },
     { label: 'Area', value: 'area' },
@@ -47,20 +63,33 @@ function formatPrice(val, symbolStr) {
     return val.toFixed(5);
 }
 
-// Generate fallback candles if API endpoint is offline or returning empty
-function generateMockCandles(count = 100, basePrice = 2700) {
+function getTimeframeInterval(tf) {
+    switch (tf) {
+        case '1m': return 60;
+        case '5m': return 300;
+        case '15m': return 900;
+        case '30m': return 1800;
+        case '1h': return 3600;
+        case '4h': return 14400;
+        case '1d': return 86400;
+        default: return 900;
+    }
+}
+
+// Generate fallback candles if backend REST API endpoint is offline or returning empty
+function generateMockCandles(count = 600, basePrice = 2700, tf = '15m') {
     const candles = [];
     let currentPrice = basePrice;
     const now = Math.floor(Date.now() / 1000);
-    const interval = 900; // 15m in seconds
+    const interval = getTimeframeInterval(tf);
 
     for (let i = count; i >= 0; i--) {
-        const time = now - (i * interval);
-        const change = (Math.random() - 0.49) * (basePrice * 0.004);
+        const time = now - i * interval;
+        const change = (Math.random() - 0.49) * (basePrice * 0.003);
         const open = currentPrice;
         const close = open + change;
-        const high = Math.max(open, close) + Math.random() * (basePrice * 0.002);
-        const low = Math.min(open, close) - Math.random() * (basePrice * 0.002);
+        const high = Math.max(open, close) + Math.random() * (basePrice * 0.0015);
+        const low = Math.min(open, close) - Math.random() * (basePrice * 0.0015);
         currentPrice = close;
 
         candles.push({
@@ -74,15 +103,19 @@ function generateMockCandles(count = 100, basePrice = 2700) {
     return candles;
 }
 
-export default function TradingViewChartPane({
-    symbol = 'XAUUSD',
-    onSymbolChange,
-    onAttachScreenshot,
-}) {
+const TradingViewChartPane = forwardRef(function TradingViewChartPane(
+    { symbol = 'XAU/USD', onSymbolChange, onAttachScreenshot },
+    ref
+) {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+
     const containerRef = useRef(null);
     const chartRef = useRef(null);
     const seriesRef = useRef(null);
     const wsRef = useRef(null);
+    const symbolDropdownRef = useRef(null);
+    const cameraDropdownRef = useRef(null);
 
     // Chart Settings State
     const [currentTimeframe, setCurrentTimeframe] = useState('15m');
@@ -91,10 +124,10 @@ export default function TradingViewChartPane({
     const [cameraDropdownOpen, setCameraDropdownOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
 
-    // Style Customizations (TradingView Style)
-    const [bullishColor, setBullishColor] = useState('#00B0FF');
-    const [bearishColor, setBearishColor] = useState('#FF3B30');
-    const [backgroundColor, setBackgroundColor] = useState('#131722');
+    // Style Customizations (TradingView Style Defaults)
+    const [bullishColor, setBullishColor] = useState('#089981');
+    const [bearishColor, setBearishColor] = useState('#f23645');
+    const [backgroundColor, setBackgroundColor] = useState(isDark ? '#131722' : '#FFFFFF');
     const [extendedSession, setExtendedSession] = useState(false);
     const [preMarketColor, setPreMarketColor] = useState('#FF6D00');
     const [postMarketColor, setPostMarketColor] = useState('#2979FF');
@@ -105,21 +138,78 @@ export default function TradingViewChartPane({
 
     const activeSymbolClean = normalizeSymbol(symbol);
 
+    // Expose capture functionality to parent via ref
+    useImperativeHandle(ref, () => ({
+        getScreenshotDataUrl: () => {
+            if (!chartRef.current) return null;
+            const canvas = chartRef.current.takeScreenshot();
+            return canvas.toDataURL('image/png');
+        },
+        attachScreenshot: () => {
+            attachChartToChat();
+        },
+    }));
+
+    // Close dropdowns on outside click
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (symbolDropdownRef.current && !symbolDropdownRef.current.contains(e.target)) {
+                setSymbolDropdownOpen(false);
+            }
+            if (cameraDropdownRef.current && !cameraDropdownRef.current.contains(e.target)) {
+                setCameraDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    // Sync chart theme colors on app theme change
+    useEffect(() => {
+        const bg = isDark ? '#131722' : '#FFFFFF';
+        const txt = isDark ? '#94A3B8' : '#334155';
+        const gridColor = isDark ? 'rgba(42, 46, 57, 0.6)' : 'rgba(0, 0, 0, 0.06)';
+        const borderColor = isDark ? 'rgba(42, 46, 57, 0.8)' : 'rgba(0, 0, 0, 0.1)';
+
+        setBackgroundColor(bg);
+
+        if (chartRef.current) {
+            chartRef.current.applyOptions({
+                layout: {
+                    background: { color: bg },
+                    textColor: txt,
+                },
+                grid: {
+                    vertLines: { color: gridColor },
+                    horzLines: { color: gridColor },
+                },
+                timeScale: { borderColor },
+                rightPriceScale: { borderColor },
+            });
+        }
+    }, [theme, isDark]);
+
     // 1. Initialize Chart Engine
     useEffect(() => {
         if (!containerRef.current) return;
 
+        const initialBg = isDark ? '#131722' : '#FFFFFF';
+        const initialTxt = isDark ? '#94A3B8' : '#334155';
+        const initialGrid = isDark ? 'rgba(42, 46, 57, 0.6)' : 'rgba(0, 0, 0, 0.06)';
+        const initialBorder = isDark ? 'rgba(42, 46, 57, 0.8)' : 'rgba(0, 0, 0, 0.1)';
+
         const chart = createChart(containerRef.current, {
             width: containerRef.current.clientWidth,
             height: containerRef.current.clientHeight || 500,
+            attributionLogo: false,
             layout: {
-                background: { color: backgroundColor },
-                textColor: '#94A3B8',
+                background: { color: initialBg },
+                textColor: initialTxt,
                 fontFamily: 'Inter, system-ui, sans-serif',
             },
             grid: {
-                vertLines: { color: 'rgba(255, 255, 255, 0.05)' },
-                horzLines: { color: 'rgba(255, 255, 255, 0.05)' },
+                vertLines: { color: initialGrid },
+                horzLines: { color: initialGrid },
             },
             crosshair: {
                 mode: 1, // CrosshairMode.Normal
@@ -135,12 +225,12 @@ export default function TradingViewChartPane({
                 },
             },
             timeScale: {
-                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderColor: initialBorder,
                 timeVisible: true,
                 secondsVisible: false,
             },
             rightPriceScale: {
-                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderColor: initialBorder,
             },
         });
 
@@ -184,18 +274,29 @@ export default function TradingViewChartPane({
         let isMounted = true;
 
         async function loadChartData() {
-            if (!chartRef.current) return;
+            if (!chartRef.current) {
+                await new Promise((r) => setTimeout(r, 60));
+                if (!chartRef.current || !isMounted) return;
+            }
             setLoading(true);
+
+            // Disconnect any active WebSocket connection before loading new pair/timeframe
+            if (wsRef.current) {
+                wsRef.current.close();
+                wsRef.current = null;
+            }
 
             // Remove previous series if exists
             if (seriesRef.current) {
                 try {
                     chartRef.current.removeSeries(seriesRef.current);
-                } catch { /* ignore */ }
+                } catch {
+                    /* ignore */
+                }
                 seriesRef.current = null;
             }
 
-            // Create series based on chartType
+            // Create series based on chartType selector
             let newSeries;
             if (chartType === 'line') {
                 newSeries = chartRef.current.addSeries(LineSeries, {
@@ -204,8 +305,8 @@ export default function TradingViewChartPane({
                 });
             } else if (chartType === 'area') {
                 newSeries = chartRef.current.addSeries(AreaSeries, {
-                    topColor: 'rgba(41, 121, 255, 0.45)',
-                    bottomColor: 'rgba(41, 121, 255, 0.02)',
+                    topColor: 'rgba(41, 121, 255, 0.46)',
+                    bottomColor: 'rgba(41, 121, 255, 0.0)',
                     lineColor: '#2979FF',
                     lineWidth: 2,
                 });
@@ -213,44 +314,52 @@ export default function TradingViewChartPane({
                 // Default: Candlestick
                 newSeries = chartRef.current.addSeries(CandlestickSeries, {
                     upColor: bullishColor,
-                    downColor: bearishColor,
                     borderUpColor: bullishColor,
-                    borderDownColor: bearishColor,
                     wickUpColor: bullishColor,
+                    downColor: bearishColor,
+                    borderDownColor: bearishColor,
                     wickDownColor: bearishColor,
                 });
             }
 
             seriesRef.current = newSeries;
 
-            // Fetch historical candle data
+            // Fetch historical candle data via HTTP REST API
             let candlesData = [];
             try {
-                const res = await fetch(`/api/v1/chart/candles?symbol=${activeSymbolClean}&timeframe=${currentTimeframe}`);
+                const res = await fetch(
+                    `/api/v1/chart/candles?symbol=${activeSymbolClean}&timeframe=${currentTimeframe}`
+                );
                 if (res.ok) {
                     const json = await res.json();
                     const rawCandles = json.candles || json.data || json;
                     if (Array.isArray(rawCandles) && rawCandles.length > 0) {
-                        candlesData = rawCandles.map((c) => ({
-                            time: typeof c.time === 'string' ? Math.floor(new Date(c.time).getTime() / 1000) : Number(c.time),
-                            open: Number(c.open),
-                            high: Number(c.high),
-                            low: Number(c.low),
-                            close: Number(c.close),
-                            value: Number(c.close), // For line/area series
-                        })).filter(c => !isNaN(c.time) && !isNaN(c.close));
+                        candlesData = rawCandles
+                            .map((c) => ({
+                                time: typeof c.time === 'string' ? Math.floor(new Date(c.time).getTime() / 1000) : Number(c.time),
+                                open: Number(c.open),
+                                high: Number(c.high),
+                                low: Number(c.low),
+                                close: Number(c.close),
+                                value: Number(c.close),
+                            }))
+                            .filter((c) => !isNaN(c.time) && !isNaN(c.close));
                     }
                 }
             } catch (err) {
-                console.warn('Chart candles API fetch notice:', err.message);
+                console.warn('REST candles fetch notice:', err.message);
             }
 
-            // Fallback mock generator if no candles returned from backend API
+            // Fallback mock generator if no candles returned from API
             if (candlesData.length === 0) {
-                const baseVal = activeSymbolClean.includes('XAU') ? 2720 : activeSymbolClean.includes('BTC') ? 92000 : 1.0850;
-                candlesData = generateMockCandles(120, baseVal).map(c => ({
+                const baseVal = activeSymbolClean.includes('XAU')
+                    ? 2720
+                    : activeSymbolClean.includes('BTC')
+                    ? 92000
+                    : 1.085;
+                candlesData = generateMockCandles(600, baseVal, currentTimeframe).map((c) => ({
                     ...c,
-                    value: c.close
+                    value: c.close,
                 }));
             }
 
@@ -261,31 +370,52 @@ export default function TradingViewChartPane({
                 seriesRef.current.setData(candlesData);
                 const last = candlesData[candlesData.length - 1];
                 if (last) setLatestCandle(last);
-                chartRef.current.timeScale().fitContent();
-                setLoading(false);
+                chartRef.current.timeScale().applyOptions({
+                    barSpacing: 9,
+                    rightOffset: 8,
+                });
+                chartRef.current.timeScale().scrollToRealtime();
             }
 
-            // 3. Connect Real-Time WebSocket Streaming Updates
-            if (wsRef.current) {
-                wsRef.current.close();
-                wsRef.current = null;
-            }
+            // Guarantee loading overlay is hidden once chart series data is loaded
+            if (isMounted) setLoading(false);
 
+            // 3. Connect Real-Time Updates (WebSockets)
+            let mockCleanup = null;
             try {
-                const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const wsHost = window.location.host;
-                const wsUrl = `${wsProtocol}//${wsHost}/api/v1/websocket/live-candles?symbol=${activeSymbolClean}&timeframe=${currentTimeframe}`;
-                
+                let wsBase = process.env.NEXT_PUBLIC_WS_CANDLES_URL;
+                if (!wsBase) {
+                    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+                    if (backendUrl) {
+                        const wsScheme = backendUrl.startsWith('https') ? 'wss:' : 'ws:';
+                        const cleanHost = backendUrl.replace(/^https?:\/\//, '');
+                        wsBase = `${wsScheme}//${cleanHost}/api/v1/websocket/live-candles`;
+                    } else {
+                        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                        const wsHost = window.location.host || 'localhost:8000';
+                        wsBase = `${wsProtocol}//${wsHost}/api/v1/websocket/live-candles`;
+                    }
+                }
+                const wsUrl = `${wsBase}${wsBase.includes('?') ? '&' : '?'}symbol=${activeSymbolClean}&timeframe=${currentTimeframe}`;
+
                 const socket = new WebSocket(wsUrl);
                 wsRef.current = socket;
 
+                socket.onopen = () => {
+                    if (isMounted) setLoading(false);
+                };
+
                 socket.onmessage = (event) => {
-                    if (!isMounted || !seriesRef.current) return;
+                    if (!isMounted) return;
+                    setLoading(false);
                     try {
                         const payload = JSON.parse(event.data);
                         if (payload.type === 'candle_update' && payload.data) {
                             const bar = payload.data;
-                            const tSec = typeof bar.time === 'string' ? Math.floor(new Date(bar.time).getTime() / 1000) : Number(bar.time);
+                            const tSec =
+                                typeof bar.time === 'string'
+                                    ? Math.floor(new Date(bar.time).getTime() / 1000)
+                                    : Number(bar.time);
                             const updatedBar = {
                                 time: tSec,
                                 open: Number(bar.open),
@@ -294,19 +424,28 @@ export default function TradingViewChartPane({
                                 close: Number(bar.close),
                                 value: Number(bar.close),
                             };
-                            seriesRef.current.update(updatedBar);
+                            if (seriesRef.current) {
+                                seriesRef.current.update(updatedBar);
+                            }
                             setLatestCandle(updatedBar);
                         }
-                    } catch { /* ignore parse error */ }
+                    } catch {
+                        /* ignore parse error */
+                    }
                 };
 
                 socket.onerror = () => {
-                    // Fallback live tick simulator if WebSocket server is not running on localhost
-                    startMockTickSimulator(isMounted);
+                    if (isMounted) setLoading(false);
+                    mockCleanup = startMockTickSimulator(isMounted);
                 };
             } catch {
-                startMockTickSimulator(isMounted);
+                if (isMounted) setLoading(false);
+                mockCleanup = startMockTickSimulator(isMounted);
             }
+
+            return () => {
+                if (mockCleanup) mockCleanup();
+            };
         }
 
         loadChartData();
@@ -335,7 +474,7 @@ export default function TradingViewChartPane({
                     high: newHigh,
                     low: newLow,
                     close: newClose,
-                    value: newClose
+                    value: newClose,
                 };
                 seriesRef.current.update(updated);
                 return updated;
@@ -345,15 +484,15 @@ export default function TradingViewChartPane({
         return () => clearInterval(interval);
     };
 
-    // Update Series colors when bullish/bearish picker changes
+    // Update Series colors when bullish/bearish picker changes in Settings Modal
     useEffect(() => {
         if (seriesRef.current && chartType === 'candlestick') {
             seriesRef.current.applyOptions({
                 upColor: bullishColor,
-                downColor: bearishColor,
                 borderUpColor: bullishColor,
-                borderDownColor: bearishColor,
                 wickUpColor: bullishColor,
+                downColor: bearishColor,
+                borderDownColor: bearishColor,
                 wickDownColor: bearishColor,
             });
         }
@@ -370,7 +509,7 @@ export default function TradingViewChartPane({
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        toast.success(`Chart downloaded as ${activeSymbolClean}_chart.png`);
+        toast('Chart downloaded as ' + activeSymbolClean + '_chart.png');
         setCameraDropdownOpen(false);
     };
 
@@ -383,10 +522,10 @@ export default function TradingViewChartPane({
                 await navigator.clipboard.write([
                     new ClipboardItem({ 'image/png': blob }),
                 ]);
-                toast.success('Chart screenshot copied to clipboard!');
+                toast('Chart screenshot copied to clipboard!');
             } catch (err) {
                 console.error('Copy screenshot error:', err);
-                toast.error('Could not copy image to clipboard.');
+                toast('Could not copy image to clipboard.');
             }
         });
         setCameraDropdownOpen(false);
@@ -402,26 +541,26 @@ export default function TradingViewChartPane({
                 url: dataUrl,
                 type: 'image/png',
             });
-            toast.success('Chart screenshot attached to chat draft!');
+            toast('Chart screenshot attached to chat message!');
         } else {
-            toast.success('Chart screenshot captured!');
+            toast('Chart screenshot captured!');
         }
         setCameraDropdownOpen(false);
     };
 
     return (
         <div className={styles.chartPaneContainer}>
-            {/* Top Floating Control Bar */}
+            {/* Chart Floating Controls (Top-Left & Top-Right) */}
             <div className={styles.chartHeaderControls}>
                 <div className={styles.leftControlsGroup}>
-                    {/* Symbol Selector Dropdown */}
-                    <div className={styles.controlDropdownWrapper}>
+                    {/* Symbol Selector Dropdown (Categorized: MAJOR PAIRS, EURO CROSSES, etc.) */}
+                    <div className={styles.controlDropdownWrapper} ref={symbolDropdownRef}>
                         <button
                             type="button"
                             className={styles.symbolSelectorBtn}
                             onClick={() => setSymbolDropdownOpen(!symbolDropdownOpen)}
                         >
-                            <span className={styles.symbolBadge}>{activeSymbolClean}</span>
+                            <span className={styles.symbolBadge}>{symbol || 'XAU/USD'}</span>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                 <polyline points="6 9 12 15 18 9" />
                             </svg>
@@ -429,20 +568,30 @@ export default function TradingViewChartPane({
 
                         {symbolDropdownOpen && (
                             <div className={styles.dropdownMenuFloating}>
-                                {POPULAR_SYMBOLS.map((item) => (
-                                    <button
-                                        key={item.value}
-                                        type="button"
-                                        className={`${styles.dropdownMenuItem} ${activeSymbolClean === item.value ? styles.activeItem : ''}`}
-                                        onClick={() => {
-                                            if (onSymbolChange) onSymbolChange(item.value);
-                                            setSymbolDropdownOpen(false);
-                                        }}
-                                    >
-                                        <span>{item.label}</span>
-                                        {activeSymbolClean === item.value && <span>✓</span>}
-                                    </button>
-                                ))}
+                                <div className={styles.dropdownScrollArea}>
+                                    {PAIR_GROUPS.map((group) => (
+                                        <div key={group.label} className={styles.categorySection}>
+                                            <div className={styles.categoryHeader}>{group.label}</div>
+                                            {group.pairs.map((pairStr) => {
+                                                const isActive = symbol === pairStr || activeSymbolClean === normalizeSymbol(pairStr);
+                                                return (
+                                                    <button
+                                                        key={pairStr}
+                                                        type="button"
+                                                        className={`${styles.dropdownMenuItem} ${isActive ? styles.activeItem : ''}`}
+                                                        onClick={() => {
+                                                            if (onSymbolChange) onSymbolChange(pairStr);
+                                                            setSymbolDropdownOpen(false);
+                                                        }}
+                                                    >
+                                                        <span>{pairStr}</span>
+                                                        {isActive && <span>✓</span>}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>
@@ -491,7 +640,7 @@ export default function TradingViewChartPane({
                 </div>
 
                 {/* Right Camera Screenshot Action Menu */}
-                <div className={styles.controlDropdownWrapper}>
+                <div className={styles.controlDropdownWrapper} ref={cameraDropdownRef}>
                     <button
                         type="button"
                         className={styles.iconControlBtn}
@@ -534,13 +683,6 @@ export default function TradingViewChartPane({
 
             {/* Live Chart Container */}
             <div className={styles.chartCanvasArea} ref={containerRef}>
-                {loading && (
-                    <div className={styles.chartOverlayLoader}>
-                        <div className={styles.chartSpinner} />
-                        <span>Loading Realtime Chart...</span>
-                    </div>
-                )}
-
                 {/* Floating Live Price Ticker Overlay */}
                 {latestCandle && (
                     <div className={styles.livePriceOverlay}>
@@ -549,6 +691,9 @@ export default function TradingViewChartPane({
                         <span className={latestCandle.close >= latestCandle.open ? styles.bullishTag : styles.bearishTag}>
                             {latestCandle.close >= latestCandle.open ? '▲ UP' : '▼ DOWN'}
                         </span>
+                        {extendedSession && (
+                            <span className={styles.sessionBadge} style={{ background: preMarketColor }}>ETH</span>
+                        )}
                     </div>
                 )}
             </div>
@@ -558,7 +703,7 @@ export default function TradingViewChartPane({
                 <div className={styles.settingsModalOverlay} onClick={() => setSettingsOpen(false)}>
                     <div className={styles.settingsModalCard} onClick={(e) => e.stopPropagation()}>
                         <div className={styles.settingsHeader}>
-                            <h3>TradingView Chart Settings</h3>
+                            <h3>Chart Settings</h3>
                             <button type="button" className={styles.closeBtn} onClick={() => setSettingsOpen(false)}>
                                 ✕
                             </button>
@@ -586,7 +731,7 @@ export default function TradingViewChartPane({
                                 </div>
                             </div>
 
-                            {/* Section B: Chart Background */}
+                            {/* Section B: Chart Styles */}
                             <div className={styles.settingSection}>
                                 <h4>Chart Background</h4>
                                 <div className={styles.settingRow}>
@@ -609,7 +754,7 @@ export default function TradingViewChartPane({
                             <div className={styles.settingSection}>
                                 <h4>Trading Session Hours</h4>
                                 <div className={styles.settingRow}>
-                                    <label>Session Type</label>
+                                    <label>Trading Hours</label>
                                     <button
                                         type="button"
                                         className={`${styles.toggleBtn} ${extendedSession ? styles.activeToggle : ''}`}
@@ -621,7 +766,7 @@ export default function TradingViewChartPane({
                                 {extendedSession && (
                                     <>
                                         <div className={styles.settingRow}>
-                                            <label>Pre-Market Highlight</label>
+                                            <label>Pre-Market Color</label>
                                             <input
                                                 type="color"
                                                 value={preMarketColor}
@@ -629,7 +774,7 @@ export default function TradingViewChartPane({
                                             />
                                         </div>
                                         <div className={styles.settingRow}>
-                                            <label>Post-Market Highlight</label>
+                                            <label>Post-Market Color</label>
                                             <input
                                                 type="color"
                                                 value={postMarketColor}
@@ -651,4 +796,6 @@ export default function TradingViewChartPane({
             )}
         </div>
     );
-}
+});
+
+export default TradingViewChartPane;

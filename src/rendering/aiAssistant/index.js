@@ -18,34 +18,12 @@ import rehypeRaw from 'rehype-raw';
 import ReportPanel from './ReportPanel';
 import { useLanguage } from '@/context/LanguageContext';
 import { getBidiProps, bidiMarkdownComponents } from '@/lib/bidi';
+import TradingViewChartPane, { PAIR_GROUPS, ALL_PAIRS, normalizeSymbol } from './TradingViewChartPane';
+import AttachmentDraft from './AttachmentDraft';
+import ImagePreviewModal from './ImagePreviewModal';
 
 const UploadIcon = '/assets/icons/upload-xs.svg';
 const Logo = '/assets/icons/AIChat.svg';
-
-const PAIR_GROUPS = [
-    {
-        label: 'Major Pairs',
-        pairs: ['EUR/USD', 'USD/JPY', 'GBP/USD', 'USD/CHF', 'AUD/USD', 'USD/CAD', 'NZD/USD', 'XAU/USD'],
-    },
-    {
-        label: 'Euro Crosses',
-        pairs: ['EUR/GBP', 'EUR/CHF', 'EUR/JPY', 'EUR/AUD', 'EUR/CAD', 'EUR/NZD'],
-    },
-    {
-        label: 'Pound Crosses',
-        pairs: ['GBP/JPY', 'GBP/AUD', 'GBP/CAD', 'GBP/CHF', 'GBP/NZD'],
-    },
-    {
-        label: 'Yen Crosses',
-        pairs: ['CHF/JPY', 'CAD/JPY', 'AUD/JPY', 'NZD/JPY'],
-    },
-    {
-        label: 'Other Crosses',
-        pairs: ['AUD/CHF', 'AUD/CAD', 'AUD/NZD', 'CAD/CHF', 'NZD/CHF'],
-    },
-];
-
-const ALL_PAIRS = PAIR_GROUPS.flatMap(g => g.pairs);
 
 const parseAssistantResponse = (raw) => {
     const envelope = raw?.data || raw;
@@ -107,6 +85,8 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     const [chatInput, setChatInput] = useState('');
     const [selectedPair, setSelectedPair] = useState('XAU/USD');
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [attachmentDraft, setAttachmentDraft] = useState(null);
+    const [previewAttachment, setPreviewAttachment] = useState(null);
 
     // Blog State - kept for history modal compatibility
     const [blogHistory, setBlogHistory] = useState([]);
@@ -122,10 +102,101 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
 
     const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
+    // Resizable Splitter State (default 35% chat / 65% graph pane)
+    const [chatWidthPercent, setChatWidthPercent] = useState(35);
+    const [isDragging, setIsDragging] = useState(false);
+
     // Refs
     const dropdownRef = useRef(null);
     const chatEndRef = useRef(null);
     const exportRef = useRef(null);
+    const gridRef = useRef(null);
+    const fileInputRef = useRef(null);
+    const chartPaneRef = useRef(null);
+
+    // Quick Action Chip Handlers
+    const handleGenerateFromImageClick = () => {
+        if (chartPaneRef.current) {
+            const dataUrl = chartPaneRef.current.getScreenshotDataUrl();
+            if (dataUrl) {
+                setAttachmentDraft({
+                    name: `${normalizeSymbol(selectedPair)}_chart.png`,
+                    url: dataUrl,
+                    type: 'image/png'
+                });
+                toast('Chart screenshot attached to chat message!');
+            }
+        }
+        setChatInput('Analyze this chart screenshot and identify technical patterns & breakouts');
+    };
+
+    const handleDeepAnalysisClick = () => {
+        const sym = normalizeSymbol(selectedPair);
+        setChatInput(`Perform a Deep Pro Analysis for ${sym} including multi-timeframe market structure, pivot points, key indicators, macro drivers, and complete risk-reward trade setup`);
+    };
+
+    const handleMacroNewsClick = () => {
+        setChatInput('Show latest financial news, market sentiment, and central bank stance for active pair');
+    };
+
+    const handleFileSelect = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            toast('Please select an image file');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            setAttachmentDraft({
+                url: event.target.result,
+                name: file.name || 'Image Attachment'
+            });
+        };
+        reader.readAsDataURL(file);
+        e.target.value = '';
+    };
+
+    const handleMouseDown = (e) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    useEffect(() => {
+        if (!isDragging) return;
+
+        let animationFrameId = null;
+
+        const handleMouseMove = (e) => {
+            if (!gridRef.current) return;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+            animationFrameId = requestAnimationFrame(() => {
+                if (!gridRef.current) return;
+                const rect = gridRef.current.getBoundingClientRect();
+                const offsetX = e.clientX - rect.left;
+                const totalWidth = rect.width;
+                const newPercent = (offsetX / totalWidth) * 100;
+                const clamped = Math.max(20, Math.min(60, newPercent));
+                setChatWidthPercent(clamped);
+            });
+        };
+
+        const handleMouseUp = () => {
+            setIsDragging(false);
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        };
+    }, [isDragging]);
 
     // PDF Exporting State
     const [exportData, setExportData] = useState(null);
@@ -212,6 +283,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         setSelectedChat(null);
         setChatMessages([]);
         setChatInput('');
+        setChatWidthPercent(35);
     };
 
     const handleSelectChat = (item) => {
@@ -303,15 +375,98 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     };
 
     const handleSendChatMessage = async () => {
-        if (!chatInput.trim() || pendingRequest) return;
+        if ((!chatInput.trim() && !attachmentDraft) || pendingRequest) return;
         const msg = chatInput;
+        const currentAttachment = attachmentDraft;
         setChatInput('');
+        setAttachmentDraft(null);
         setPendingRequest(true);
 
-        const newUserMsg = { role: 'user', content: msg, pair: selectedPair };
+        const newUserMsg = {
+            role: 'user',
+            content: msg,
+            pair: selectedPair,
+            attachment: currentAttachment
+        };
         setChatMessages(prev => [...prev, newUserMsg]);
 
+        let streamedText = '';
+
         try {
+            const token = typeof window !== 'undefined' ? (localStorage.getItem('token') || '') : '';
+            const response = await fetch('/api/v1/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({
+                    message: msg,
+                    pair: normalizeSymbol(selectedPair),
+                    image_base64: currentAttachment?.url || undefined,
+                    stream: true
+                })
+            });
+
+            if (response.ok && response.body) {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                setChatMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    buffer += decoder.decode(value, { stream: true });
+
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const rawData = line.substring(6).trim();
+                            if (!rawData) continue;
+                            try {
+                                const payload = JSON.parse(rawData);
+                                switch (payload.type) {
+                                    case 'token':
+                                        streamedText += payload.text || '';
+                                        setChatMessages(prev => {
+                                            const copy = [...prev];
+                                            if (copy.length > 0 && copy[copy.length - 1].role === 'assistant') {
+                                                copy[copy.length - 1] = { ...copy[copy.length - 1], content: streamedText };
+                                            }
+                                            return copy;
+                                        });
+                                        break;
+                                    case 'error':
+                                        toast(payload.text || 'Streaming error');
+                                        break;
+                                    case 'done':
+                                        break;
+                                }
+                            } catch {
+                                streamedText += rawData;
+                                setChatMessages(prev => {
+                                    const copy = [...prev];
+                                    if (copy.length > 0 && copy[copy.length - 1].role === 'assistant') {
+                                        copy[copy.length - 1] = { ...copy[copy.length - 1], content: streamedText };
+                                    }
+                                    return copy;
+                                });
+                            }
+                        }
+                    }
+                }
+
+                if (streamedText) {
+                    fetchChatHistory(userId);
+                    return;
+                }
+            }
+
+            // Fallback to standard fxApi.chat endpoint if SSE endpoint is unconfigured
             const result = await fxApi.chat(selectedPair, msg, userId);
             const parsed = parseAssistantResponse(result);
             const assistantMsg = buildAssistantMessage(parsed);
@@ -319,10 +474,21 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
             fetchChatHistory(userId);
             syncCreditsAfterAction(result);
         } catch (err) {
-            const errorMessage = err?.message || "I apologize, but the FX Copilot API is currently unavailable. Please verify the endpoint or try again later.";
-            setChatMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
-            if (err?.detail?.error_code === 'INSUFFICIENT_CREDITS' || err?.message?.toLowerCase().includes('insufficient credits')) {
-                notifyCreditsUpdated(0);
+            if (!streamedText) {
+                try {
+                    const result = await fxApi.chat(selectedPair, msg, userId);
+                    const parsed = parseAssistantResponse(result);
+                    const assistantMsg = buildAssistantMessage(parsed);
+                    setChatMessages(prev => [...prev, assistantMsg]);
+                    fetchChatHistory(userId);
+                    syncCreditsAfterAction(result);
+                } catch (fallbackErr) {
+                    const errorMessage = fallbackErr?.message || err?.message || "I apologize, but the FX Copilot API is currently unavailable. Please verify the endpoint or try again later.";
+                    setChatMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
+                    if (fallbackErr?.detail?.error_code === 'INSUFFICIENT_CREDITS' || fallbackErr?.message?.toLowerCase().includes('insufficient credits')) {
+                        notifyCreditsUpdated(0);
+                    }
+                }
             }
         } finally {
             setPendingRequest(false);
@@ -636,188 +802,270 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
 
     return (
         <div className={styles.aiAssistant}>
-            <div className={styles.chatSingleBody}>
-                {/* Chat interaction card */}
-                <div className={styles.chatCard}>
-                    <div className={styles.chatHeader}>
-                        <div className={styles.avatar}>
-                            <img src={Logo} alt='logo' />
-                        </div>
-                        <div className={styles.headerInfo}>
-                            <h3>Trader Master Copilot</h3>
-                            <span>{t('aiChat.activePair', 'Active Pair')}: {selectedPair}</span>
-                        </div>
-                        <div className={styles.headerAction}>
-                            <Button
-                                text={t('aiChat.createNewChat', 'Create New Chat')}
-                                icon={UploadIcon}
-                                onClick={handleCreateNew}
-                            />
-                            <HistoryButton
-                                text={t('aiChat.history', 'History')}
-                                onClick={() => setHistoryModalOpen(true)}
-                            />
-                        </div>
-                    </div>
-                    <div className={styles.chatBody}>
-                        {chatMessages.length === 0 ? (
-                            <div className={styles.welcomeContainer}>
-                                <div className={styles.welcomeIcon}></div>
-                                <h2>{t('aiChat.copilotTitle', 'Welcome to Trader Master Copilot')}</h2>
-                                <p>{t('aiChat.copilotSubtitle', 'Select a major pair below, ask a question, and get deep insights on forex market movement and trends instantly.')}</p>
+            <div
+                ref={gridRef}
+                className={`${styles.splitLayoutGrid} ${isDragging ? styles.isDraggingGrid : ''}`}
+                style={{
+                    gridTemplateColumns: `minmax(280px, ${chatWidthPercent}%) 10px minmax(0, 1fr)`
+                }}
+            >
+                {/* Center / Left Panel: Chatbot conversation view */}
+                <div className={styles.chatSingleBody}>
+                    {/* Chat interaction card */}
+                    <div className={styles.chatCard}>
+                        <div className={`${styles.chatHeader} ${chatWidthPercent <= 42 ? styles.compactHeader : ''}`}>
+                            <div className={styles.avatar}>
+                                <img src={Logo} alt='logo' />
                             </div>
-                        ) : (
-                            chatMessages.map((msg, index) => (
-                                <div
-                                    key={index}
-                                    className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''} ${msg.fullReport ? styles.reportRow : ''}`}
-                                >
-                                    {msg.role === 'user' && msg.pair && (
-                                        <span className={styles.pairBadge}>{msg.pair}</span>
-                                    )}
-                                    <div {...getBidiProps(msg.content, msg.role === 'user' ? styles.userMessage : styles.assistantMessage)}>
-                                        {msg.role === 'user' ? (
-                                            msg.content
-                                        ) : (
-                                            <>
-                                                {msg.fullReport ? (
-                                                    <>
+                            <div className={styles.headerInfo}>
+                                <h3>Trader Master Copilot</h3>
+                                <span>{t('aiChat.activePair', 'Active Pair')}: {selectedPair}</span>
+                            </div>
+                            <div className={styles.headerAction}>
+                                <div title={t('aiChat.createNewChat', 'Create New Chat')}>
+                                    <Button
+                                        text={t('aiChat.createNewChat', 'Create New Chat')}
+                                        icon={UploadIcon}
+                                        onClick={handleCreateNew}
+                                    />
+                                </div>
+                                <div title={t('aiChat.history', 'History')}>
+                                    <HistoryButton
+                                        text={t('aiChat.history', 'History')}
+                                        onClick={() => setHistoryModalOpen(true)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div className={styles.chatBody}>
+                            {chatMessages.length === 0 ? (
+                                <div className={styles.welcomeContainer}>
+                                    <h2>What do you want to analyze?</h2>
+                                    <div className={styles.welcomeActionPills}>
+                                        <button
+                                            type="button"
+                                            className={styles.welcomePill}
+                                            onClick={handleGenerateFromImageClick}
+                                        >
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                                <circle cx="12" cy="13" r="4" />
+                                            </svg>
+                                            <span>Generate From Image</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={styles.welcomePill}
+                                            onClick={handleDeepAnalysisClick}
+                                        >
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <circle cx="12" cy="12" r="10" />
+                                                <line x1="12" y1="16" x2="12" y2="12" />
+                                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                                            </svg>
+                                            <span>Deep Market Analysis</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={styles.welcomePill}
+                                            onClick={handleMacroNewsClick}
+                                        >
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" />
+                                                <path d="M18 14h-8" />
+                                                <path d="M15 18h-5" />
+                                                <path d="M10 6h8v4h-8z" />
+                                            </svg>
+                                            <span>Macro News & Economic Events</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                chatMessages.map((msg, index) => (
+                                    <div
+                                        key={index}
+                                        className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''} ${msg.fullReport ? styles.reportRow : ''}`}
+                                    >
+                                        {msg.role === 'user' && msg.pair && (
+                                            <span className={styles.pairBadge}>{msg.pair}</span>
+                                        )}
+                                        <div {...getBidiProps(msg.content, msg.role === 'user' ? styles.userMessage : styles.assistantMessage)}>
+                                            {msg.role === 'user' ? (
+                                                <>
+                                                    {msg.attachment && (
+                                                        <div
+                                                            className={styles.userMsgAttachment}
+                                                            onClick={() => setPreviewAttachment(msg.attachment)}
+                                                            title="Click to preview image"
+                                                        >
+                                                            <img src={msg.attachment.url} alt="Attached Chart" />
+                                                        </div>
+                                                    )}
+                                                    {msg.content}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {msg.fullReport ? (
+                                                        <>
+                                                            <div className={styles.chatMarkdown}>
+                                                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>
+                                                                    {msg.content}
+                                                                </ReactMarkdown>
+                                                            </div>
+                                                            <ReportPanel
+                                                                inline
+                                                                fullReport={msg.fullReport}
+                                                                visualData={msg.visualData}
+                                                                onDownload={(el) => handleDownloadReportContent(msg.fullReport, el, msg.visualData)}
+                                                            />
+                                                        </>
+                                                    ) : (
                                                         <div className={styles.chatMarkdown}>
                                                             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>
                                                                 {msg.content}
                                                             </ReactMarkdown>
                                                         </div>
-                                                        <ReportPanel
-                                                            inline
-                                                            fullReport={msg.fullReport}
-                                                            visualData={msg.visualData}
-                                                            onDownload={(el) => handleDownloadReportContent(msg.fullReport, el, msg.visualData)}
-                                                        />
-                                                    </>
-                                                ) : (
-                                                    <div className={styles.chatMarkdown}>
-                                                        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>
-                                                            {msg.content}
-                                                        </ReactMarkdown>
-                                                    </div>
-                                                )}
-                                            </>
-                                        )}
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                            {pendingRequest && (
+                                <div className={styles.messageRow}>
+                                    <div className={styles.assistantMessage}>
+                                        <div className={styles.loadingDots}>
+                                            <span></span>
+                                            <span></span>
+                                            <span></span>
+                                        </div>
                                     </div>
                                 </div>
-                            ))
+                            )}
+                            <div ref={chatEndRef} />
+                        </div>
+                    </div>
+
+                    {/* Chat input box */}
+                    <div className={styles.inputArea}>
+                        {attachmentDraft && (
+                            <AttachmentDraft
+                                attachment={attachmentDraft}
+                                onRemove={() => setAttachmentDraft(null)}
+                                onPreview={(att) => setPreviewAttachment(att)}
+                            />
                         )}
-                        {pendingRequest && (
-                            <div className={styles.messageRow}>
-                                <div className={styles.assistantMessage}>
-                                    <div className={styles.loadingDots}>
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
-                                    </div>
+                        <textarea
+                            placeholder={t('aiChat.askPlaceholder', 'Ask for an indicator or strategy...')}
+                            className={styles.textarea}
+                            value={chatInput}
+                            onChange={(e) => setChatInput(e.target.value.trimStart())}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSendChatMessage();
+                                }
+                            }}
+                        />
+                        <div className={styles.inputFooter}>
+                            <div className={styles.leftInputControls}>
+                                {/* File Attachment Option Button */}
+                                <button
+                                    type="button"
+                                    className={styles.attachFileBtn}
+                                    onClick={() => fileInputRef.current?.click()}
+                                    title="Attach chart image"
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                                    </svg>
+                                </button>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
+                                    onChange={handleFileSelect}
+                                />
+
+                                {/* Custom Dropdown Trigger */}
+                                <div className={styles.dropdownContainer} ref={dropdownRef}>
+                                    <button
+                                        className={styles.dropdownTrigger}
+                                        onClick={() => setDropdownOpen(!dropdownOpen)}
+                                        type="button"
+                                    >
+                                        <span>{selectedPair}</span>
+                                        <span className={`${styles.chevron} ${dropdownOpen ? styles.rotated : ''}`}>
+                                            <DownIcon />
+                                        </span>
+                                    </button>
+                                    {dropdownOpen && (
+                                        <div className={styles.dropdownMenu}>
+                                            {PAIR_GROUPS.map(group => (
+                                                <div key={group.label}>
+                                                    <div className={styles.dropdownHeader}>{group.label}</div>
+                                                    <div className={styles.dropdownList}>
+                                                        {group.pairs.map(pair => (
+                                                            <button
+                                                                key={pair}
+                                                                className={`${styles.dropdownItem} ${selectedPair === pair ? styles.activePair : ''}`}
+                                                                onClick={() => {
+                                                                    setSelectedPair(pair);
+                                                                    setDropdownOpen(false);
+                                                                }}
+                                                                type="button"
+                                                            >
+                                                                {selectedPair === pair && <span className={styles.checkmark}>✓</span>}
+                                                                <span className={styles.pairText}>{pair}</span>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                        )}
-                        <div ref={chatEndRef} />
+
+                            {/* Send trigger */}
+                            <button
+                                className={styles.sendBtn}
+                                onClick={handleSendChatMessage}
+                                disabled={pendingRequest || (!chatInput.trim() && !attachmentDraft)}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="12" y1="19" x2="12" y2="5"></line>
+                                    <polyline points="5 12 12 5 19 12"></polyline>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                {/* Suggestions Chips Row */}
-                {chatMessages.length === 0 && (
-                    <div className={styles.chipsRow}>
-                        <button
-                            className={styles.chip}
-                            onClick={() => handleSuggestionClick(`Is ${selectedPair} a buy at current level on H4?`, selectedPair)}
-                        >
-                            Analyze {selectedPair} on H4
-                        </button>
-                        <button
-                            className={styles.chip}
-                            onClick={() => handleSuggestionClick(`What is the current technical trend for ${selectedPair}?`, selectedPair)}
-                        >
-                            {selectedPair} Trend Analysis
-                        </button>
-                        <button
-                            className={styles.chip}
-                            onClick={() => handleSuggestionClick(`Explain ${selectedPair} breakout patterns`, selectedPair)}
-                        >
-                            {selectedPair} Breakouts
-                        </button>
-                        <button
-                            className={styles.chip}
-                            onClick={() => handleSuggestionClick(`Give me a scalping strategy for ${selectedPair}`, selectedPair)}
-                        >
-                            {selectedPair} Strategy
-                        </button>
-                    </div>
-                )}
+                {/* Resizable Splitter Line Handle */}
+                <div
+                    className={`${styles.resizerSplitter} ${isDragging ? styles.resizerActive : ''}`}
+                    onMouseDown={handleMouseDown}
+                    title="Drag to resize panels"
+                >
+                    <div className={styles.resizerLine} />
+                </div>
 
-                {/* Chat input box */}
-                <div className={styles.inputArea}>
-                    <textarea
-                        placeholder={t('aiChat.askPlaceholder', 'Ask anything about forex trading, chart and strategies..')}
-                        className={styles.textarea}
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value.trimStart())}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                handleSendChatMessage();
-                            }
+                {/* Right Panel: TradingView Real-Time Chart Pane */}
+                <div className={styles.chartSidePanel}>
+                    <TradingViewChartPane
+                        ref={chartPaneRef}
+                        symbol={selectedPair}
+                        onSymbolChange={(newSymbol) => {
+                            const match = ALL_PAIRS.find(p => p.replace(/[^A-Z0-9]/g, '') === newSymbol.toUpperCase());
+                            setSelectedPair(match || newSymbol);
+                        }}
+                        onAttachScreenshot={(attachment) => {
+                            setAttachmentDraft(attachment);
                         }}
                     />
-                    <div className={styles.inputFooter}>
-                        {/* Custom Dropdown Trigger */}
-                        <div className={styles.dropdownContainer} ref={dropdownRef}>
-                            <button
-                                className={styles.dropdownTrigger}
-                                onClick={() => setDropdownOpen(!dropdownOpen)}
-                                type="button"
-                            >
-                                <span>{selectedPair}</span>
-                                <span className={`${styles.chevron} ${dropdownOpen ? styles.rotated : ''}`}>
-                                    <DownIcon />
-                                </span>
-                            </button>
-                            {dropdownOpen && (
-                                <div className={styles.dropdownMenu}>
-                                    {PAIR_GROUPS.map(group => (
-                                        <div key={group.label}>
-                                            <div className={styles.dropdownHeader}>{group.label}</div>
-                                            <div className={styles.dropdownList}>
-                                                {group.pairs.map(pair => (
-                                                    <button
-                                                        key={pair}
-                                                        className={`${styles.dropdownItem} ${selectedPair === pair ? styles.activePair : ''}`}
-                                                        onClick={() => {
-                                                            setSelectedPair(pair);
-                                                            setDropdownOpen(false);
-                                                        }}
-                                                        type="button"
-                                                    >
-                                                        {selectedPair === pair && <span className={styles.checkmark}>✓</span>}
-                                                        <span className={styles.pairText}>{pair}</span>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Send trigger */}
-                        <button
-                            className={styles.sendBtn}
-                            onClick={handleSendChatMessage}
-                            disabled={pendingRequest || !chatInput.trim()}
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="12" y1="19" x2="12" y2="5"></line>
-                                <polyline points="5 12 12 5 19 12"></polyline>
-                            </svg>
-                        </button>
-                    </div>
                 </div>
             </div>
             <Modal
@@ -896,6 +1144,11 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                     </div>
                 </div>
             )}
+
+            <ImagePreviewModal
+                attachment={previewAttachment}
+                onClose={() => setPreviewAttachment(null)}
+            />
         </div>
     );
 }
