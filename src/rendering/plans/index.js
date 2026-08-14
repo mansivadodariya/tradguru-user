@@ -106,17 +106,37 @@ export default function SubscriptionPlansView() {
                 <div className={styles.plansGrid}>
                     {plans.map((plan) => {
                         const isArabic = language === 'ar';
-                        const isFeatured = plan.is_best_value || plan.id === 'premium';
+                        const defaultPlan = defaultSubscriptionPlans.find(d => d.id === plan.id) || {};
+
+                        const isBestValue = Boolean(
+                            plan.is_best_value ||
+                            plan.best_value ||
+                            plan.is_featured ||
+                            plan.is_popular
+                        );
+
+                        let badgeText = isArabic
+                            ? (plan.badge_ar || plan.badge)
+                            : plan.badge;
+
+                        if (!badgeText && isBestValue) {
+                            badgeText = isArabic ? 'أفضل قيمة' : 'BEST VALUE';
+                        }
+
+                        if (!badgeText && defaultPlan) {
+                            badgeText = isArabic
+                                ? (defaultPlan.badge_ar || defaultPlan.badge)
+                                : defaultPlan.badge;
+                        }
+
+                        const isFeatured = isBestValue || Boolean(badgeText) || plan.id === 'premium';
                         const isStandard = plan.id === 'standard';
                         const isBasic = plan.id === 'basic';
                         const isSelected = selectedPlanId === plan.id;
 
-                        const defaultPlan = defaultSubscriptionPlans.find(d => d.id === plan.id) || {};
-
                         const name = isArabic ? (plan.name_ar || defaultPlan.name_ar || plan.name) : (plan.name || defaultPlan.name);
                         const description = isArabic ? (plan.description_ar || defaultPlan.description_ar || plan.description) : (plan.description || defaultPlan.description);
                         const validity = isArabic ? (plan.validity_ar || defaultPlan.validity_ar || plan.validity) : (plan.validity || defaultPlan.validity);
-                        const badgeText = isArabic ? (plan.badge_ar || defaultPlan.badge_ar || plan.badge) : (plan.badge || defaultPlan.badge);
                        
                         const featuresList = isArabic
                             ? (plan.features_ar?.length ? plan.features_ar : (defaultPlan.features_ar || plan.features))
@@ -127,7 +147,7 @@ export default function SubscriptionPlansView() {
                                 key={plan.id}
                                 className={`${styles.planCard} ${isFeatured ? styles.featuredCard : isStandard ? styles.standardCard : styles.basicCard} ${isSelected ? styles.selectedCard : ''}`}
                             >
-                                {/* Best Seller Badge on Top Border */}
+                                {/* Best Value / Best Seller Badge on Top Border */}
                                 {badgeText ? (
                                     <div className={styles.bestSellerBadge}>
                                         <span>{badgeText}</span>
