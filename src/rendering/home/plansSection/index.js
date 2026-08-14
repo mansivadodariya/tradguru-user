@@ -16,7 +16,7 @@ export default function PlansSection() {
                 }
             } catch (e) { /* ignore */ }
         }
-        return true;
+        return false;
     });
 
     useEffect(() => {
@@ -25,8 +25,12 @@ export default function PlansSection() {
             try {
                 const { data, error } = await supabase.rpc('get_visible_dashboard_tabs');
                 if (!error && Array.isArray(data)) {
-                    const hasPlans = data.some(tab => (tab.name || '').toLowerCase() === 'subscription plans');
+                    const arr = data.map(tab => (tab.name || '').toLowerCase());
+                    const hasPlans = arr.includes('subscription plans');
                     setIsVisible(hasPlans);
+                    if (typeof window !== 'undefined') {
+                        sessionStorage.setItem('visible_tab_names', JSON.stringify(arr));
+                    }
                 }
             } catch (e) {
                 console.warn('Failed to check plans section visibility:', e);

@@ -1,9 +1,11 @@
 import en from './en.json';
 import ar from './ar.json';
+import ph from './ph.json';
 
 export const translations = {
   en,
   ar,
+  ph,
 };
 
 export const getTranslation = (lang, key, fallback = '') => {

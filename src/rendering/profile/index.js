@@ -251,11 +251,13 @@ export default function Profile() {
         if (Object.keys(errs).length) { setErrors(errs); return; }
 
         // Check if phone number is new or changed
-        if (form.phone_number !== initialPhone) {
-            setShowOtpModal(true);
-        } else {
-            performSaveProfile();
-        }
+        // OTP verification flow commented out for now:
+        // if (form.phone_number !== initialPhone) {
+        //     setShowOtpModal(true);
+        // } else {
+        //     performSaveProfile();
+        // }
+        performSaveProfile();
     };
 
     const getActiveReferralCode = () => {

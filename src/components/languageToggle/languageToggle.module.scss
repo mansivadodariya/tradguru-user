@@ -41,6 +41,20 @@
   transition: color 0.25s ease;
 }
 
+.activeFlagIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.flagSvg {
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+  display: block;
+}
+
 .chevronIcon {
   display: inline-flex;
   align-items: center;
@@ -103,6 +117,18 @@
   }
 }
 
+.optionContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mapIcon {
+  color: #0B56DB;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
 .checkIcon {
   color: #0B56DB;
   flex-shrink: 0;
@@ -143,7 +169,7 @@
     }
   }
 
-  .checkIcon {
+  .checkIcon, .mapIcon {
     color: #60A5FA;
   }
 }

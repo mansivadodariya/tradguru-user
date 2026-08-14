@@ -21,7 +21,7 @@ export const LanguageProvider = ({ children }) => {
   useEffect(() => {
     try {
       const storedLang = localStorage.getItem('app_language');
-      if (storedLang === 'ar' || storedLang === 'en') {
+      if (storedLang === 'ar' || storedLang === 'en' || storedLang === 'ph') {
         setLanguageState(storedLang);
         document.documentElement.setAttribute('lang', storedLang);
         document.documentElement.setAttribute('dir', storedLang === 'ar' ? 'rtl' : 'ltr');
@@ -35,7 +35,7 @@ export const LanguageProvider = ({ children }) => {
   }, []);
 
   const setLanguage = useCallback((lang) => {
-    if (lang !== 'en' && lang !== 'ar') return;
+    if (lang !== 'en' && lang !== 'ar' && lang !== 'ph') return;
     setLanguageState(lang);
     try {
       localStorage.setItem('app_language', lang);
@@ -49,18 +49,19 @@ export const LanguageProvider = ({ children }) => {
   }, []);
 
   const toggleLanguage = useCallback(() => {
-    setLanguage(language === 'en' ? 'ar' : 'en');
+    setLanguage(language === 'en' ? 'ar' : language === 'ar' ? 'ph' : 'en');
   }, [language, setLanguage]);
 
   const t = useCallback((key, fallback = '') => {
     return getTranslation(language, key, fallback);
   }, [language]);
 
-  /** Helper to translate dynamic backend data objects (e.g. backend fields with _en / _ar) */
-  const tDynamic = useCallback((item, fieldEn = 'title', fieldAr = 'title_ar') => {
+  /** Helper to translate dynamic backend data objects (e.g. backend fields with _en / _ar / _ph) */
+  const tDynamic = useCallback((item, fieldEn = 'title', fieldAr = 'title_ar', fieldPh = 'title_ph') => {
     if (!item) return '';
     if (language === 'ar' && item[fieldAr]) return item[fieldAr];
-    return item[fieldEn] || item[fieldAr] || '';
+    if (language === 'ph' && item[fieldPh]) return item[fieldPh];
+    return item[fieldEn] || item[fieldAr] || item[fieldPh] || '';
   }, [language]);
 
   const dir = language === 'ar' ? 'rtl' : 'ltr';

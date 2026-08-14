@@ -152,8 +152,9 @@ const Login = () => {
         }
 
         setPhoneError('');
-        // Open Phone OTP verification modal popup
-        setShowOtpModal(true);
+        // OTP verification flow commented out for now:
+        // setShowOtpModal(true);
+        handleOtpSuccess();
     };
 
     const handleOtpSuccess = async () => {

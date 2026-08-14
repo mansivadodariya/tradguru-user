@@ -359,6 +359,8 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
       })
     : [];
 
+  const hasPlansPermission = visibleTabNames ? visibleTabNames.has('subscription plans') : false;
+
   return (
     <>
       <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
@@ -405,52 +407,52 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
             ))
           )}
         </div>
-        {/* Upgrade to pro section hidden
-        {!isCollapsed ? (
-          <div className={styles.sidebarBody}>
-            <div className={styles.box}>
-              <div className={styles.contentRelative}>
-                <div className={styles.iconText}>
-                  <img src={UpgradeIcon} alt='UpgradeIcon' />
-                  <h3 {...getBidiProps(t('sidebar.upgradeTitle', 'Upgrade to pro'))}>
-                    {t('sidebar.upgradeTitle', 'Upgrade to pro')}
-                  </h3>
+        {hasPlansPermission && (
+          !isCollapsed ? (
+            <div className={styles.sidebarBody}>
+              <div className={styles.box}>
+                <div className={styles.contentRelative}>
+                  <div className={styles.iconText}>
+                    <img src={UpgradeIcon} alt='UpgradeIcon' />
+                    <h3 {...getBidiProps(t('sidebar.upgradeTitle', 'Upgrade to pro'))}>
+                      {t('sidebar.upgradeTitle', 'Upgrade to pro')}
+                    </h3>
+                  </div>
+                  <p {...getBidiProps(t('sidebar.upgradeDesc', 'Unlock advanced analytics more AI insights & unlimited saves.'))}>
+                    {t('sidebar.upgradeDesc', 'Unlock advanced analytics more AI insights & unlimited saves.')}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose?.();
+                      router.push('/plans');
+                    }}
+                  >
+                    <span {...getBidiProps(t('sidebar.upgradeBtn', 'Upgrade Now'))}>
+                      {t('sidebar.upgradeBtn', 'Upgrade Now')}
+                    </span>
+                  </button>
                 </div>
-                <p {...getBidiProps(t('sidebar.upgradeDesc', 'Unlock advanced analytics more AI insights & unlimited saves.'))}>
-                  {t('sidebar.upgradeDesc', 'Unlock advanced analytics more AI insights & unlimited saves.')}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onClose?.();
-                    router.push('/plans');
-                  }}
-                >
-                  <span {...getBidiProps(t('sidebar.upgradeBtn', 'Upgrade Now'))}>
-                    {t('sidebar.upgradeBtn', 'Upgrade Now')}
-                  </span>
-                </button>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className={styles.sidebarBodyCompact}>
-            <button
-              type="button"
-              className={styles.compactUpgradeBtn}
-              onClick={() => {
-                onClose?.();
-                router.push('/plans');
-              }}
-            >
-              <img src={UpgradeIcon} alt='UpgradeIcon' />
-              <span className={styles.tooltip}>
-                {t('sidebar.upgradeTitle', 'Upgrade to pro')}
-              </span>
-            </button>
-          </div>
+          ) : (
+            <div className={styles.sidebarBodyCompact}>
+              <button
+                type="button"
+                className={styles.compactUpgradeBtn}
+                onClick={() => {
+                  onClose?.();
+                  router.push('/plans');
+                }}
+              >
+                <img src={UpgradeIcon} alt='UpgradeIcon' />
+                <span className={styles.tooltip}>
+                  {t('sidebar.upgradeTitle', 'Upgrade to pro')}
+                </span>
+              </button>
+            </div>
+          )
         )}
-        */}
         <div className={styles.sidebarFooter} ref={profileRef}>
           <div
             className={`${styles.userProfileCard} ${isCollapsed ? styles.collapsedProfileCard : ''}`}

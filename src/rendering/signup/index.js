@@ -198,7 +198,9 @@ const Signup = () => {
         }
 
         setPhoneError('');
-        setShowOtpModal(true);
+        // OTP verification flow commented out for now:
+        // setShowOtpModal(true);
+        handleOtpSuccess();
     };
 
     const handleOtpSuccess = async () => {
