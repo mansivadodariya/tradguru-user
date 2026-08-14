@@ -152,7 +152,7 @@ const Login = () => {
         }
 
         setPhoneError('');
-        // Open WhatsApp OTP verification modal popup
+        // Open Phone OTP verification modal popup
         setShowOtpModal(true);
     };
 

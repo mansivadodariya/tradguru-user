@@ -186,18 +186,6 @@ export const authApi = {
         });
     },
 
-    sendWhatsAppOtp: (phone_number) =>
-        request('/auth/send-whatsapp-otp', {
-            method: 'POST',
-            body: JSON.stringify({ phone_number }),
-        }),
-
-    verifyWhatsAppOtp: (phone_number, otp) =>
-        request('/auth/verify-whatsapp-otp', {
-            method: 'POST',
-            body: JSON.stringify({ phone_number, otp }),
-        }),
-
     verifyPhoneFirebase: (id_token, userId = '') =>
         request('/auth/verify-phone-firebase', {
             method: 'POST',
