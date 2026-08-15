@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
-import { createChart, CandlestickSeries, LineSeries, AreaSeries } from 'lightweight-charts';
+import { createChart, CandlestickSeries, LineSeries, AreaSeries, HistogramSeries } from 'lightweight-charts';
 import styles from './aiAssistant.module.scss';
 import { toast } from '@/components/toast';
 import { useTheme } from '@/context/ThemeContext';
+import SymbolIcon from '@/components/SymbolIcon';
 
 // Categorized Symbol Groups (LuxAlgo / TradingView style)
 export const PAIR_GROUPS = [
@@ -52,6 +53,22 @@ export const CHART_TYPES = [
 export function normalizeSymbol(sym) {
     if (!sym) return 'XAUUSD';
     return sym.toUpperCase().replace(/[^A-Z0-9]/g, '');
+}
+
+// Get icon symbol representation for trading pairs
+export function getSymbolIcon(pairStr) {
+    const s = (pairStr || '').toUpperCase();
+    if (s.includes('XAU') || s.includes('GOLD')) return '🥇';
+    if (s.includes('BTC')) return '₿';
+    if (s.includes('ETH')) return 'Ξ';
+    if (s.includes('EUR')) return '💶';
+    if (s.includes('GBP')) return '💷';
+    if (s.includes('JPY')) return '💴';
+    if (s.includes('AUD')) return '🇦🇺';
+    if (s.includes('CAD')) return '🇨🇦';
+    if (s.includes('NZD')) return '🇳🇿';
+    if (s.includes('CHF')) return '🇨🇭';
+    return '💵';
 }
 
 // Format price based on pair precision
@@ -113,6 +130,7 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
     const containerRef = useRef(null);
     const chartRef = useRef(null);
     const seriesRef = useRef(null);
+    const volumeSeriesRef = useRef(null);
     const wsRef = useRef(null);
     const symbolDropdownRef = useRef(null);
     const cameraDropdownRef = useRef(null);
@@ -231,6 +249,10 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
             },
             rightPriceScale: {
                 borderColor: initialBorder,
+                scaleMargins: {
+                    top: 0.08,
+                    bottom: 0.22,
+                },
             },
         });
 
@@ -295,8 +317,29 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 }
                 seriesRef.current = null;
             }
+            if (volumeSeriesRef.current) {
+                try {
+                    chartRef.current.removeSeries(volumeSeriesRef.current);
+                } catch {
+                    /* ignore */
+                }
+                volumeSeriesRef.current = null;
+            }
 
-            // Create series based on chartType selector
+            // A. Create Volume Histogram Series attached to bottom 18% overlay (TradingView style)
+            const volumeSeries = chartRef.current.addSeries(HistogramSeries, {
+                priceFormat: { type: 'volume' },
+                priceScaleId: 'volume',
+            });
+            chartRef.current.priceScale('volume').applyOptions({
+                scaleMargins: {
+                    top: 0.82,    // Volume starts at 82% height (restricted to bottom 18% area)
+                    bottom: 0,
+                },
+            });
+            volumeSeriesRef.current = volumeSeries;
+
+            // Create main series based on chartType selector
             let newSeries;
             if (chartType === 'line') {
                 newSeries = chartRef.current.addSeries(LineSeries, {
@@ -325,50 +368,79 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
             seriesRef.current = newSeries;
 
             // Fetch historical candle data via HTTP REST API
-            let candlesData = [];
+            let rawCandles = [];
             try {
                 const res = await fetch(
                     `/api/v1/chart/candles?symbol=${activeSymbolClean}&timeframe=${currentTimeframe}`
                 );
                 if (res.ok) {
                     const json = await res.json();
-                    const rawCandles = json.candles || json.data || json;
-                    if (Array.isArray(rawCandles) && rawCandles.length > 0) {
-                        candlesData = rawCandles
-                            .map((c) => ({
-                                time: typeof c.time === 'string' ? Math.floor(new Date(c.time).getTime() / 1000) : Number(c.time),
-                                open: Number(c.open),
-                                high: Number(c.high),
-                                low: Number(c.low),
-                                close: Number(c.close),
-                                value: Number(c.close),
-                            }))
-                            .filter((c) => !isNaN(c.time) && !isNaN(c.close));
-                    }
+                    rawCandles = json.candles || json.data || json || [];
                 }
             } catch (err) {
                 console.warn('REST candles fetch notice:', err.message);
             }
 
             // Fallback mock generator if no candles returned from API
-            if (candlesData.length === 0) {
+            if (!Array.isArray(rawCandles) || rawCandles.length === 0) {
                 const baseVal = activeSymbolClean.includes('XAU')
                     ? 2720
                     : activeSymbolClean.includes('BTC')
                     ? 92000
                     : 1.085;
-                candlesData = generateMockCandles(600, baseVal, currentTimeframe).map((c) => ({
-                    ...c,
-                    value: c.close,
-                }));
+                rawCandles = generateMockCandles(600, baseVal, currentTimeframe);
             }
 
-            // Sort chronologically
-            candlesData.sort((a, b) => a.time - b.time);
+            // Parse floats and handle timestamp formatting
+            const formattedCandles = rawCandles
+                .map((c) => {
+                    let timeVal = c.time || c.timestamp;
+                    if (typeof timeVal === 'string') {
+                        if (timeVal.includes('T')) {
+                            timeVal = Math.floor(new Date(timeVal).getTime() / 1000);
+                        } else if (!isNaN(Number(timeVal))) {
+                            timeVal = Number(timeVal);
+                        } else {
+                            timeVal = Math.floor(new Date(timeVal).getTime() / 1000);
+                        }
+                    } else {
+                        timeVal = Number(timeVal);
+                    }
+
+                    const openPrice = parseFloat(c.open);
+                    const highPrice = parseFloat(c.high);
+                    const lowPrice = parseFloat(c.low);
+                    const closePrice = parseFloat(c.close);
+                    const volumeVal = parseFloat(c.volume || c.tick_volume || c.vol || 0);
+
+                    return {
+                        time: timeVal,
+                        open: openPrice,
+                        high: highPrice,
+                        low: lowPrice,
+                        close: closePrice,
+                        value: closePrice,
+                        volume: volumeVal,
+                        volumeColor: closePrice >= openPrice ? 'rgba(38, 166, 154, 0.7)' : 'rgba(239, 83, 80, 0.7)',
+                    };
+                })
+                .filter((c) => !isNaN(c.time) && !isNaN(c.close));
+
+            // Ensure candle data is sorted chronologically in ASCENDING order (oldest to newest)
+            formattedCandles.sort((a, b) => a.time - b.time);
 
             if (isMounted && seriesRef.current) {
-                seriesRef.current.setData(candlesData);
-                const last = candlesData[candlesData.length - 1];
+                seriesRef.current.setData(formattedCandles);
+                if (volumeSeriesRef.current) {
+                    volumeSeriesRef.current.setData(
+                        formattedCandles.map((c) => ({
+                            time: c.time,
+                            value: c.volume || Math.floor(Math.random() * 2500) + 400,
+                            color: c.volumeColor,
+                        }))
+                    );
+                }
+                const last = formattedCandles[formattedCandles.length - 1];
                 if (last) setLatestCandle(last);
                 chartRef.current.timeScale().applyOptions({
                     barSpacing: 9,
@@ -412,20 +484,41 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                         const payload = JSON.parse(event.data);
                         if (payload.type === 'candle_update' && payload.data) {
                             const bar = payload.data;
-                            const tSec =
-                                typeof bar.time === 'string'
-                                    ? Math.floor(new Date(bar.time).getTime() / 1000)
-                                    : Number(bar.time);
+                            let timeVal = bar.time || bar.timestamp;
+                            if (typeof timeVal === 'string') {
+                                if (timeVal.includes('T')) {
+                                    timeVal = Math.floor(new Date(timeVal).getTime() / 1000);
+                                } else if (!isNaN(Number(timeVal))) {
+                                    timeVal = Number(timeVal);
+                                } else {
+                                    timeVal = Math.floor(new Date(timeVal).getTime() / 1000);
+                                }
+                            } else {
+                                timeVal = Number(timeVal);
+                            }
+
+                            const openPrice = parseFloat(bar.open);
+                            const closePrice = parseFloat(bar.close);
+                            const volumeVal = parseFloat(bar.volume || bar.tick_volume || bar.vol || 0);
+
                             const updatedBar = {
-                                time: tSec,
-                                open: Number(bar.open),
-                                high: Number(bar.high),
-                                low: Number(bar.low),
-                                close: Number(bar.close),
-                                value: Number(bar.close),
+                                time: timeVal,
+                                open: openPrice,
+                                high: parseFloat(bar.high),
+                                low: parseFloat(bar.low),
+                                close: closePrice,
+                                value: closePrice,
                             };
+
                             if (seriesRef.current) {
                                 seriesRef.current.update(updatedBar);
+                            }
+                            if (volumeSeriesRef.current) {
+                                volumeSeriesRef.current.update({
+                                    time: timeVal,
+                                    value: volumeVal || Math.floor(Math.random() * 2000) + 500,
+                                    color: closePrice >= openPrice ? 'rgba(38, 166, 154, 0.7)' : 'rgba(239, 83, 80, 0.7)',
+                                });
                             }
                             setLatestCandle(updatedBar);
                         }
@@ -469,6 +562,7 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 const newClose = Number((prev.close + priceDelta).toFixed(2));
                 const newHigh = Math.max(prev.high, newClose);
                 const newLow = Math.min(prev.low, newClose);
+                const newVol = Math.floor(Math.random() * 2000) + 500;
                 const updated = {
                     ...prev,
                     high: newHigh,
@@ -477,6 +571,14 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                     value: newClose,
                 };
                 seriesRef.current.update(updated);
+
+                if (volumeSeriesRef.current) {
+                    volumeSeriesRef.current.update({
+                        time: prev.time,
+                        value: newVol,
+                        color: newClose >= prev.open ? 'rgba(38, 166, 154, 0.7)' : 'rgba(239, 83, 80, 0.7)',
+                    });
+                }
                 return updated;
             });
         }, 1500);
@@ -548,6 +650,12 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
         setCameraDropdownOpen(false);
     };
 
+    const currentPrice = latestCandle?.close || 0;
+    const openPrice = latestCandle?.open || currentPrice;
+    const priceDiff = currentPrice - openPrice;
+    const isUp = priceDiff >= 0;
+    const percentChange = openPrice ? ((priceDiff / openPrice) * 100).toFixed(2) : '0.00';
+
     return (
         <div className={styles.chartPaneContainer}>
             {/* Chart Floating Controls (Top-Left & Top-Right) */}
@@ -560,6 +668,7 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                             className={styles.symbolSelectorBtn}
                             onClick={() => setSymbolDropdownOpen(!symbolDropdownOpen)}
                         >
+                            <SymbolIcon symbol={symbol || 'XAU/USD'} size={18} />
                             <span className={styles.symbolBadge}>{symbol || 'XAU/USD'}</span>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                 <polyline points="6 9 12 15 18 9" />
@@ -584,8 +693,11 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                                                             setSymbolDropdownOpen(false);
                                                         }}
                                                     >
-                                                        <span>{pairStr}</span>
-                                                        {isActive && <span>✓</span>}
+                                                        <div className={styles.pairItemInfo}>
+                                                            <SymbolIcon symbol={pairStr} size={18} />
+                                                            <span>{pairStr}</span>
+                                                        </div>
+                                                        {isActive && <span className={styles.pairCheck}>✓</span>}
                                                     </button>
                                                 );
                                             })}
@@ -595,6 +707,15 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                             </div>
                         )}
                     </div>
+
+                    {/* Live Real-time Price Badge */}
+                    {latestCandle && (
+                        <div className={`${styles.headerLivePriceBadge} ${isUp ? styles.badgeUp : styles.badgeDown}`}>
+                            <span className={styles.livePriceText}>{formatPrice(currentPrice, symbol)}</span>
+                            <span className={styles.liveDirectionTag}>{isUp ? '▲ UP' : '▼ DOWN'}</span>
+                            <span className={styles.livePctTag}>{isUp ? `+${percentChange}%` : `${percentChange}%`}</span>
+                        </div>
+                    )}
 
                     {/* Timeframe Selector Buttons */}
                     <div className={styles.timeframeBar}>

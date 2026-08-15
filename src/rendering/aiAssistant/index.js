@@ -17,6 +17,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import ReportPanel from './ReportPanel';
 import { useLanguage } from '@/context/LanguageContext';
+import SymbolIcon from '@/components/SymbolIcon';
 import { getBidiProps, bidiMarkdownComponents } from '@/lib/bidi';
 import TradingViewChartPane, { PAIR_GROUPS, ALL_PAIRS, normalizeSymbol } from './TradingViewChartPane';
 import AttachmentDraft from './AttachmentDraft';
@@ -996,6 +997,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                         onClick={() => setDropdownOpen(!dropdownOpen)}
                                         type="button"
                                     >
+                                        <SymbolIcon symbol={selectedPair} size={18} />
                                         <span>{selectedPair}</span>
                                         <span className={`${styles.chevron} ${dropdownOpen ? styles.rotated : ''}`}>
                                             <DownIcon />
@@ -1017,8 +1019,11 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                                                 }}
                                                                 type="button"
                                                             >
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                    <SymbolIcon symbol={pair} size={18} />
+                                                                    <span className={styles.pairText}>{pair}</span>
+                                                                </div>
                                                                 {selectedPair === pair && <span className={styles.checkmark}>✓</span>}
-                                                                <span className={styles.pairText}>{pair}</span>
                                                             </button>
                                                         ))}
                                                     </div>
