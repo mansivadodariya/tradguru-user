@@ -8,7 +8,240 @@ $border: rgba(18, 18, 18, 0.10);
     display: flex;
     flex-direction: column;
     gap: 24px;
-    max-width: 640px;
+    width: 100%;
+    max-width: 100%;
+}
+
+.profileGrid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    align-items: stretch;
+
+    @include respond-to('md') {
+        grid-template-columns: 240px 1fr;
+        gap: 16px;
+    }
+
+    @include respond-to('sm') {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        align-items: start;
+    }
+}
+
+.subSidebar {
+    background: #FFFFFF;
+    border: 1px solid $border;
+    border-radius: 12px;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    height: 100%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+
+    @include respond-to('sm') {
+        height: auto;
+        padding: 12px;
+    }
+}
+
+.subSidebarNav {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+
+    @include respond-to('sm') {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+.subNavItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    border-radius: 0;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #000000;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    user-select: none;
+    position: relative;
+    width: 100%;
+    margin-bottom: 10px;
+
+    @include respond-to('sm') {
+        width: auto;
+        white-space: nowrap;
+        flex-shrink: 0;
+        margin-bottom: 0;
+    }
+
+    &::before {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 0;
+        width: 12px;
+        height: 80%;
+        background: #fff;
+        filter: blur(9px);
+        content: '';
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    &:hover {
+        background: rgba(11, 86, 219, 0.08);
+
+        .subNavItemIcon {
+            color: #0b56db;
+        }
+
+        .subNavItemTitle {
+            color: #0b56db;
+        }
+    }
+}
+
+.subNavItemActive {
+    background: #0b56db !important;
+    border-color: #0b56db !important;
+    box-shadow: 0 4px 14px rgba(11, 86, 219, 0.35);
+
+    &::before {
+        opacity: 1;
+    }
+
+    .subNavItemTitle {
+        color: #ffffff !important;
+        font-weight: 500;
+    }
+
+    .subNavItemSub {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .subNavItemIcon {
+        background-color: #ffffff !important;
+        color: #0b56db !important;
+    }
+
+    .subNavItemBadge {
+        background: #ffffff !important;
+        color: #0b56db !important;
+    }
+
+    &:hover {
+        background: #0b56db !important;
+
+        .subNavItemIcon {
+            background-color: #ffffff !important;
+            color: #0b56db !important;
+        }
+
+        .subNavItemTitle {
+            color: #ffffff !important;
+        }
+    }
+}
+
+.subNavItemIcon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #000000;
+    background: transparent;
+    transition: all 0.2s ease-in-out;
+
+    svg {
+        display: block;
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.subNavItemText {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+}
+
+.subNavItemTitle {
+    font-size: 16px;
+    font-weight: 500;
+    color: #000000;
+    line-height: normal;
+    transition: color 0.2s ease-in-out;
+}
+
+.subNavItemSub {
+    font-size: 11px;
+    color: #64748B;
+    line-height: 1.2;
+    transition: color 0.2s ease;
+
+    @include respond-to('sm') {
+        display: none;
+    }
+}
+
+.subNavItemBadge {
+    background: #0b56db;
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    line-height: 1;
+    transition: all 0.2s ease;
+}
+
+.subContent {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+    height: 100%;
+}
+
+.cardHeader {
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid $border;
+
+    h2 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1E293B;
+        margin: 0 0 4px;
+    }
+
+    p {
+        font-size: 13px;
+        color: #64748B;
+        margin: 0;
+    }
+}
+
+.cardHeaderRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 .header {
@@ -206,9 +439,11 @@ $border: rgba(18, 18, 18, 0.10);
 .card {
     background: #fff;
     border: 1px solid $border;
+    border-radius: 12px;
     padding: 28px;
     display: flex;
     flex-direction: column;
+    height: 100%;
 
     @include respond-to('sm') {
         padding: 20px;
@@ -286,6 +521,62 @@ $border: rgba(18, 18, 18, 0.10);
     }
 }
 
+.labelRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 8px;
+
+    .label {
+        margin-bottom: 0;
+    }
+}
+
+.referralInputGroup {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+
+    @include respond-to('sm') {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+.referralBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(11, 86, 219, 0.08);
+    border: 1px solid rgba(11, 86, 219, 0.18);
+    color: #0B56DB;
+    padding: 0 14px;
+    height: 50px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    svg {
+        color: #0B56DB;
+        flex-shrink: 0;
+    }
+}
+
+.referralCountNumber {
+    font-weight: 700;
+    font-size: 12px;
+    background: #0B56DB;
+    color: #ffffff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    line-height: 1;
+    margin-left: 2px;
+}
+
 .referralWrapper {
     position: relative;
     display: flex;
@@ -295,15 +586,16 @@ $border: rgba(18, 18, 18, 0.10);
 
 .referralInput {
     width: 100%;
-    padding: 12px 90px 12px 16px;
-    border: 1px solid $border;
+    padding: 0 90px 0 16px;
+    border: 1px solid rgba(26, 26, 26, 0.14);
     font-size: 16px;
-    color: rgba(26, 26, 26, 0.65);
-    background-color: #f9f9f9;
+    font-weight: 400;
+    color: #1A1A1A;
+    background: transparent;
     line-height: 24px;
     height: 50px;
     outline: none;
-    cursor: not-allowed;
+    cursor: default;
 }
 
 .referralActions {
@@ -530,6 +822,68 @@ $border: rgba(18, 18, 18, 0.10);
 }
 
 :global(.dark) {
+    .subSidebar {
+        background: #18181b;
+        border-color: #27272a;
+    }
+
+    .subNavItem {
+        color: #a1a1aa;
+
+        .subNavItemIcon {
+            background: transparent;
+            color: #a1a1aa;
+        }
+
+        .subNavItemTitle {
+            color: #f4f4f5;
+        }
+
+        &:hover {
+            background: rgba(11, 86, 219, 0.2);
+
+            .subNavItemIcon {
+                color: #60a5fa;
+            }
+
+            .subNavItemTitle {
+                color: #60a5fa;
+            }
+        }
+    }
+
+    .subNavItemActive {
+        background: #0b56db !important;
+        border-color: #0b56db !important;
+        box-shadow: 0 4px 14px rgba(11, 86, 219, 0.35);
+
+        .subNavItemTitle {
+            color: #ffffff !important;
+        }
+
+        .subNavItemIcon {
+            background: transparent !important;
+            color: #ffffff !important;
+        }
+
+        .subNavItemBadge {
+            background: #ffffff !important;
+            color: #0b56db !important;
+        }
+    }
+
+    .cardHeader {
+        border-bottom-color: #27272a;
+
+        h2 {
+            color: #ffffff;
+        }
+
+        p {
+            color: #a1a1aa;
+        }
+    }
+
     .profile {
         .header {
             h1 {
@@ -560,8 +914,23 @@ $border: rgba(18, 18, 18, 0.10);
 
     .referralInput {
         border-color: #2d2d34;
-        color: rgba(255, 255, 255, 0.7);
-        background-color: #1a1a1e;
+        color: #ffffff;
+        background: transparent;
+    }
+
+    .referralBadge {
+        background: rgba(11, 86, 219, 0.15);
+        border-color: rgba(96, 165, 250, 0.3);
+        color: #60a5fa;
+
+        svg {
+            color: #60a5fa;
+        }
+    }
+
+    .referralCountNumber {
+        background: #0B56DB;
+        color: #ffffff;
     }
 
     .hint {
@@ -573,7 +942,7 @@ $border: rgba(18, 18, 18, 0.10);
 
         &:hover {
             color: #60a5fa;
-            background-color: rgba(96, 165, 250, 0.1);
+            background-color: rgba(11, 86, 219, 0.25);
         }
     }
 

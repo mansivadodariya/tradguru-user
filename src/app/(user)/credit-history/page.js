@@ -1,6 +1,13 @@
 'use client';
-import CreditHistory from '@/rendering/creditHistory';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Page() {
-    return <CreditHistory />;
+    const router = useRouter();
+    useEffect(() => {
+        router.replace('/profile?tab=credit_history');
+    }, [router]);
+
+    return null;
 }
+

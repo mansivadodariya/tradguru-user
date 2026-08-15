@@ -10,7 +10,7 @@
     "creditHistory": "Credit History",
     "plans": "Subscription Plans",
     "broker": "Broker",
-    "profile": "Profile",
+    "profile": "Settings",
     "edufins": "Edufins",
     "fundedMaster": "Funded Master",
     "getStarted": "Get Started",
@@ -290,9 +290,14 @@
     "upgradeBtn": "Upgrade Now"
   },
   "profile": {
+    "profileTab": "Profile",
+    "recentActivity": "Recent Activity",
+    "at": "at",
     "manageDetails": "Manage your personal details",
     "phoneLabel": "Phone Number",
     "referralCode": "Referral Code",
+    "totalReferrals": "Total Referrals",
+    "referralCount": "Referrals",
     "referralHint": "Share this link with others. It will automatically fill the referral code when they sign up!",
     "loginActivity": "Recent Login Activity",
     "loginActivityDesc": "Monitor your 5 most recent login sessions for account security.",

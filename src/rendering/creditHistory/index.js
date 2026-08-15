@@ -17,7 +17,7 @@ function getUserFromStorage() {
     }
 }
 
-export default function CreditHistory() {
+export default function CreditHistory({ embedMode = false }) {
     const router = useRouter();
     const { t } = useLanguage();
     const [userId, setUserId] = useState('');
@@ -86,10 +86,12 @@ export default function CreditHistory() {
 
     return (
         <div className={styles.container}>
-            <div className={styles.header}>
-                <h1>{t('creditHistory.title', 'Credit History')}</h1>
-                <p>{t('creditHistory.subtitle', 'Track your credit usage, deposits, and rewards')}</p>
-            </div>
+            {!embedMode && (
+                <div className={styles.header}>
+                    <h1>{t('creditHistory.title', 'Credit History')}</h1>
+                    <p>{t('creditHistory.subtitle', 'Track your credit usage, deposits, and rewards')}</p>
+                </div>
+            )}
 
             <div className={styles.card}>
                 <div className={styles.historyHeader}>
