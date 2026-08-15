@@ -10,7 +10,7 @@
     "creditHistory": "سجل الرصيد",
     "plans": "باقات الاشتراك",
     "broker": "الوسيط",
-    "profile": "الملف الشخصي",
+    "profile": "الإعدادات",
     "edufins": "إديوفينس",
     "fundedMaster": "فاندد ماستر",
     "getStarted": "ابدأ الآن",
@@ -290,9 +290,14 @@
     "upgradeBtn": "ترقية الآن"
   },
   "profile": {
+    "profileTab": "الملف الشخصي",
+    "recentActivity": "النشاط الحديث",
+    "at": "في",
     "manageDetails": "إدارة تفاصيلك الشخصية",
     "phoneLabel": "رقم الهاتف",
     "referralCode": "رمز الإحالة",
+    "totalReferrals": "إجمالي الإحالات",
+    "referralCount": "الإحالات",
     "referralHint": "شارك هذا الرابط مع الآخرين. سيتم ملء رمز الإحالة تلقائياً عند تسجيلهم!",
     "loginActivity": "نشاط تسجيل الدخول الحديث",
     "loginActivityDesc": "مراقبة آخر 5 جلسات تسجيل دخول لأمان حسابك.",

@@ -68,10 +68,9 @@ const getMainNav = (t) => [
     ]
   },
   { label: t('nav.economicCalendar', 'Economic Calendar'), href: "/economic-calendar", icon: PricingIcon },
-  { label: t('nav.creditHistory', 'Credit History'), href: "/credit-history", icon: CreditHistoryIcon },
   { label: t('nav.plans', 'Subscription Plans'), href: "/plans", icon: PricingIcon },
   { label: t('nav.broker', 'Broker'), href: "/broker", icon: BrokerIcon },
-  { label: t('nav.profile', 'Profile'), href: "/profile", icon: SettingsIcon },
+  { label: t('nav.profile', 'Settings'), href: "/profile", icon: SettingsIcon },
 ];
 
 /** Match current route to nav item (handles trailing slashes and nested paths). */
@@ -331,6 +330,9 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
 
   const handleNavigate = () => {
     onClose?.();
+    if (!isCollapsed && onToggleCollapse) {
+      onToggleCollapse();
+    }
   };
 
   const doLogout = () => {
@@ -424,7 +426,7 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
                   <button
                     type="button"
                     onClick={() => {
-                      onClose?.();
+                      handleNavigate();
                       router.push('/plans');
                     }}
                   >
@@ -441,7 +443,7 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
                 type="button"
                 className={styles.compactUpgradeBtn}
                 onClick={() => {
-                  onClose?.();
+                  handleNavigate();
                   router.push('/plans');
                 }}
               >
@@ -518,7 +520,7 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
                   className={styles.dropdownItem}
                   onClick={() => {
                     setProfileDropdownOpen(false);
-                    onClose?.();
+                    handleNavigate();
                     router.push('/profile');
                   }}
                 >
