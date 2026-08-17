@@ -30,6 +30,13 @@ export default function StrategyDropdown({ strategies: propStrategies = [], sele
     const [selectedId, setSelectedId] = useState(selectedStrategyId || '');
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const initialSelectFiredRef = useRef(false);
+
+    useEffect(() => {
+        if (selectedStrategyId && selectedStrategyId !== selectedId) {
+            setSelectedId(selectedStrategyId);
+        }
+    }, [selectedStrategyId]);
 
     useEffect(() => {
         if (propStrategies && propStrategies.length > 0) {
@@ -38,7 +45,10 @@ export default function StrategyDropdown({ strategies: propStrategies = [], sele
             if (!selectedId) {
                 const firstId = propStrategies[0].id || propStrategies[0].strategy_id;
                 setSelectedId(firstId);
-                if (onSelect) onSelect(firstId);
+                if (onSelect && !initialSelectFiredRef.current) {
+                    initialSelectFiredRef.current = true;
+                    onSelect(firstId);
+                }
             }
             return;
         }
@@ -61,8 +71,9 @@ export default function StrategyDropdown({ strategies: propStrategies = [], sele
                 setStrategies(list);
                 if (list.length > 0) {
                     const firstId = list[0].id || list[0].strategy_id;
-                    setSelectedId(firstId);
-                    if (onSelect) {
+                    setSelectedId(prev => prev || firstId);
+                    if (onSelect && !initialSelectFiredRef.current) {
+                        initialSelectFiredRef.current = true;
                         onSelect(firstId);
                     }
                 }
@@ -73,7 +84,7 @@ export default function StrategyDropdown({ strategies: propStrategies = [], sele
             }
         }
         fetchStrategies();
-    }, [propStrategies]);
+    }, []);
 
     // Close dropdown on click outside
     useEffect(() => {
