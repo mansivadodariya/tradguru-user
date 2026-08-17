@@ -1,4 +1,5 @@
 import { Plus_Jakarta_Sans, Roboto } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { ToastProvider } from "@/components/toast";
 import WhatsappButton from "@/components/whatsappButton";
@@ -43,8 +44,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${robotoSans.variable} ${plusSans.variable}`} suppressHydrationWarning>
       <head>
-        <script
+        <Script
           id="theme-initializer"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               try {
