@@ -23,16 +23,31 @@ function ChevronDownIcon({ className, ...props }) {
     );
 }
 
-export default function StrategyDropdown({ strategies = [], selectedStrategyId, onSelect, loading = false }) {
+export default function StrategyDropdown({ strategies: propStrategies = [], selectedStrategyId, onSelect, loading: propLoading = false }) {
     const { t } = useLanguage();
+    const [strategies, setStrategies] = useState(propStrategies);
+    const [loading, setLoading] = useState(propLoading);
     const [selectedId, setSelectedId] = useState(selectedStrategyId || '');
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
     useEffect(() => {
+        if (propStrategies && propStrategies.length > 0) {
+            setStrategies(propStrategies);
+            setLoading(false);
+            if (!selectedId) {
+                const firstId = propStrategies[0].id || propStrategies[0].strategy_id;
+                setSelectedId(firstId);
+                if (onSelect) onSelect(firstId);
+            }
+            return;
+        }
+
         async function fetchStrategies() {
+            setLoading(true);
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/chart/strategies`, {
+                const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.thetradermaster.com').replace(/\/+$/, '');
+                const res = await fetch(`${backendUrl}/api/v1/chart/strategies`, {
                     headers: { 
                         'accept': 'application/json',
                         'ngrok-skip-browser-warning': 'true'
@@ -58,7 +73,7 @@ export default function StrategyDropdown({ strategies = [], selectedStrategyId, 
             }
         }
         fetchStrategies();
-    }, []);
+    }, [propStrategies]);
 
     // Close dropdown on click outside
     useEffect(() => {

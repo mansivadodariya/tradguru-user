@@ -584,7 +584,7 @@
             if (baseUrl.startsWith('file')) {
                 baseUrl = 'http://localhost:3000';
             }
-            const url = `${baseUrl}/api/v1/chart/candles?symbol=${dbSym}&timeframe=${timeframe}&limit=744`;
+            const url = `${baseUrl}/api/v1/chart/candles?symbol=${dbSym}&timeframe=${timeframe}&limit=744&strategy_id=3e8d2b78-0e86-4fdf-9759-338276db1742`;
 
             try {
                 const resp = await fetch(url);
