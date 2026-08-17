@@ -596,6 +596,17 @@
             }
         }
 
+        function getSymbolPrecision(symbol) {
+            const sym = (symbol || '').replace('/', '').toUpperCase();
+            if (sym.includes('JPY')) {
+                return { precision: 3, minMove: 0.001 };
+            } else if (sym.includes('XAU') || sym.includes('BTC') || sym.includes('GOLD')) {
+                return { precision: 2, minMove: 0.01 };
+            } else {
+                return { precision: 5, minMove: 0.00001 };
+            }
+        }
+
         // ─── Load and Render ───────────────────────────────────────
         async function loadChart() {
             const overlay = document.getElementById('loadingOverlay');
@@ -608,6 +619,17 @@
             if (candles.length === 0) {
                 overlay.querySelector('.loading-text').textContent = 'No data available for this pair.';
                 return;
+            }
+
+            if (candleSeries) {
+                const { precision, minMove } = getSymbolPrecision(currentSymbol);
+                candleSeries.applyOptions({
+                    priceFormat: {
+                        type: 'price',
+                        precision: precision,
+                        minMove: minMove,
+                    },
+                });
             }
 
             // Parse candles — handle both ISO and Unix timestamp formats

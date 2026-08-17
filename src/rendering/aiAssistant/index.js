@@ -823,19 +823,22 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                 <span>{t('aiChat.activePair', 'Active Pair')}: {selectedPair}</span>
                             </div>
                             <div className={styles.headerAction}>
-                                <div title={t('aiChat.createNewChat', 'Create New Chat')}>
-                                    <Button
-                                        text={t('aiChat.createNewChat', 'Create New Chat')}
-                                        icon={UploadIcon}
-                                        onClick={handleCreateNew}
-                                    />
-                                </div>
-                                <div title={t('aiChat.history', 'History')}>
-                                    <HistoryButton
-                                        text={t('aiChat.history', 'History')}
-                                        onClick={() => setHistoryModalOpen(true)}
-                                    />
-                                </div>
+                                <button
+                                    type="button"
+                                    className={styles.createNewBtn}
+                                    onClick={handleCreateNew}
+                                    title={t('aiChat.createNewChat', 'Create New Chat')}
+                                >
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    <span>{t('aiChat.createNewChat', 'Create New Chat')}</span>
+                                </button>
+                                <HistoryButton
+                                    text={t('aiChat.history', 'History')}
+                                    onClick={() => setHistoryModalOpen(true)}
+                                />
                             </div>
                         </div>
                         <div className={styles.chatBody}>
