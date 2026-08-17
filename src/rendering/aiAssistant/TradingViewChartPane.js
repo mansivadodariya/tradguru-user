@@ -55,6 +55,55 @@ export function normalizeSymbol(sym) {
     return sym.toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
+// A. Determine Precision by Symbol Name (Fixes flat zero-height candles for 5-decimal Forex pairs)
+export function getSymbolPrecision(symbol) {
+    const sym = (symbol || '').replace('/', '').toUpperCase();
+    if (sym.includes('JPY')) {
+        return { precision: 3, minMove: 0.001 };      // Yen Pairs (3 Decimals: USDJPY, GBPJPY)
+    } else if (sym.includes('XAU') || sym.includes('BTC') || sym.includes('GOLD')) {
+        return { precision: 2, minMove: 0.01 };       // Gold / Crypto (2 Decimals: XAUUSD)
+    } else {
+        return { precision: 5, minMove: 0.00001 };    // Standard Forex (5 Decimals: EURUSD, NZDUSD, GBPUSD, AUDUSD, USDCAD, USDCHF)
+    }
+}
+
+// Single API Fetch Deduplication Cache
+const activeFetches = {};
+export async function fetchChartDataOnce(symbol, timeframe = '15m', strategyId = '3e8d2b78-0e86-4fdf-9759-338276db1742') {
+    const cleanSymbol = (symbol || 'XAUUSD').replace('/', '').toUpperCase();
+    const key = `${cleanSymbol}:${timeframe}:${strategyId}`;
+
+    if (activeFetches[key]) {
+        return activeFetches[key];
+    }
+
+    const baseUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.thetradermaster.com').replace(/\/+$/, '');
+    const url = `${baseUrl}/api/v1/chart/candles?symbol=${cleanSymbol}&timeframe=${timeframe}&strategy_id=${strategyId}`;
+
+    activeFetches[key] = fetch(url, {
+        headers: {
+            'accept': 'application/json',
+            'ngrok-skip-browser-warning': 'true'
+        }
+    })
+    .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+    })
+    .catch(err => {
+        delete activeFetches[key];
+        throw err;
+    })
+    .then(data => {
+        setTimeout(() => {
+            delete activeFetches[key];
+        }, 3000);
+        return data;
+    });
+
+    return activeFetches[key];
+}
+
 // Get icon symbol representation for trading pairs
 export function getSymbolIcon(pairStr) {
     const s = (pairStr || '').toUpperCase();
@@ -365,17 +414,23 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 });
             }
 
+            // Apply Dynamic Symbol Precision (5 decimals for Forex, 3 for JPY, 2 for Gold/Crypto)
+            const { precision, minMove } = getSymbolPrecision(activeSymbolClean);
+            newSeries.applyOptions({
+                priceFormat: {
+                    type: 'price',
+                    precision: precision,
+                    minMove: minMove,
+                },
+            });
+
             seriesRef.current = newSeries;
 
-            // Fetch historical candle data via HTTP REST API
+            // Fetch historical candle data via HTTP REST API (Deduplicated fetch)
             let rawCandles = [];
             try {
-                const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || '').replace(/\/+$/, '');
-                const res = await fetch(`${backendUrl}/api/v1/chart/candles?symbol=${activeSymbolClean}&timeframe=${currentTimeframe}&strategy_id=3e8d2b78-0e86-4fdf-9759-338276db1742`);
-                if (res.ok) {
-                    const json = await res.json();
-                    rawCandles = json.candles || json.data || json || [];
-                }
+                const json = await fetchChartDataOnce(activeSymbolClean, currentTimeframe);
+                rawCandles = json.candles || json.data || json || [];
             } catch (err) {
                 console.warn('REST candles fetch notice:', err.message);
             }
@@ -716,7 +771,7 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                         </div>
                     )}
 
-                    {/* Timeframe Selector Buttons */}
+                    {/* Timeframe Selector Buttons (Desktop Wide) */}
                     <div className={styles.timeframeBar}>
                         {TIMEFRAMES.map((tf) => (
                             <button
@@ -728,6 +783,21 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                                 {tf.label}
                             </button>
                         ))}
+                    </div>
+
+                    {/* Timeframe Selector Dropdown (Small / Responsive Screens) */}
+                    <div className={styles.timeframeSelectWrapper}>
+                        <select
+                            value={currentTimeframe}
+                            onChange={(e) => setCurrentTimeframe(e.target.value)}
+                            className={styles.timeframeSelect}
+                        >
+                            {TIMEFRAMES.map((tf) => (
+                                <option key={tf.value} value={tf.value}>
+                                    {tf.label}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     {/* Chart Type Selector Dropdown */}
@@ -863,10 +933,10 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                                     />
                                 </div>
                                 <div className={styles.presetColorRow}>
-                                    <button type="button" onClick={() => setBackgroundColor('#131722')} style={{ background: '#131722' }}>Dark</button>
-                                    <button type="button" onClick={() => setBackgroundColor('#0B0E14')} style={{ background: '#0B0E14' }}>Midnight</button>
-                                    <button type="button" onClick={() => setBackgroundColor('#1E222D')} style={{ background: '#1E222D' }}>Slate</button>
-                                    <button type="button" onClick={() => setBackgroundColor('#FFFFFF')} style={{ background: '#FFFFFF', color: '#000' }}>Light</button>
+                                    <button type="button" onClick={() => setBackgroundColor('#131722')} style={{ background: '#131722', color: '#ffffff' }}>Dark</button>
+                                    <button type="button" onClick={() => setBackgroundColor('#0B0E14')} style={{ background: '#0B0E14', color: '#ffffff' }}>Midnight</button>
+                                    <button type="button" onClick={() => setBackgroundColor('#1E222D')} style={{ background: '#1E222D', color: '#ffffff' }}>Slate</button>
+                                    <button type="button" onClick={() => setBackgroundColor('#FFFFFF')} style={{ background: '#FFFFFF', color: '#0f172a', borderColor: '#cbd5e1' }}>Light</button>
                                 </div>
                             </div>
 

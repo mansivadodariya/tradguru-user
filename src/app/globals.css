@@ -108,6 +108,16 @@ p:last-child {
   padding: 16px;
 }
 
+@media (max-width: 1200px) {
+  .user-layout,
+  .children-wrapper,
+  .children-spacing {
+    height: auto !important;
+    min-height: 100dvh;
+    overflow-y: visible !important;
+  }
+}
+
 .nsm7Bb-HzV7m-LgbsSe {
   border: none !important;
 }

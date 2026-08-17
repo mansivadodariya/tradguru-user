@@ -811,7 +811,7 @@ $success: #10b981;
     max-height: 90vh;
     overflow-y: auto;
     background: #fff;
-    border-radius: 16px;
+    border-radius: 0;
     border: 1px solid rgba(18, 18, 18, 0.12);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
 }
@@ -846,7 +846,7 @@ $success: #10b981;
     background: #f3f4f6;
     width: 32px;
     height: 32px;
-    border-radius: 8px;
+    border-radius: 0;
     cursor: pointer;
     font-size: 14px;
     display: flex;

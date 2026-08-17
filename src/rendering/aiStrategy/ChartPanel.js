@@ -95,6 +95,55 @@ function generateFallbackCandles(symbol = 'XAUUSD', timeframe = '1H') {
     return candlesList;
 }
 
+// Single API Fetch Deduplication Cache
+const activeFetches = {};
+
+export function getSymbolPrecision(symbol) {
+    const sym = (symbol || '').replace('/', '').toUpperCase();
+    if (sym.includes('JPY')) {
+        return { precision: 3, minMove: 0.001 };      // Yen Pairs (3 Decimals: USDJPY, GBPJPY)
+    } else if (sym.includes('XAU') || sym.includes('BTC') || sym.includes('GOLD')) {
+        return { precision: 2, minMove: 0.01 };       // Gold / Crypto (2 Decimals: XAUUSD)
+    } else {
+        return { precision: 5, minMove: 0.00001 };    // Standard Forex (5 Decimals: EURUSD, NZDUSD, GBPUSD, AUDUSD, USDCAD, USDCHF)
+    }
+}
+
+export async function fetchChartDataOnce(symbol, timeframe = '1H', strategyId = '3e8d2b78-0e86-4fdf-9759-338276db1742') {
+    const cleanSymbol = (symbol || 'XAUUSD').replace('/', '').toUpperCase();
+    const key = `${cleanSymbol}:${timeframe}:${strategyId}`;
+
+    if (activeFetches[key]) {
+        return activeFetches[key];
+    }
+
+    const baseUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.thetradermaster.com').replace(/\/+$/, '');
+    const url = `${baseUrl}/api/v1/chart/candles?symbol=${cleanSymbol}&timeframe=${timeframe}&strategy_id=${strategyId}`;
+
+    activeFetches[key] = fetch(url, {
+        headers: {
+            'accept': 'application/json',
+            'ngrok-skip-browser-warning': 'true'
+        }
+    })
+    .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+    })
+    .catch(err => {
+        delete activeFetches[key];
+        throw err;
+    })
+    .then(data => {
+        setTimeout(() => {
+            delete activeFetches[key];
+        }, 3000);
+        return data;
+    });
+
+    return activeFetches[key];
+}
+
 export default function ChartPanel({ symbol, strategyId, timeframe = '1H', nearestSupport, nearestResistance, onRefreshNeeded, livePriceInfo }) {
     const containerRef = useRef(null);
     const chartRef = useRef(null);
@@ -123,23 +172,13 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
         setError(null);
 
         const cleanSymbol = symbol.replace('/', '').toUpperCase();
-        const baseUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || '').replace(/\/+$/, '');
         const effectiveStrategyId = strategyId || '3e8d2b78-0e86-4fdf-9759-338276db1742';
-        let url = `${baseUrl}/api/v1/chart/candles?symbol=${cleanSymbol}&timeframe=${timeframe}&strategy_id=${effectiveStrategyId}`;
 
         let candlesList = [];
 
         try {
-            const res = await fetch(url, {
-                headers: {
-                    'accept': 'application/json',
-                    'ngrok-skip-browser-warning': 'true'
-                }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                candlesList = Array.isArray(data?.candles) ? data.candles : [];
-            }
+            const data = await fetchChartDataOnce(cleanSymbol, timeframe, effectiveStrategyId);
+            candlesList = Array.isArray(data?.candles) ? data.candles : (Array.isArray(data) ? data : []);
         } catch (err) {
             console.error('Error fetching candles from API:', err);
         }
@@ -158,6 +197,16 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
 
             const chart = chartRef.current.chart;
             const series = chartRef.current.series;
+
+            // Apply Symbol Precision (Forex 5 decimals, Yen 3 decimals, Gold/Crypto 2 decimals)
+            const { precision, minMove } = getSymbolPrecision(cleanSymbol);
+            series.candle.applyOptions({
+                priceFormat: {
+                    type: 'price',
+                    precision: precision,
+                    minMove: minMove,
+                },
+            });
 
             // Format candles for Lightweight Charts
             const candleData = [];
