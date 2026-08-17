@@ -660,6 +660,16 @@
         transition: opacity 0.15s ease, transform 0.15s ease;
         transform: translateX(-4px);
 
+        /* Transparent bridge so cursor can cross the gap without losing :hover */
+        &::after {
+            content: '';
+            position: absolute;
+            right: 100%;
+            top: 0;
+            width: 16px;
+            height: 100%;
+        }
+
         :global([dir="rtl"]) & {
             left: auto;
             right: calc(100% + 12px);
@@ -668,6 +678,12 @@
                 right: auto;
                 left: 100%;
                 border-color: transparent transparent transparent #ffffff;
+            }
+
+            /* RTL transparent bridge on the opposite side */
+            &::after {
+                right: auto;
+                left: 100%;
             }
         }
 
@@ -826,6 +842,33 @@
             .userProfileCard {
                 justify-content: center;
                 padding: 6px;
+            }
+        }
+    }
+
+    @include respond-to('lg') {
+        &.collapsed {
+            .logoHeader {
+                padding: 0 14px;
+                justify-content: space-between;
+            }
+
+            .sidebarmenu {
+                padding: 20px;
+
+                .menu {
+                    justify-content: flex-start;
+                    padding: 6px;
+                }
+            }
+
+            .sidebarFooter {
+                padding: 14px 16px;
+
+                .userProfileCard {
+                    justify-content: flex-start;
+                    padding: 8px 10px;
+                }
             }
         }
     }
