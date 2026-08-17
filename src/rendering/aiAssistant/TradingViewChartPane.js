@@ -5,7 +5,44 @@ import { createChart, CandlestickSeries, LineSeries, AreaSeries, HistogramSeries
 import styles from './aiAssistant.module.scss';
 import { toast } from '@/components/toast';
 import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
 import SymbolIcon from '@/components/SymbolIcon';
+import TickerSearchDropdown from '@/components/TickerSearchDropdown';
+import { getSymbolPrecision, fetchChartCandlesOnce, subscribeLiveCandles } from '@/lib/chartStore';
+import ChartLoaderOverlay from './components/ChartLoaderOverlay';
+import ChartSettingsModal from './components/ChartSettingsModal';
+
+export { getSymbolPrecision };
+export const fetchChartDataOnce = fetchChartCandlesOnce;
+
+// Symbol Database with Names & Categories (TradingView Ticker Search Style)
+export const SYMBOL_DATABASE = [
+    // Forex
+    { symbol: 'EUR/USD', name: 'Euro / US Dollar', category: 'forex' },
+    { symbol: 'GBP/USD', name: 'British Pound / US Dollar', category: 'forex' },
+    { symbol: 'USD/JPY', name: 'US Dollar / Japanese Yen', category: 'forex' },
+    { symbol: 'USD/CHF', name: 'US Dollar / Swiss Franc', category: 'forex' },
+    { symbol: 'AUD/USD', name: 'Australian Dollar / US Dollar', category: 'forex' },
+    { symbol: 'USD/CAD', name: 'US Dollar / Canadian Dollar', category: 'forex' },
+    { symbol: 'NZD/USD', name: 'New Zealand Dollar / US Dollar', category: 'forex' },
+    { symbol: 'EUR/GBP', name: 'Euro / British Pound', category: 'forex' },
+    { symbol: 'EUR/JPY', name: 'Euro / Japanese Yen', category: 'forex' },
+    { symbol: 'GBP/JPY', name: 'British Pound / Japanese Yen', category: 'forex' },
+    { symbol: 'EUR/AUD', name: 'Euro / Australian Dollar', category: 'forex' },
+    { symbol: 'EUR/CAD', name: 'Euro / Canadian Dollar', category: 'forex' },
+    { symbol: 'GBP/AUD', name: 'British Pound / Australian Dollar', category: 'forex' },
+    { symbol: 'AUD/JPY', name: 'Australian Dollar / Japanese Yen', category: 'forex' },
+    { symbol: 'CAD/JPY', name: 'Canadian Dollar / Japanese Yen', category: 'forex' },
+    // Crypto
+    { symbol: 'BTC/USD', name: 'Bitcoin / US Dollar', category: 'crypto' },
+    { symbol: 'ETH/USD', name: 'Ethereum / US Dollar', category: 'crypto' },
+    { symbol: 'SOL/USD', name: 'Solana / US Dollar', category: 'crypto' },
+    { symbol: 'XRP/USD', name: 'Ripple / US Dollar', category: 'crypto' },
+    // Commodities
+    { symbol: 'XAU/USD', name: 'Gold / US Dollar', category: 'commodities' },
+    { symbol: 'XAG/USD', name: 'Silver / US Dollar', category: 'commodities' },
+    { symbol: 'WTI/USD', name: 'Crude Oil WTI', category: 'commodities' },
+];
 
 // Categorized Symbol Groups (LuxAlgo / TradingView style)
 export const PAIR_GROUPS = [
@@ -55,53 +92,35 @@ export function normalizeSymbol(sym) {
     return sym.toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
-// A. Determine Precision by Symbol Name (Fixes flat zero-height candles for 5-decimal Forex pairs)
-export function getSymbolPrecision(symbol) {
-    const sym = (symbol || '').replace('/', '').toUpperCase();
-    if (sym.includes('JPY')) {
-        return { precision: 3, minMove: 0.001 };      // Yen Pairs (3 Decimals: USDJPY, GBPJPY)
-    } else if (sym.includes('XAU') || sym.includes('BTC') || sym.includes('GOLD')) {
-        return { precision: 2, minMove: 0.01 };       // Gold / Crypto (2 Decimals: XAUUSD)
+// Render SVG icon for chart types (Candlestick, Line, Area) matching TradingView
+export function renderChartTypeIcon(type) {
+    if (type === 'line') {
+        return (
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+                <path d="M7 14l4-4 4 3 5-6" />
+            </svg>
+        );
+    } else if (type === 'area') {
+        return (
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+                <path d="M7 14l4-3 4 2 5-5v6H7z" fill="currentColor" fillOpacity="0.25" />
+                <path d="M7 14l4-3 4 2 5-5" />
+            </svg>
+        );
     } else {
-        return { precision: 5, minMove: 0.00001 };    // Standard Forex (5 Decimals: EURUSD, NZDUSD, GBPUSD, AUDUSD, USDCAD, USDCHF)
+        // Candlestick (Default)
+        return (
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+                <line x1="9" y1="7" x2="9" y2="15" />
+                <rect x="7.5" y="9" width="3" height="4" rx="0.5" fill="currentColor" fillOpacity="0.25" />
+                <line x1="15" y1="5" x2="15" y2="13" />
+                <rect x="13.5" y="7" width="3" height="4" rx="0.5" fill="currentColor" fillOpacity="0.25" />
+            </svg>
+        );
     }
-}
-
-// Single API Fetch Deduplication Cache
-const activeFetches = {};
-export async function fetchChartDataOnce(symbol, timeframe = '15m', strategyId = '3e8d2b78-0e86-4fdf-9759-338276db1742') {
-    const cleanSymbol = (symbol || 'XAUUSD').replace('/', '').toUpperCase();
-    const key = `${cleanSymbol}:${timeframe}:${strategyId}`;
-
-    if (activeFetches[key]) {
-        return activeFetches[key];
-    }
-
-    const baseUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.thetradermaster.com').replace(/\/+$/, '');
-    const url = `${baseUrl}/api/v1/chart/candles?symbol=${cleanSymbol}&timeframe=${timeframe}&strategy_id=${strategyId}`;
-
-    activeFetches[key] = fetch(url, {
-        headers: {
-            'accept': 'application/json',
-            'ngrok-skip-browser-warning': 'true'
-        }
-    })
-    .then(res => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-    })
-    .catch(err => {
-        delete activeFetches[key];
-        throw err;
-    })
-    .then(data => {
-        setTimeout(() => {
-            delete activeFetches[key];
-        }, 3000);
-        return data;
-    });
-
-    return activeFetches[key];
 }
 
 // Get icon symbol representation for trading pairs
@@ -143,11 +162,12 @@ function getTimeframeInterval(tf) {
 }
 
 // Generate fallback candles if backend REST API endpoint is offline or returning empty
-function generateMockCandles(count = 600, basePrice = 2700, tf = '15m') {
+function generateMockCandles(count = 600, basePrice = 2700, tf = '15m', symbolStr = 'XAUUSD') {
     const candles = [];
     let currentPrice = basePrice;
     const now = Math.floor(Date.now() / 1000);
     const interval = getTimeframeInterval(tf);
+    const { precision } = getSymbolPrecision(symbolStr);
 
     for (let i = count; i >= 0; i--) {
         const time = now - i * interval;
@@ -160,10 +180,10 @@ function generateMockCandles(count = 600, basePrice = 2700, tf = '15m') {
 
         candles.push({
             time,
-            open: Number(open.toFixed(2)),
-            high: Number(high.toFixed(2)),
-            low: Number(low.toFixed(2)),
-            close: Number(close.toFixed(2)),
+            open: Number(open.toFixed(precision)),
+            high: Number(high.toFixed(precision)),
+            low: Number(low.toFixed(precision)),
+            close: Number(close.toFixed(precision)),
         });
     }
     return candles;
@@ -174,6 +194,7 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
     ref
 ) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
     const isDark = theme === 'dark';
 
     const containerRef = useRef(null);
@@ -182,22 +203,111 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
     const volumeSeriesRef = useRef(null);
     const wsRef = useRef(null);
     const symbolDropdownRef = useRef(null);
+    const headerSymbolDropdownRef = useRef(null);
     const cameraDropdownRef = useRef(null);
+    const chartTypeDropdownRef = useRef(null);
+    const timeframeDropdownRef = useRef(null);
 
     // Chart Settings State
     const [currentTimeframe, setCurrentTimeframe] = useState('15m');
     const [chartType, setChartType] = useState('candlestick');
     const [symbolDropdownOpen, setSymbolDropdownOpen] = useState(false);
+    const [headerSymbolDropdownOpen, setHeaderSymbolDropdownOpen] = useState(false);
     const [cameraDropdownOpen, setCameraDropdownOpen] = useState(false);
+    const [chartTypeDropdownOpen, setChartTypeDropdownOpen] = useState(false);
+    const [timeframeDropdownOpen, setTimeframeDropdownOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
 
+    // Ticker Search & Category Filter State
+    const [tickerSearch, setTickerSearch] = useState('');
+    const [activeCategoryTab, setActiveCategoryTab] = useState('all');
+
     // Style Customizations (TradingView Style Defaults)
-    const [bullishColor, setBullishColor] = useState('#089981');
-    const [bearishColor, setBearishColor] = useState('#f23645');
-    const [backgroundColor, setBackgroundColor] = useState(isDark ? '#131722' : '#FFFFFF');
+    const [bullishColor, setBullishColor] = useState('#26a69a');
+    const [bearishColor, setBearishColor] = useState('#ef5350');
+    const [backgroundColor, setBackgroundColor] = useState(isDark ? '#08090c' : '#FFFFFF');
     const [extendedSession, setExtendedSession] = useState(false);
     const [preMarketColor, setPreMarketColor] = useState('#FF6D00');
     const [postMarketColor, setPostMarketColor] = useState('#2979FF');
+
+    // Draft Settings State (Applied ONLY when clicking Apply Settings)
+    const [draftBullishColor, setDraftBullishColor] = useState('#26a69a');
+    const [draftBearishColor, setDraftBearishColor] = useState('#ef5350');
+    const [draftBackgroundColor, setDraftBackgroundColor] = useState(isDark ? '#08090c' : '#FFFFFF');
+    const [draftExtendedSession, setDraftExtendedSession] = useState(false);
+    const [draftPreMarketColor, setDraftPreMarketColor] = useState('#FF6D00');
+    const [draftPostMarketColor, setDraftPostMarketColor] = useState('#2979FF');
+
+    const closeAllDropdowns = () => {
+        setSymbolDropdownOpen(false);
+        setHeaderSymbolDropdownOpen(false);
+        setCameraDropdownOpen(false);
+        setChartTypeDropdownOpen(false);
+        setTimeframeDropdownOpen(false);
+    };
+
+    const toggleSymbolDropdown = () => {
+        const nextState = !symbolDropdownOpen;
+        closeAllDropdowns();
+        if (nextState) setSymbolDropdownOpen(true);
+    };
+
+    const toggleHeaderSymbolDropdown = () => {
+        const nextState = !headerSymbolDropdownOpen;
+        closeAllDropdowns();
+        if (nextState) setHeaderSymbolDropdownOpen(true);
+    };
+
+    const toggleCameraDropdown = () => {
+        const nextState = !cameraDropdownOpen;
+        closeAllDropdowns();
+        if (nextState) setCameraDropdownOpen(true);
+    };
+
+    const toggleTimeframeDropdown = () => {
+        const nextState = !timeframeDropdownOpen;
+        closeAllDropdowns();
+        if (nextState) setTimeframeDropdownOpen(true);
+    };
+
+    const toggleChartTypeDropdown = () => {
+        const nextState = !chartTypeDropdownOpen;
+        closeAllDropdowns();
+        if (nextState) setChartTypeDropdownOpen(true);
+    };
+
+    const openSettingsModal = () => {
+        closeAllDropdowns();
+        setDraftBullishColor(bullishColor);
+        setDraftBearishColor(bearishColor);
+        setDraftBackgroundColor(backgroundColor);
+        setDraftExtendedSession(extendedSession);
+        setDraftPreMarketColor(preMarketColor);
+        setDraftPostMarketColor(postMarketColor);
+        setSettingsOpen(true);
+    };
+
+    const handleApplySettings = () => {
+        setBullishColor(draftBullishColor);
+        setBearishColor(draftBearishColor);
+        setBackgroundColor(draftBackgroundColor);
+        setSettingsOpen(false);
+        toast('Chart settings applied!');
+    };
+
+    const handleResetSettings = () => {
+        const defaultBg = isDark ? '#08090c' : '#FFFFFF';
+        const defaultBull = '#26a69a';
+        const defaultBear = '#ef5350';
+        setDraftBullishColor(defaultBull);
+        setDraftBearishColor(defaultBear);
+        setDraftBackgroundColor(defaultBg);
+        setBullishColor(defaultBull);
+        setBearishColor(defaultBear);
+        setBackgroundColor(defaultBg);
+        setSettingsOpen(false);
+        toast('Chart settings reset to default!');
+    };
 
     // Live price tracking state
     const [latestCandle, setLatestCandle] = useState(null);
@@ -223,20 +333,42 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
             if (symbolDropdownRef.current && !symbolDropdownRef.current.contains(e.target)) {
                 setSymbolDropdownOpen(false);
             }
+            if (headerSymbolDropdownRef.current && !headerSymbolDropdownRef.current.contains(e.target)) {
+                setHeaderSymbolDropdownOpen(false);
+            }
             if (cameraDropdownRef.current && !cameraDropdownRef.current.contains(e.target)) {
                 setCameraDropdownOpen(false);
+            }
+            if (chartTypeDropdownRef.current && !chartTypeDropdownRef.current.contains(e.target)) {
+                setChartTypeDropdownOpen(false);
+            }
+            if (timeframeDropdownRef.current && !timeframeDropdownRef.current.contains(e.target)) {
+                setTimeframeDropdownOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    // Render unified Ticker Search Dropdown Menu (TradingView Style)
+    const renderSymbolDropdownMenu = (closeMenu) => (
+        <TickerSearchDropdown
+            selectedSymbol={symbol}
+            onSelectSymbol={(newSym) => {
+                if (onSymbolChange) onSymbolChange(newSym);
+            }}
+            onClose={closeMenu}
+            position="bottom"
+            isDark={!isChartLight}
+        />
+    );
+
     // Sync chart theme colors on app theme change
     useEffect(() => {
-        const bg = isDark ? '#131722' : '#FFFFFF';
+        const bg = isDark ? '#08090c' : '#FFFFFF';
         const txt = isDark ? '#94A3B8' : '#334155';
-        const gridColor = isDark ? 'rgba(42, 46, 57, 0.6)' : 'rgba(0, 0, 0, 0.06)';
-        const borderColor = isDark ? 'rgba(42, 46, 57, 0.8)' : 'rgba(0, 0, 0, 0.1)';
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.06)';
+        const borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.1)';
 
         setBackgroundColor(bg);
 
@@ -260,10 +392,10 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
     useEffect(() => {
         if (!containerRef.current) return;
 
-        const initialBg = isDark ? '#131722' : '#FFFFFF';
+        const initialBg = isDark ? '#08090c' : '#FFFFFF';
         const initialTxt = isDark ? '#94A3B8' : '#334155';
-        const initialGrid = isDark ? 'rgba(42, 46, 57, 0.6)' : 'rgba(0, 0, 0, 0.06)';
-        const initialBorder = isDark ? 'rgba(42, 46, 57, 0.8)' : 'rgba(0, 0, 0, 0.1)';
+        const initialGrid = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.06)';
+        const initialBorder = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.1)';
 
         const chart = createChart(containerRef.current, {
             width: containerRef.current.clientWidth,
@@ -351,6 +483,11 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
             }
             setLoading(true);
 
+            // Safety fallback: Ensure loading spinner never gets stuck on screen
+            const safetyTimer = setTimeout(() => {
+                if (isMounted) setLoading(false);
+            }, 1200);
+
             // Disconnect any active WebSocket connection before loading new pair/timeframe
             if (wsRef.current) {
                 wsRef.current.close();
@@ -375,14 +512,14 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 volumeSeriesRef.current = null;
             }
 
-            // A. Create Volume Histogram Series attached to bottom 18% overlay (TradingView style)
+            // A. Create Volume Histogram Series attached to bottom 20% overlay (TradingView style)
             const volumeSeries = chartRef.current.addSeries(HistogramSeries, {
                 priceFormat: { type: 'volume' },
                 priceScaleId: 'volume',
             });
             chartRef.current.priceScale('volume').applyOptions({
                 scaleMargins: {
-                    top: 0.82,    // Volume starts at 82% height (restricted to bottom 18% area)
+                    top: 0.8,    // Volume starts at 80% height (restricted to bottom 20% area)
                     bottom: 0,
                 },
             });
@@ -429,7 +566,7 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
             // Fetch historical candle data via HTTP REST API (Deduplicated fetch)
             let rawCandles = [];
             try {
-                const json = await fetchChartDataOnce(activeSymbolClean, currentTimeframe);
+                const json = await fetchChartCandlesOnce(activeSymbolClean, currentTimeframe);
                 rawCandles = json.candles || json.data || json || [];
             } catch (err) {
                 console.warn('REST candles fetch notice:', err.message);
@@ -442,7 +579,7 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                     : activeSymbolClean.includes('BTC')
                     ? 92000
                     : 1.085;
-                rawCandles = generateMockCandles(600, baseVal, currentTimeframe);
+                rawCandles = generateMockCandles(600, baseVal, currentTimeframe, activeSymbolClean);
             }
 
             // Parse floats and handle timestamp formatting
@@ -501,96 +638,65 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                     rightOffset: 8,
                 });
                 chartRef.current.timeScale().scrollToRealtime();
+                // Immediately turn off loading overlay as soon as series data is set
+                setLoading(false);
             }
 
             // Guarantee loading overlay is hidden once chart series data is loaded
             if (isMounted) setLoading(false);
 
-            // 3. Connect Real-Time Updates (WebSockets)
+            // 3. Connect Real-Time Updates (Deduplicated WebSocket Store)
+            let unsubscribeWS = null;
             let mockCleanup = null;
             try {
-                let wsBase = process.env.NEXT_PUBLIC_WS_CANDLES_URL;
-                if (!wsBase) {
-                    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-                    if (backendUrl) {
-                        const wsScheme = backendUrl.startsWith('https') ? 'wss:' : 'ws:';
-                        const cleanHost = backendUrl.replace(/^https?:\/\//, '');
-                        wsBase = `${wsScheme}//${cleanHost}/api/v1/websocket/live-candles`;
-                    } else {
-                        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                        const wsHost = window.location.host || 'localhost:8000';
-                        wsBase = `${wsProtocol}//${wsHost}/api/v1/websocket/live-candles`;
-                    }
-                }
-                const wsUrl = `${wsBase}${wsBase.includes('?') ? '&' : '?'}symbol=${activeSymbolClean}&timeframe=${currentTimeframe}`;
-
-                const socket = new WebSocket(wsUrl);
-                wsRef.current = socket;
-
-                socket.onopen = () => {
-                    if (isMounted) setLoading(false);
-                };
-
-                socket.onmessage = (event) => {
+                unsubscribeWS = subscribeLiveCandles(activeSymbolClean, currentTimeframe, (bar) => {
                     if (!isMounted) return;
                     setLoading(false);
-                    try {
-                        const payload = JSON.parse(event.data);
-                        if (payload.type === 'candle_update' && payload.data) {
-                            const bar = payload.data;
-                            let timeVal = bar.time || bar.timestamp;
-                            if (typeof timeVal === 'string') {
-                                if (timeVal.includes('T')) {
-                                    timeVal = Math.floor(new Date(timeVal).getTime() / 1000);
-                                } else if (!isNaN(Number(timeVal))) {
-                                    timeVal = Number(timeVal);
-                                } else {
-                                    timeVal = Math.floor(new Date(timeVal).getTime() / 1000);
-                                }
-                            } else {
-                                timeVal = Number(timeVal);
-                            }
-
-                            const openPrice = parseFloat(bar.open);
-                            const closePrice = parseFloat(bar.close);
-                            const volumeVal = parseFloat(bar.volume || bar.tick_volume || bar.vol || 0);
-
-                            const updatedBar = {
-                                time: timeVal,
-                                open: openPrice,
-                                high: parseFloat(bar.high),
-                                low: parseFloat(bar.low),
-                                close: closePrice,
-                                value: closePrice,
-                            };
-
-                            if (seriesRef.current) {
-                                seriesRef.current.update(updatedBar);
-                            }
-                            if (volumeSeriesRef.current) {
-                                volumeSeriesRef.current.update({
-                                    time: timeVal,
-                                    value: volumeVal || Math.floor(Math.random() * 2000) + 500,
-                                    color: closePrice >= openPrice ? 'rgba(38, 166, 154, 0.7)' : 'rgba(239, 83, 80, 0.7)',
-                                });
-                            }
-                            setLatestCandle(updatedBar);
+                    let timeVal = bar.time || bar.timestamp;
+                    if (typeof timeVal === 'string') {
+                        if (timeVal.includes('T')) {
+                            timeVal = Math.floor(new Date(timeVal).getTime() / 1000);
+                        } else if (!isNaN(Number(timeVal))) {
+                            timeVal = Number(timeVal);
+                        } else {
+                            timeVal = Math.floor(new Date(timeVal).getTime() / 1000);
                         }
-                    } catch {
-                        /* ignore parse error */
+                    } else {
+                        timeVal = Number(timeVal);
                     }
-                };
 
-                socket.onerror = () => {
-                    if (isMounted) setLoading(false);
-                    mockCleanup = startMockTickSimulator(isMounted);
-                };
+                    const openPrice = parseFloat(bar.open);
+                    const closePrice = parseFloat(bar.close);
+                    const volumeVal = parseFloat(bar.volume || bar.tick_volume || bar.vol || 0);
+
+                    const updatedBar = {
+                        time: timeVal,
+                        open: openPrice,
+                        high: parseFloat(bar.high),
+                        low: parseFloat(bar.low),
+                        close: closePrice,
+                        value: closePrice,
+                    };
+
+                    if (seriesRef.current) {
+                        seriesRef.current.update(updatedBar);
+                    }
+                    if (volumeSeriesRef.current) {
+                        volumeSeriesRef.current.update({
+                            time: timeVal,
+                            value: volumeVal || Math.floor(Math.random() * 2000) + 500,
+                            color: closePrice >= openPrice ? 'rgba(38, 166, 154, 0.7)' : 'rgba(239, 83, 80, 0.7)',
+                        });
+                    }
+                    setLatestCandle(updatedBar);
+                });
             } catch {
                 if (isMounted) setLoading(false);
                 mockCleanup = startMockTickSimulator(isMounted);
             }
 
             return () => {
+                if (unsubscribeWS) unsubscribeWS();
                 if (mockCleanup) mockCleanup();
             };
         }
@@ -599,10 +705,6 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
 
         return () => {
             isMounted = false;
-            if (wsRef.current) {
-                wsRef.current.close();
-                wsRef.current = null;
-            }
         };
     }, [activeSymbolClean, currentTimeframe, chartType]);
 
@@ -710,59 +812,24 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
     const isUp = priceDiff >= 0;
     const percentChange = openPrice ? ((priceDiff / openPrice) * 100).toFixed(2) : '0.00';
 
+    const bgUpper = (backgroundColor || '').toUpperCase();
+    const isBgLight = bgUpper === '#FFFFFF' || bgUpper === '#FFF' || bgUpper === 'WHITE' || bgUpper === '#F8F9FD' || bgUpper === '#F0F3FA';
+    const isChartLight = !isDark || isBgLight;
+
     return (
-        <div className={styles.chartPaneContainer}>
-            {/* Chart Floating Controls (Top-Left & Top-Right) */}
+        <div className={`${styles.chartPaneContainer} ${isChartLight ? styles.lightThemePane : ''}`}>
+            {/* Darker Chart Header Controls Bar */}
             <div className={styles.chartHeaderControls}>
                 <div className={styles.leftControlsGroup}>
-                    {/* Symbol Selector Dropdown (Categorized: MAJOR PAIRS, EURO CROSSES, etc.) */}
-                    <div className={styles.controlDropdownWrapper} ref={symbolDropdownRef}>
-                        <button
-                            type="button"
-                            className={styles.symbolSelectorBtn}
-                            onClick={() => setSymbolDropdownOpen(!symbolDropdownOpen)}
-                        >
-                            <SymbolIcon symbol={symbol || 'XAU/USD'} size={18} />
-                            <span className={styles.symbolBadge}>{symbol || 'XAU/USD'}</span>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <polyline points="6 9 12 15 18 9" />
-                            </svg>
-                        </button>
+                    <button type="button" className={styles.headerIconButton} title="Chart View">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="18" y1="20" x2="18" y2="10" />
+                            <line x1="12" y1="20" x2="12" y2="4" />
+                            <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg>
+                    </button>
 
-                        {symbolDropdownOpen && (
-                            <div className={styles.dropdownMenuFloating}>
-                                <div className={styles.dropdownScrollArea}>
-                                    {PAIR_GROUPS.map((group) => (
-                                        <div key={group.label} className={styles.categorySection}>
-                                            <div className={styles.categoryHeader}>{group.label}</div>
-                                            {group.pairs.map((pairStr) => {
-                                                const isActive = symbol === pairStr || activeSymbolClean === normalizeSymbol(pairStr);
-                                                return (
-                                                    <button
-                                                        key={pairStr}
-                                                        type="button"
-                                                        className={`${styles.dropdownMenuItem} ${isActive ? styles.activeItem : ''}`}
-                                                        onClick={() => {
-                                                            if (onSymbolChange) onSymbolChange(pairStr);
-                                                            setSymbolDropdownOpen(false);
-                                                        }}
-                                                    >
-                                                        <div className={styles.pairItemInfo}>
-                                                            <SymbolIcon symbol={pairStr} size={18} />
-                                                            <span>{pairStr}</span>
-                                                        </div>
-                                                        {isActive && <span className={styles.pairCheck}>✓</span>}
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Live Real-time Price Badge */}
+                    {/* Live Real-time Price Display (Moved to Top Left Header, No BG) */}
                     {latestCandle && (
                         <div className={`${styles.headerLivePriceBadge} ${isUp ? styles.badgeUp : styles.badgeDown}`}>
                             <span className={styles.livePriceText}>{formatPrice(currentPrice, symbol)}</span>
@@ -770,220 +837,190 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                             <span className={styles.livePctTag}>{isUp ? `+${percentChange}%` : `${percentChange}%`}</span>
                         </div>
                     )}
-
-                    {/* Timeframe Selector Buttons (Desktop Wide) */}
-                    <div className={styles.timeframeBar}>
-                        {TIMEFRAMES.map((tf) => (
-                            <button
-                                key={tf.value}
-                                type="button"
-                                className={`${styles.tfBtn} ${currentTimeframe === tf.value ? styles.activeTf : ''}`}
-                                onClick={() => setCurrentTimeframe(tf.value)}
-                            >
-                                {tf.label}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Timeframe Selector Dropdown (Small / Responsive Screens) */}
-                    <div className={styles.timeframeSelectWrapper}>
-                        <select
-                            value={currentTimeframe}
-                            onChange={(e) => setCurrentTimeframe(e.target.value)}
-                            className={styles.timeframeSelect}
-                        >
-                            {TIMEFRAMES.map((tf) => (
-                                <option key={tf.value} value={tf.value}>
-                                    {tf.label}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Chart Type Selector Dropdown */}
-                    <div className={styles.controlDropdownWrapper}>
-                        <select
-                            value={chartType}
-                            onChange={(e) => setChartType(e.target.value)}
-                            className={styles.chartTypeSelect}
-                        >
-                            {CHART_TYPES.map((ct) => (
-                                <option key={ct.value} value={ct.value}>
-                                    {ct.label}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Settings Cog Icon */}
-                    <button
-                        type="button"
-                        className={`${styles.iconControlBtn} ${settingsOpen ? styles.activeControl : ''}`}
-                        title="Chart Settings"
-                        onClick={() => setSettingsOpen(!settingsOpen)}
-                    >
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="3" />
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                        </svg>
-                    </button>
                 </div>
 
-                {/* Right Camera Screenshot Action Menu */}
-                <div className={styles.controlDropdownWrapper} ref={cameraDropdownRef}>
-                    <button
-                        type="button"
-                        className={styles.iconControlBtn}
-                        title="Camera Screenshot Actions"
-                        onClick={() => setCameraDropdownOpen(!cameraDropdownOpen)}
-                    >
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                            <circle cx="12" cy="13" r="4" />
-                        </svg>
-                    </button>
+                <div className={styles.rightControlsGroup}>
 
-                    {cameraDropdownOpen && (
-                        <div className={`${styles.dropdownMenuFloating} ${styles.rightAligned}`}>
-                            <button type="button" className={styles.dropdownMenuItem} onClick={attachChartToChat}>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-                                </svg>
-                                <span>Attach to Chat</span>
-                            </button>
-                            <button type="button" className={styles.dropdownMenuItem} onClick={downloadChartImage}>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                    <polyline points="7 10 12 15 17 10" />
-                                    <line x1="12" y1="15" x2="12" y2="3" />
-                                </svg>
-                                <span>Download Image</span>
-                            </button>
-                            <button type="button" className={styles.dropdownMenuItem} onClick={copyChartImageToClipboard}>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                                </svg>
-                                <span>Copy Image</span>
-                            </button>
-                        </div>
-                    )}
+                    {/* Right Camera Screenshot Action Menu */}
+                    <div className={styles.controlDropdownWrapper} ref={cameraDropdownRef}>
+                        <button
+                            type="button"
+                            className={styles.iconControlBtn}
+                            title="Camera Screenshot Actions"
+                            onClick={toggleCameraDropdown}
+                        >
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                <circle cx="12" cy="13" r="4" />
+                            </svg>
+                        </button>
+
+                        {cameraDropdownOpen && (
+                            <div className={`${styles.dropdownMenuFloating} ${styles.rightAligned}`}>
+                                <button type="button" className={styles.dropdownMenuItem} onClick={attachChartToChat}>
+                                    <span>{t('aiAssistant.attachToChat', 'Attach to Chat')}</span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                                    </svg>
+                                </button>
+                                <button type="button" className={styles.dropdownMenuItem} onClick={downloadChartImage}>
+                                    <span>{t('aiAssistant.downloadImage', 'Download Image')}</span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                        <polyline points="7 10 12 15 17 10" />
+                                        <line x1="12" y1="15" x2="12" y2="3" />
+                                    </svg>
+                                </button>
+                                <button type="button" className={styles.dropdownMenuItem} onClick={copyChartImageToClipboard}>
+                                    <span>{t('aiAssistant.copyImage', 'Copy Image')}</span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                    </svg>
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
             {/* Live Chart Container */}
             <div className={styles.chartCanvasArea} ref={containerRef}>
-                {/* Floating Live Price Ticker Overlay */}
-                {latestCandle && (
-                    <div className={styles.livePriceOverlay}>
-                        <span className={styles.liveSymbol}>{activeSymbolClean}</span>
-                        <span className={styles.livePrice}>{formatPrice(latestCandle.close, activeSymbolClean)}</span>
-                        <span className={latestCandle.close >= latestCandle.open ? styles.bullishTag : styles.bearishTag}>
-                            {latestCandle.close >= latestCandle.open ? '▲ UP' : '▼ DOWN'}
-                        </span>
-                        {extendedSession && (
-                            <span className={styles.sessionBadge} style={{ background: preMarketColor }}>ETH</span>
+                {loading && (
+                    <ChartLoaderOverlay
+                        activeSymbol={activeSymbolClean}
+                        currentTimeframe={currentTimeframe}
+                    />
+                )}
+                {/* Inside Chart Floating Control Bar (Red box in user's image) */}
+                <div className={styles.insideChartControlPill}>
+                    {/* Place 2: Inside Chart Control Pill Symbol Dropdown */}
+                    <div className={styles.controlDropdownWrapper} ref={symbolDropdownRef}>
+                        <button
+                            type="button"
+                            className={styles.pillSymbolBtn}
+                            onClick={toggleSymbolDropdown}
+                        >
+                            <SymbolIcon symbol={symbol || 'XAU/USD'} size={18} />
+                            <span className={styles.pillSymbolName}>{activeSymbolClean}</span>
+                            <span className={styles.statusDot} />
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                        </button>
+
+                        {symbolDropdownOpen && renderSymbolDropdownMenu(() => setSymbolDropdownOpen(false))}
+                    </div>
+
+                    {/* 2. Timeframe Selector Dropdown (TradingView Custom Style) */}
+                    <div className={styles.controlDropdownWrapper} ref={timeframeDropdownRef}>
+                        <button
+                            type="button"
+                            className={styles.pillTimeframeBtn}
+                            onClick={toggleTimeframeDropdown}
+                            title="Timeframe"
+                        >
+                            <span className={styles.pillTimeframeLabel}>{currentTimeframe}</span>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                        </button>
+
+                        {timeframeDropdownOpen && (
+                            <div className={styles.dropdownMenuFloating}>
+                                {TIMEFRAMES.map((tf) => {
+                                    const isActive = currentTimeframe === tf.value;
+                                    return (
+                                        <button
+                                            key={tf.value}
+                                            type="button"
+                                            className={`${styles.dropdownMenuItem} ${isActive ? styles.activeItem : ''}`}
+                                            onClick={() => {
+                                                setCurrentTimeframe(tf.value);
+                                                setTimeframeDropdownOpen(false);
+                                            }}
+                                        >
+                                            <span className={styles.timeframeItemLabel}>{tf.label}</span>
+                                            {isActive && <span className={styles.pairCheck}>✓</span>}
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         )}
                     </div>
-                )}
+
+                    <div className={styles.pillDivider} />
+
+                    {/* 3. Chart Type Selector Dropdown (TradingView SVG Style) */}
+                    <div className={styles.controlDropdownWrapper} ref={chartTypeDropdownRef}>
+                        <button
+                            type="button"
+                            className={styles.pillChartTypeBtn}
+                            onClick={toggleChartTypeDropdown}
+                            title="Chart Type"
+                        >
+                            {renderChartTypeIcon(chartType)}
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                        </button>
+
+                        {chartTypeDropdownOpen && (
+                            <div className={styles.dropdownMenuFloating}>
+                                {CHART_TYPES.map((ct) => {
+                                    const isActive = chartType === ct.value;
+                                    return (
+                                        <button
+                                            key={ct.value}
+                                            type="button"
+                                            className={`${styles.dropdownMenuItem} ${isActive ? styles.activeItem : ''}`}
+                                            onClick={() => {
+                                                setChartType(ct.value);
+                                                setChartTypeDropdownOpen(false);
+                                            }}
+                                        >
+                                            <div className={styles.chartTypeItemInfo}>
+                                                {renderChartTypeIcon(ct.value)}
+                                                <span>{ct.label}</span>
+                                            </div>
+                                            {isActive && <span className={styles.pairCheck}>✓</span>}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className={styles.pillDivider} />
+
+                    {/* 4. Settings Cog Icon Button */}
+                    <button
+                        type="button"
+                        className={`${styles.pillIconBtn} ${settingsOpen ? styles.activeControl : ''}`}
+                        title="Chart Settings"
+                        onClick={openSettingsModal}
+                    >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             {/* Settings Panel Modal (TradingView Style) */}
-            {settingsOpen && (
-                <div className={styles.settingsModalOverlay} onClick={() => setSettingsOpen(false)}>
-                    <div className={styles.settingsModalCard} onClick={(e) => e.stopPropagation()}>
-                        <div className={styles.settingsHeader}>
-                            <h3>Chart Settings</h3>
-                            <button type="button" className={styles.closeBtn} onClick={() => setSettingsOpen(false)}>
-                                ✕
-                            </button>
-                        </div>
-
-                        <div className={styles.settingsBody}>
-                            {/* Section A: Candlestick Styles */}
-                            <div className={styles.settingSection}>
-                                <h4>Candlestick Colors</h4>
-                                <div className={styles.settingRow}>
-                                    <label>Bullish (Up) Color</label>
-                                    <input
-                                        type="color"
-                                        value={bullishColor}
-                                        onChange={(e) => setBullishColor(e.target.value)}
-                                    />
-                                </div>
-                                <div className={styles.settingRow}>
-                                    <label>Bearish (Down) Color</label>
-                                    <input
-                                        type="color"
-                                        value={bearishColor}
-                                        onChange={(e) => setBearishColor(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Section B: Chart Styles */}
-                            <div className={styles.settingSection}>
-                                <h4>Chart Background</h4>
-                                <div className={styles.settingRow}>
-                                    <label>Background Color</label>
-                                    <input
-                                        type="color"
-                                        value={backgroundColor}
-                                        onChange={(e) => setBackgroundColor(e.target.value)}
-                                    />
-                                </div>
-                                <div className={styles.presetColorRow}>
-                                    <button type="button" onClick={() => setBackgroundColor('#131722')} style={{ background: '#131722', color: '#ffffff' }}>Dark</button>
-                                    <button type="button" onClick={() => setBackgroundColor('#0B0E14')} style={{ background: '#0B0E14', color: '#ffffff' }}>Midnight</button>
-                                    <button type="button" onClick={() => setBackgroundColor('#1E222D')} style={{ background: '#1E222D', color: '#ffffff' }}>Slate</button>
-                                    <button type="button" onClick={() => setBackgroundColor('#FFFFFF')} style={{ background: '#FFFFFF', color: '#0f172a', borderColor: '#cbd5e1' }}>Light</button>
-                                </div>
-                            </div>
-
-                            {/* Section C: Session Hours */}
-                            <div className={styles.settingSection}>
-                                <h4>Trading Session Hours</h4>
-                                <div className={styles.settingRow}>
-                                    <label>Trading Hours</label>
-                                    <button
-                                        type="button"
-                                        className={`${styles.toggleBtn} ${extendedSession ? styles.activeToggle : ''}`}
-                                        onClick={() => setExtendedSession(!extendedSession)}
-                                    >
-                                        {extendedSession ? 'Extended Hours (ETH)' : 'Regular Hours (RTH)'}
-                                    </button>
-                                </div>
-                                {extendedSession && (
-                                    <>
-                                        <div className={styles.settingRow}>
-                                            <label>Pre-Market Color</label>
-                                            <input
-                                                type="color"
-                                                value={preMarketColor}
-                                                onChange={(e) => setPreMarketColor(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className={styles.settingRow}>
-                                            <label>Post-Market Color</label>
-                                            <input
-                                                type="color"
-                                                value={postMarketColor}
-                                                onChange={(e) => setPostMarketColor(e.target.value)}
-                                            />
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className={styles.settingsFooter}>
-                            <button type="button" className={styles.doneBtn} onClick={() => setSettingsOpen(false)}>
-                                Apply Settings
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ChartSettingsModal
+                isOpen={settingsOpen}
+                onClose={() => setSettingsOpen(false)}
+                draftBullishColor={draftBullishColor}
+                setDraftBullishColor={setDraftBullishColor}
+                draftBearishColor={draftBearishColor}
+                setDraftBearishColor={setDraftBearishColor}
+                draftBackgroundColor={draftBackgroundColor}
+                setDraftBackgroundColor={setDraftBackgroundColor}
+                onReset={handleResetSettings}
+                onApply={handleApplySettings}
+            />
         </div>
     );
 });

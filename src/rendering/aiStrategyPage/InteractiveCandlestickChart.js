@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createChart, CandlestickSeries, HistogramSeries, LineSeries } from 'lightweight-charts';
 import styles from './aiStrategyPage.module.scss';
+import { getSymbolPrecision } from '@/lib/chartStore';
 
 // Helper to generate realistic candlestick data for demo/preview
 function generateCandleData(symbol, timeframe) {
@@ -11,24 +12,20 @@ function generateCandleData(symbol, timeframe) {
     const ema20 = [];
     const ema50 = [];
 
+    const { precision } = getSymbolPrecision(symbol);
+    const symUpper = symbol.toUpperCase().replace('/', '');
     let basePrice = 2345.50;
     let step = 1.25;
-    let isJpy = false;
-    let isForex = false;
 
-    const symUpper = symbol.toUpperCase().replace('/', '');
     if (symUpper.endsWith('JPY')) {
         basePrice = 155.40;
         step = 0.15;
-        isJpy = true;
-    } else if (symUpper === 'EURUSD') {
+    } else if (symUpper.includes('EUR') || symUpper === 'EURUSD') {
         basePrice = 1.08500;
         step = 0.0008;
-        isForex = true;
-    } else if (symUpper === 'GBPUSD') {
+    } else if (symUpper.includes('GBP') || symUpper === 'GBPUSD') {
         basePrice = 1.29200;
         step = 0.0009;
-        isForex = true;
     }
 
     const now = Math.floor(Date.now() / 1000);
@@ -58,26 +55,26 @@ function generateCandleData(symbol, timeframe) {
 
         candles.push({
             time: formattedTime,
-            open: parseFloat(open.toFixed(isForex ? 5 : isJpy ? 3 : 2)),
-            high: parseFloat(high.toFixed(isForex ? 5 : isJpy ? 3 : 2)),
-            low: parseFloat(low.toFixed(isForex ? 5 : isJpy ? 3 : 2)),
-            close: parseFloat(close.toFixed(isForex ? 5 : isJpy ? 3 : 2)),
+            open: parseFloat(open.toFixed(precision)),
+            high: parseFloat(high.toFixed(precision)),
+            low: parseFloat(low.toFixed(precision)),
+            close: parseFloat(close.toFixed(precision)),
         });
 
         volumes.push({
             time: formattedTime,
             value: vol,
-            color: close >= open ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)',
+            color: close >= open ? 'rgba(38, 166, 154, 0.7)' : 'rgba(239, 83, 80, 0.7)',
         });
 
         ema20.push({
             time: formattedTime,
-            value: parseFloat(ema20Val.toFixed(isForex ? 5 : isJpy ? 3 : 2)),
+            value: parseFloat(ema20Val.toFixed(precision)),
         });
 
         ema50.push({
             time: formattedTime,
-            value: parseFloat(ema50Val.toFixed(isForex ? 5 : isJpy ? 3 : 2)),
+            value: parseFloat(ema50Val.toFixed(precision)),
         });
     }
 
@@ -96,8 +93,7 @@ function generateCandleData(symbol, timeframe) {
         changePct,
         high: Math.max(...candles.map(c => c.high)),
         low: Math.min(...candles.map(c => c.low)),
-        isForex,
-        isJpy,
+        precision,
     };
 }
 
@@ -159,13 +155,19 @@ export default function InteractiveCandlestickChart() {
         });
 
         // Candlestick Series
+        const { precision, minMove } = getSymbolPrecision(symbol);
         const candleSeries = chart.addSeries(CandlestickSeries, {
-            upColor: '#10B981',
-            downColor: '#EF4444',
-            borderUpColor: '#10B981',
-            borderDownColor: '#EF4444',
-            wickUpColor: '#10B981',
-            wickDownColor: '#EF4444',
+            upColor: '#26a69a',
+            downColor: '#ef5350',
+            borderUpColor: '#26a69a',
+            borderDownColor: '#ef5350',
+            wickUpColor: '#26a69a',
+            wickDownColor: '#ef5350',
+            priceFormat: {
+                type: 'price',
+                precision: precision,
+                minMove: minMove,
+            },
         });
         candleSeries.setData(data.candles);
 
@@ -175,7 +177,7 @@ export default function InteractiveCandlestickChart() {
             priceScaleId: 'volume',
         });
         chart.priceScale('volume').applyOptions({
-            scaleMargins: { top: 0.75, bottom: 0 },
+            scaleMargins: { top: 0.8, bottom: 0 },
         });
         volumeSeries.setData(data.volumes);
 

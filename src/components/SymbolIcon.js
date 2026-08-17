@@ -2,152 +2,324 @@
 
 import React from 'react';
 
-// Dedicated TradingView Asset Symbol Badges (No flags, exact symbol icons)
-export default function SymbolIcon({ symbol, size = 22, className = '' }) {
-  const sym = (symbol || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+// Helper to parse currency pair string into base and quote currencies
+function parsePair(symbol) {
+  if (!symbol) return { base: 'USD', quote: '' };
+  const raw = String(symbol).trim().toUpperCase();
 
-  // 1. Gold / XAUUSD
-  if (sym.includes('XAU') || sym.includes('GOLD')) {
+  // If contains delimiter e.g. "AUD/USD" or "AUD-USD"
+  if (raw.includes('/') || raw.includes('-')) {
+    const parts = raw.split(/[\/\-]/);
+    return { base: parts[0], quote: parts[1] || '' };
+  }
+
+  const clean = raw.replace(/[^A-Z0-9]/g, '');
+
+  // 6-character forex/crypto pair e.g. "AUDUSD", "EURUSD", "GBPJPY", "BTCUSD"
+  if (clean.length === 6) {
+    return { base: clean.slice(0, 3), quote: clean.slice(3, 6) };
+  }
+
+  // 7-character pair e.g. "WTIUSD" or "XAGUSD"
+  if (clean.length === 7 && clean.endsWith('USD')) {
+    return { base: clean.slice(0, 4), quote: 'USD' };
+  }
+
+  return { base: clean, quote: '' };
+}
+
+// Render individual circle country flag / asset badge centered at (cx, cy) with radius r
+function renderBadgeContent(code, cx, cy, r) {
+  const c = (code || '').toUpperCase();
+  const idPrefix = `${c}-${Math.round(cx)}-${Math.round(cy)}`;
+
+  // 1. Euro / EUR (European Union Flag)
+  if (c === 'EUR') {
     return (
-      <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
-        <circle cx="16" cy="16" r="16" fill="#E5A900" />
-        <path d="M7 13.5L16 10L25 13.5L22.5 17.5H9.5L7 13.5Z" fill="#FFFFFF" fillOpacity="0.95" />
-        <path d="M7 13.5L16 10L25 13.5L22.5 17.5H9.5L7 13.5Z" fill="#FDE68A" />
-        <path d="M9 19.5L16 16.5L23 19.5L20.5 23.5H11.5L9 19.5Z" fill="#FEF08A" />
-        <path d="M12 15L16 13.5L20 15" stroke="#D97706" strokeWidth="0.8" />
-      </svg>
+      <g key={idPrefix}>
+        <circle cx={cx} cy={cy} r={r} fill="#0055A5" />
+        {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg, i) => {
+          const rad = (deg * Math.PI) / 180;
+          const starR = r * 0.62;
+          const sx = cx + starR * Math.cos(rad);
+          const sy = cy + starR * Math.sin(rad);
+          return <circle key={i} cx={sx} cy={sy} r={r * 0.11} fill="#FFCC00" />;
+        })}
+      </g>
     );
   }
 
-  // 2. Bitcoin / BTC
-  if (sym.startsWith('BTC')) {
+  // 2. US Dollar / USD (USA Flag)
+  if (c === 'USD') {
     return (
-      <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
-        <circle cx="16" cy="16" r="16" fill="#F7931A" />
-        <path
-          d="M21.8 13.5C22.1 11.5 20.6 10.4 18.5 9.7L19.2 6.9L17.5 6.5L16.8 9.3C16.4 9.2 15.9 9.1 15.4 9L16.1 6.2L14.4 5.8L13.7 8.6C13.3 8.5 13 8.4 12.6 8.3L10.2 7.7L9.7 9.7C9.7 9.7 11 10 11 10C11.7 10.2 11.8 10.7 11.7 11.1L10.7 15.1C10.8 15.1 10.9 15.2 11 15.2L10.8 14.7L9.4 20.3C9.3 20.7 8.9 21.1 8.2 20.9C8.2 20.9 6.9 20.6 6.9 20.6L6.2 22.8L8.5 23.4C8.9 23.5 9.4 23.6 9.8 23.7L9.1 26.5L10.8 26.9L11.5 24.1C12 24.2 12.4 24.3 12.9 24.4L12.2 27.2L13.9 27.6L14.6 24.8C17.5 25.3 19.6 25.1 20.6 22.5C21.4 20.4 20.6 19.2 19.1 18.4C20.2 17.8 21 16.8 21.2 15.1M18 20.7C17.5 22.7 14.1 21.7 12.9 21.4L13.8 17.8C15 18.1 18.5 18.7 18 20.7M18.4 14.2C18 16 15 15.1 14 14.8L14.8 11.6C15.8 11.8 18.9 12.4 18.4 14.2Z"
-          fill="white"
-        />
-      </svg>
+      <g key={idPrefix}>
+        <defs>
+          <clipPath id={`us-clip-${idPrefix}`}>
+            <circle cx={cx} cy={cy} r={r} />
+          </clipPath>
+        </defs>
+        <g clipPath={`url(#us-clip-${idPrefix})`}>
+          <rect x={cx - r} y={cy - r} width={r * 2} height={r * 2} fill="#B22234" />
+          <rect x={cx - r} y={cy - r + (r * 2 / 7)} width={r * 2} height={r * 2 / 7} fill="#FFFFFF" />
+          <rect x={cx - r} y={cy - r + (r * 6 / 7)} width={r * 2} height={r * 2 / 7} fill="#FFFFFF" />
+          <rect x={cx - r} y={cy - r + (r * 10 / 7)} width={r * 2} height={r * 2 / 7} fill="#FFFFFF" />
+          <rect x={cx - r} y={cy - r} width={r * 0.95} height={r * 0.9} fill="#3C3B6E" />
+          <circle cx={cx - r * 0.6} cy={cy - r * 0.65} r={r * 0.12} fill="#FFFFFF" />
+          <circle cx={cx - r * 0.25} cy={cy - r * 0.65} r={r * 0.12} fill="#FFFFFF" />
+          <circle cx={cx - r * 0.42} cy={cy - r * 0.3} r={r * 0.12} fill="#FFFFFF" />
+        </g>
+      </g>
     );
   }
 
-  // 3. Ethereum / ETH
-  if (sym.startsWith('ETH')) {
+  // 3. British Pound / GBP (United Kingdom Flag)
+  if (c === 'GBP') {
     return (
-      <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
-        <circle cx="16" cy="16" r="16" fill="#627EEA" />
-        <path d="M16 4L15.7 5L15.7 19.8L16 20.1L22.6 16.2L16 4Z" fill="#FFFFFF" fillOpacity="0.6" />
-        <path d="M16 4L9.4 16.2L16 20.1V5V4Z" fill="#FFFFFF" />
-        <path d="M16 21.5L15.8 21.7L15.8 27.7L16 28L22.6 18.6L16 21.5Z" fill="#FFFFFF" fillOpacity="0.6" />
-        <path d="M16 28V21.5L9.4 18.6L16 28Z" fill="#FFFFFF" />
-      </svg>
+      <g key={idPrefix}>
+        <defs>
+          <clipPath id={`uk-clip-${idPrefix}`}>
+            <circle cx={cx} cy={cy} r={r} />
+          </clipPath>
+        </defs>
+        <g clipPath={`url(#uk-clip-${idPrefix})`}>
+          <rect x={cx - r} y={cy - r} width={r * 2} height={r * 2} fill="#00247D" />
+          <line x1={cx - r} y1={cy - r} x2={cx + r} y2={cy + r} stroke="#FFFFFF" strokeWidth={r * 0.5} />
+          <line x1={cx + r} y1={cy - r} x2={cx - r} y2={cy + r} stroke="#FFFFFF" strokeWidth={r * 0.5} />
+          <line x1={cx - r} y1={cy - r} x2={cx + r} y2={cy + r} stroke="#CF142B" strokeWidth={r * 0.25} />
+          <line x1={cx + r} y1={cy - r} x2={cx - r} y2={cy + r} stroke="#CF142B" strokeWidth={r * 0.25} />
+          <rect x={cx - r * 0.35} y={cy - r} width={r * 0.7} height={r * 2} fill="#FFFFFF" />
+          <rect x={cx - r} y={cy - r * 0.35} width={r * 2} height={r * 0.7} fill="#FFFFFF" />
+          <rect x={cx - r * 0.2} y={cy - r} width={r * 0.4} height={r * 2} fill="#CF142B" />
+          <rect x={cx - r} y={cy - r * 0.2} width={r * 2} height={r * 0.4} fill="#CF142B" />
+        </g>
+      </g>
     );
   }
 
-  // 4. EUR Pairs (Euro symbol €)
-  if (sym.startsWith('EUR')) {
+  // 4. Japanese Yen / JPY (Japan Flag)
+  if (c === 'JPY') {
     return (
-      <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
-        <circle cx="16" cy="16" r="16" fill="#003399" />
-        <text x="16" y="21.5" fontSize="17" fontWeight="bold" fill="#FFCC00" textAnchor="middle" fontFamily="sans-serif">
-          €
-        </text>
-      </svg>
+      <g key={idPrefix}>
+        <circle cx={cx} cy={cy} r={r} fill="#FFFFFF" stroke="#E0E0E0" strokeWidth="0.5" />
+        <circle cx={cx} cy={cy} r={r * 0.55} fill="#BC002D" />
+      </g>
     );
   }
 
-  // 5. GBP Pairs (Pound symbol £)
-  if (sym.startsWith('GBP')) {
+  // 5. Australian Dollar / AUD (Australia Flag)
+  if (c === 'AUD') {
     return (
-      <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
-        <circle cx="16" cy="16" r="16" fill="#00247D" />
-        <text x="16" y="21.5" fontSize="17" fontWeight="bold" fill="#FFFFFF" textAnchor="middle" fontFamily="sans-serif">
-          £
-        </text>
-      </svg>
+      <g key={idPrefix}>
+        <defs>
+          <clipPath id={`au-clip-${idPrefix}`}>
+            <circle cx={cx} cy={cy} r={r} />
+          </clipPath>
+        </defs>
+        <g clipPath={`url(#au-clip-${idPrefix})`}>
+          <rect x={cx - r} y={cy - r} width={r * 2} height={r * 2} fill="#00008B" />
+          <g transform={`translate(${cx - r}, ${cy - r}) scale(0.48)`}>
+            <rect width={r * 2} height={r * 2} fill="#00247D" />
+            <line x1="0" y1="0" x2={r * 2} y2={r * 2} stroke="#FFFFFF" strokeWidth={r * 0.4} />
+            <line x1={r * 2} y1="0" x2="0" y2={r * 2} stroke="#FFFFFF" strokeWidth={r * 0.4} />
+            <line x1="0" y1="0" x2={r * 2} y2={r * 2} stroke="#CF142B" strokeWidth={r * 0.2} />
+            <line x1={r * 2} y1="0" x2="0" y2={r * 2} stroke="#CF142B" strokeWidth={r * 0.2} />
+            <rect x={r * 0.65} y="0" width={r * 0.7} height={r * 2} fill="#FFFFFF" />
+            <rect x="0" y={r * 0.65} width={r * 2} height={r * 0.7} fill="#FFFFFF" />
+            <rect x={r * 0.8} y="0" width={r * 0.4} height={r * 2} fill="#CF142B" />
+            <rect x="0" y={r * 0.8} width={r * 2} height={r * 0.4} fill="#CF142B" />
+          </g>
+          <circle cx={cx + r * 0.45} cy={cy - r * 0.3} r={r * 0.12} fill="#FFFFFF" />
+          <circle cx={cx + r * 0.65} cy={cy + r * 0.2} r={r * 0.12} fill="#FFFFFF" />
+          <circle cx={cx + r * 0.25} cy={cy + r * 0.55} r={r * 0.12} fill="#FFFFFF" />
+        </g>
+      </g>
     );
   }
 
-  // 6. JPY Pairs (Yen symbol ¥)
-  if (sym.startsWith('JPY')) {
+  // 6. Canadian Dollar / CAD (Canada Flag)
+  if (c === 'CAD') {
     return (
-      <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
-        <circle cx="16" cy="16" r="16" fill="#BC002D" />
-        <text x="16" y="21.5" fontSize="16" fontWeight="bold" fill="#FFFFFF" textAnchor="middle" fontFamily="sans-serif">
-          ¥
-        </text>
-      </svg>
+      <g key={idPrefix}>
+        <defs>
+          <clipPath id={`ca-clip-${idPrefix}`}>
+            <circle cx={cx} cy={cy} r={r} />
+          </clipPath>
+        </defs>
+        <g clipPath={`url(#ca-clip-${idPrefix})`}>
+          <rect x={cx - r} y={cy - r} width={r * 2} height={r * 2} fill="#FF0000" />
+          <rect x={cx - r * 0.5} y={cy - r} width={r} height={r * 2} fill="#FFFFFF" />
+          <path d={`M${cx} ${cy - r * 0.5}L${cx + r * 0.15} ${cy - r * 0.1}L${cx + r * 0.4} ${cy - r * 0.2}L${cx + r * 0.25} ${cy + r * 0.1}L${cx + r * 0.35} ${cy + r * 0.35}L${cx + r * 0.05} ${cy + r * 0.25}L${cx + r * 0.05} ${cy + r * 0.55}L${cx - r * 0.05} ${cy + r * 0.55}L${cx - r * 0.05} ${cy + r * 0.25}L${cx - r * 0.35} ${cy + r * 0.35}L${cx - r * 0.25} ${cy + r * 0.1}L${cx - r * 0.4} ${cy - r * 0.2}L${cx - r * 0.15} ${cy - r * 0.1}Z`} fill="#FF0000" />
+        </g>
+      </g>
     );
   }
 
-  // 7. USD Pairs (Dollar symbol $)
-  if (sym.startsWith('USD')) {
+  // 7. Swiss Franc / CHF (Switzerland Flag)
+  if (c === 'CHF') {
     return (
-      <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
-        <circle cx="16" cy="16" r="16" fill="#0A2540" />
-        <text x="16" y="21.5" fontSize="17" fontWeight="bold" fill="#00D26A" textAnchor="middle" fontFamily="sans-serif">
-          $
-        </text>
-      </svg>
+      <g key={idPrefix}>
+        <circle cx={cx} cy={cy} r={r} fill="#D52B1E" />
+        <rect x={cx - r * 0.2} y={cy - r * 0.55} width={r * 0.4} height={r * 1.1} fill="#FFFFFF" />
+        <rect x={cx - r * 0.55} y={cy - r * 0.2} width={r * 1.1} height={r * 0.4} fill="#FFFFFF" />
+      </g>
     );
   }
 
-  // 8. AUD Pairs (Australian Dollar A$)
-  if (sym.startsWith('AUD')) {
+  // 8. New Zealand Dollar / NZD (New Zealand Flag)
+  if (c === 'NZD') {
     return (
-      <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
-        <circle cx="16" cy="16" r="16" fill="#00008B" />
-        <text x="16" y="20.5" fontSize="12" fontWeight="bold" fill="#FFFFFF" textAnchor="middle" fontFamily="sans-serif">
-          A$
-        </text>
-      </svg>
+      <g key={idPrefix}>
+        <defs>
+          <clipPath id={`nz-clip-${idPrefix}`}>
+            <circle cx={cx} cy={cy} r={r} />
+          </clipPath>
+        </defs>
+        <g clipPath={`url(#nz-clip-${idPrefix})`}>
+          <rect x={cx - r} y={cy - r} width={r * 2} height={r * 2} fill="#00247D" />
+          <g transform={`translate(${cx - r}, ${cy - r}) scale(0.48)`}>
+            <rect width={r * 2} height={r * 2} fill="#00247D" />
+            <line x1="0" y1="0" x2={r * 2} y2={r * 2} stroke="#FFFFFF" strokeWidth={r * 0.4} />
+            <line x1={r * 2} y1="0" x2="0" y2={r * 2} stroke="#FFFFFF" strokeWidth={r * 0.4} />
+            <line x1="0" y1="0" x2={r * 2} y2={r * 2} stroke="#CF142B" strokeWidth={r * 0.2} />
+            <line x1="0" y1="0" x2={r * 2} y2={r * 2} stroke="#CF142B" strokeWidth={r * 0.2} />
+            <rect x={r * 0.65} y="0" width={r * 0.7} height={r * 2} fill="#FFFFFF" />
+            <rect x="0" y={r * 0.65} width={r * 2} height={r * 0.7} fill="#FFFFFF" />
+            <rect x={r * 0.8} y="0" width={r * 0.4} height={r * 2} fill="#CF142B" />
+            <rect x="0" y={r * 0.8} width={r * 2} height={r * 0.4} fill="#CF142B" />
+          </g>
+          <circle cx={cx + r * 0.45} cy={cy - r * 0.3} r={r * 0.15} fill="#FFFFFF" />
+          <circle cx={cx + r * 0.45} cy={cy - r * 0.3} r={r * 0.1} fill="#CC142B" />
+          <circle cx={cx + r * 0.6} cy={cy + r * 0.2} r={r * 0.15} fill="#FFFFFF" />
+          <circle cx={cx + r * 0.6} cy={cy + r * 0.2} r={r * 0.1} fill="#CC142B" />
+        </g>
+      </g>
     );
   }
 
-  // 9. CAD Pairs (Canadian Dollar C$)
-  if (sym.startsWith('CAD')) {
+  // 9. Gold / XAU
+  if (c === 'XAU' || c === 'GOLD') {
     return (
-      <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
-        <circle cx="16" cy="16" r="16" fill="#D32F2F" />
-        <text x="16" y="20.5" fontSize="12" fontWeight="bold" fill="#FFFFFF" textAnchor="middle" fontFamily="sans-serif">
-          C$
-        </text>
-      </svg>
+      <g key={idPrefix}>
+        <circle cx={cx} cy={cy} r={r} fill="#E5A900" />
+        <path d={`M${cx - 6} ${cy - 2}L${cx} ${cy - 5}L${cx + 6} ${cy - 2}L${cx + 4} ${cy + 3}H${cx - 4}L${cx - 6} ${cy - 2}Z`} fill="#FFFFFF" opacity="0.95" />
+        <path d={`M${cx - 4} ${cy + 3}L${cx} ${cy + 1}L${cx + 4} ${cy + 3}L${cx + 2} ${cy + 6}H${cx - 2}L${cx - 4} ${cy + 3}Z`} fill="#FEF08A" />
+      </g>
     );
   }
 
-  // 10. CHF Pairs (Swiss Franc ₣)
-  if (sym.startsWith('CHF')) {
+  // 10. Silver / XAG
+  if (c === 'XAG' || c === 'SILVER') {
     return (
-      <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
-        <circle cx="16" cy="16" r="16" fill="#D52B1E" />
-        <text x="16" y="21" fontSize="15" fontWeight="bold" fill="#FFFFFF" textAnchor="middle" fontFamily="sans-serif">
-          ₣
-        </text>
-      </svg>
+      <g key={idPrefix}>
+        <circle cx={cx} cy={cy} r={r} fill="#78909C" />
+        <circle cx={cx} cy={cy} r={r - 2.5} stroke="#CFD8DC" strokeWidth="1.2" fill="none" />
+        <text x={cx} y={cy + 3.8} fontSize="9" fontWeight="bold" fill="#FFFFFF" textAnchor="middle" fontFamily="sans-serif">Ag</text>
+      </g>
     );
   }
 
-  // 11. NZD Pairs (New Zealand Dollar NZ$)
-  if (sym.startsWith('NZD')) {
+  // 11. Bitcoin / BTC
+  if (c === 'BTC') {
     return (
-      <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
-        <circle cx="16" cy="16" r="16" fill="#00247D" />
-        <text x="16" y="20" fontSize="11" fontWeight="bold" fill="#FFFFFF" textAnchor="middle" fontFamily="sans-serif">
-          NZ$
-        </text>
-      </svg>
+      <g key={idPrefix}>
+        <circle cx={cx} cy={cy} r={r} fill="#F7931A" />
+        <text x={cx} y={cy + 4.5} fontSize="13" fontWeight="bold" fill="#FFFFFF" textAnchor="middle" fontFamily="sans-serif">₿</text>
+      </g>
     );
   }
 
-  // Generic fallback: Clean circle badge with first letter of symbol
+  // 12. Ethereum / ETH
+  if (c === 'ETH') {
+    return (
+      <g key={idPrefix}>
+        <circle cx={cx} cy={cy} r={r} fill="#627EEA" />
+        <path d={`M${cx} ${cy - 7}L${cx - 4} ${cy + 1}L${cx} ${cy + 3}L${cx + 4} ${cy + 1}Z`} fill="#FFFFFF" fillOpacity="0.9" />
+        <path d={`M${cx} ${cy + 4}L${cx - 4} ${cy + 2}L${cx} ${cy + 8}L${cx + 4} ${cy + 2}Z`} fill="#FFFFFF" fillOpacity="0.7" />
+      </g>
+    );
+  }
+
+  // 13. Solana / SOL
+  if (c === 'SOL') {
+    return (
+      <g key={idPrefix}>
+        <circle cx={cx} cy={cy} r={r} fill="#14F195" />
+        <text x={cx} y={cy + 3.8} fontSize="8" fontWeight="bold" fill="#000000" textAnchor="middle" fontFamily="sans-serif">SOL</text>
+      </g>
+    );
+  }
+
+  // 14. Ripple / XRP
+  if (c === 'XRP') {
+    return (
+      <g key={idPrefix}>
+        <circle cx={cx} cy={cy} r={r} fill="#23292F" />
+        <text x={cx} y={cy + 3.8} fontSize="8" fontWeight="bold" fill="#3B82F6" textAnchor="middle" fontFamily="sans-serif">XRP</text>
+      </g>
+    );
+  }
+
+  // 15. Crude Oil / WTI
+  if (c === 'WTI') {
+    return (
+      <g key={idPrefix}>
+        <circle cx={cx} cy={cy} r={r} fill="#374151" />
+        <text x={cx} y={cy + 3.8} fontSize="8" fontWeight="bold" fill="#F59E0B" textAnchor="middle" fontFamily="sans-serif">OIL</text>
+      </g>
+    );
+  }
+
+  // Generic fallback badge
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className}>
-      <circle cx="16" cy="16" r="16" fill="#2563EB" />
-      <text x="16" y="21" fontSize="14" fontWeight="bold" fill="#FFFFFF" textAnchor="middle" fontFamily="sans-serif">
-        {sym.charAt(0) || '$'}
+    <g key={idPrefix}>
+      <circle cx={cx} cy={cy} r={r} fill="#2563EB" />
+      <text x={cx} y={cy + 4.5} fontSize="11" fontWeight="bold" fill="#FFFFFF" textAnchor="middle" fontFamily="sans-serif">
+        {c.charAt(0) || '$'}
       </text>
+    </g>
+  );
+}
+
+// Dedicated TradingView Country Flag Symbol Badges (Overlapping Flag Circles)
+export default function SymbolIcon({ symbol, size = 22, className = '' }) {
+  const { base, quote } = parsePair(symbol);
+
+  // Single symbol (e.g. "BTC" or "EUR")
+  if (!quote) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 28 28"
+        fill="none"
+        className={className}
+        style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, overflow: 'visible' }}
+      >
+        {renderBadgeContent(base, 14, 14, 13)}
+      </svg>
+    );
+  }
+
+  // TradingView Overlapping Flag Circle Pair (e.g. EURUSD, GBPUSD, AUDUSD)
+  const aspectWidth = Math.round(size * 1.48);
+
+  return (
+    <svg
+      width={aspectWidth}
+      height={size}
+      viewBox="0 0 44 32"
+      fill="none"
+      className={className}
+      style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, overflow: 'visible' }}
+    >
+      {/* 1. Base Currency Flag Circle (e.g. European Flag at bottom-left) */}
+      {renderBadgeContent(base, 14, 17.5, 11)}
+
+      {/* 2. Cutout separator ring */}
+      <circle cx="29.5" cy="13.5" r="12" fill="none" stroke="rgba(18, 20, 26, 0.95)" strokeWidth="2.2" />
+
+      {/* 3. Quote Currency Flag Circle (e.g. USA Flag at top-right) */}
+      {renderBadgeContent(quote, 29.5, 13.5, 11)}
     </svg>
   );
 }

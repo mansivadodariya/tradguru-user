@@ -4,145 +4,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createChart, CandlestickSeries, HistogramSeries, LineSeries } from 'lightweight-charts';
 import styles from './aiStrategy.module.scss';
 import { useTheme } from '@/context/ThemeContext';
+import { getSymbolPrecision, fetchChartCandlesOnce } from '@/lib/chartStore';
 
-// Helper to calculate milliseconds until the next HH:01:00
-function getMsUntilNextHourOOne() {
-    const now = new Date();
-    const next = new Date(now);
-
-    next.setMinutes(1);
-    next.setSeconds(0);
-    next.setMilliseconds(0);
-
-    // If we are already past the 1st minute of this hour, schedule for the next hour
-    if (now.getMinutes() >= 1) {
-        next.setHours(now.getHours() + 1);
-    }
-
-    const diff = next.getTime() - now.getTime();
-    // Fallback safety (if diff is negative or 0, set to 1 hour)
-    return diff > 0 ? diff : 3600000;
-}
-
-function formatPairCurrency(val, symbol) {
-    if (typeof val !== 'number' || isNaN(val)) return '-';
-    let symUpper = (symbol || '').toUpperCase().replace("/", "");
-    if (symUpper.endsWith("JPY")) return val.toFixed(3);
-    if (symUpper.includes("XAU") || symUpper.includes("GOLD") || symUpper.includes("XAG")) return val.toFixed(2);
-    if (symUpper.length === 6) return val.toFixed(5);
-    return val.toFixed(2);
-}
-
-function generateFallbackCandles(symbol = 'XAUUSD', timeframe = '1H') {
-    const candlesList = [];
-    let basePrice = 2700.00;
-    let step = 1.5;
-
-    const symUpper = (symbol || '').toUpperCase().replace('/', '');
-    if (symUpper.endsWith('JPY')) {
-        basePrice = 155.40;
-        step = 0.15;
-    } else if (symUpper.includes('EUR') || symUpper === 'EURUSD') {
-        basePrice = 1.08500;
-        step = 0.0008;
-    } else if (symUpper.includes('GBP') || symUpper === 'GBPUSD') {
-        basePrice = 1.29200;
-        step = 0.0009;
-    } else if (symUpper.includes('USDCAD')) {
-        basePrice = 1.38500;
-        step = 0.0008;
-    } else if (symUpper.includes('XAU') || symUpper.includes('GOLD')) {
-        basePrice = 2735.50;
-        step = 2.5;
-    }
-
-    const now = Math.floor(Date.now() / 1000);
-    const count = 120;
-    const interval = timeframe === '5M' ? 300 : timeframe === '15M' ? 900 : timeframe === '1D' ? 86400 : 3600;
-
-    let currentPrice = basePrice - count * 0.15 * step;
-    let ema20Val = currentPrice;
-    let ema50Val = currentPrice;
-
-    for (let i = 0; i < count; i++) {
-        const time = now - (count - i) * interval;
-        const change = (Math.random() - 0.47) * step * 2;
-        const open = currentPrice;
-        const close = open + change;
-        const high = Math.max(open, close) + Math.random() * step * 0.8;
-        const low = Math.min(open, close) - Math.random() * step * 0.8;
-        const vol = Math.floor(Math.random() * 4000) + 1200;
-
-        currentPrice = close;
-        ema20Val = ema20Val * (1 - 2 / 21) + close * (2 / 21);
-        ema50Val = ema50Val * (1 - 2 / 51) + close * (2 / 51);
-        const supertrend_dir = close >= ema20Val ? 1 : -1;
-        const supertrend_val = supertrend_dir === 1 ? low - step * 0.5 : high + step * 0.5;
-
-        candlesList.push({
-            time,
-            open: Number(open.toFixed(4)),
-            high: Number(high.toFixed(4)),
-            low: Number(low.toFixed(4)),
-            close: Number(close.toFixed(4)),
-            tick_volume: vol,
-            ema20: Number(ema20Val.toFixed(4)),
-            ema50: Number(ema50Val.toFixed(4)),
-            supertrend_value: Number(supertrend_val.toFixed(4)),
-            supertrend_direction: supertrend_dir,
-        });
-    }
-    return candlesList;
-}
-
-// Single API Fetch Deduplication Cache
-const activeFetches = {};
-
-export function getSymbolPrecision(symbol) {
-    const sym = (symbol || '').replace('/', '').toUpperCase();
-    if (sym.includes('JPY')) {
-        return { precision: 3, minMove: 0.001 };      // Yen Pairs (3 Decimals: USDJPY, GBPJPY)
-    } else if (sym.includes('XAU') || sym.includes('BTC') || sym.includes('GOLD')) {
-        return { precision: 2, minMove: 0.01 };       // Gold / Crypto (2 Decimals: XAUUSD)
-    } else {
-        return { precision: 5, minMove: 0.00001 };    // Standard Forex (5 Decimals: EURUSD, NZDUSD, GBPUSD, AUDUSD, USDCAD, USDCHF)
-    }
-}
-
-export async function fetchChartDataOnce(symbol, timeframe = '1H', strategyId = '3e8d2b78-0e86-4fdf-9759-338276db1742') {
-    const cleanSymbol = (symbol || 'XAUUSD').replace('/', '').toUpperCase();
-    const key = `${cleanSymbol}:${timeframe}:${strategyId}`;
-
-    if (activeFetches[key]) {
-        return activeFetches[key];
-    }
-
-    const baseUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.thetradermaster.com').replace(/\/+$/, '');
-    const url = `${baseUrl}/api/v1/chart/candles?symbol=${cleanSymbol}&timeframe=${timeframe}&strategy_id=${strategyId}`;
-
-    activeFetches[key] = fetch(url, {
-        headers: {
-            'accept': 'application/json',
-            'ngrok-skip-browser-warning': 'true'
-        }
-    })
-    .then(res => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-    })
-    .catch(err => {
-        delete activeFetches[key];
-        throw err;
-    })
-    .then(data => {
-        setTimeout(() => {
-            delete activeFetches[key];
-        }, 3000);
-        return data;
-    });
-
-    return activeFetches[key];
-}
+export { getSymbolPrecision };
+export const fetchChartDataOnce = fetchChartCandlesOnce;
 
 export default function ChartPanel({ symbol, strategyId, timeframe = '1H', nearestSupport, nearestResistance, onRefreshNeeded, livePriceInfo }) {
     const containerRef = useRef(null);
@@ -396,7 +261,7 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
             priceScaleId: 'volume',
         });
         chart.priceScale('volume').applyOptions({
-            scaleMargins: { top: 0.82, bottom: 0 },
+            scaleMargins: { top: 0.8, bottom: 0 },
         });
 
         const ema20Series = chart.addSeries(LineSeries, {
