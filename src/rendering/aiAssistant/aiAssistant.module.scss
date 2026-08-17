@@ -2,11 +2,7 @@
 @use '../../scss/breakpoints/breakpoints.scss' as *;
 
 .aiAssistant {
-    @include respond-to('md') {
-        height: auto !important;
-        min-height: 100%;
-        overflow: visible !important;
-    }
+
 
     .splitLayoutGrid {
         display: grid;
@@ -21,9 +17,10 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
-            height: auto !important;
+            height: 100% !important;
             min-height: 0;
-            overflow: visible !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
         }
     }
 
@@ -779,6 +776,7 @@
         }
 
         @container chartpane (max-width: 650px) {
+
             .liveDirectionTag,
             .livePctTag {
                 display: none !important;
@@ -1020,9 +1018,11 @@
         cursor: pointer;
         transition: background 0.15s, color 0.15s;
 
-        &:hover, &.activeControl {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
+        &:hover,
+        &.activeControl {
+            background: #f1f5f9;
+            color: #2563eb;
+            border-color: #94a3b8;
         }
     }
 
@@ -1080,7 +1080,9 @@
     }
 
     @keyframes spinChart {
-        to { transform: rotate(360deg); }
+        to {
+            transform: rotate(360deg);
+        }
     }
 
     .livePriceOverlay {
@@ -1373,8 +1375,8 @@
         gap: 12px;
 
         @include respond-to('md') {
-            height: 480px !important;
-            min-height: 420px !important;
+            height: 100% !important;
+            min-height: 480px !important;
             flex-shrink: 0;
         }
 
@@ -3388,7 +3390,8 @@
             color: #787b86;
             border-color: rgba(255, 255, 255, 0.1);
 
-            &:hover, &.activeControl {
+            &:hover,
+            &.activeControl {
                 background: #363c4e;
                 color: #2979ff;
             }
@@ -3518,7 +3521,7 @@
                     }
                 }
 
-           
+
             }
 
             .chatBody {
@@ -4161,6 +4164,7 @@
         opacity: 0;
         transform: scale(0.97);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
