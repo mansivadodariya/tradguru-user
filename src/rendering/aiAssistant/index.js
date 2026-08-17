@@ -17,9 +17,11 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import ReportPanel from './ReportPanel';
 import { useLanguage } from '@/context/LanguageContext';
+import { useTheme } from '@/context/ThemeContext';
 import SymbolIcon from '@/components/SymbolIcon';
+import TickerSearchDropdown from '@/components/TickerSearchDropdown';
 import { getBidiProps, bidiMarkdownComponents } from '@/lib/bidi';
-import TradingViewChartPane, { PAIR_GROUPS, ALL_PAIRS, normalizeSymbol } from './TradingViewChartPane';
+import TradingViewChartPane, { PAIR_GROUPS, ALL_PAIRS, SYMBOL_DATABASE, normalizeSymbol } from './TradingViewChartPane';
 import AttachmentDraft from './AttachmentDraft';
 import ImagePreviewModal from './ImagePreviewModal';
 
@@ -75,6 +77,8 @@ const buildAssistantMessage = (parsed) => ({
 
 const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     const { t } = useLanguage();
+    const { theme } = useTheme();
+    const isDark = theme !== 'light';
 
     // Authentication & Identification
     const [userId, setUserId] = useState(null);
@@ -86,6 +90,8 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     const [chatInput, setChatInput] = useState('');
     const [selectedPair, setSelectedPair] = useState('XAU/USD');
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [chatTickerSearch, setChatTickerSearch] = useState('');
+    const [chatActiveCategoryTab, setChatActiveCategoryTab] = useState('all');
     const [attachmentDraft, setAttachmentDraft] = useState(null);
     const [previewAttachment, setPreviewAttachment] = useState(null);
 
@@ -377,6 +383,15 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
 
     const handleSendChatMessage = async () => {
         if ((!chatInput.trim() && !attachmentDraft) || pendingRequest) return;
+
+        // Automatically expand chat panel to full wide mode (50%) when sending a message if currently small
+        if (chatWidthPercent < 50) {
+            setChatWidthPercent(50);
+            [100, 200, 300, 400].forEach((ms) => {
+                setTimeout(() => window.dispatchEvent(new Event('resize')), ms);
+            });
+        }
+
         const msg = chatInput;
         const currentAttachment = attachmentDraft;
         setChatInput('');
@@ -807,7 +822,8 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                 ref={gridRef}
                 className={`${styles.splitLayoutGrid} ${isDragging ? styles.isDraggingGrid : ''}`}
                 style={{
-                    gridTemplateColumns: `minmax(280px, ${chatWidthPercent}%) 10px minmax(0, 1fr)`
+                    gridTemplateColumns: `minmax(280px, ${chatWidthPercent}%) 10px minmax(0, 1fr)`,
+                    transition: isDragging ? 'none' : 'grid-template-columns 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}
             >
                 {/* Center / Left Panel: Chatbot conversation view */}
@@ -819,32 +835,33 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                 <img src={Logo} alt='logo' />
                             </div>
                             <div className={styles.headerInfo}>
-                                <h3>Trader Master Copilot</h3>
-                                <span>{t('aiChat.activePair', 'Active Pair')}: {selectedPair}</span>
+                                <h3>{t('aiAssistant.copilotTitle', 'Trader Master Copilot')}</h3>
+                                <span>{t('aiAssistant.activePair', 'Active Pair')}: {selectedPair}</span>
                             </div>
                             <div className={styles.headerAction}>
                                 <button
                                     type="button"
                                     className={styles.createNewBtn}
                                     onClick={handleCreateNew}
-                                    title={t('aiChat.createNewChat', 'Create New Chat')}
+                                    title={t('aiAssistant.createNewChat', 'Create New Chat')}
                                 >
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                         <line x1="12" y1="5" x2="12" y2="19"></line>
                                         <line x1="5" y1="12" x2="19" y2="12"></line>
                                     </svg>
-                                    <span>{t('aiChat.createNewChat', 'Create New Chat')}</span>
+                                    <span>{t('aiAssistant.createNewChat', 'Create New Chat')}</span>
                                 </button>
                                 <HistoryButton
-                                    text={t('aiChat.history', 'History')}
+                                    text={t('aiAssistant.history', 'History')}
                                     onClick={() => setHistoryModalOpen(true)}
+                                    className={styles.historyHeaderBtn}
                                 />
                             </div>
                         </div>
                         <div className={styles.chatBody}>
                             {chatMessages.length === 0 ? (
                                 <div className={styles.welcomeContainer}>
-                                    <h2>What do you want to analyze?</h2>
+                                    <h2>{t('aiAssistant.whatDoYouWantToAnalyze', 'What do you want to analyze?')}</h2>
                                     <div className={styles.welcomeActionPills}>
                                         <button
                                             type="button"
@@ -855,7 +872,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
                                                 <circle cx="12" cy="13" r="4" />
                                             </svg>
-                                            <span>Generate From Image</span>
+                                            <span>{t('aiAssistant.generateFromImage', 'Generate From Image')}</span>
                                         </button>
                                         <button
                                             type="button"
@@ -867,7 +884,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                                 <line x1="12" y1="16" x2="12" y2="12" />
                                                 <line x1="12" y1="8" x2="12.01" y2="8" />
                                             </svg>
-                                            <span>Deep Market Analysis</span>
+                                            <span>{t('aiAssistant.deepMarketAnalysis', 'Deep Market Analysis')}</span>
                                         </button>
                                         <button
                                             type="button"
@@ -880,7 +897,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                                 <path d="M15 18h-5" />
                                                 <path d="M10 6h8v4h-8z" />
                                             </svg>
-                                            <span>Macro News & Economic Events</span>
+                                            <span>{t('aiAssistant.macroNews', 'Macro News & Economic Events')}</span>
                                         </button>
                                     </div>
                                 </div>
@@ -961,7 +978,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                             />
                         )}
                         <textarea
-                            placeholder={t('aiChat.askPlaceholder', 'Ask for an indicator or strategy...')}
+                            placeholder={t('aiAssistant.askAnythingPlaceholder', 'Ask anything about forex trading, chart and strategies...')}
                             className={styles.textarea}
                             value={chatInput}
                             onChange={(e) => setChatInput(e.target.value.trimStart())}
@@ -1007,32 +1024,13 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                         </span>
                                     </button>
                                     {dropdownOpen && (
-                                        <div className={styles.dropdownMenu}>
-                                            {PAIR_GROUPS.map(group => (
-                                                <div key={group.label}>
-                                                    <div className={styles.dropdownHeader}>{group.label}</div>
-                                                    <div className={styles.dropdownList}>
-                                                        {group.pairs.map(pair => (
-                                                            <button
-                                                                key={pair}
-                                                                className={`${styles.dropdownItem} ${selectedPair === pair ? styles.activePair : ''}`}
-                                                                onClick={() => {
-                                                                    setSelectedPair(pair);
-                                                                    setDropdownOpen(false);
-                                                                }}
-                                                                type="button"
-                                                            >
-                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                                    <SymbolIcon symbol={pair} size={18} />
-                                                                    <span className={styles.pairText}>{pair}</span>
-                                                                </div>
-                                                                {selectedPair === pair && <span className={styles.checkmark}>✓</span>}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
+                                        <TickerSearchDropdown
+                                            selectedSymbol={selectedPair}
+                                            onSelectSymbol={(newSym) => setSelectedPair(newSym)}
+                                            onClose={() => setDropdownOpen(false)}
+                                            position="top"
+                                            isDark={isDark}
+                                        />
                                     )}
                                 </div>
                             </div>
