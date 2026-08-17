@@ -33,6 +33,68 @@ function formatPairCurrency(val, symbol) {
     return val.toFixed(2);
 }
 
+function generateFallbackCandles(symbol = 'XAUUSD', timeframe = '1H') {
+    const candlesList = [];
+    let basePrice = 2700.00;
+    let step = 1.5;
+
+    const symUpper = (symbol || '').toUpperCase().replace('/', '');
+    if (symUpper.endsWith('JPY')) {
+        basePrice = 155.40;
+        step = 0.15;
+    } else if (symUpper.includes('EUR') || symUpper === 'EURUSD') {
+        basePrice = 1.08500;
+        step = 0.0008;
+    } else if (symUpper.includes('GBP') || symUpper === 'GBPUSD') {
+        basePrice = 1.29200;
+        step = 0.0009;
+    } else if (symUpper.includes('USDCAD')) {
+        basePrice = 1.38500;
+        step = 0.0008;
+    } else if (symUpper.includes('XAU') || symUpper.includes('GOLD')) {
+        basePrice = 2735.50;
+        step = 2.5;
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    const count = 120;
+    const interval = timeframe === '5M' ? 300 : timeframe === '15M' ? 900 : timeframe === '1D' ? 86400 : 3600;
+
+    let currentPrice = basePrice - count * 0.15 * step;
+    let ema20Val = currentPrice;
+    let ema50Val = currentPrice;
+
+    for (let i = 0; i < count; i++) {
+        const time = now - (count - i) * interval;
+        const change = (Math.random() - 0.47) * step * 2;
+        const open = currentPrice;
+        const close = open + change;
+        const high = Math.max(open, close) + Math.random() * step * 0.8;
+        const low = Math.min(open, close) - Math.random() * step * 0.8;
+        const vol = Math.floor(Math.random() * 4000) + 1200;
+
+        currentPrice = close;
+        ema20Val = ema20Val * (1 - 2 / 21) + close * (2 / 21);
+        ema50Val = ema50Val * (1 - 2 / 51) + close * (2 / 51);
+        const supertrend_dir = close >= ema20Val ? 1 : -1;
+        const supertrend_val = supertrend_dir === 1 ? low - step * 0.5 : high + step * 0.5;
+
+        candlesList.push({
+            time,
+            open: Number(open.toFixed(4)),
+            high: Number(high.toFixed(4)),
+            low: Number(low.toFixed(4)),
+            close: Number(close.toFixed(4)),
+            tick_volume: vol,
+            ema20: Number(ema20Val.toFixed(4)),
+            ema50: Number(ema50Val.toFixed(4)),
+            supertrend_value: Number(supertrend_val.toFixed(4)),
+            supertrend_direction: supertrend_dir,
+        });
+    }
+    return candlesList;
+}
+
 export default function ChartPanel({ symbol, strategyId, timeframe = '1H', nearestSupport, nearestResistance, onRefreshNeeded, livePriceInfo }) {
     const containerRef = useRef(null);
     const chartRef = useRef(null);
@@ -61,10 +123,11 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
         setError(null);
 
         const cleanSymbol = symbol.replace('/', '').toUpperCase();
-        let url = `/api/v1/chart/candles?symbol=${cleanSymbol}&timeframe=${timeframe}`;
-        if (strategyId) {
-            url += `&strategy_id=${strategyId}`;
-        }
+        const baseUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || '').replace(/\/+$/, '');
+        const effectiveStrategyId = strategyId || '3e8d2b78-0e86-4fdf-9759-338276db1742';
+        let url = `${baseUrl}/api/v1/chart/candles?symbol=${cleanSymbol}&timeframe=${timeframe}&strategy_id=${effectiveStrategyId}`;
+
+        let candlesList = [];
 
         try {
             const res = await fetch(url, {
@@ -73,10 +136,15 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
                     'ngrok-skip-browser-warning': 'true'
                 }
             });
-            if (!res.ok) throw new Error('Failed to fetch candles data');
-            const data = await res.json();
+            if (res.ok) {
+                const data = await res.json();
+                candlesList = Array.isArray(data?.candles) ? data.candles : [];
+            }
+        } catch (err) {
+            console.error('Error fetching candles from API:', err);
+        }
 
-            const candlesList = data.candles || [];
+        try {
             if (candlesList.length === 0) {
                 setError('No candle data returned');
                 setLoading(false);
@@ -531,24 +599,7 @@ export default function ChartPanel({ symbol, strategyId, timeframe = '1H', neare
                             )}
                         </div>
                     )}
-                </div>
-
-                <div className={styles.chartLegendHeaderGroup}>
-                    <div className={styles.chartLegend}>
-                        <div className={styles.legendItem}>
-                            <span className={`${styles.legendColor} ${styles.ema20}`} />
-                            <span>EMA 20</span>
-                        </div>
-                        <div className={styles.legendItem}>
-                            <span className={`${styles.legendColor} ${styles.ema50}`} />
-                            <span>EMA 50</span>
-                        </div>
-                        <div className={styles.legendItem}>
-                            <span className={`${styles.legendColor} ${styles.supertrend}`} />
-                            <span>SuperTrend</span>
-                        </div>
-                    </div>
-                </div>
+                </div>               
             </div>
 
             <div className={styles.chartCanvasContainer}>
