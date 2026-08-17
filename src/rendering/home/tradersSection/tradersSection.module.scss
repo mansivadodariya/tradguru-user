@@ -76,6 +76,10 @@
             position: relative;
             overflow: hidden;
 
+            @include respond-to('xl') {
+                padding: 16px;
+            }
+
             @include respond-to('sm') {
                 padding: 24px;
             }
@@ -116,6 +120,10 @@
                 img {
                     display: block;
                     max-width: 160px;
+
+                    @include respond-to('xl') {
+                        max-width: 120px;
+                    }
 
                     :global([dir="rtl"]) & {
                         transform: scaleX(-1);
@@ -175,6 +183,11 @@
                 line-height: 28px;
                 position: relative;
                 z-index: 10;
+
+                @include respond-to('xl') {
+                    font-size: 15px;
+                    max-width: 70%;
+                }
 
                 @include respond-to('sm') {
                     font-size: 15px;

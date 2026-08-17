@@ -246,17 +246,20 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [visibleTabNames, setVisibleTabNames] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const cached = sessionStorage.getItem('visible_tab_names');
-        if (cached) return new Set(JSON.parse(cached));
-      } catch (e) { /* ignore */ }
-    }
-    return null;
-  });
-  const [tabsLoading, setTabsLoading] = useState(() => visibleTabNames === null);
+  const [visibleTabNames, setVisibleTabNames] = useState(null);
+  const [tabsLoading, setTabsLoading] = useState(false);
   const profileRef = useRef(null);
+
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const cached = sessionStorage.getItem('visible_tab_names');
+        if (cached) {
+          setVisibleTabNames(new Set(JSON.parse(cached)));
+        }
+      }
+    } catch (e) { /* ignore */ }
+  }, []);
 
   useEffect(() => {
     async function loadVisibleTabs() {

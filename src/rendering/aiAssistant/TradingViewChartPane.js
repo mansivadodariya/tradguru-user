@@ -370,9 +370,8 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
             // Fetch historical candle data via HTTP REST API
             let rawCandles = [];
             try {
-                const res = await fetch(
-                    `/api/v1/chart/candles?symbol=${activeSymbolClean}&timeframe=${currentTimeframe}`
-                );
+                const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || '').replace(/\/+$/, '');
+                const res = await fetch(`${backendUrl}/api/v1/chart/candles?symbol=${activeSymbolClean}&timeframe=${currentTimeframe}&strategy_id=3e8d2b78-0e86-4fdf-9759-338276db1742`);
                 if (res.ok) {
                     const json = await res.json();
                     rawCandles = json.candles || json.data || json || [];
