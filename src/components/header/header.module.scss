@@ -28,6 +28,10 @@
         }
 
         .buttonHide {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
             @include respond-to('sm') {
                 display: none;
             }
@@ -45,16 +49,13 @@
             display: none;
 
             @include respond-to("sm") {
-                display: block;
+                display: flex;
+                align-items: center;
             }
 
             svg {
                 width: 24px;
                 height: 24px;
-
-                path {
-                    fill: #0B56DB;
-                }
             }
         }
 
