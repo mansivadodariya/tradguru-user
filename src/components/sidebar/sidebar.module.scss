@@ -705,34 +705,51 @@
             padding: 8px 10px;
             border-radius: 6px;
             text-decoration: none;
-            color: #1a1a1a;
+            color: #1a1a1a !important;
             font-size: 13px;
             font-weight: 500;
             transition: all 0.15s ease;
+            width: 100%;
+
+            span {
+                color: #1a1a1a !important;
+                font-size: 13px !important;
+                font-weight: 500 !important;
+                white-space: nowrap !important;
+                display: inline-block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
 
             .subMenuIcon {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                color: #656363;
+                color: #656363 !important;
+                flex-shrink: 0;
             }
 
             &:hover {
                 background: rgba(11, 86, 219, 0.08);
-                color: #0b56db;
+
+                span {
+                    color: #0b56db !important;
+                }
 
                 .subMenuIcon {
-                    color: #0b56db;
+                    color: #0b56db !important;
                 }
             }
 
             &[data-active='true'] {
-                background: #0b56db;
-                color: #ffffff;
-                font-weight: 600;
+                background: #0b56db !important;
+
+                span {
+                    color: #ffffff !important;
+                }
 
                 .subMenuIcon {
-                    color: #ffffff;
+                    color: #ffffff !important;
                 }
             }
         }
@@ -1184,27 +1201,37 @@
             }
 
             .flyoutLink {
-                color: #e5e7eb;
+                color: #e5e7eb !important;
+
+                span {
+                    color: #e5e7eb !important;
+                }
 
                 .subMenuIcon {
-                    color: #9ca3af;
+                    color: #9ca3af !important;
                 }
 
                 &:hover {
                     background: rgba(11, 86, 219, 0.2);
-                    color: #60a5fa;
+
+                    span {
+                        color: #60a5fa !important;
+                    }
 
                     .subMenuIcon {
-                        color: #60a5fa;
+                        color: #60a5fa !important;
                     }
                 }
 
                 &[data-active='true'] {
-                    background: #0b56db;
-                    color: #ffffff;
+                    background: #0b56db !important;
+
+                    span {
+                        color: #ffffff !important;
+                    }
 
                     .subMenuIcon {
-                        color: #ffffff;
+                        color: #ffffff !important;
                     }
                 }
             }
