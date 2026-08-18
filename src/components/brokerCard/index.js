@@ -54,9 +54,9 @@ export default function BrokerCard({ broker, detailHref }) {
         return <ShieldHighlightIcon />;
     };
 
-    const name = tDynamic(broker, 'name', 'name_ar') || broker.name;
-    const subtitle = tDynamic(broker, 'subtitle', 'subtitle_ar') || broker.subtitle;
-    const description = tDynamic(broker, 'description', 'description_ar') || broker.description;
+    const name = tDynamic(broker, 'name') || broker.name;
+    const subtitle = tDynamic(broker, 'subtitle') || broker.subtitle;
+    const description = tDynamic(broker, 'description') || broker.description;
 
     return (
         <div className={styles.brokerCard}>

@@ -47,7 +47,7 @@ const FlameIcon = () => (
 );
 
 export default function SubscriptionPlansView() {
-    const { t, language } = useLanguage();
+    const { t, tDynamic, language } = useLanguage();
     const [plans, setPlans] = useState(defaultSubscriptionPlans);
     const [loading, setLoading] = useState(true);
     const [selectedPlanId, setSelectedPlanId] = useState(null);
@@ -72,14 +72,14 @@ export default function SubscriptionPlansView() {
 
     const handleSelectPlan = (plan) => {
         setSelectedPlanId(plan.id);
-        const planName = language === 'ar' ? (plan.name_ar || plan.name) : plan.name;
+        const planName = tDynamic(plan, 'name') || plan.name;
         toast.success(
             t('plans.selectSuccess', 'Selected {plan} plan ({credits} Credits)').replace('{plan}', planName).replace('{credits}', plan.credits)
         );
     };
 
     return (
-        <div className={styles.plansPage}>
+        <div className={`${styles.plansPage} ${styles[`lang_${language}`] || ''}`}>
             {/* Background Glows */}
             <div className={styles.ambientGlow1} />
             <div className={styles.ambientGlow2} />
@@ -106,6 +106,7 @@ export default function SubscriptionPlansView() {
                 <div className={styles.plansGrid}>
                     {plans.map((plan) => {
                         const isArabic = language === 'ar';
+                        const isFilipino = language === 'ph';
                         const defaultPlan = defaultSubscriptionPlans.find(d => d.id === plan.id) || {};
 
                         const isBestValue = Boolean(
@@ -115,16 +116,20 @@ export default function SubscriptionPlansView() {
                             plan.is_popular
                         );
 
-                        let badgeText = isArabic
+                        let badgeText = isFilipino
+                            ? (plan.badge_ph || plan.badge)
+                            : isArabic
                             ? (plan.badge_ar || plan.badge)
                             : plan.badge;
 
                         if (!badgeText && isBestValue) {
-                            badgeText = isArabic ? 'أفضل قيمة' : 'BEST VALUE';
+                            badgeText = isFilipino ? 'PINAKAMAHUSAY NA HALAGA' : isArabic ? 'أفضل قيمة' : 'BEST VALUE';
                         }
 
                         if (!badgeText && defaultPlan) {
-                            badgeText = isArabic
+                            badgeText = isFilipino
+                                ? (defaultPlan.badge_ph || defaultPlan.badge)
+                                : isArabic
                                 ? (defaultPlan.badge_ar || defaultPlan.badge)
                                 : defaultPlan.badge;
                         }
@@ -134,12 +139,36 @@ export default function SubscriptionPlansView() {
                         const isBasic = plan.id === 'basic';
                         const isSelected = selectedPlanId === plan.id;
 
-                        const name = isArabic ? (plan.name_ar || defaultPlan.name_ar || plan.name) : (plan.name || defaultPlan.name);
-                        const description = isArabic ? (plan.description_ar || defaultPlan.description_ar || plan.description) : (plan.description || defaultPlan.description);
-                        const validity = isArabic ? (plan.validity_ar || defaultPlan.validity_ar || plan.validity) : (plan.validity || defaultPlan.validity);
-                       
-                        const featuresList = isArabic
-                            ? (plan.features_ar?.length ? plan.features_ar : (defaultPlan.features_ar || plan.features))
+                        const name = isFilipino
+                            ? (plan.name_ph || defaultPlan.name_ph || plan.name)
+                            : isArabic
+                            ? (plan.name_ar || defaultPlan.name_ar || plan.name)
+                            : (plan.name || defaultPlan.name);
+
+                        const description = isFilipino
+                            ? (plan.description_ph || defaultPlan.description_ph || plan.description)
+                            : isArabic
+                            ? (plan.description_ar || defaultPlan.description_ar || plan.description)
+                            : (plan.description || defaultPlan.description);
+
+                        const validity = isFilipino
+                            ? (plan.validity_ph || defaultPlan.validity_ph || plan.validity)
+                            : isArabic
+                            ? (plan.validity_ar || defaultPlan.validity_ar || plan.validity)
+                            : (plan.validity || defaultPlan.validity);
+
+                        const ctaText = tDynamic(plan, 'ctaText') || (
+                            isFilipino
+                                ? (isBasic ? 'Kasalukuyang Plano' : 'Mag-upgrade Ngayon')
+                                : isArabic
+                                ? (isBasic ? 'الخطة الحالية' : 'ترقية الآن')
+                                : (isBasic ? 'Current Plan' : 'Upgrade Now')
+                        );
+
+                        const featuresList = (isFilipino && plan.features_ph?.length)
+                            ? plan.features_ph
+                            : (isArabic && plan.features_ar?.length)
+                            ? plan.features_ar
                             : (plan.features?.length ? plan.features : defaultPlan.features);
 
                         return (
@@ -190,8 +219,8 @@ export default function SubscriptionPlansView() {
                                         onClick={() => handleSelectPlan(plan)}
                                         disabled
                                     >
-                                        <span {...getBidiProps(isArabic ? 'ترقية الآن' : 'Upgrade Now')}>
-                                            {isArabic ? 'ترقية الآن' : 'Upgrade Now'}
+                                        <span {...getBidiProps(ctaText)}>
+                                            {ctaText}
                                         </span>
                                         <div className={styles.btnIconBox}>
                                             <ArrowUpRightIcon />

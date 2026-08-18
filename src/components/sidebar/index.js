@@ -124,7 +124,10 @@ const NavItem = ({ item, pathname, onNavigate, isCollapsed }) => {
                       href={sub.href}
                       className={styles.flyoutLink}
                       data-active={isSubActive ? 'true' : undefined}
-                      onClick={onNavigate}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onNavigate?.();
+                      }}
                     >
                       <div className={styles.subMenuIcon}>
                         <SubIcon />

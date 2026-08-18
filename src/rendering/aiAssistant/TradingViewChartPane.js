@@ -833,8 +833,17 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                     {latestCandle && (
                         <div className={`${styles.headerLivePriceBadge} ${isUp ? styles.badgeUp : styles.badgeDown}`}>
                             <span className={styles.livePriceText}>{formatPrice(currentPrice, symbol)}</span>
-                            <span className={styles.liveDirectionTag}>{isUp ? '▲ UP' : '▼ DOWN'}</span>
-                            <span className={styles.livePctTag}>{isUp ? `+${percentChange}%` : `${percentChange}%`}</span>
+                            {isUp ? (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                                    <polyline points="17 6 23 6 23 12" />
+                                </svg>
+                            ) : (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+                                    <polyline points="17 18 23 18 23 12" />
+                                </svg>
+                            )}                            <span className={styles.livePctTag}>{isUp ? `+${percentChange}%` : `${percentChange}%`}</span>
                         </div>
                     )}
                 </div>
@@ -927,7 +936,7 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                         </button>
 
                         {timeframeDropdownOpen && (
-                            <div className={styles.dropdownMenuFloating}>
+                            <div className={`${styles.dropdownMenuFloating} ${styles.timeframeDropdownMenu}`}>
                                 {TIMEFRAMES.map((tf) => {
                                     const isActive = currentTimeframe === tf.value;
                                     return (
@@ -966,7 +975,7 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                         </button>
 
                         {chartTypeDropdownOpen && (
-                            <div className={styles.dropdownMenuFloating}>
+                            <div className={`${styles.dropdownMenuFloating} ${styles.chartTypeDropdownMenu}`}>
                                 {CHART_TYPES.map((ct) => {
                                     const isActive = chartType === ct.value;
                                     return (

@@ -12,7 +12,7 @@ export default function ChartLoaderOverlay({ activeSymbol, currentTimeframe }) {
         <div className={styles.chartLoaderOverlay}>
             <div className={styles.chartSpinnerWrapper}>
                 <div className={styles.chartSpinner} />
-                <span>{`${loadingText} (${activeSymbol} ${currentTimeframe})`}</span>
+                <span>{loadingText}</span>
             </div>
         </div>
     );

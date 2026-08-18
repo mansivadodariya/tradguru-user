@@ -67,14 +67,18 @@ export function formatBroker(item) {
         id: item.id,
         name: item.name,
         name_ar: item.name_ar || item.name,
+        name_ph: item.name_ph || item.name,
         subtitle: item.subtitle || '',
         subtitle_ar: item.subtitle_ar || item.subtitle || '',
+        subtitle_ph: item.subtitle_ph || item.subtitle || '',
         logo: item.logo || '',
         category: item.category || 'Brokers',
         description: item.description || '',
         description_ar: item.description_ar || item.description || '',
+        description_ph: item.description_ph || item.description || '',
         features: typeof item.features === 'string' ? JSON.parse(item.features) : (item.features || []),
         features_ar: typeof item.features_ar === 'string' ? JSON.parse(item.features_ar) : (item.features_ar || item.features || []),
+        features_ph: typeof item.features_ph === 'string' ? JSON.parse(item.features_ph) : (item.features_ph || item.features || []),
         highlights: typeof item.highlights === 'string' ? JSON.parse(item.highlights) : (item.highlights || []),
         websiteUrl: item.website_url || item.websiteUrl || ''
     };
