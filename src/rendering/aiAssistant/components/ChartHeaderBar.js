@@ -36,7 +36,7 @@ export default function ChartHeaderBar({
                 <div className={`${styles.headerLivePriceBadge} ${isUp ? styles.badgeUp : styles.badgeDown}`}>
                     <span className={styles.badgeSymbol}>{activeSymbol}</span>
                     <span className={styles.badgePrice}>{priceText}</span>
-                    <span className={styles.badgeDirection}>{isUp ? '▲ UP' : '▼ DOWN'}</span>
+                    <span className={styles.badgeDirection}>{isUp ? '▲' : '▼'}</span>
                     <span className={styles.badgeChange}>{changeText}</span>
                 </div>
             </div>

@@ -2,10 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTheme } from '@/context/ThemeContext';
 import styles from './aiAssistant.module.scss';
 
 export default function ImagePreviewModal({ attachment, onClose }) {
     const [mounted, setMounted] = useState(false);
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     useEffect(() => {
         setMounted(true);
@@ -28,7 +31,7 @@ export default function ImagePreviewModal({ attachment, onClose }) {
     };
 
     const modalContent = (
-        <div className={styles.imagePreviewOverlay} onClick={onClose}>
+        <div className={`${styles.imagePreviewOverlay} ${isDark ? styles.darkModeModal : styles.lightModeModal}`} onClick={onClose}>
             <div className={styles.imagePreviewCard} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.imagePreviewHeader}>
                     <div className={styles.titleGroup}>
