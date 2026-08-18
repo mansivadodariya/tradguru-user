@@ -101,10 +101,12 @@ export default function BrokerDetailPage({ brokerId, isPublicLanding = false }) 
         );
     }
 
-    const name = tDynamic(broker, 'name', 'name_ar') || broker.name;
-    const subtitle = tDynamic(broker, 'subtitle', 'subtitle_ar') || broker.subtitle;
-    const description = tDynamic(broker, 'description', 'description_ar') || broker.description;
-    const featuresList = (language === 'ar' && Array.isArray(broker.features_ar) && broker.features_ar.length > 0)
+    const name = tDynamic(broker, 'name') || broker.name;
+    const subtitle = tDynamic(broker, 'subtitle') || broker.subtitle;
+    const description = tDynamic(broker, 'description') || broker.description;
+    const featuresList = (language === 'ph' && Array.isArray(broker.features_ph) && broker.features_ph.length > 0)
+        ? broker.features_ph
+        : (language === 'ar' && Array.isArray(broker.features_ar) && broker.features_ar.length > 0)
         ? broker.features_ar
         : (broker.features || []);
 

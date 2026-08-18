@@ -57,11 +57,13 @@ export const LanguageProvider = ({ children }) => {
   }, [language]);
 
   /** Helper to translate dynamic backend data objects (e.g. backend fields with _en / _ar / _ph) */
-  const tDynamic = useCallback((item, fieldEn = 'title', fieldAr = 'title_ar', fieldPh = 'title_ph') => {
+  const tDynamic = useCallback((item, fieldEn = 'title', fieldAr, fieldPh) => {
     if (!item) return '';
-    if (language === 'ar' && item[fieldAr]) return item[fieldAr];
-    if (language === 'ph' && item[fieldPh]) return item[fieldPh];
-    return item[fieldEn] || item[fieldAr] || item[fieldPh] || '';
+    const arKey = fieldAr || `${fieldEn}_ar`;
+    const phKey = fieldPh || `${fieldEn}_ph`;
+    if (language === 'ar' && item[arKey]) return item[arKey];
+    if (language === 'ph' && item[phKey]) return item[phKey];
+    return item[fieldEn] || item[arKey] || item[phKey] || '';
   }, [language]);
 
   const dir = language === 'ar' ? 'rtl' : 'ltr';

@@ -71,11 +71,17 @@ export default function BrokerPage() {
     }, []);
 
     const filteredBrokers = useMemo(() => {
+        const q = searchQuery.toLowerCase();
         return brokers.filter((broker) => {
             const matchesTab = selectedTab === 'All' || broker.category === selectedTab;
-            const matchesSearch = broker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                broker.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                broker.description.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesSearch =
+                (broker.name || '').toLowerCase().includes(q) ||
+                (broker.name_ar || '').toLowerCase().includes(q) ||
+                (broker.name_ph || '').toLowerCase().includes(q) ||
+                (broker.subtitle || '').toLowerCase().includes(q) ||
+                (broker.subtitle_ph || '').toLowerCase().includes(q) ||
+                (broker.description || '').toLowerCase().includes(q) ||
+                (broker.description_ph || '').toLowerCase().includes(q);
             return matchesTab && matchesSearch;
         });
     }, [brokers, selectedTab, searchQuery]);

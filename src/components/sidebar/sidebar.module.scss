@@ -82,6 +82,10 @@
         z-index: 50;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 
+        @include respond-to("sm") {
+            display: none;
+        }
+
         :global([dir="rtl"]) & {
             right: auto;
             left: -13px;
@@ -106,7 +110,7 @@
     }
 
     .sidebarmenu {
-        padding:  20px;
+        padding: 20px;
         flex: 1;
         overflow: auto;
         scrollbar-width: thin;
@@ -574,7 +578,7 @@
         top: 50%;
         transform: translateY(-50%);
         background: #FFFFFF;
-        color: #1A1A1A;
+        color: #1A1A1A !important;
         border: 1px solid #E4E4E4;
         padding: 6px 12px;
         border-radius: 6px;
@@ -656,6 +660,16 @@
         transition: opacity 0.15s ease, transform 0.15s ease;
         transform: translateX(-4px);
 
+        /* Transparent bridge so cursor can cross the gap without losing :hover */
+        &::after {
+            content: '';
+            position: absolute;
+            right: 100%;
+            top: 0;
+            width: 16px;
+            height: 100%;
+        }
+
         :global([dir="rtl"]) & {
             left: auto;
             right: calc(100% + 12px);
@@ -664,6 +678,12 @@
                 right: auto;
                 left: 100%;
                 border-color: transparent transparent transparent #ffffff;
+            }
+
+            /* RTL transparent bridge on the opposite side */
+            &::after {
+                right: auto;
+                left: 100%;
             }
         }
 
@@ -825,6 +845,33 @@
             }
         }
     }
+
+    @include respond-to('lg') {
+        &.collapsed {
+            .logoHeader {
+                padding: 0 14px;
+                justify-content: space-between;
+            }
+
+            .sidebarmenu {
+                padding: 20px;
+
+                .menu {
+                    justify-content: flex-start;
+                    padding: 6px;
+                }
+            }
+
+            .sidebarFooter {
+                padding: 14px 16px;
+
+                .userProfileCard {
+                    justify-content: flex-start;
+                    padding: 8px 10px;
+                }
+            }
+        }
+    }
 }
 
 .sidebarFooter {
@@ -851,10 +898,12 @@
 
     &:hover {
         background: #0b57db34;
-    :global(.dark) & {
+
+        :global(.dark) & {
             background: #0b57db94;
         }
     }
+
     :global(.dark) & {
         background: #0b57db63;
     }
@@ -1160,7 +1209,7 @@
 
         .tooltip {
             background: #18181b;
-            color: #ffffff;
+            color: #ffffff !important;
             border: 1px solid #27272a;
 
             &::before {

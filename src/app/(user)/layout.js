@@ -30,10 +30,20 @@ const layout = ({ children }) => {
     const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const [showCreditsModal, setShowCreditsModal] = useState(false);
     const [userId, setUserId] = useState('');
     const [isTabAllowed, setIsTabAllowed] = useState(true);
     const isCheckingRef = React.useRef(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 1200);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         try {
@@ -192,14 +202,16 @@ const layout = ({ children }) => {
         );
     }
 
+    const effectiveCollapsed = isMobile ? false : isCollapsed;
+
     return (
         <AuthGuard>
             <ThemeProvider>
-                <div className={`user-layout ${isCollapsed ? 'collapsed' : ''}`}>
-                    <div className={`sidebar-wrapper ${isCollapsed ? 'collapsed' : ''} ${isSidebarOpen ? 'open' : ''}`}>
+                <div className={`user-layout ${effectiveCollapsed ? 'collapsed' : ''}`}>
+                    <div className={`sidebar-wrapper ${effectiveCollapsed ? 'collapsed' : ''} ${isSidebarOpen ? 'open' : ''}`}>
                         <Sidebar
                             onClose={() => setIsSidebarOpen(false)}
-                            isCollapsed={isCollapsed}
+                            isCollapsed={effectiveCollapsed}
                             onToggleCollapse={toggleCollapse}
                         />
                     </div>

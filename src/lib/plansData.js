@@ -14,6 +14,7 @@ export const defaultSubscriptionPlans = [
         validity_ar: 'مجاناً لمدة شهر واحد',
         ctaText: 'Current Plan',
         ctaText_ar: 'الخطة الحالية',
+        ctaText_ph: 'Kasalukuyang Plano',
         subCtaText: 'No credit card required',
         subCtaText_ar: 'لا تتطلب بطاقة ائتمان',
         featuresHeader: 'What You Will Get +',
@@ -54,6 +55,7 @@ export const defaultSubscriptionPlans = [
         validity_ar: 'صالح لمدة 3 أشهر',
         ctaText: 'Upgrade Now',
         ctaText_ar: 'ترقية الآن',
+        ctaText_ph: 'Mag-upgrade Ngayon',
         subCtaText: 'No charges for 14 days • Cancel anytime',
         subCtaText_ar: 'بدون رسوم لمدة 14 يوماً • إلغاء في أي وقت',
         featuresHeader: 'Everything in Free Plan +',
@@ -96,6 +98,7 @@ export const defaultSubscriptionPlans = [
         validity_ar: 'صالح لمدة 6 أشهر',
         ctaText: 'Upgrade Now',
         ctaText_ar: 'ترقية الآن',
+        ctaText_ph: 'Mag-upgrade Ngayon',
         subCtaText: 'Priority activation • Cancel anytime',
         subCtaText_ar: 'تفعيل ذو أولوية • إلغاء في أي وقت',
         featuresHeader: 'Everything in Premium Plan +',
@@ -144,7 +147,8 @@ export async function fetchSubscriptionPlans() {
         return data.map((plan) => ({
             ...plan,
             features: Array.isArray(plan.features) ? plan.features : (typeof plan.features === 'string' ? JSON.parse(plan.features) : []),
-            features_ar: Array.isArray(plan.features_ar) ? plan.features_ar : (typeof plan.features_ar === 'string' ? JSON.parse(plan.features_ar) : [])
+            features_ar: Array.isArray(plan.features_ar) ? plan.features_ar : (typeof plan.features_ar === 'string' ? JSON.parse(plan.features_ar) : []),
+            features_ph: Array.isArray(plan.features_ph) ? plan.features_ph : (typeof plan.features_ph === 'string' ? JSON.parse(plan.features_ph) : [])
         }));
     } catch (_) {
         return defaultSubscriptionPlans;
