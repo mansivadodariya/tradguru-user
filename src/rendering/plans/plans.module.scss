@@ -39,7 +39,7 @@
 .headerSection {
     position: relative;
     z-index: 1;
-    margin-bottom: 48px;
+    margin-bottom: 32px;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -108,7 +108,7 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 28px;
     align-items: stretch;
-    margin-bottom: 48px;
+    margin-bottom: 32px;
 
     @include respond-to('md') {
         grid-template-columns: 1fr;
@@ -201,6 +201,9 @@
     flex-direction: column;
     align-items: flex-start;
     text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+    flex: 1;
 
     @include respond-to('sm') {
         padding: 24px 20px 20px;
@@ -237,9 +240,19 @@
     color: #64748B;
     margin: 0 0 24px;
     min-height: 64px;
+    width: 100%;
+
+    .lang_ph &,
+    :global([lang="ph"]) & {
+        min-height: 98px;
+    }
 
     @include respond-to('md') {
         min-height: auto;
+        .lang_ph &,
+        :global([lang="ph"]) & {
+            min-height: auto;
+        }
     }
 }
 
@@ -314,6 +327,13 @@
     font-family: inherit;
     margin-bottom: 0;
     min-height: 48px;
+    box-sizing: border-box;
+
+    span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
     :global([dir="rtl"]) & {
         padding: 6px 24px 6px 6px;
