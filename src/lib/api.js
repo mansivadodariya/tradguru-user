@@ -312,5 +312,27 @@ export const profileApi = {
         }),
 };
 
+export const depositApi = {
+    createDeposit: (payload) =>
+        request('/deposit/create', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(payload),
+        }),
+
+    getDepositHistory: (user_id) => {
+        const path = (!user_id || user_id === 'all') ? '/deposit/history' : `/deposit/history?user_id=${user_id}`;
+        return request(path, {
+            headers: getAuthHeaders(),
+        });
+    },
+
+    getDepositStatus: (deposit_id) =>
+        request(`/deposit/${deposit_id}/status`, {
+            headers: getAuthHeaders(),
+        }),
+};
+
+
 
 

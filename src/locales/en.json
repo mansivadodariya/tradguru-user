@@ -280,9 +280,22 @@
     "creditsUnit": "Credits",
     "buyBtn": "Buy Credits",
     "buyPlanBtn": "Start {plan} Plan",
+    "upgradePlan": "Upgrade Plan",
     "popular": "MOST POPULAR",
     "selectSuccess": "Selected {plan} plan ({credits} Credits)",
+    "loginRequired": "Please log in to upgrade your subscription.",
+    "upgradeSuccess": "Deposit request created successfully!",
     "disclaimer": "Service volumes shown assume the full balance is spent on a single service, at 15 credits per AI Chat query and 10 per Auto Chart analysis."
+  },
+  "paymentStatus": {
+    "successTitle": "Payment Successful!",
+    "successSubtitle": "Your transaction was completed successfully. Credits have been added to your account balance.",
+    "failedTitle": "Payment Canceled / Failed",
+    "failedSubtitle": "The transaction was canceled or could not be completed. No charges were made.",
+    "viewCredits": "View Credit History",
+    "continue": "Continue to Dashboard",
+    "tryAgain": "Try Again",
+    "close": "Close"
   },
   "sidebar": {
     "upgradeTitle": "Upgrade to pro",

@@ -351,11 +351,15 @@ const Sidebar = ({ onClose, isCollapsed = false, onToggleCollapse }) => {
     '/trade-snap': 'AI Trade',
     '/ai-assistant': 'AI Chat',
     '/ai-strategy': 'AI Strategy',
+    '/ai-strategy/live': 'AI Strategy',
+    '/ai-strategy/strategy': 'AI Strategy',
     '/economic-calendar': 'Economic Calendar',
     '/credit-history': 'Credit History',
     '/plans': 'Subscription Plans',
     '/broker': 'Broker',
+    '/brokers': 'Broker',
     '/profile': 'Profile',
+    '/settings': 'Profile',
   };
 
   const logoSrc = theme === 'dark' ? SidebarLogoWhite : SidebarLogo;

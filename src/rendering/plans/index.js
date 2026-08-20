@@ -1,9 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import styles from './plans.module.scss';
 import LineText from '@/components/lineText';
 import { fetchSubscriptionPlans, defaultSubscriptionPlans } from '@/lib/plansData';
+import { depositApi } from '@/lib/api';
+import { getStoredUser, getStoredUserId } from '@/lib/authSession';
 import { useLanguage } from '@/context/LanguageContext';
 import { getBidiProps } from '@/lib/bidi';
 import toast from 'react-hot-toast';
@@ -47,10 +50,12 @@ const FlameIcon = () => (
 );
 
 export default function SubscriptionPlansView() {
+    const router = useRouter();
     const { t, tDynamic, language } = useLanguage();
     const [plans, setPlans] = useState(defaultSubscriptionPlans);
     const [loading, setLoading] = useState(true);
     const [selectedPlanId, setSelectedPlanId] = useState(null);
+    const [submittingPlanId, setSubmittingPlanId] = useState(null);
 
     useEffect(() => {
         let isMounted = true;
@@ -70,12 +75,49 @@ export default function SubscriptionPlansView() {
         return () => { isMounted = false; };
     }, []);
 
-    const handleSelectPlan = (plan) => {
+    const handleUpgradePlan = async (plan) => {
+        if (typeof window === 'undefined') return;
+
+        const token = localStorage.getItem('access_token');
+        const user = getStoredUser();
+        const userId = getStoredUserId();
+
+        if (!token || (!user && !userId)) {
+            let redirectPath = '/plans';
+            if (window.location.pathname === '/' || window.location.pathname === '') {
+                redirectPath = '/#pricing';
+            } else if (window.location.pathname === '/plans') {
+                redirectPath = '/plans';
+            } else {
+                const hash = window.location.hash || (document.getElementById('pricing') ? '#pricing' : '');
+                redirectPath = `${window.location.pathname}${window.location.search || ''}${hash}`;
+            }
+            router.push(`/login?redirect=${encodeURIComponent(redirectPath)}`);
+            return;
+        }
+
         setSelectedPlanId(plan.id);
-        const planName = tDynamic(plan, 'name') || plan.name;
-        toast.success(
-            t('plans.selectSuccess', 'Selected {plan} plan ({credits} Credits)').replace('{plan}', planName).replace('{credits}', plan.credits)
-        );
+        setSubmittingPlanId(plan.id);
+        try {
+            const payload = {
+                plan_id: plan.id,
+                amount: plan.price,
+                currency: plan.currency || '$',
+                user_id: user?.id || user?.user_id || userId,
+                email: user?.email,
+            };
+            const res = await depositApi.createDeposit(payload);
+            const redirectUrl = res?.data?.payment_url || res?.data?.url || res?.data?.redirect_url || res?.payment_url || res?.url || res?.redirect_url;
+            if (redirectUrl) {
+                window.location.href = redirectUrl;
+                return;
+            }
+            toast.success(res?.message || t('plans.upgradeSuccess', 'Deposit request created successfully!'));
+        } catch (err) {
+            toast.error(err?.message || t('common.somethingWentWrong', 'Failed to create deposit request.'));
+        } finally {
+            setSubmittingPlanId(null);
+        }
     };
 
     return (
@@ -157,13 +199,7 @@ export default function SubscriptionPlansView() {
                             ? (plan.validity_ar || defaultPlan.validity_ar || plan.validity)
                             : (plan.validity || defaultPlan.validity);
 
-                        const ctaText = tDynamic(plan, 'ctaText') || (
-                            isFilipino
-                                ? (isBasic ? 'Kasalukuyang Plano' : 'Mag-upgrade Ngayon')
-                                : isArabic
-                                ? (isBasic ? 'الخطة الحالية' : 'ترقية الآن')
-                                : (isBasic ? 'Current Plan' : 'Upgrade Now')
-                        );
+                        const ctaText = t('plans.upgradePlan', isFilipino ? 'Mag-upgrade ng Plano' : isArabic ? 'ترقية الخطة' : 'Upgrade Plan');
 
                         const featuresList = (isFilipino && plan.features_ph?.length)
                             ? plan.features_ph
@@ -216,11 +252,11 @@ export default function SubscriptionPlansView() {
                                     <button
                                         type="button"
                                         className={`${styles.buyBtn} ${styles.primaryBuyBtn}`}
-                                        onClick={() => handleSelectPlan(plan)}
-                                        disabled
+                                        onClick={() => handleUpgradePlan(plan)}
+                                        disabled={submittingPlanId === plan.id}
                                     >
                                         <span {...getBidiProps(ctaText)}>
-                                            {ctaText}
+                                            {submittingPlanId === plan.id ? t('common.loading', 'Processing...') : ctaText}
                                         </span>
                                         <div className={styles.btnIconBox}>
                                             <ArrowUpRightIcon />
