@@ -208,12 +208,33 @@ function getAuthHeaders() {
 }
 
 export const fxApi = {
-    chat: (pair, message, user_id) =>
-        request('/chat', {
+    chat: (arg1, arg2, arg3) => {
+        let payload = {};
+        if (typeof arg1 === 'object' && arg1 !== null) {
+            payload = {
+                message: arg1.message || '',
+                pair: arg1.pair || 'XAUUSD',
+                timeframe: arg1.timeframe || '15m',
+                image_base64: arg1.image_base64 || null,
+                stream: arg1.stream ?? false,
+                ...(arg1.user_id ? { user_id: arg1.user_id } : {})
+            };
+        } else {
+            payload = {
+                pair: arg1 || 'XAUUSD',
+                message: arg2 || '',
+                timeframe: '15m',
+                image_base64: null,
+                stream: false,
+                ...(arg3 ? { user_id: arg3 } : {})
+            };
+        }
+        return request('/chat', {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ pair, message, user_id }),
-        }),
+            body: JSON.stringify(payload),
+        });
+    },
 
     generateBlog: (input_data, is_content) =>
         request('/blog_generation', {

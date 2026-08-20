@@ -209,4 +209,17 @@ table th .bidi-rtl {
   unicode-bidi: plaintext;
   word-break: break-word;
   overflow-wrap: anywhere;
+}
+
+/* Hide TradingView Watermark / TV Logo from Main Chart & Sub-Panes */
+a[href*="tradingview"],
+a[title*="TradingView"],
+div[class*="tv-logo"],
+div[class*="watermark"],
+.tv-lightweight-charts-logo,
+[class*="tv-lightweight-charts-logo"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }

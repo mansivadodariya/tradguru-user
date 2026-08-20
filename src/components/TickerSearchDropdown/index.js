@@ -70,7 +70,7 @@ export default function TickerSearchDropdown({
       {/* Ticker Item List */}
       <div className={styles.tickerListScrollArea}>
         {filteredSymbols.length === 0 ? (
-          <div className={styles.noSymbolsFound}>No tickers matching "{tickerSearch}"</div>
+          <div className={styles.noSymbolsFound}>{t('aiAssistant.noTickersFound', 'No tickers matching')} "{tickerSearch}"</div>
         ) : (
           filteredSymbols.map((item) => {
             const isActive = selectedSymbol === item.symbol || normalizeSymbol(selectedSymbol) === normalizeSymbol(item.symbol);

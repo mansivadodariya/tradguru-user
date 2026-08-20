@@ -7,6 +7,10 @@ function parsePair(symbol) {
   if (!symbol) return { base: 'USD', quote: '' };
   const raw = String(symbol).trim().toUpperCase();
 
+  if (raw === 'NO PAIR' || raw === 'NO_PAIR' || raw.includes('NO PAIR')) {
+    return { base: 'NOPAIR', quote: '' };
+  }
+
   // If contains delimiter e.g. "AUD/USD" or "AUD-USD"
   if (raw.includes('/') || raw.includes('-')) {
     const parts = raw.split(/[\/\-]/);
@@ -32,6 +36,16 @@ function parsePair(symbol) {
 function renderBadgeContent(code, cx, cy, r) {
   const c = (code || '').toUpperCase();
   const idPrefix = `${c}-${Math.round(cx)}-${Math.round(cy)}`;
+
+  // 0. No Pair
+  if (c === 'NOPAIR' || c === 'NO PAIR' || c === 'NO_PAIR') {
+    return (
+      <g key={idPrefix}>
+        <circle cx={cx} cy={cy} r={r} fill="#1E293B" stroke="#475569" strokeWidth="1" />
+        <text x={cx} y={cy + 4} fontSize="11" fontWeight="bold" fill="#94A3B8" textAnchor="middle" fontFamily="sans-serif">∅</text>
+      </g>
+    );
+  }
 
   // 1. Euro / EUR (European Union Flag)
   if (c === 'EUR') {

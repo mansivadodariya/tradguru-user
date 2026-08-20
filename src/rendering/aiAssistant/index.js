@@ -39,7 +39,13 @@ const parseAssistantResponse = (raw) => {
             return {
                 shortContent: payload,
                 fullReport: null,
-                visualData: null
+                visualData: null,
+                detected_pair: null,
+                detected_timeframe: null,
+                is_valid_chart: true,
+                image_warning: null,
+                chart_sections: null,
+                response_format: null
             };
         }
     }
@@ -47,24 +53,45 @@ const parseAssistantResponse = (raw) => {
     const isObjectPayload = payload && typeof payload === 'object' && !Array.isArray(payload);
     if (!isObjectPayload) {
         const text = typeof payload === 'string' ? payload : String(payload || '');
-        return { shortContent: text, fullReport: null, visualData: null };
+        return {
+            shortContent: text,
+            fullReport: null,
+            visualData: null,
+            detected_pair: null,
+            detected_timeframe: null,
+            is_valid_chart: true,
+            image_warning: null,
+            chart_sections: null,
+            response_format: null
+        };
     }
 
-    const shortContent = payload.short_response || payload.shortResponse || '';
-    const fullReport = payload.full_report || payload.fullReport || null;
-    const visualData =
-        payload.visual_data ||
-        payload.visualData ||
-        envelope?.visual_data ||
-        envelope?.visualData ||
-        raw?.visual_data ||
-        raw?.visualData ||
-        null;
+    const shortContent = payload.text || payload.short_response || payload.shortResponse || payload.response || '';
+    const fullReport = payload.full_report || payload.fullReport || envelope?.full_report || null;
+    const visualData = payload.visual_data || payload.visualData || envelope?.visual_data || null;
+
+    const detected_pair = payload.detected_pair || payload.detectedPair || envelope?.detected_pair || null;
+    const detected_timeframe = payload.detected_timeframe || payload.detectedTimeframe || envelope?.detected_timeframe || null;
+    const is_valid_chart = payload.is_valid_chart ?? payload.isValidChart ?? envelope?.is_valid_chart ?? true;
+
+    let image_warning = payload.image_warning || envelope?.image_warning || null;
+    if (!image_warning && is_valid_chart === false) {
+        image_warning = '⚠️ Image not clear or valid chart header missing. Please upload a clear chart screenshot.';
+    }
+
+    const chart_sections = payload.chart_sections || payload.chartSections || envelope?.chart_sections || null;
+    const response_format = payload.response_format || payload.responseFormat || envelope?.response_format || null;
 
     return {
-        shortContent: shortContent || fullReport || payload.response || JSON.stringify(payload),
-        fullReport: fullReport || shortContent || null,
-        visualData
+        shortContent: shortContent || (typeof payload === 'string' ? payload : JSON.stringify(payload)),
+        fullReport: fullReport,
+        visualData,
+        detected_pair,
+        detected_timeframe,
+        is_valid_chart,
+        image_warning,
+        chart_sections,
+        response_format
     };
 };
 
@@ -72,8 +99,162 @@ const buildAssistantMessage = (parsed) => ({
     role: 'assistant',
     content: parsed.shortContent,
     fullReport: parsed.fullReport,
-    visualData: parsed.visualData
+    visualData: parsed.visualData,
+    detected_pair: parsed.detected_pair,
+    detected_timeframe: parsed.detected_timeframe,
+    is_valid_chart: parsed.is_valid_chart,
+    image_warning: parsed.image_warning,
+    chart_sections: parsed.chart_sections,
+    response_format: parsed.response_format
 });
+
+const SECTION_TITLE_MAP = {
+    overall_trend: "📈 Overall Trend",
+    market_structure: "🧱 Market Structure (BOS / CHoCH)",
+    support_resistance_levels: "🎯 Support & Resistance Levels",
+    supply_demand_zones: "⚡ Supply & Demand Zones (FVG)",
+    trader_actionable_zones: "🛑 Trader Actionable Zones (Exact Entry, SL & TP Targets)",
+    volatility_price_behavior: "📊 Volatility & Price Behavior",
+    session_bias: "⏰ Session Bias",
+    market_mood_radar: "🧠 Market Mood Radar",
+    candlestick_patterns: "🕯️ Candlestick Patterns",
+    chart_patterns: "📐 Chart Patterns"
+};
+
+function formatSectionTitle(key, index) {
+    if (SECTION_TITLE_MAP[key]) return SECTION_TITLE_MAP[key];
+    const defaultTitles = [
+        "📈 Overall Trend",
+        "🧱 Market Structure (BOS / CHoCH)",
+        "🎯 Support & Resistance Levels",
+        "⚡ Supply & Demand Zones (FVG)",
+        "🛑 Trader Actionable Zones (Exact Entry, SL & TP Targets)",
+        "📊 Volatility & Price Behavior",
+        "⏰ Session Bias",
+        "🧠 Market Mood Radar",
+        "🕯️ Candlestick Patterns",
+        "📐 Chart Patterns"
+    ];
+    if (defaultTitles[index]) return defaultTitles[index];
+    return key
+        .replace(/_/g, ' ')
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function AccordionSections({ sections }) {
+    const [openIndices, setOpenIndices] = useState([0]);
+
+    const toggleIndex = (idx) => {
+        setOpenIndices((prev) =>
+            prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
+        );
+    };
+
+    let items = [];
+    if (Array.isArray(sections)) {
+        items = sections.map((sec, idx) => ({
+            key: `sec_${idx}`,
+            title: typeof sec === 'object' ? (sec.title || sec.name) : null,
+            content: typeof sec === 'string' ? sec : (sec.content || sec.details || sec.text || JSON.stringify(sec)),
+            index: idx
+        }));
+    } else if (typeof sections === 'object' && sections !== null) {
+        items = Object.entries(sections).map(([key, content], idx) => ({
+            key,
+            title: formatSectionTitle(key, idx),
+            content,
+            index: idx
+        }));
+    }
+
+    if (items.length === 0) return null;
+
+    return (
+        <div className={styles.accordionContainer}>
+            {items.map((sec, idx) => {
+                const title = sec.title || formatSectionTitle(sec.key, idx);
+                const content = typeof sec.content === 'string' ? sec.content : JSON.stringify(sec.content);
+                const isOpen = openIndices.includes(idx);
+
+                return (
+                    <div key={sec.key || idx} className={`${styles.accordionCard} ${isOpen ? styles.accordionOpen : ''}`}>
+                        <button
+                            type="button"
+                            className={styles.accordionHeader}
+                            onClick={() => toggleIndex(idx)}
+                        >
+                            <span className={styles.accordionTitle}>{title}</span>
+                            <span className={styles.accordionChevron}>{isOpen ? '▲' : '▼'}</span>
+                        </button>
+                        {isOpen && (
+                            <div className={styles.accordionBody}>
+                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                                    {content}
+                                </ReactMarkdown>
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+function AiResponseHeader({ msg }) {
+    if (!msg || (!msg.detected_pair && !msg.detected_timeframe && !msg.query_type)) return null;
+    return (
+        <div className={styles.aiResponseHeaderBar}>
+            <div className={styles.aiHeaderLeftBadges}>
+                {msg.detected_pair && (
+                    <span className={styles.badgeDetectedPair}>
+                        📍 {msg.detected_pair}
+                    </span>
+                )}
+                {msg.detected_timeframe && (
+                    <span className={styles.badgeDetectedTf}>
+                        ⏱️ {msg.detected_timeframe}
+                    </span>
+                )}
+            </div>
+            {msg.query_type && (
+                <span className={styles.badgeQueryType}>
+                    {msg.query_type}
+                </span>
+            )}
+        </div>
+    );
+}
+
+function ClarificationOptionButtons({ onSelect }) {
+    const options = [
+        { id: '1', icon: '📈', label: 'Technical Structure', sub: 'Pivots, RSI, MAs & Levels' },
+        { id: '2', icon: '📰', label: 'Fundamental & Macro', sub: 'Central Bank & News Drivers' },
+        { id: '3', icon: '⚡', label: 'Intraday Scalp Setup', sub: '15m/1H Quick Entry & Tight SL' },
+        { id: '4', icon: '📊', label: 'Medium Term Setup', sub: '1H/4H Weekly Trend Setup' },
+        { id: '5', icon: '🔄', label: 'Swing Position Setup', sub: '4H/Daily Multi-Day Setup' },
+        { id: '6', icon: '🏆', label: 'Complete Pro Setup', sub: 'Full Tech + Macro + SL/TP' },
+    ];
+
+    return (
+        <div className={styles.interactiveOptionsGrid}>
+            {options.map((opt) => (
+                <button
+                    key={opt.id}
+                    type="button"
+                    className={styles.optionChipButton}
+                    onClick={() => onSelect(opt.id)}
+                >
+                    <span className={styles.optionChipIcon}>{opt.icon}</span>
+                    <div className={styles.optionChipTextGroup}>
+                        <div className={styles.optionChipTitle}>{opt.label}</div>
+                        <div className={styles.optionChipSub}>{opt.sub}</div>
+                    </div>
+                </button>
+            ))}
+        </div>
+    );
+}
 
 const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     const { t } = useLanguage();
@@ -89,6 +270,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     const [chatMessages, setChatMessages] = useState([]);
     const [chatInput, setChatInput] = useState('');
     const [selectedPair, setSelectedPair] = useState('XAU/USD');
+    const [selectedTimeframe, setSelectedTimeframe] = useState('15m');
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [attachDropdownOpen, setAttachDropdownOpen] = useState(false);
     const [chatTickerSearch, setChatTickerSearch] = useState('');
@@ -125,27 +307,34 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
 
     // Quick Action Chip Handlers
     const handleGenerateFromImageClick = () => {
+        let draft = null;
         if (chartPaneRef.current) {
             const dataUrl = chartPaneRef.current.getScreenshotDataUrl();
             if (dataUrl) {
-                setAttachmentDraft({
+                draft = {
                     name: `${normalizeSymbol(selectedPair)}_chart.png`,
                     url: dataUrl,
                     type: 'image/png'
-                });
-                toast('Chart screenshot attached to chat message!');
+                };
             }
         }
-        setChatInput('Analyze this chart screenshot and identify technical patterns & breakouts');
+        handleSendChatMessage({
+            overrideMessage: 'Analyze this chart screenshot and identify technical patterns & breakouts',
+            overrideAttachment: draft
+        });
     };
 
     const handleDeepAnalysisClick = () => {
         const sym = normalizeSymbol(selectedPair);
-        setChatInput(`Perform a Deep Pro Analysis for ${sym} including multi-timeframe market structure, pivot points, key indicators, macro drivers, and complete risk-reward trade setup`);
+        handleSendChatMessage({
+            overrideMessage: `Perform a Deep Pro Analysis for ${sym} including multi-timeframe market structure, pivot points, key indicators, macro drivers, and complete risk-reward trade setup`
+        });
     };
 
     const handleMacroNewsClick = () => {
-        setChatInput('Show latest financial news, market sentiment, and central bank stance for active pair');
+        handleSendChatMessage({
+            overrideMessage: 'Show latest financial news, market sentiment, and central bank stance for active pair'
+        });
     };
 
     const handleFileSelect = (e) => {
@@ -392,8 +581,11 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         }
     };
 
-    const handleSendChatMessage = async () => {
-        if ((!chatInput.trim() && !attachmentDraft) || pendingRequest) return;
+    const handleSendChatMessage = async (opts = {}) => {
+        const msg = opts.overrideMessage !== undefined ? opts.overrideMessage : chatInput;
+        const currentAttachment = opts.overrideAttachment !== undefined ? opts.overrideAttachment : attachmentDraft;
+
+        if ((!msg.trim() && !currentAttachment) || pendingRequest) return;
 
         // Automatically expand chat panel to full wide mode (60%) when sending a message if currently small
         if (chatWidthPercent < 60) {
@@ -403,123 +595,53 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
             });
         }
 
-        const msg = chatInput;
-        const currentAttachment = attachmentDraft;
         setChatInput('');
         setAttachmentDraft(null);
         setPendingRequest(true);
 
+        const cleanPair = normalizeSymbol(selectedPair);
+        const activeTf = (typeof selectedTimeframe !== 'undefined' && selectedTimeframe) ? selectedTimeframe : '15m';
+
         const newUserMsg = {
             role: 'user',
             content: msg,
-            pair: selectedPair,
+            pair: cleanPair,
+            timeframe: activeTf,
             attachment: currentAttachment
         };
         setChatMessages(prev => [...prev, newUserMsg]);
 
-        let streamedText = '';
-
         try {
-            const token = typeof window !== 'undefined' ? (localStorage.getItem('token') || '') : '';
-            const response = await fetch('/api/v1/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-                },
-                body: JSON.stringify({
-                    message: msg,
-                    pair: normalizeSymbol(selectedPair),
-                    image_base64: currentAttachment?.url || undefined,
-                    stream: true
-                })
-            });
+            const chatPayload = {
+                message: msg,
+                pair: cleanPair,
+                timeframe: activeTf,
+                image_base64: currentAttachment?.url || null,
+                stream: false,
+                user_id: userId || undefined
+            };
 
-            if (response.ok && response.body) {
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let buffer = '';
-
-                setChatMessages(prev => [...prev, { role: 'assistant', content: '' }]);
-
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) break;
-                    buffer += decoder.decode(value, { stream: true });
-
-                    const lines = buffer.split('\n');
-                    buffer = lines.pop();
-
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            const rawData = line.substring(6).trim();
-                            if (!rawData) continue;
-                            try {
-                                const payload = JSON.parse(rawData);
-                                switch (payload.type) {
-                                    case 'token':
-                                        streamedText += payload.text || '';
-                                        setChatMessages(prev => {
-                                            const copy = [...prev];
-                                            if (copy.length > 0 && copy[copy.length - 1].role === 'assistant') {
-                                                copy[copy.length - 1] = { ...copy[copy.length - 1], content: streamedText };
-                                            }
-                                            return copy;
-                                        });
-                                        break;
-                                    case 'error':
-                                        toast(payload.text || 'Streaming error');
-                                        break;
-                                    case 'done':
-                                        break;
-                                }
-                            } catch {
-                                streamedText += rawData;
-                                setChatMessages(prev => {
-                                    const copy = [...prev];
-                                    if (copy.length > 0 && copy[copy.length - 1].role === 'assistant') {
-                                        copy[copy.length - 1] = { ...copy[copy.length - 1], content: streamedText };
-                                    }
-                                    return copy;
-                                });
-                            }
-                        }
-                    }
-                }
-
-                if (streamedText) {
-                    fetchChatHistory(userId);
-                    return;
-                }
-            }
-
-            // Fallback to standard fxApi.chat endpoint if SSE endpoint is unconfigured
-            const result = await fxApi.chat(selectedPair, msg, userId);
+            const result = await fxApi.chat(chatPayload);
             const parsed = parseAssistantResponse(result);
             const assistantMsg = buildAssistantMessage(parsed);
             setChatMessages(prev => [...prev, assistantMsg]);
             fetchChatHistory(userId);
             syncCreditsAfterAction(result);
         } catch (err) {
-            if (!streamedText) {
-                try {
-                    const result = await fxApi.chat(selectedPair, msg, userId);
-                    const parsed = parseAssistantResponse(result);
-                    const assistantMsg = buildAssistantMessage(parsed);
-                    setChatMessages(prev => [...prev, assistantMsg]);
-                    fetchChatHistory(userId);
-                    syncCreditsAfterAction(result);
-                } catch (fallbackErr) {
-                    const errorMessage = fallbackErr?.message || err?.message || "I apologize, but the FX Copilot API is currently unavailable. Please verify the endpoint or try again later.";
-                    setChatMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
-                    if (fallbackErr?.detail?.error_code === 'INSUFFICIENT_CREDITS' || fallbackErr?.message?.toLowerCase().includes('insufficient credits')) {
-                        notifyCreditsUpdated(0);
-                    }
-                }
+            const errorMessage = err?.message || "I apologize, but the FX Copilot API is currently unavailable. Please verify the endpoint or try again later.";
+            setChatMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
+            if (err?.detail?.error_code === 'INSUFFICIENT_CREDITS' || err?.message?.toLowerCase().includes('insufficient credits')) {
+                notifyCreditsUpdated(0);
             }
         } finally {
             setPendingRequest(false);
         }
+    };
+
+    const handleOptionClick = (optionNumber) => {
+        handleSendChatMessage({
+            overrideMessage: String(optionNumber),
+        });
     };
 
     const handleGenerateBlog = async () => {
@@ -870,9 +992,9 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                             </div>
                         </div>
                         <div className={styles.chatBody}>
-                            {chatMessages.length === 0 ? (
+                            {chatMessages.length === 0 && !pendingRequest ? (
                                 <div className={styles.welcomeContainer}>
-                                    <div className={styles.welcomeHeroBadge}>
+                                    {/* <div className={styles.welcomeHeroBadge}>
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                                             <defs>
                                                 <linearGradient id="badgeSparkleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -883,7 +1005,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                             <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="url(#badgeSparkleGrad)" />
                                         </svg>
                                         <span>AI Market Assistant</span>
-                                    </div>
+                                    </div> */}
                                     <h2 className={styles.welcomeTitle}>
                                         What do you want <br />to <span className={styles.titleGradient}>analyze?</span>
                                     </h2>
@@ -963,56 +1085,84 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                     </div>
                                 </div>
                             ) : (
-                                chatMessages.map((msg, index) => (
-                                    <div
-                                        key={index}
-                                        className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''} ${msg.fullReport ? styles.reportRow : ''}`}
-                                    >
-                                        {msg.role === 'user' && msg.pair && (
-                                            <span className={styles.pairBadge}>{msg.pair}</span>
-                                        )}
-                                        <div {...getBidiProps(msg.content, msg.role === 'user' ? styles.userMessage : styles.assistantMessage)}>
-                                            {msg.role === 'user' ? (
-                                                <>
-                                                    {msg.attachment && (
-                                                        <div
-                                                            className={styles.userMsgAttachment}
-                                                            onClick={() => setPreviewAttachment(msg.attachment)}
-                                                            title="Click to preview image"
-                                                        >
-                                                            <img src={msg.attachment.url} alt="Attached Chart" />
-                                                        </div>
-                                                    )}
-                                                    {msg.content}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {msg.fullReport ? (
-                                                        <>
-                                                            <div className={styles.chatMarkdown}>
-                                                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>
-                                                                    {msg.content}
-                                                                </ReactMarkdown>
+                                chatMessages.map((msg, index) => {
+                                    const isDeepAnalysis = msg.response_format === "deep_analysis" || msg.response_format === "deep_decision";
+                                    return (
+                                        <div
+                                            key={index}
+                                            className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''} ${msg.fullReport ? styles.reportRow : ''}`}
+                                        >
+                                            {msg.role === 'user' && msg.pair && (
+                                                <span className={styles.pairBadge}>{msg.pair}</span>
+                                            )}
+                                            <div {...getBidiProps(msg.content, msg.role === 'user' ? styles.userMessage : styles.assistantMessage)}>
+                                                {msg.role === 'user' ? (
+                                                    <>
+                                                        {msg.attachment && (
+                                                            <div
+                                                                className={styles.userMsgAttachment}
+                                                                onClick={() => setPreviewAttachment(msg.attachment)}
+                                                                title="Click to preview image"
+                                                            >
+                                                                <img src={msg.attachment.url} alt="Attached Chart" />
                                                             </div>
+                                                        )}
+                                                        {msg.content}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        {/* Dynamic Header Badges */}
+                                                        <AiResponseHeader msg={msg} />
+
+                                                        {/* Image Warning Banner */}
+                                                        {msg.image_warning && (
+                                                            <div className={styles.warningBanner}>
+                                                                {msg.image_warning}
+                                                            </div>
+                                                        )}
+
+                                                        {/* Main Content Markdown */}
+                                                        <div className={styles.chatMarkdown}>
+                                                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>
+                                                                {msg.content}
+                                                            </ReactMarkdown>
+                                                        </div>
+
+                                                        {/* 10 Expandable Accordion UI Cards for Image Uploads */}
+                                                        {msg.chart_sections && (
+                                                            <AccordionSections sections={msg.chart_sections} />
+                                                        )}
+
+                                                        {/* 6 Interactive Perspective Option Chips */}
+                                                        {msg.response_format === "interactive_clarification" && (
+                                                            <ClarificationOptionButtons onSelect={handleOptionClick} />
+                                                        )}
+
+                                                        {/* Download Full Report STRICTLY ONLY in Deep Analysis Mode */}
+                                                        {isDeepAnalysis && msg.fullReport && (
+                                                            <button
+                                                                type="button"
+                                                                className={styles.downloadReportBtnGradient}
+                                                                onClick={() => handleDownloadReportContent(msg.fullReport, null, msg.visualData)}
+                                                            >
+                                                                📥 Download Full Trade Report (.md)
+                                                            </button>
+                                                        )}
+
+                                                        {isDeepAnalysis && msg.fullReport && (
                                                             <ReportPanel
                                                                 inline
                                                                 fullReport={msg.fullReport}
                                                                 visualData={msg.visualData}
                                                                 onDownload={(el) => handleDownloadReportContent(msg.fullReport, el, msg.visualData)}
                                                             />
-                                                        </>
-                                                    ) : (
-                                                        <div className={styles.chatMarkdown}>
-                                                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>
-                                                                {msg.content}
-                                                            </ReactMarkdown>
-                                                        </div>
-                                                    )}
-                                                </>
-                                            )}
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))
+                                    );
+                                })
                             )}
                             {pendingRequest && (
                                 <div className={styles.messageRow}>
@@ -1164,6 +1314,10 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                         ref={chartPaneRef}
                         symbol={selectedPair}
                         onSymbolChange={(newSymbol) => {
+                            if (!newSymbol || newSymbol === 'No Pair' || newSymbol === 'NO_PAIR' || String(newSymbol).toUpperCase().includes('NO PAIR')) {
+                                setSelectedPair('XAU/USD');
+                                return;
+                            }
                             const match = ALL_PAIRS.find(p => p.replace(/[^A-Z0-9]/g, '') === newSymbol.toUpperCase());
                             setSelectedPair(match || newSymbol);
                         }}
