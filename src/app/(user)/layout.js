@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { ThemeProvider } from '@/context/ThemeContext';
 import NeweraCreditsModal from '@/components/neweraCreditsModal';
+import PaymentStatusModal from '@/components/paymentStatusModal';
 import { extractAvailableCredits, CREDITS_UPDATED_EVENT, notifyCreditsUpdated, refreshCreditsFromServer } from '@/lib/credits';
 import { captureUtmParameters } from '@/lib/utm';
 import { getStoredUserId } from '@/lib/authSession';
@@ -18,11 +19,15 @@ const ROUTE_TAB_MAP = {
     '/trade-snap': 'AI Trade',
     '/ai-assistant': 'AI Chat',
     '/ai-strategy': 'AI Strategy',
+    '/ai-strategy/live': 'AI Strategy',
+    '/ai-strategy/strategy': 'AI Strategy',
     '/economic-calendar': 'Economic Calendar',
     '/credit-history': 'Credit History',
     '/plans': 'Subscription Plans',
     '/broker': 'Broker',
+    '/brokers': 'Broker',
     '/profile': 'Profile',
+    '/settings': 'Profile',
 };
 
 const layout = ({ children }) => {
@@ -240,6 +245,8 @@ const layout = ({ children }) => {
                         }}
                     />
                 )}
+
+                <PaymentStatusModal />
             </ThemeProvider>
         </AuthGuard>
     );

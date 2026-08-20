@@ -39,6 +39,18 @@ export default function PlansSection() {
         checkVisibility();
     }, []);
 
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.location.hash === '#pricing') {
+            const timer = setTimeout(() => {
+                const el = document.getElementById('pricing');
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 150);
+            return () => clearTimeout(timer);
+        }
+    }, []);
+
     if (!isVisible) {
         return null;
     }

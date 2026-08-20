@@ -1,0 +1,250 @@
+@use '../../scss/main.scss' as *;
+@use '../../scss/breakpoints/breakpoints.scss' as *;
+
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(3, 7, 18, 0.65);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.25s ease-out forwards;
+}
+
+.modalContent {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 36px 28px 28px;
+    text-align: center;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    overflow: hidden;
+}
+
+.closeBtn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #F1F5F9;
+    border: none;
+    color: #64748B;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+
+    &:hover {
+        background: #E2E8F0;
+        color: #0F172A;
+    }
+
+    :global([dir="rtl"]) & {
+        right: auto;
+        left: 16px;
+    }
+}
+
+/* Icon Container */
+.iconWrapper {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.successGlow {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0) 70%);
+    filter: blur(12px);
+    animation: pulseGlow 2s infinite ease-in-out;
+}
+
+.errorGlow {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0) 70%);
+    filter: blur(12px);
+    animation: pulseGlow 2s infinite ease-in-out;
+}
+
+.svgIcon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: block;
+}
+
+/* Animated Strokes */
+.successCircle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 2.5;
+    stroke-miterlimit: 10;
+    stroke: #10B981;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.successCheck {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke: #10B981;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    animation: stroke 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.45s forwards;
+}
+
+.errorCircle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 2.5;
+    stroke-miterlimit: 10;
+    stroke: #EF4444;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.errorCross1 {
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke: #EF4444;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.45s forwards;
+}
+
+.errorCross2 {
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke: #EF4444;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.15); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+    from { opacity: 0; transform: scale(0.92) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Texts */
+.title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0F172A;
+    margin: 0 0 8px;
+    letter-spacing: -0.3px;
+}
+
+.subtitle {
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: #64748B;
+    margin: 0 0 20px;
+}
+
+/* Highlight badge for credits/amount */
+.detailBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #F0FDF4;
+    border: 1px solid #BBF7D0;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #15803D;
+    margin-bottom: 24px;
+
+    .errorBadge & {
+        background: #FEF2F2;
+        border-color: #FECACA;
+        color: #B91C1C;
+    }
+}
+
+.buttonGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.primaryBtn {
+    width: 100%;
+    padding: 13px 20px;
+    background: #0B56DB;
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(11, 86, 219, 0.25);
+
+    &:hover {
+        background: #0947B8;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(11, 86, 219, 0.35);
+    }
+}
+
+.secondaryBtn {
+    width: 100%;
+    padding: 12px 20px;
+    background: #F1F5F9;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: #E2E8F0;
+        color: #0F172A;
+    }
+}

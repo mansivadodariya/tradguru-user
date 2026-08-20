@@ -281,9 +281,22 @@
     "creditsUnit": "Mga Kredito",
     "buyBtn": "Bumili ng Kredito",
     "buyPlanBtn": "Simulan ang Planong {plan}",
+    "upgradePlan": "Mag-upgrade ng Plano",
     "popular": "PINAKASIKAT",
     "selectSuccess": "Napili ang planong {plan} ({credits} Kredito)",
+    "loginRequired": "Mangyaring mag-log in upang i-upgrade ang iyong subscription.",
+    "upgradeSuccess": "Matagumpay na nagawa ang kahilingan sa deposito!",
     "disclaimer": "Ang mga volume ng serbisyo na ipinapakita ay batay sa buong balanse sa iisang serbisyo, sa 15 kredito bawat AI Chat query at 10 bawat Auto Chart analysis."
+  },
+  "paymentStatus": {
+    "successTitle": "Matagumpay ang Pagbabayad!",
+    "successSubtitle": "Matagumpay na naproseso ang iyong transaksyon. Naidagdag na ang mga kredito sa iyong balanse.",
+    "failedTitle": "Kinansela / Nabigo ang Pagbabayad",
+    "failedSubtitle": "Kinansela ang transaksyon o hindi makumpleto. Walang singil na ginawa sa iyong account.",
+    "viewCredits": "Tingnan ang Kasaysayan ng Kredito",
+    "continue": "Magpatuloy sa Dashboard",
+    "tryAgain": "Subukan Muli",
+    "close": "Isara"
   },
   "sidebar": {
     "upgradeTitle": "Mag-upgrade sa Pro",
