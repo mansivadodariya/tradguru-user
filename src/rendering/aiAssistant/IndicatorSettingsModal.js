@@ -87,17 +87,6 @@ export default function IndicatorSettingsModal({
                             {(indicatorKey?.startsWith('ma_') || indicatorKey === 'ema10' || indicatorKey === 'ema20' || indicatorKey === 'ema50' || indicatorKey === 'sma') && (
                                 <>
                                     <div className={styles.settingFieldRow}>
-                                        <label>Type</label>
-                                        <select
-                                            className={styles.settingSelect}
-                                            value={draft.type || 'EMA'}
-                                            onChange={(e) => setDraft(prev => ({ ...prev, type: e.target.value }))}
-                                        >
-                                            <option value="EMA">Exponential (EMA)</option>
-                                            <option value="SMA">Simple (SMA)</option>
-                                        </select>
-                                    </div>
-                                    <div className={styles.settingFieldRow}>
                                         <label>Length</label>
                                         <input
                                             type="number"

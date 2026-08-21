@@ -24,6 +24,14 @@ import { getBidiProps, bidiMarkdownComponents } from '@/lib/bidi';
 import TradingViewChartPane, { PAIR_GROUPS, ALL_PAIRS, SYMBOL_DATABASE, normalizeSymbol } from './TradingViewChartPane';
 import AttachmentDraft from './AttachmentDraft';
 import ImagePreviewModal from './ImagePreviewModal';
+import {
+    TechnicalStructureIcon,
+    FundamentalMacroIcon,
+    IntradayScalpIcon,
+    MediumTermIcon,
+    SwingPositionIcon,
+    CompleteProIcon
+} from './components/ClarificationIcons';
 
 const UploadIcon = '/assets/icons/upload-xs.svg';
 const Logo = '/assets/icons/AIChat.svg';
@@ -95,166 +103,47 @@ const parseAssistantResponse = (raw) => {
     };
 };
 
-const buildAssistantMessage = (parsed) => ({
-    role: 'assistant',
-    content: parsed.shortContent,
-    fullReport: parsed.fullReport,
-    visualData: parsed.visualData,
-    detected_pair: parsed.detected_pair,
-    detected_timeframe: parsed.detected_timeframe,
-    is_valid_chart: parsed.is_valid_chart,
-    image_warning: parsed.image_warning,
-    chart_sections: parsed.chart_sections,
-    response_format: parsed.response_format
-});
+const CLARIFICATION_BUTTONS = [
+    { label: 'Technical Structure',    icon: TechnicalStructureIcon },
+    { label: 'Fundamental & Macro',    icon: FundamentalMacroIcon },
+    { label: 'Intraday Scalp Setup',   icon: IntradayScalpIcon },
+    { label: 'Medium Term Setup',      icon: MediumTermIcon },
+    { label: 'Swing Position Setup',   icon: SwingPositionIcon },
+    { label: 'Complete Pro Setup',     icon: CompleteProIcon },
+];
 
-const SECTION_TITLE_MAP = {
-    overall_trend: "📈 Overall Trend",
-    market_structure: "🧱 Market Structure (BOS / CHoCH)",
-    support_resistance_levels: "🎯 Support & Resistance Levels",
-    supply_demand_zones: "⚡ Supply & Demand Zones (FVG)",
-    trader_actionable_zones: "🛑 Trader Actionable Zones (Exact Entry, SL & TP Targets)",
-    volatility_price_behavior: "📊 Volatility & Price Behavior",
-    session_bias: "⏰ Session Bias",
-    market_mood_radar: "🧠 Market Mood Radar",
-    candlestick_patterns: "🕯️ Candlestick Patterns",
-    chart_patterns: "📐 Chart Patterns"
-};
-
-function formatSectionTitle(key, index) {
-    if (SECTION_TITLE_MAP[key]) return SECTION_TITLE_MAP[key];
-    const defaultTitles = [
-        "📈 Overall Trend",
-        "🧱 Market Structure (BOS / CHoCH)",
-        "🎯 Support & Resistance Levels",
-        "⚡ Supply & Demand Zones (FVG)",
-        "🛑 Trader Actionable Zones (Exact Entry, SL & TP Targets)",
-        "📊 Volatility & Price Behavior",
-        "⏰ Session Bias",
-        "🧠 Market Mood Radar",
-        "🕯️ Candlestick Patterns",
-        "📐 Chart Patterns"
-    ];
-    if (defaultTitles[index]) return defaultTitles[index];
-    return key
-        .replace(/_/g, ' ')
-        .replace(/([a-z])([A-Z])/g, '$1 $2')
-        .replace(/\b\w/g, c => c.toUpperCase());
-}
-
-function AccordionSections({ sections }) {
-    const [openIndices, setOpenIndices] = useState([0]);
-
-    const toggleIndex = (idx) => {
-        setOpenIndices((prev) =>
-            prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
-        );
-    };
-
-    let items = [];
-    if (Array.isArray(sections)) {
-        items = sections.map((sec, idx) => ({
-            key: `sec_${idx}`,
-            title: typeof sec === 'object' ? (sec.title || sec.name) : null,
-            content: typeof sec === 'string' ? sec : (sec.content || sec.details || sec.text || JSON.stringify(sec)),
-            index: idx
-        }));
-    } else if (typeof sections === 'object' && sections !== null) {
-        items = Object.entries(sections).map(([key, content], idx) => ({
-            key,
-            title: formatSectionTitle(key, idx),
-            content,
-            index: idx
-        }));
-    }
-
-    if (items.length === 0) return null;
-
+function ClarificationOptionButtons({ onSelect }) {
     return (
-        <div className={styles.accordionContainer}>
-            {items.map((sec, idx) => {
-                const title = sec.title || formatSectionTitle(sec.key, idx);
-                const content = typeof sec.content === 'string' ? sec.content : JSON.stringify(sec.content);
-                const isOpen = openIndices.includes(idx);
-
+        <div className={styles.clarificationOptionsGrid}>
+            {CLARIFICATION_BUTTONS.map((btn) => {
+                const IconComponent = btn.icon;
                 return (
-                    <div key={sec.key || idx} className={`${styles.accordionCard} ${isOpen ? styles.accordionOpen : ''}`}>
-                        <button
-                            type="button"
-                            className={styles.accordionHeader}
-                            onClick={() => toggleIndex(idx)}
-                        >
-                            <span className={styles.accordionTitle}>{title}</span>
-                            <span className={styles.accordionChevron}>{isOpen ? '▲' : '▼'}</span>
-                        </button>
-                        {isOpen && (
-                            <div className={styles.accordionBody}>
-                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
-                                    {content}
-                                </ReactMarkdown>
-                            </div>
-                        )}
-                    </div>
+                    <button
+                        key={btn.label}
+                        type="button"
+                        onClick={() => onSelect(btn.label)}
+                        className={styles.clarificationOptionBtn}
+                    >
+                        <span className={styles.clarificationOptionIcon}>
+                            <IconComponent size={18} />
+                        </span>
+                        <span className={styles.clarificationOptionLabel}>
+                            {btn.label}
+                        </span>
+                    </button>
                 );
             })}
         </div>
     );
 }
 
-function AiResponseHeader({ msg }) {
-    if (!msg || (!msg.detected_pair && !msg.detected_timeframe && !msg.query_type)) return null;
-    return (
-        <div className={styles.aiResponseHeaderBar}>
-            <div className={styles.aiHeaderLeftBadges}>
-                {msg.detected_pair && (
-                    <span className={styles.badgeDetectedPair}>
-                        📍 {msg.detected_pair}
-                    </span>
-                )}
-                {msg.detected_timeframe && (
-                    <span className={styles.badgeDetectedTf}>
-                        ⏱️ {msg.detected_timeframe}
-                    </span>
-                )}
-            </div>
-            {msg.query_type && (
-                <span className={styles.badgeQueryType}>
-                    {msg.query_type}
-                </span>
-            )}
-        </div>
-    );
-}
-
-function ClarificationOptionButtons({ onSelect }) {
-    const options = [
-        { id: '1', icon: '📈', label: 'Technical Structure', sub: 'Pivots, RSI, MAs & Levels' },
-        { id: '2', icon: '📰', label: 'Fundamental & Macro', sub: 'Central Bank & News Drivers' },
-        { id: '3', icon: '⚡', label: 'Intraday Scalp Setup', sub: '15m/1H Quick Entry & Tight SL' },
-        { id: '4', icon: '📊', label: 'Medium Term Setup', sub: '1H/4H Weekly Trend Setup' },
-        { id: '5', icon: '🔄', label: 'Swing Position Setup', sub: '4H/Daily Multi-Day Setup' },
-        { id: '6', icon: '🏆', label: 'Complete Pro Setup', sub: 'Full Tech + Macro + SL/TP' },
-    ];
-
-    return (
-        <div className={styles.interactiveOptionsGrid}>
-            {options.map((opt) => (
-                <button
-                    key={opt.id}
-                    type="button"
-                    className={styles.optionChipButton}
-                    onClick={() => onSelect(opt.id)}
-                >
-                    <span className={styles.optionChipIcon}>{opt.icon}</span>
-                    <div className={styles.optionChipTextGroup}>
-                        <div className={styles.optionChipTitle}>{opt.label}</div>
-                        <div className={styles.optionChipSub}>{opt.sub}</div>
-                    </div>
-                </button>
-            ))}
-        </div>
-    );
-}
+const buildAssistantMessage = (parsed) => ({
+    role: 'assistant',
+    content: parsed.shortContent,
+    fullReport: parsed.fullReport,
+    visualData: parsed.visualData,
+    response_format: parsed.response_format
+});
 
 const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     const { t } = useLanguage();
@@ -505,15 +394,19 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
             try { resolvedResponse = JSON.parse(rawResponse); } catch { resolvedResponse = rawResponse; }
         }
         const parsed = parseAssistantResponse(resolvedResponse);
-        const pair = item.pair || '';
+        const rawPair = item.pair || '';
+        const isPairNone = !rawPair || rawPair === 'No Pair' || rawPair === 'NO_PAIR' || String(rawPair).toLowerCase().includes('no pair') || String(rawPair).toLowerCase() === 'none';
+        const pair = isPairNone ? '' : rawPair;
 
         setChatMessages([
-            { role: 'user', content: question, pair: pair },
+            { role: 'user', content: question, pair: pair || null },
             buildAssistantMessage(parsed)
         ]);
 
         if (pair && ALL_PAIRS.includes(pair)) {
             setSelectedPair(pair);
+        } else if (isPairNone) {
+            setSelectedPair('No Pair');
         }
     };
 
@@ -599,14 +492,15 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         setAttachmentDraft(null);
         setPendingRequest(true);
 
-        const cleanPair = normalizeSymbol(selectedPair);
+        const isNoPair = !selectedPair || selectedPair === 'No Pair' || selectedPair === 'NO_PAIR' || String(selectedPair).toLowerCase().includes('no pair') || String(selectedPair).toLowerCase() === 'none';
+        const cleanPair = isNoPair ? null : (normalizeSymbol(selectedPair) || null);
         const activeTf = (typeof selectedTimeframe !== 'undefined' && selectedTimeframe) ? selectedTimeframe : '15m';
 
         const newUserMsg = {
             role: 'user',
             content: msg,
             pair: cleanPair,
-            timeframe: activeTf,
+            timeframe: cleanPair ? activeTf : null,
             attachment: currentAttachment
         };
         setChatMessages(prev => [...prev, newUserMsg]);
@@ -614,8 +508,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         try {
             const chatPayload = {
                 message: msg,
-                pair: cleanPair,
-                timeframe: activeTf,
+                ...(cleanPair ? { pair: cleanPair, timeframe: activeTf } : {}),
                 image_base64: currentAttachment?.url || null,
                 stream: false,
                 user_id: userId || undefined
@@ -638,9 +531,9 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         }
     };
 
-    const handleOptionClick = (optionNumber) => {
+    const handleOptionClick = (optionName) => {
         handleSendChatMessage({
-            overrideMessage: String(optionNumber),
+            overrideMessage: String(optionName),
         });
     };
 
@@ -1092,7 +985,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                             key={index}
                                             className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''} ${msg.fullReport ? styles.reportRow : ''}`}
                                         >
-                                            {msg.role === 'user' && msg.pair && (
+                                            {msg.role === 'user' && msg.pair && msg.pair !== 'No Pair' && msg.pair !== 'NO_PAIR' && !String(msg.pair).toLowerCase().includes('no pair') && (
                                                 <span className={styles.pairBadge}>{msg.pair}</span>
                                             )}
                                             <div {...getBidiProps(msg.content, msg.role === 'user' ? styles.userMessage : styles.assistantMessage)}>
@@ -1111,51 +1004,23 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                                     </>
                                                 ) : (
                                                     <>
-                                                        {/* Dynamic Header Badges */}
-                                                        <AiResponseHeader msg={msg} />
-
-                                                        {/* Image Warning Banner */}
-                                                        {msg.image_warning && (
-                                                            <div className={styles.warningBanner}>
-                                                                {msg.image_warning}
-                                                            </div>
-                                                        )}
-
-                                                        {/* Main Content Markdown */}
-                                                        <div className={styles.chatMarkdown}>
-                                                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>
-                                                                {msg.content}
-                                                            </ReactMarkdown>
-                                                        </div>
-
-                                                        {/* 10 Expandable Accordion UI Cards for Image Uploads */}
-                                                        {msg.chart_sections && (
-                                                            <AccordionSections sections={msg.chart_sections} />
-                                                        )}
-
-                                                        {/* 6 Interactive Perspective Option Chips */}
-                                                        {msg.response_format === "interactive_clarification" && (
-                                                            <ClarificationOptionButtons onSelect={handleOptionClick} />
-                                                        )}
-
-                                                        {/* Download Full Report STRICTLY ONLY in Deep Analysis Mode */}
-                                                        {isDeepAnalysis && msg.fullReport && (
-                                                            <button
-                                                                type="button"
-                                                                className={styles.downloadReportBtnGradient}
-                                                                onClick={() => handleDownloadReportContent(msg.fullReport, null, msg.visualData)}
-                                                            >
-                                                                📥 Download Full Trade Report (.md)
-                                                            </button>
-                                                        )}
-
-                                                        {isDeepAnalysis && msg.fullReport && (
+                                                        {isDeepAnalysis && msg.fullReport ? (
                                                             <ReportPanel
                                                                 inline
                                                                 fullReport={msg.fullReport}
                                                                 visualData={msg.visualData}
                                                                 onDownload={(el) => handleDownloadReportContent(msg.fullReport, el, msg.visualData)}
                                                             />
+                                                        ) : (
+                                                            <div className={styles.chatMarkdown}>
+                                                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>
+                                                                    {msg.content}
+                                                                </ReactMarkdown>
+                                                            </div>
+                                                        )}
+
+                                                        {msg.response_format === "interactive_clarification" && (
+                                                            <ClarificationOptionButtons onSelect={handleOptionClick} />
                                                         )}
                                                     </>
                                                 )}

@@ -129,8 +129,8 @@ export const CHART_TYPES = [
 ];
 
 // Helper to normalize symbol string (e.g. "XAU/USD" -> "XAUUSD")
-export function normalizeSymbol(sym) {
-    if (!sym || sym === 'No Pair' || sym === 'NO_PAIR' || String(sym).toUpperCase().includes('NO PAIR')) return 'XAUUSD';
+export function normalizeSymbol(sym, defaultFallback = '') {
+    if (!sym || sym === 'No Pair' || sym === 'NO_PAIR' || String(sym).toUpperCase().includes('NO PAIR')) return defaultFallback;
     return sym.toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
@@ -454,6 +454,7 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
     // Dynamic Moving Averages (EMA / SMA) State & Series Tracking
     const [movingAverages, setMovingAverages] = useState([]);
     const maSeriesRefs = useRef(new Map());
+    const currentChartTypeRef = useRef(null);
 
     // Other Indicator Overlay Series Refs
     const bbUpperSeriesRef = useRef(null);
@@ -572,7 +573,6 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
         setBearishColor(draftBearishColor);
         setBackgroundColor(draftBackgroundColor);
         setSettingsOpen(false);
-        toast('Chart settings applied!');
     };
 
     const handleResetSettings = () => {
@@ -586,7 +586,6 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
         setBearishColor(defaultBear);
         setBackgroundColor(defaultBg);
         setSettingsOpen(false);
-        toast('Chart settings reset to default!');
     };
 
     // Live price tracking state
@@ -693,29 +692,53 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
     const saveIndicatorConfig = (newCfg) => {
         if (!editingIndicator) return;
         if (editingIndicator.startsWith('ma_')) {
-            setMovingAverages(prev => prev.map(m => m.id === editingIndicator ? { ...m, ...newCfg } : m));
-            toast(`${newCfg.type || 'Moving Average'} (${newCfg.length}) updated!`);
+            setMovingAverages(prev => prev.map(m => {
+                if (m.id === editingIndicator) {
+                    const finalType = newCfg.type || m.type || 'EMA';
+                    const finalLength = newCfg.length !== undefined ? Number(newCfg.length) : (m.length || 20);
+                    return {
+                        ...m,
+                        ...newCfg,
+                        type: finalType,
+                        length: finalLength,
+                        period: finalLength,
+                        name: `${finalType} ${finalLength}`,
+                    };
+                }
+                return m;
+            }));
         } else {
             setIndicatorConfigs(prev => ({ ...prev, [editingIndicator]: newCfg }));
-            toast(`${editingIndicator.toUpperCase()} updated!`);
         }
     };
 
     const resetIndicatorDefaults = () => {
         if (!editingIndicator) return;
         if (editingIndicator.startsWith('ma_')) {
-            setMovingAverages(prev => prev.map(m => m.id === editingIndicator ? { ...m, length: 20, source: 'close', lineWidth: 1.5 } : m));
-            toast('Moving average reset to defaults!');
+            setMovingAverages(prev => prev.map(m => {
+                if (m.id === editingIndicator) {
+                    const defaultLen = 20;
+                    const finalType = m.type || 'EMA';
+                    return {
+                        ...m,
+                        length: defaultLen,
+                        period: defaultLen,
+                        name: `${finalType} ${defaultLen}`,
+                        source: 'close',
+                        lineWidth: 1.5,
+                    };
+                }
+                return m;
+            }));
         } else {
             setIndicatorConfigs(prev => ({
                 ...prev,
                 [editingIndicator]: { ...DEFAULT_INDICATOR_CONFIGS[editingIndicator] }
             }));
-            toast(`${editingIndicator.toUpperCase()} reset to defaults!`);
         }
     };
 
-    const activeSymbolClean = normalizeSymbol(symbol);
+    const activeSymbolClean = normalizeSymbol(symbol, 'XAUUSD');
 
     // Expose capture functionality to parent via ref
     useImperativeHandle(ref, () => ({
@@ -903,75 +926,6 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 wsRef.current = null;
             }
 
-            // Remove previous series if exists
-            if (seriesRef.current) {
-                try {
-                    chartRef.current.removeSeries(seriesRef.current);
-                } catch {
-                    /* ignore */
-                }
-                seriesRef.current = null;
-            }
-            if (volumeSeriesRef.current) {
-                try {
-                    chartRef.current.removeSeries(volumeSeriesRef.current);
-                } catch {
-                    /* ignore */
-                }
-                volumeSeriesRef.current = null;
-            }
-
-            // A. Create Volume Histogram Series attached to bottom 20% overlay (TradingView style)
-            const volumeSeries = chartRef.current.addSeries(HistogramSeries, {
-                priceFormat: { type: 'volume' },
-                priceScaleId: 'volume',
-            });
-            chartRef.current.priceScale('volume').applyOptions({
-                scaleMargins: {
-                    top: 0.8,    // Volume starts at 80% height (restricted to bottom 20% area)
-                    bottom: 0,
-                },
-            });
-            volumeSeriesRef.current = volumeSeries;
-
-            // Create main series based on chartType selector
-            let newSeries;
-            if (chartType === 'line') {
-                newSeries = chartRef.current.addSeries(LineSeries, {
-                    color: '#2979FF',
-                    lineWidth: 2,
-                });
-            } else if (chartType === 'area') {
-                newSeries = chartRef.current.addSeries(AreaSeries, {
-                    topColor: 'rgba(41, 121, 255, 0.46)',
-                    bottomColor: 'rgba(41, 121, 255, 0.0)',
-                    lineColor: '#2979FF',
-                    lineWidth: 2,
-                });
-            } else {
-                // Default: Candlestick
-                newSeries = chartRef.current.addSeries(CandlestickSeries, {
-                    upColor: bullishColor,
-                    borderUpColor: bullishColor,
-                    wickUpColor: bullishColor,
-                    downColor: bearishColor,
-                    borderDownColor: bearishColor,
-                    wickDownColor: bearishColor,
-                });
-            }
-
-            // Apply Dynamic Symbol Precision (5 decimals for Forex, 3 for JPY, 2 for Gold/Crypto)
-            const { precision, minMove } = getSymbolPrecision(activeSymbolClean);
-            newSeries.applyOptions({
-                priceFormat: {
-                    type: 'price',
-                    precision: precision,
-                    minMove: minMove,
-                },
-            });
-
-            seriesRef.current = newSeries;
-
             // Fetch historical candle data via HTTP REST API (Deduplicated fetch)
             let rawCandles = [];
             try {
@@ -1029,31 +983,85 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
             formattedCandles.sort((a, b) => a.time - b.time);
             candlesDataRef.current = formattedCandles;
 
-            if (isMounted && seriesRef.current) {
-                seriesRef.current.setData(formattedCandles);
-                if (volumeSeriesRef.current) {
-                    volumeSeriesRef.current.setData(
-                        formattedCandles.map((c) => ({
-                            time: c.time,
-                            value: c.volume || Math.floor(Math.random() * 2500) + 400,
-                            color: c.volumeColor,
-                        }))
-                    );
-                }
-                updateIndicators(formattedCandles);
-                const last = formattedCandles[formattedCandles.length - 1];
-                if (last) setLatestCandle(last);
-                chartRef.current.timeScale().applyOptions({
-                    barSpacing: 9,
-                    rightOffset: 8,
+            if (!isMounted || !chartRef.current) return;
+
+            // Ensure volume series is initialized
+            if (!volumeSeriesRef.current) {
+                const volumeSeries = chartRef.current.addSeries(HistogramSeries, {
+                    priceFormat: { type: 'volume' },
+                    priceScaleId: 'volume',
                 });
-                chartRef.current.timeScale().scrollToRealtime();
-                // Immediately turn off loading overlay as soon as series data is set
-                setLoading(false);
+                chartRef.current.priceScale('volume').applyOptions({
+                    scaleMargins: {
+                        top: 0.8,
+                        bottom: 0,
+                    },
+                });
+                volumeSeriesRef.current = volumeSeries;
             }
 
-            // Guarantee loading overlay is hidden once chart series data is loaded
-            if (isMounted) setLoading(false);
+            // Create or update main price series only when data is ready
+            if (!seriesRef.current || currentChartTypeRef.current !== chartType) {
+                if (seriesRef.current) {
+                    try { chartRef.current.removeSeries(seriesRef.current); } catch {}
+                }
+                if (chartType === 'line') {
+                    seriesRef.current = chartRef.current.addSeries(LineSeries, {
+                        color: '#2979FF',
+                        lineWidth: 2,
+                    });
+                } else if (chartType === 'area') {
+                    seriesRef.current = chartRef.current.addSeries(AreaSeries, {
+                        topColor: 'rgba(41, 121, 255, 0.46)',
+                        bottomColor: 'rgba(41, 121, 255, 0.0)',
+                        lineColor: '#2979FF',
+                        lineWidth: 2,
+                    });
+                } else {
+                    seriesRef.current = chartRef.current.addSeries(CandlestickSeries, {
+                        upColor: bullishColor,
+                        borderUpColor: bullishColor,
+                        wickUpColor: bullishColor,
+                        downColor: bearishColor,
+                        borderDownColor: bearishColor,
+                        wickDownColor: bearishColor,
+                    });
+                }
+                currentChartTypeRef.current = chartType;
+            }
+
+            // Apply Dynamic Symbol Precision (5 decimals for Forex, 3 for JPY, 2 for Gold/Crypto)
+            const { precision, minMove } = getSymbolPrecision(activeSymbolClean);
+            seriesRef.current.applyOptions({
+                priceFormat: {
+                    type: 'price',
+                    precision: precision,
+                    minMove: minMove,
+                },
+            });
+
+            // Set new candle and volume data smoothly
+            seriesRef.current.setData(formattedCandles);
+            if (volumeSeriesRef.current) {
+                volumeSeriesRef.current.setData(
+                    formattedCandles.map((c) => ({
+                        time: c.time,
+                        value: c.volume || Math.floor(Math.random() * 2500) + 400,
+                        color: c.volumeColor,
+                    }))
+                );
+            }
+            updateIndicators(formattedCandles);
+            const last = formattedCandles[formattedCandles.length - 1];
+            if (last) setLatestCandle(last);
+            chartRef.current.timeScale().applyOptions({
+                barSpacing: 9,
+                rightOffset: 8,
+            });
+            chartRef.current.timeScale().scrollToRealtime();
+
+            // Clear loading overlay now that the new currency graph is loaded and rendered
+            setLoading(false);
 
             // 3. Connect Real-Time Updates (Deduplicated WebSocket Store)
             let unsubscribeWS = null;
@@ -1167,7 +1175,9 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
 
         movingAverages.forEach(ma => {
             let s = maSeriesRefs.current.get(ma.id);
-            const maTitle = ma.name || `${ma.type} ${ma.length}`;
+            const finalType = ma.type || 'EMA';
+            const finalLength = ma.length || ma.period || 20;
+            const maTitle = `${finalType} ${finalLength}`;
             if (!s) {
                 s = chartRef.current.addSeries(LineSeries, {
                     title: maTitle,
