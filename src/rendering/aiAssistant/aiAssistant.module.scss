@@ -1138,13 +1138,26 @@
             visibility: hidden !important;
             pointer-events: none !important;
         }
+
+        .mainChartContainer {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: filter 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+
+            &.isChartLoading {
+                filter: blur(6px);
+                opacity: 0.75;
+                pointer-events: none;
+            }
+        }
     }
 
     .chartLoaderOverlay,
     .chartOverlayLoader {
         position: absolute;
         inset: 0;
-        background: rgba(10, 12, 18, 0.45);
+        background: rgba(0, 0, 0, 0.2);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
         display: flex;
@@ -1153,7 +1166,7 @@
         justify-content: center;
         gap: 12px;
         z-index: 50;
-        color: #e2e8f0;
+        color: #f1f5f9;
         font-size: 13px;
         font-weight: 500;
         letter-spacing: 0.3px;
@@ -4114,17 +4127,20 @@
 
                 .messageRow {
                     .pairBadge {
-                        background: rgba(96, 165, 250, 0.15);
+                        background: rgba(15, 92, 242, 0.15);
                         color: #60a5fa;
+                        border: 1px solid rgba(15, 92, 242, 0.3);
                     }
 
                     .assistantMessage {
-                        background: #252529;
-                        color: #f3f4f6;
+                        background: #000000 !important;
+                        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                        color: #f1f5f9 !important;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 
                         p,
                         li {
-                            color: #f3f4f6;
+                            color: #f1f5f9;
                         }
                     }
                 }
@@ -5766,34 +5782,47 @@
     }
 }
 
+/* 6 Clarification Option Buttons */
+.clarificationOptionsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+    width: 100%;
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+    }
+}
+
 .clarificationOptionBtn {
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 12px 14px;
     border-radius: 12px;
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(51, 65, 85, 0.7);
-    color: #e2e8f0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #0f172a;
     text-align: left;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 
     &:hover {
-        background: rgba(30, 27, 75, 0.85);
-        border-color: rgba(99, 102, 241, 0.5);
-        box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
+        background: #f0f7ff;
+        border-color: #3b82f6;
+        box-shadow: 0 4px 16px rgba(15, 92, 242, 0.15);
         transform: translateY(-1px);
 
         .clarificationOptionLabel {
-            color: #a5b4fc;
+            color: #0f5cf2;
         }
 
         .clarificationOptionIcon {
-            background: rgba(99, 102, 241, 0.25);
-            border-color: rgba(99, 102, 241, 0.5);
-            color: #c7d2fe;
+            background: rgba(15, 92, 242, 0.16);
+            border-color: rgba(15, 92, 242, 0.4);
+            color: #0f5cf2;
             transform: scale(1.05);
         }
     }
@@ -5803,9 +5832,9 @@
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    background: rgba(99, 102, 241, 0.12);
-    border: 1px solid rgba(99, 102, 241, 0.25);
-    color: #818cf8;
+    background: rgba(15, 92, 242, 0.08);
+    border: 1px solid rgba(15, 92, 242, 0.2);
+    color: #0f5cf2;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -5813,10 +5842,1042 @@
     transition: all 0.2s ease;
 }
 
+.clarificationOptionText {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
 .clarificationOptionLabel {
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 600;
-    color: #f1f5f9;
+    color: #0f172a;
     transition: color 0.2s ease;
+}
+
+.clarificationOptionSub {
+    font-size: 11px;
+    font-weight: 400;
+    color: #64748b;
+    line-height: 1.25;
+    transition: color 0.2s ease;
+}
+
+/* Download Full Report Button Row */
+.downloadReportRow {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.downloadFullReportBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 10px;
+    background: #0f5cf2;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(15, 92, 242, 0.3);
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: #0c4ac2;
+        box-shadow: 0 4px 14px rgba(15, 92, 242, 0.45);
+        transform: translateY(-1px);
+    }
+}
+
+/* Chat Markdown Global Typography in Assistant Message */
+.chatMarkdown {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #1e293b;
+
+    h1, h2, h3 {
+        font-size: 15px;
+        font-weight: 700;
+        color: #0f5cf2;
+        margin: 14px 0 8px 0;
+        letter-spacing: -0.2px;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
+    h4, h5, h6 {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 12px 0 6px 0;
+    }
+
+    p {
+        margin: 0 0 10px 0;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    ul, ol {
+        margin: 0 0 10px 0;
+        padding-left: 20px;
+
+        li {
+            margin-bottom: 4px;
+            color: #1e293b;
+
+            &::marker {
+                color: #0f5cf2;
+            }
+        }
+    }
+
+    strong, b {
+        color: #0f172a;
+        font-weight: 700;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 14px 0;
+        font-size: 13px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        th {
+            background: #f1f5f9;
+            color: #0f5cf2;
+            font-weight: 700;
+        }
+
+        td {
+            color: #1e293b;
+            background: #ffffff;
+        }
+    }
+
+    hr {
+        border: 0;
+        height: 1px;
+        background: #e2e8f0;
+        margin: 14px 0;
+    }
+
+    code {
+        padding: 2px 6px;
+        border-radius: 6px;
+        background: #f1f5f9;
+        color: #0f5cf2;
+        font-size: 12.5px;
+        font-family: monospace;
+    }
+}
+
+/* Deep Analysis Composite Card Layout */
+.deepAnalysisCardWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+}
+
+.executiveSummaryCard {
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.analysisCenterCard {
+    padding: 18px 20px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.analysisCenterHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e2e8f0;
+
+    .analysisCenterIcon {
+        font-size: 16px;
+        line-height: 1;
+    }
+
+    .analysisCenterTitle {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+        letter-spacing: -0.2px;
+    }
+}
+
+/* Inline Dynamic Widgets (Candlestick & Sentiment Radar) */
+.inlineWidgetCard {
+    margin: 16px 0;
+    padding: 16px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.inlineWidgetHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.inlineWidgetTitle {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: 0.2px;
+}
+
+.srToggleBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 8px;
+    background: rgba(15, 92, 242, 0.08);
+    color: #0f5cf2;
+    border: 1px solid rgba(15, 92, 242, 0.2);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: rgba(15, 92, 242, 0.16);
+        color: #0f5cf2;
+    }
+
+    &.srToggleActive {
+        background: rgba(16, 185, 129, 0.15);
+        color: #059669;
+        border-color: rgba(16, 185, 129, 0.4);
+    }
+}
+
+/* Dark Theme Overrides for Components */
+:global(.dark),
+.aiAssistant.dark,
+.aiAssistant.isDark {
+    .clarificationOptionBtn {
+        background: #000000;
+        border-color: rgba(255, 255, 255, 0.12);
+        color: #f1f5f9;
+
+        &:hover {
+            background: rgba(15, 92, 242, 0.12);
+            border-color: rgba(96, 165, 250, 0.5);
+
+            .clarificationOptionLabel {
+                color: #93c5fd;
+            }
+
+            .clarificationOptionIcon {
+                background: rgba(15, 92, 242, 0.3);
+                border-color: rgba(96, 165, 250, 0.5);
+                color: #93c5fd;
+            }
+        }
+
+        .clarificationOptionIcon {
+            background: rgba(15, 92, 242, 0.15);
+            border-color: rgba(15, 92, 242, 0.3);
+            color: #60a5fa;
+        }
+
+        .clarificationOptionLabel {
+            color: #f1f5f9;
+        }
+
+        .clarificationOptionSub {
+            color: #94a3b8;
+        }
+    }
+
+    .downloadReportRow {
+        border-top-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .downloadFullReportBtn {
+        background: #0f5cf2;
+        color: #ffffff;
+        box-shadow: 0 2px 10px rgba(15, 92, 242, 0.4);
+
+        &:hover {
+            background: #0c4ac2;
+        }
+    }
+
+    .chatMarkdown {
+        color: #f1f5f9 !important;
+
+        h1, h2, h3 {
+            color: #60a5fa !important;
+        }
+
+        h4, h5, h6 {
+            color: #93c5fd !important;
+        }
+
+        p, li {
+            color: #f1f5f9 !important;
+
+            &::marker {
+                color: #60a5fa !important;
+            }
+        }
+
+        strong, b {
+            color: #ffffff !important;
+        }
+
+        table {
+            border-color: rgba(255, 255, 255, 0.15) !important;
+
+            th, td {
+                border-color: rgba(255, 255, 255, 0.15) !important;
+            }
+
+            th {
+                background: #121318 !important;
+                color: #60a5fa !important;
+            }
+
+            td {
+                color: #f1f5f9 !important;
+                background: #000000 !important;
+            }
+        }
+
+        hr {
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        code {
+            background: rgba(15, 92, 242, 0.2) !important;
+            color: #93c5fd !important;
+        }
+    }
+
+    .executiveSummaryCard {
+        background: #000000 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    .analysisCenterCard {
+        background: #000000 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    .analysisCenterHeader {
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+
+        .analysisCenterTitle {
+            color: #ffffff !important;
+        }
+    }
+
+    .inlineWidgetCard {
+        background: #000000 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    .inlineWidgetHeader {
+        border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .inlineWidgetTitle {
+        color: #93c5fd !important;
+    }
+
+    .srToggleBtn {
+        background: rgba(255, 255, 255, 0.06);
+        color: #94a3b8;
+        border-color: rgba(255, 255, 255, 0.1);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        &.srToggleActive {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+    }
+}
+
+/* Vision AI Accordion Cards */
+.visionAnalysisContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin: 8px 0;
+}
+
+.visionWarningCard {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #f59e0b;
+    font-size: 12.5px;
+    font-weight: 500;
+}
+
+.visionSummaryCard {
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.visionAccordionList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.visionAccordionCard {
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+    &.visionAccordionOpen {
+        border-color: #3b82f6;
+    }
+}
+
+.visionAccordionHeader {
+    width: 100%;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s ease;
+
+    &:hover {
+        background: #f8fafc;
+    }
+}
+
+.visionHeaderLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.visionSectionIcon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.visionSectionTitle {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.visionTrendBadges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 6px;
+}
+
+.visionTrendType {
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border-radius: 6px;
+    background: rgba(15, 92, 242, 0.1);
+    color: #0f5cf2;
+    border: 1px solid rgba(15, 92, 242, 0.25);
+
+    &.badgeBullish {
+        background: rgba(16, 185, 129, 0.12);
+        color: #059669;
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    &.badgeBearish {
+        background: rgba(239, 68, 68, 0.12);
+        color: #dc2626;
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+}
+
+.visionTrendStrength {
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+.visionChevron {
+    font-size: 10px;
+    color: #94a3b8;
+    transition: transform 0.2s ease;
+
+    &.visionChevronOpen {
+        transform: rotate(180deg);
+        color: #0f5cf2;
+    }
+}
+
+.visionAccordionBody {
+    padding: 12px 16px 16px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #1e293b;
+    background: #fafbff;
+}
+
+.visionSectionDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.visionDescText {
+    margin: 0;
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.visionSummaryText {
+    margin: 0;
+    color: #334155;
+    font-size: 13px;
+    font-style: italic;
+}
+
+.visionObservationText {
+    margin: 0;
+    color: #0369a1;
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.visionOverviewCard {
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.03);
+    border: 1px solid #e2e8f0;
+}
+
+.visionOverviewText {
+    margin: 0;
+    color: #475569;
+    font-size: 12.5px;
+    line-height: 1.6;
+}
+
+/* Badges */
+.visionBadgesRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.visionBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+    border: 1px solid transparent;
+}
+
+.badgeGreen {
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.badgeRed {
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.badgeAmber {
+    background: rgba(245, 158, 11, 0.12);
+    color: #d97706;
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.badgeBlue {
+    background: rgba(15, 92, 242, 0.1);
+    color: #0f5cf2;
+    border-color: rgba(15, 92, 242, 0.25);
+}
+
+.badgeSlate {
+    background: #f1f5f9;
+    color: #475569;
+    border-color: #e2e8f0;
+    text-transform: none;
+    font-weight: 600;
+}
+
+/* Market Structure Swing Grid */
+.visionSwingGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+}
+
+.visionSwingBox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.visionSwingLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.visionPatternText {
+    margin: 0;
+    font-size: 12.5px;
+    color: #0284c7;
+    line-height: 1.5;
+}
+
+/* Support & Resistance Groups */
+.visionLevelsGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.visionGroupTitleGreen {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #059669;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.visionGroupTitleRed {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #dc2626;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.visionCardsCol {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.visionLevelCardGreen {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.visionLevelCardRed {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.visionLevelInfo {
+    margin: 0;
+    font-size: 12px;
+    color: #0369a1;
+    line-height: 1.4;
+
+    strong {
+        color: #0f172a;
+    }
+}
+
+/* Supply & Demand Zones */
+.visionZoneCardGreen {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.visionZoneCardRed {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.visionZoneText {
+    margin: 0;
+    font-size: 12px;
+    color: #334155;
+    line-height: 1.4;
+
+    strong {
+        color: #0284c7;
+    }
+}
+
+.visionCountBadge {
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+/* Actionable Zones */
+.visionActionCardGreen {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.visionActionTitleGreen {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #059669;
+}
+
+.visionActionCardRed {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.visionActionTitleRed {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #dc2626;
+}
+
+.visionActionText {
+    margin: 0;
+    font-size: 12px;
+    color: #334155;
+    line-height: 1.4;
+}
+
+.visionActionSub {
+    margin: 0;
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+.visionFieldRow {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.visionFieldKey {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 12.5px;
+}
+
+.visionFieldValue {
+    color: #334155;
+    font-size: 12.5px;
+}
+
+.visionFieldBlock {
+    margin-top: 4px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+
+.visionBlockHeading {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #0f5cf2;
+    margin-bottom: 4px;
+    text-transform: capitalize;
+}
+
+.visionBlockContent {
+    font-size: 12.5px;
+}
+
+.visionList {
+    margin: 4px 0 0;
+    padding-left: 18px;
+
+    li {
+        color: #334155;
+        margin-bottom: 2px;
+    }
+}
+
+.visionObjectGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Dark Theme Overrides for Vision AI */
+:global(.dark),
+.aiAssistant.dark,
+.aiAssistant.isDark {
+    .visionSummaryCard {
+        background: #000000 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    .visionOverviewCard {
+        background: #000000 !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .visionOverviewText {
+        color: #94a3b8 !important;
+    }
+
+    .visionAccordionCard {
+        background: #000000 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+
+        &.visionAccordionOpen {
+            border-color: rgba(96, 165, 250, 0.5) !important;
+        }
+    }
+
+    .visionAccordionHeader {
+        &:hover {
+            background: rgba(15, 92, 242, 0.08) !important;
+        }
+    }
+
+    .visionSectionTitle {
+        color: #ffffff !important;
+    }
+
+    .visionChevron {
+        color: #94a3b8 !important;
+
+        &.visionChevronOpen {
+            color: #60a5fa !important;
+        }
+    }
+
+    .visionAccordionBody {
+        border-top-color: rgba(255, 255, 255, 0.08) !important;
+        background: #000000 !important;
+        color: #f1f5f9 !important;
+    }
+
+    .visionDescText,
+    .visionSummaryText {
+        color: #f1f5f9 !important;
+    }
+
+    .visionObservationText {
+        color: #7dd3fc !important;
+    }
+
+    .badgeSlate {
+        background: #14161d !important;
+        color: #94a3b8 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    .visionSwingBox {
+        background: #08090c !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .visionSwingLabel {
+        color: #94a3b8 !important;
+    }
+
+    .visionPatternText {
+        color: #38bdf8 !important;
+    }
+
+    .visionGroupTitleGreen {
+        color: #34d399 !important;
+    }
+
+    .visionGroupTitleRed {
+        color: #f87171 !important;
+    }
+
+    .visionLevelCardGreen,
+    .visionZoneCardGreen,
+    .visionActionCardGreen {
+        background: rgba(16, 185, 129, 0.08) !important;
+        border-color: rgba(16, 185, 129, 0.3) !important;
+    }
+
+    .visionLevelCardRed,
+    .visionZoneCardRed,
+    .visionActionCardRed {
+        background: rgba(239, 68, 68, 0.08) !important;
+        border-color: rgba(239, 68, 68, 0.3) !important;
+    }
+
+    .visionLevelInfo {
+        color: #7dd3fc !important;
+
+        strong {
+            color: #ffffff !important;
+        }
+    }
+
+    .visionZoneText {
+        color: #e2e8f0 !important;
+
+        strong {
+            color: #38bdf8 !important;
+        }
+    }
+
+    .visionActionTitleGreen {
+        color: #34d399 !important;
+    }
+
+    .visionActionTitleRed {
+        color: #f87171 !important;
+    }
+
+    .visionActionText {
+        color: #e2e8f0 !important;
+    }
+
+    .visionActionSub {
+        color: #94a3b8 !important;
+    }
+
+    .visionCountBadge {
+        background: #14161d !important;
+        color: #94a3b8 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    .visionFieldKey {
+        color: #93c5fd !important;
+    }
+
+    .visionFieldValue {
+        color: #f1f5f9 !important;
+    }
+
+    .visionFieldBlock {
+        background: #0a0b0e !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .visionBlockHeading {
+        color: #60a5fa !important;
+    }
+
+    .visionList li {
+        color: #f1f5f9 !important;
+    }
 }
 

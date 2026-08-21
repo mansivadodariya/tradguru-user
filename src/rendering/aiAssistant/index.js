@@ -32,6 +32,8 @@ import {
     SwingPositionIcon,
     CompleteProIcon
 } from './components/ClarificationIcons';
+import RenderMarkdownWithWidgets from './components/MarkdownWidgetRenderer';
+import VisionAnalysisAccordions from './components/VisionAnalysisAccordions';
 
 const UploadIcon = '/assets/icons/upload-xs.svg';
 const Logo = '/assets/icons/AIChat.svg';
@@ -74,7 +76,7 @@ const parseAssistantResponse = (raw) => {
         };
     }
 
-    const shortContent = payload.text || payload.short_response || payload.shortResponse || payload.response || '';
+    const shortContent = payload.short_response || payload.shortResponse || payload.text || payload.response || '';
     const fullReport = payload.full_report || payload.fullReport || envelope?.full_report || null;
     const visualData = payload.visual_data || payload.visualData || envelope?.visual_data || null;
 
@@ -104,12 +106,12 @@ const parseAssistantResponse = (raw) => {
 };
 
 const CLARIFICATION_BUTTONS = [
-    { label: 'Technical Structure',    icon: TechnicalStructureIcon },
-    { label: 'Fundamental & Macro',    icon: FundamentalMacroIcon },
-    { label: 'Intraday Scalp Setup',   icon: IntradayScalpIcon },
-    { label: 'Medium Term Setup',      icon: MediumTermIcon },
-    { label: 'Swing Position Setup',   icon: SwingPositionIcon },
-    { label: 'Complete Pro Setup',     icon: CompleteProIcon },
+    { label: 'Technical Structure',    icon: TechnicalStructureIcon, sub: 'Pivots, RSI, MAs & Levels' },
+    { label: 'Fundamental & Macro',    icon: FundamentalMacroIcon, sub: 'Central Bank & News Drivers' },
+    { label: 'Intraday Scalp Setup',   icon: IntradayScalpIcon, sub: '15m/1H Quick Entry & Tight SL' },
+    { label: 'Medium Term Setup',      icon: MediumTermIcon, sub: '1H/4H Weekly Trend Setup' },
+    { label: 'Swing Position Setup',   icon: SwingPositionIcon, sub: '4H/Daily Multi-Day Setup' },
+    { label: 'Complete Pro Setup',     icon: CompleteProIcon, sub: 'Full Tech + Macro + SL/TP' },
 ];
 
 function ClarificationOptionButtons({ onSelect }) {
@@ -127,9 +129,16 @@ function ClarificationOptionButtons({ onSelect }) {
                         <span className={styles.clarificationOptionIcon}>
                             <IconComponent size={18} />
                         </span>
-                        <span className={styles.clarificationOptionLabel}>
-                            {btn.label}
-                        </span>
+                        <div className={styles.clarificationOptionText}>
+                            <span className={styles.clarificationOptionLabel}>
+                                {btn.label}
+                            </span>
+                            {btn.sub && (
+                                <span className={styles.clarificationOptionSub}>
+                                    {btn.sub}
+                                </span>
+                            )}
+                        </div>
                     </button>
                 );
             })}
@@ -142,7 +151,10 @@ const buildAssistantMessage = (parsed) => ({
     content: parsed.shortContent,
     fullReport: parsed.fullReport,
     visualData: parsed.visualData,
-    response_format: parsed.response_format
+    response_format: parsed.response_format,
+    detected_pair: parsed.detected_pair,
+    chart_sections: parsed.chart_sections,
+    image_warning: parsed.image_warning
 });
 
 const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
@@ -193,6 +205,8 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     const gridRef = useRef(null);
     const fileInputRef = useRef(null);
     const chartPaneRef = useRef(null);
+    const activeRequestIdRef = useRef(null);
+    const textareaRef = useRef(null);
 
     // Quick Action Chip Handlers
     const handleGenerateFromImageClick = () => {
@@ -205,25 +219,22 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                     url: dataUrl,
                     type: 'image/png'
                 };
+                setAttachmentDraft(draft);
             }
         }
-        handleSendChatMessage({
-            overrideMessage: 'Analyze this chart screenshot and identify technical patterns & breakouts',
-            overrideAttachment: draft
-        });
+        setChatInput('Analyze this chart screenshot and identify technical patterns & breakouts');
+        setTimeout(() => textareaRef.current?.focus(), 60);
     };
 
     const handleDeepAnalysisClick = () => {
         const sym = normalizeSymbol(selectedPair);
-        handleSendChatMessage({
-            overrideMessage: `Perform a Deep Pro Analysis for ${sym} including multi-timeframe market structure, pivot points, key indicators, macro drivers, and complete risk-reward trade setup`
-        });
+        setChatInput(`Perform a Deep Pro Analysis for ${sym} including multi-timeframe market structure, pivot points, key indicators, macro drivers, and complete risk-reward trade setup`);
+        setTimeout(() => textareaRef.current?.focus(), 60);
     };
 
     const handleMacroNewsClick = () => {
-        handleSendChatMessage({
-            overrideMessage: 'Show latest financial news, market sentiment, and central bank stance for active pair'
-        });
+        setChatInput('Show latest financial news, market sentiment, and central bank stance for active pair');
+        setTimeout(() => textareaRef.current?.focus(), 60);
     };
 
     const handleFileSelect = (e) => {
@@ -241,9 +252,51 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                 url: event.target.result,
                 name: file.name || 'Image Attachment'
             });
+            setSelectedPair('No Pair');
         };
         reader.readAsDataURL(file);
+        setSelectedPair('No Pair');
         e.target.value = '';
+    };
+
+    const handlePaste = (e) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const file = items[i].getAsFile();
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        setAttachmentDraft({
+                            url: event.target.result,
+                            name: file.name || 'Pasted Screenshot.png'
+                        });
+                        setSelectedPair('No Pair');
+                    };
+                    reader.readAsDataURL(file);
+                    setSelectedPair('No Pair');
+                    break;
+                }
+            }
+        }
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer?.files?.[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                setAttachmentDraft({
+                    url: event.target.result,
+                    name: file.name || 'Image Attachment'
+                });
+                setSelectedPair('No Pair');
+            };
+            reader.readAsDataURL(file);
+            setSelectedPair('No Pair');
+        }
     };
 
     const handleMouseDown = (e) => {
@@ -369,11 +422,20 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
     // Actions
 
     const handleCreateNew = () => {
+        activeRequestIdRef.current = null;
+        setPendingRequest(false);
         setHistoryModalOpen(false);
         setSelectedChat(null);
         setChatMessages([]);
         setChatInput('');
+        setAttachmentDraft(null);
+        setPreviewAttachment(null);
         setChatWidthPercent(35);
+        if (typeof window !== 'undefined' && window.history?.replaceState) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('open');
+            window.history.replaceState({}, '', url.toString());
+        }
         [100, 200, 300, 400].forEach((ms) => {
             setTimeout(() => window.dispatchEvent(new Event('resize')), ms);
         });
@@ -492,6 +554,9 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         setAttachmentDraft(null);
         setPendingRequest(true);
 
+        const requestId = Date.now();
+        activeRequestIdRef.current = requestId;
+
         const isNoPair = !selectedPair || selectedPair === 'No Pair' || selectedPair === 'NO_PAIR' || String(selectedPair).toLowerCase().includes('no pair') || String(selectedPair).toLowerCase() === 'none';
         const cleanPair = isNoPair ? null : (normalizeSymbol(selectedPair) || null);
         const activeTf = (typeof selectedTimeframe !== 'undefined' && selectedTimeframe) ? selectedTimeframe : '15m';
@@ -515,19 +580,24 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
             };
 
             const result = await fxApi.chat(chatPayload);
+            if (activeRequestIdRef.current !== requestId) return;
+
             const parsed = parseAssistantResponse(result);
             const assistantMsg = buildAssistantMessage(parsed);
             setChatMessages(prev => [...prev, assistantMsg]);
             fetchChatHistory(userId);
             syncCreditsAfterAction(result);
         } catch (err) {
+            if (activeRequestIdRef.current !== requestId) return;
             const errorMessage = err?.message || "I apologize, but the FX Copilot API is currently unavailable. Please verify the endpoint or try again later.";
             setChatMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
             if (err?.detail?.error_code === 'INSUFFICIENT_CREDITS' || err?.message?.toLowerCase().includes('insufficient credits')) {
                 notifyCreditsUpdated(0);
             }
         } finally {
-            setPendingRequest(false);
+            if (activeRequestIdRef.current === requestId) {
+                setPendingRequest(false);
+            }
         }
     };
 
@@ -535,6 +605,22 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
         handleSendChatMessage({
             overrideMessage: String(optionName),
         });
+    };
+
+    const handleDownloadFullReport = (fullReportText, pairName) => {
+        if (!fullReportText) return;
+        const cleanPair = (pairName && pairName !== 'No Pair' && !String(pairName).toLowerCase().includes('no pair'))
+            ? pairName.replace('/', '').toUpperCase()
+            : (selectedPair && selectedPair !== 'No Pair' ? selectedPair.replace('/', '').toUpperCase() : 'Forex');
+        const blob = new Blob([fullReportText], { type: 'text/markdown;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${cleanPair}_Trade_Report.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
     const handleGenerateBlog = async () => {
@@ -885,7 +971,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                             </div>
                         </div>
                         <div className={styles.chatBody}>
-                            {chatMessages.length === 0 && !pendingRequest ? (
+                            {chatMessages.length === 0 ? (
                                 <div className={styles.welcomeContainer}>
                                     {/* <div className={styles.welcomeHeroBadge}>
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -985,8 +1071,17 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                             key={index}
                                             className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : ''} ${msg.fullReport ? styles.reportRow : ''}`}
                                         >
-                                            {msg.role === 'user' && msg.pair && msg.pair !== 'No Pair' && msg.pair !== 'NO_PAIR' && !String(msg.pair).toLowerCase().includes('no pair') && (
-                                                <span className={styles.pairBadge}>{msg.pair}</span>
+                                            {msg.role === 'user' &&
+                                             msg.pair &&
+                                             typeof msg.pair === 'string' &&
+                                             msg.pair.trim() !== '' &&
+                                             msg.pair !== 'No Pair' &&
+                                             msg.pair !== 'NO_PAIR' &&
+                                             !msg.pair.toLowerCase().includes('no pair') &&
+                                             msg.pair.toLowerCase() !== 'none' && (
+                                                <span className={styles.pairBadge}>
+                                                    💬 {msg.pair.toUpperCase()}
+                                                </span>
                                             )}
                                             <div {...getBidiProps(msg.content, msg.role === 'user' ? styles.userMessage : styles.assistantMessage)}>
                                                 {msg.role === 'user' ? (
@@ -1004,19 +1099,57 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                                     </>
                                                 ) : (
                                                     <>
-                                                        {isDeepAnalysis && msg.fullReport ? (
-                                                            <ReportPanel
-                                                                inline
-                                                                fullReport={msg.fullReport}
-                                                                visualData={msg.visualData}
-                                                                onDownload={(el) => handleDownloadReportContent(msg.fullReport, el, msg.visualData)}
+                                                        {msg.chart_sections ? (
+                                                            <VisionAnalysisAccordions
+                                                                chartSections={msg.chart_sections}
+                                                                textSummary={msg.content}
+                                                                imageWarning={msg.image_warning}
                                                             />
-                                                        ) : (
-                                                            <div className={styles.chatMarkdown}>
-                                                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>
-                                                                    {msg.content}
-                                                                </ReactMarkdown>
+                                                        ) : (msg.response_format === "deep_analysis" || isDeepAnalysis) && msg.fullReport ? (
+                                                            <div className={styles.deepAnalysisCardWrapper}>
+                                                                {/* 1. TOP SECTION: SHORT EXECUTIVE BULLETS */}
+                                                                {msg.content && (
+                                                                    <div className={styles.executiveSummaryCard}>
+                                                                        <RenderMarkdownWithWidgets
+                                                                            content={msg.content}
+                                                                            visualData={msg.visualData}
+                                                                            defaultSymbol={msg.detected_pair || selectedPair}
+                                                                        />
+                                                                    </div>
+                                                                )}
+
+                                                                {/* 2. BOTTOM SECTION: ANALYSIS CENTER (FULL LONG REPORT WITH INLINE WIDGETS) */}
+                                                                <div className={styles.analysisCenterCard}>
+                                                                    <div className={styles.analysisCenterHeader}>
+                                                                        <span className={styles.analysisCenterIcon}>📊</span>
+                                                                        <span className={styles.analysisCenterTitle}>Analysis Center</span>
+                                                                    </div>
+
+                                                                    <RenderMarkdownWithWidgets
+                                                                        content={msg.fullReport}
+                                                                        visualData={msg.visualData}
+                                                                        defaultSymbol={msg.detected_pair || selectedPair}
+                                                                    />
+
+                                                                    {/* 3. DOWNLOAD REPORT BUTTON */}
+                                                                    <div className={styles.downloadReportRow}>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleDownloadFullReport(msg.fullReport, msg.detected_pair || selectedPair)}
+                                                                            className={styles.downloadFullReportBtn}
+                                                                        >
+                                                                            <span>📥</span>
+                                                                            <span>Download Full Report (.md)</span>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
                                                             </div>
+                                                        ) : (
+                                                            <RenderMarkdownWithWidgets
+                                                                content={msg.content}
+                                                                visualData={msg.visualData}
+                                                                defaultSymbol={msg.detected_pair || selectedPair}
+                                                            />
                                                         )}
 
                                                         {msg.response_format === "interactive_clarification" && (
@@ -1045,7 +1178,11 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                     </div>
 
                     {/* Chat input box */}
-                    <div className={styles.inputArea}>
+                    <div
+                        className={styles.inputArea}
+                        onDrop={handleDrop}
+                        onDragOver={(e) => e.preventDefault()}
+                    >
                         {attachmentDraft && (
                             <AttachmentDraft
                                 attachment={attachmentDraft}
@@ -1054,10 +1191,12 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                             />
                         )}
                         <textarea
+                            ref={textareaRef}
                             placeholder={t('aiAssistant.askAnythingPlaceholder', 'Ask anything about forex trading, chart and strategies...')}
                             className={styles.textarea}
                             value={chatInput}
                             onChange={(e) => setChatInput(e.target.value.trimStart())}
+                            onPaste={handlePaste}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault();
@@ -1112,6 +1251,36 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                                 </svg>
                                                 <span>Chart Snapshot</span>
                                             </button>
+                                            <button
+                                                type="button"
+                                                className={styles.attachMenuItem}
+                                                onClick={() => {
+                                                    setAttachDropdownOpen(false);
+                                                    handleDeepAnalysisClick();
+                                                }}
+                                            >
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M12 2a5 5 0 0 0-5 5v1a4 4 0 0 0-4 4 4 4 0 0 0 4 4v1a5 5 0 0 0 10 0v-1a4 4 0 0 0 4-4 4 4 0 0 0-4-4V7a5 5 0 0 0-5-5z" />
+                                                    <path d="M9 12a3 3 0 0 0 6 0" />
+                                                </svg>
+                                                <span>Deep Market Analysis</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={styles.attachMenuItem}
+                                                onClick={() => {
+                                                    setAttachDropdownOpen(false);
+                                                    handleMacroNewsClick();
+                                                }}
+                                            >
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" />
+                                                    <path d="M18 14h-8" />
+                                                    <path d="M15 18h-5" />
+                                                    <path d="M10 6h8v4h-8z" />
+                                                </svg>
+                                                <span>Macro News & Events</span>
+                                            </button>
                                         </div>
                                     )}
                                 </div>
@@ -1144,6 +1313,7 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                             onClose={() => setDropdownOpen(false)}
                                             position="top"
                                             isDark={isDark}
+                                            allowNoPair={true}
                                         />
                                     )}
                                 </div>

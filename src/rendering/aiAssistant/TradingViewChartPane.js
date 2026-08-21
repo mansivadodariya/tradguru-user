@@ -439,6 +439,10 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
     const { t } = useLanguage();
     const isDark = theme === 'dark';
 
+    const isChartNoPair = !symbol || symbol === 'No Pair' || symbol === 'NO_PAIR' || String(symbol).toUpperCase().includes('NO PAIR') || String(symbol).toLowerCase() === 'none';
+    const chartSymbol = isChartNoPair ? 'XAU/USD' : symbol;
+    const activeSymbolClean = normalizeSymbol(chartSymbol);
+
     const containerRef = useRef(null);
     const chartRef = useRef(null);
     const seriesRef = useRef(null);
@@ -738,8 +742,6 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
         }
     };
 
-    const activeSymbolClean = normalizeSymbol(symbol, 'XAUUSD');
-
     // Expose capture functionality to parent via ref
     useImperativeHandle(ref, () => ({
         getScreenshotDataUrl: () => {
@@ -785,13 +787,14 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
     // Render unified Ticker Search Dropdown Menu (TradingView Style)
     const renderSymbolDropdownMenu = (closeMenu) => (
         <TickerSearchDropdown
-            selectedSymbol={symbol}
+            selectedSymbol={chartSymbol}
             onSelectSymbol={(newSym) => {
                 if (onSymbolChange) onSymbolChange(newSym);
             }}
             onClose={closeMenu}
             position="bottom"
             isDark={!isChartLight}
+            allowNoPair={false}
         />
     );
 
@@ -1577,7 +1580,7 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 {/* Main Candlestick / Price Chart Container */}
                 <div
                     ref={containerRef}
-                    className={`${styles.mainChartContainer} ${hasSubPanes ? styles.hasSubPanes : ''}`}
+                    className={`${styles.mainChartContainer} ${hasSubPanes ? styles.hasSubPanes : ''} ${loading ? styles.isChartLoading : ''}`}
                 >
                     {/* Inside Chart Floating Control Bar (Top Left) */}
                     <div className={styles.insideChartControlPill}>
@@ -1588,7 +1591,7 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                                 className={styles.pillSymbolBtn}
                                 onClick={toggleSymbolDropdown}
                             >
-                                <SymbolIcon symbol={symbol || 'XAU/USD'} size={18} />
+                                <SymbolIcon symbol={chartSymbol} size={18} />
                                 <span className={styles.pillSymbolName}>{activeSymbolClean}</span>
                                 <span className={styles.statusDot} />
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
