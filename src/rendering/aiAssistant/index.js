@@ -39,24 +39,25 @@ const UploadIcon = '/assets/icons/upload-xs.svg';
 const Logo = '/assets/icons/AIChat.svg';
 
 const parseAssistantResponse = (raw) => {
-    const envelope = raw?.data || raw;
-    let payload = envelope?.response ?? envelope?.message ?? envelope?.answer ?? envelope;
+    let envelope = raw?.data || raw;
+
+    // Check if envelope has chats array (new With_Image / structured response format)
+    let chatItem = null;
+    if (envelope && Array.isArray(envelope.chats) && envelope.chats.length > 0) {
+        chatItem = envelope.chats[envelope.chats.length - 1]; // latest chat item
+    } else if (raw && Array.isArray(raw.chats) && raw.chats.length > 0) {
+        chatItem = raw.chats[raw.chats.length - 1];
+    }
+
+    let payload = chatItem ? chatItem.response : (envelope?.response ?? envelope?.message ?? envelope?.answer ?? envelope);
+    const imageUrl = chatItem?.image_url || envelope?.image_url || null;
+    const chatType = chatItem?.chat_type || envelope?.chat_type || null;
 
     if (typeof payload === 'string') {
         try {
             payload = JSON.parse(payload);
         } catch {
-            return {
-                shortContent: payload,
-                fullReport: null,
-                visualData: null,
-                detected_pair: null,
-                detected_timeframe: null,
-                is_valid_chart: true,
-                image_warning: null,
-                chart_sections: null,
-                response_format: null
-            };
+            // Keep as string
         }
     }
 
@@ -72,25 +73,52 @@ const parseAssistantResponse = (raw) => {
             is_valid_chart: true,
             image_warning: null,
             chart_sections: null,
-            response_format: null
+            response_format: null,
+            image_url: imageUrl,
+            chat_type: chatType
         };
     }
 
     const shortContent = payload.short_response || payload.shortResponse || payload.text || payload.response || '';
-    const fullReport = payload.full_report || payload.fullReport || envelope?.full_report || null;
+    let fullReport = payload.full_report || payload.fullReport || envelope?.full_report || null;
     const visualData = payload.visual_data || payload.visualData || envelope?.visual_data || null;
 
-    const detected_pair = payload.detected_pair || payload.detectedPair || envelope?.detected_pair || null;
-    const detected_timeframe = payload.detected_timeframe || payload.detectedTimeframe || envelope?.detected_timeframe || null;
-    const is_valid_chart = payload.is_valid_chart ?? payload.isValidChart ?? envelope?.is_valid_chart ?? true;
-
+    let detected_pair = payload.detected_pair || payload.detectedPair || envelope?.detected_pair || null;
+    let detected_timeframe = payload.detected_timeframe || payload.detectedTimeframe || envelope?.detected_timeframe || null;
+    let is_valid_chart = payload.is_valid_chart ?? payload.isValidChart ?? envelope?.is_valid_chart ?? true;
     let image_warning = payload.image_warning || envelope?.image_warning || null;
+    let chart_sections = payload.chart_sections || payload.chartSections || envelope?.chart_sections || null;
+    let response_format = payload.response_format || payload.responseFormat || envelope?.response_format || (chatType === 'With_Image' ? 'vision_analysis' : null);
+
+    // If full_report is a JSON string, parse it to extract chart_sections, detected_pair, etc.
+    if (typeof fullReport === 'string') {
+        try {
+            const parsedFull = JSON.parse(fullReport);
+            if (parsedFull && typeof parsedFull === 'object') {
+                if (!chart_sections && parsedFull.chart_sections) {
+                    chart_sections = parsedFull.chart_sections;
+                }
+                if (!detected_pair && parsedFull.detected_pair) {
+                    detected_pair = parsedFull.detected_pair;
+                }
+                if (!detected_timeframe && parsedFull.detected_timeframe) {
+                    detected_timeframe = parsedFull.detected_timeframe;
+                }
+                if (parsedFull.is_valid_chart !== undefined) {
+                    is_valid_chart = parsedFull.is_valid_chart;
+                }
+                if (!image_warning && parsedFull.image_warning) {
+                    image_warning = parsedFull.image_warning;
+                }
+            }
+        } catch {
+            // fullReport is markdown text, keep as is
+        }
+    }
+
     if (!image_warning && is_valid_chart === false) {
         image_warning = '⚠️ Image not clear or valid chart header missing. Please upload a clear chart screenshot.';
     }
-
-    const chart_sections = payload.chart_sections || payload.chartSections || envelope?.chart_sections || null;
-    const response_format = payload.response_format || payload.responseFormat || envelope?.response_format || null;
 
     return {
         shortContent: shortContent || (typeof payload === 'string' ? payload : JSON.stringify(payload)),
@@ -101,7 +129,9 @@ const parseAssistantResponse = (raw) => {
         is_valid_chart,
         image_warning,
         chart_sections,
-        response_format
+        response_format,
+        image_url: imageUrl,
+        chat_type: chatType
     };
 };
 
@@ -153,8 +183,11 @@ const buildAssistantMessage = (parsed) => ({
     visualData: parsed.visualData,
     response_format: parsed.response_format,
     detected_pair: parsed.detected_pair,
+    detected_timeframe: parsed.detected_timeframe,
     chart_sections: parsed.chart_sections,
-    image_warning: parsed.image_warning
+    image_warning: parsed.image_warning,
+    image_url: parsed.image_url,
+    chat_type: parsed.chat_type
 });
 
 const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
@@ -1086,13 +1119,13 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                             <div {...getBidiProps(msg.content, msg.role === 'user' ? styles.userMessage : styles.assistantMessage)}>
                                                 {msg.role === 'user' ? (
                                                     <>
-                                                        {msg.attachment && (
+                                                        {(msg.attachment?.url || msg.image_url) && (
                                                             <div
                                                                 className={styles.userMsgAttachment}
-                                                                onClick={() => setPreviewAttachment(msg.attachment)}
+                                                                onClick={() => setPreviewAttachment(msg.attachment || { url: msg.image_url, name: 'Chart Image' })}
                                                                 title="Click to preview image"
                                                             >
-                                                                <img src={msg.attachment.url} alt="Attached Chart" />
+                                                                <img src={msg.attachment?.url || msg.image_url} alt="Attached Chart" />
                                                             </div>
                                                         )}
                                                         {msg.content}
