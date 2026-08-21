@@ -109,8 +109,8 @@
             border-color: #e0e3eb;
 
             .chartHeaderControls {
-                background: #ffffff;
-                border-bottom: 1px solid #e0e3eb;
+                background: rgba(255, 255, 255, 0.82);
+                border-bottom: 1px solid rgba(0, 0, 0, 0.08);
             }
 
             .headerIconButton {
@@ -169,15 +169,15 @@
 
             .tickerSearchDropdownMenu,
             .dropdownMenuFloating {
-                background: #ffffff;
-                border-color: #e0e3eb;
-                box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+                background: #000000;
+                border-color: rgba(255, 255, 255, 0.18);
+                box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
             }
 
             .tickerSearchInput {
-                background: #f0f3fa;
-                border-color: #e0e3eb;
-                color: #131722;
+                background: #000000;
+                border-color: rgba(255, 255, 255, 0.18);
+                color: #ffffff;
 
                 &::placeholder {
                     color: #787b86;
@@ -192,27 +192,29 @@
                 color: #787b86;
 
                 &:hover {
-                    color: #131722;
-                    background: #f0f3fa;
+                    color: #ffffff;
+                    background: rgba(41, 121, 255, 0.15);
                 }
 
                 &.activeTab {
-                    background: #e0e3eb;
-                    color: #131722;
+                    background: #2979ff;
+                    color: #ffffff;
                 }
             }
 
             .tickerMenuItem,
             .dropdownMenuItem {
-                color: #131722;
+                color: #e2e8f0;
 
                 &:hover {
-                    background: #f0f3fa;
+                    background: rgba(41, 121, 255, 0.15);
+                    color: #2979ff;
                 }
 
                 &.activeTickerItem,
                 &.activeItem {
-                    background: rgba(41, 121, 255, 0.1);
+                    background: rgba(41, 121, 255, 0.2);
+                    color: #2979ff;
                 }
             }
 
@@ -240,19 +242,25 @@
     }
 
     .chartHeaderControls {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0 14px;
-        height: 46px;
-        min-height: 46px;
-        max-height: 46px;
+        height: 38px;
+        min-height: 38px;
+        max-height: 38px;
         box-sizing: border-box;
-        background: #08090c;
+        background: rgba(8, 9, 12, 0.75);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         gap: 8px;
         flex-wrap: nowrap;
-        z-index: 100;
+        z-index: 60;
         overflow: visible;
 
         &::-webkit-scrollbar {
@@ -340,7 +348,7 @@
     /* Inside-Chart Floating Overlay Control Pill Bar (TradingView Style) */
     .insideChartControlPill {
         position: absolute;
-        top: 12px;
+        top: 44px;
         left: 12px;
         z-index: 50;
         display: inline-flex;
@@ -532,10 +540,10 @@
         left: 0;
         width: 320px;
         max-width: 90vw;
-        background: #181b24;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        border-radius: 10px;
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+        background: #000000;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 0;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
         z-index: 200;
         padding: 10px;
         display: flex;
@@ -554,16 +562,16 @@
     .searchIcon {
         position: absolute;
         left: 10px;
-        color: #787b86;
+        color: #94a3b8;
         pointer-events: none;
     }
 
     .tickerSearchInput {
         width: 100%;
         height: 36px;
-        background: #131722;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 6px;
+        background: #000000;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 0;
         padding: 0 10px 0 32px;
         color: #ffffff;
         font-size: 13px;
@@ -575,7 +583,7 @@
         }
 
         &::placeholder {
-            color: #787b86;
+            color: #94a3b8;
         }
     }
 
@@ -594,9 +602,9 @@
     .categoryTabBtn {
         background: transparent;
         border: none;
-        color: #787b86;
+        color: #cbd5e1;
         padding: 4px 10px;
-        border-radius: 6px;
+        border-radius: 0;
         font-size: 12px;
         font-weight: 600;
         cursor: pointer;
@@ -604,12 +612,12 @@
         transition: all 0.15s ease;
 
         &:hover {
-            color: #d1d4dc;
-            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            background: rgba(41, 121, 255, 0.2);
         }
 
         &.activeTab {
-            background: rgba(255, 255, 255, 0.12);
+            background: #2979ff;
             color: #ffffff;
         }
     }
@@ -626,8 +634,8 @@
         }
 
         &::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 4px;
+            background: rgba(41, 121, 255, 0.3);
+            border-radius: 0;
         }
     }
 
@@ -638,18 +646,20 @@
         padding: 8px 10px;
         background: transparent;
         border: none;
-        border-radius: 6px;
+        border-radius: 0;
         cursor: pointer;
         width: 100%;
         text-align: left;
-        transition: background 0.15s ease;
+        transition: background 0.15s ease, color 0.15s ease;
 
         &:hover {
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(41, 121, 255, 0.18);
+            color: #ffffff;
         }
 
         &.activeTickerItem {
-            background: rgba(41, 121, 255, 0.15);
+            background: rgba(41, 121, 255, 0.25);
+            color: #ffffff;
         }
     }
 
@@ -673,7 +683,7 @@
 
     .tickerSymbolSubtitle {
         font-size: 11px;
-        color: #787b86;
+        color: #cbd5e1;
     }
 
     .tickerCheckmark {
@@ -686,7 +696,7 @@
         padding: 20px;
         text-align: center;
         font-size: 12px;
-        color: #787b86;
+        color: #cbd5e1;
     }
 
     .settingsFooter {
@@ -854,10 +864,10 @@
         top: calc(100% + 6px);
         left: 0;
         min-width: 200px;
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
+        background: #000000;
+        border: 1px solid rgba(255, 255, 255, 0.18);
         border-radius: 0;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85);
         padding: 6px 0;
         z-index: 9999;
         display: flex;
@@ -915,7 +925,7 @@
         }
 
         &::-webkit-scrollbar-thumb {
-            background: rgba(148, 163, 184, 0.4);
+            background: rgba(41, 121, 255, 0.3);
             border-radius: 4px;
         }
     }
@@ -925,7 +935,7 @@
         flex-direction: column;
 
         &:not(:last-child) {
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             margin-bottom: 4px;
             padding-bottom: 4px;
         }
@@ -948,21 +958,22 @@
         padding: 8px 14px;
         background: transparent;
         border: none;
-        color: #475569;
+        color: #ffffff;
         font-size: 12px;
-        font-weight: 500;
+        font-weight: 600;
         text-align: left;
         cursor: pointer;
         transition: background 0.15s, color 0.15s;
 
         &:hover {
-            background: #f1f5f9;
-            color: #2563eb;
+            background: rgba(41, 121, 255, 0.18);
+            color: #ffffff;
         }
 
         &.activeItem {
-            color: #2563eb;
-            font-weight: 600;
+            background: rgba(41, 121, 255, 0.25);
+            color: #2979ff;
+            font-weight: 700;
         }
     }
 
@@ -1127,13 +1138,26 @@
             visibility: hidden !important;
             pointer-events: none !important;
         }
+
+        .mainChartContainer {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: filter 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+
+            &.isChartLoading {
+                filter: blur(6px);
+                opacity: 0.75;
+                pointer-events: none;
+            }
+        }
     }
 
     .chartLoaderOverlay,
     .chartOverlayLoader {
         position: absolute;
         inset: 0;
-        background: transparent;
+        background: rgba(0, 0, 0, 0.2);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
         display: flex;
@@ -1142,11 +1166,13 @@
         justify-content: center;
         gap: 12px;
         z-index: 50;
-        color: #e2e8f0;
+        color: #f1f5f9;
         font-size: 13px;
         font-weight: 500;
         letter-spacing: 0.3px;
         font-family: var(--font-plus-jakarta), var(--font-roboto), sans-serif;
+        pointer-events: none;
+        animation: fadeInOverlay 0.15s ease-out;
     }
 
     .chartSpinnerWrapper {
@@ -2293,6 +2319,10 @@
                                 &:hover {
                                     background: #eff6ff;
                                     color: #2563eb;
+
+                                    svg {
+                                        color: #2563eb;
+                                    }
                                 }
                             }
                         }
@@ -2385,41 +2415,32 @@
                         .dropdownList {
                             display: flex;
                             flex-direction: column;
+                            padding: 4px 0;
 
                             .dropdownItem {
-                                background: transparent;
-                                border: none;
-                                width: 100%;
                                 padding: 8px 12px;
-                                text-align: left;
                                 font-size: 13px;
-                                font-weight: 500;
-                                color: #2b303b;
+                                color: #334155;
                                 cursor: pointer;
                                 display: flex;
                                 align-items: center;
-                                gap: 6px;
+                                justify-content: space-between;
                                 transition: all 0.15s ease;
 
                                 &:hover {
-                                    background: #f1f5f9;
+                                    background: #eff6ff;
                                     color: #0f5cf2;
                                 }
 
                                 &.activePair {
-                                    background: #f1f5f9;
+                                    background: #eff6ff;
                                     color: #0f5cf2;
                                     font-weight: 600;
                                 }
 
                                 .checkmark {
                                     color: #0f5cf2;
-                                    font-weight: bold;
                                     font-size: 12px;
-                                    width: 10px;
-                                }
-
-                                .pairText {
                                     flex: 1;
                                 }
                             }
@@ -3776,21 +3797,22 @@
         }
 
         .dropdownMenuFloating {
-            background: #1e222d;
-            border-color: rgba(255, 255, 255, 0.12);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            background: #000000;
+            border-color: rgba(255, 255, 255, 0.18);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85);
         }
 
         .dropdownMenuItem {
-            color: #b2b5be;
+            color: #e2e8f0;
 
             &:hover {
-                background: #2a2e39;
+                background: rgba(41, 121, 255, 0.15);
                 color: #2979ff;
             }
 
             &.activeItem {
-                color: #00b0ff;
+                background: rgba(41, 121, 255, 0.2);
+                color: #2979ff;
             }
         }
 
@@ -4105,17 +4127,20 @@
 
                 .messageRow {
                     .pairBadge {
-                        background: rgba(96, 165, 250, 0.15);
+                        background: rgba(15, 92, 242, 0.15);
                         color: #60a5fa;
+                        border: 1px solid rgba(15, 92, 242, 0.3);
                     }
 
                     .assistantMessage {
-                        background: #252529;
-                        color: #f3f4f6;
+                        background: #000000 !important;
+                        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                        color: #f1f5f9 !important;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 
                         p,
                         li {
-                            color: #f3f4f6;
+                            color: #f1f5f9;
                         }
                     }
                 }
@@ -4226,20 +4251,24 @@
                         }
 
                         .attachFloatingMenu {
-                            background: #0f1420;
+                            background: #000000;
                             border: 1px solid rgba(255, 255, 255, 0.18);
-                            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
+                            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
 
                             .attachMenuItem {
                                 color: #e2e8f0;
 
                                 svg {
-                                    color: #38bdf8;
+                                    color: #2979ff;
                                 }
 
                                 &:hover {
-                                    background: rgba(56, 189, 248, 0.12);
-                                    color: #38bdf8;
+                                    background: rgba(41, 121, 255, 0.15);
+                                    color: #2979ff;
+
+                                    svg {
+                                        color: #2979ff;
+                                    }
                                 }
                             }
                         }
@@ -4248,44 +4277,44 @@
 
                 .dropdownContainer {
                     .dropdownTrigger {
-                        background: #202636;
-                        border-color: rgba(255, 255, 255, 0.12);
-                        color: #d1d4dc;
+                        background: #000000;
+                        border-color: rgba(255, 255, 255, 0.18);
+                        color: #ffffff;
 
                         &:hover {
-                            border-color: rgba(96, 165, 250, 0.4);
-                            background: #283044;
+                            border-color: #2979ff;
+                            background: rgba(41, 121, 255, 0.1);
                             color: #ffffff;
                         }
                     }
 
                     .dropdownMenu {
-                        background: #252529;
-                        border-color: #2d2d34;
-                        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+                        background: #000000;
+                        border-color: rgba(255, 255, 255, 0.18);
+                        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
 
                         .dropdownHeader {
-                            color: rgba(255, 255, 255, 0.4);
-                            border-bottom-color: #2d2d34;
-                            background: #1a1a1e;
+                            color: #64748b;
+                            border-bottom-color: rgba(255, 255, 255, 0.1);
+                            background: #000000;
                         }
 
                         .dropdownList {
                             .dropdownItem {
-                                color: #f3f4f6;
+                                color: #e2e8f0;
 
                                 &:hover {
-                                    background: #2d2d34;
-                                    color: #60a5fa;
+                                    background: rgba(41, 121, 255, 0.15);
+                                    color: #2979ff;
                                 }
 
                                 &.activePair {
-                                    background: #2d2d34;
-                                    color: #60a5fa;
+                                    background: rgba(41, 121, 255, 0.2);
+                                    color: #2979ff;
                                 }
 
                                 .checkmark {
-                                    color: #60a5fa;
+                                    color: #2979ff;
                                 }
                             }
                         }
@@ -4636,3 +4665,2219 @@
         transform: translateY(0) scale(1);
     }
 }
+
+/* Header Badges */
+.badgeBar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }
+
+    .pairBadgeTag {
+        background: rgba(0, 229, 255, 0.12);
+        color: #00e5ff;
+        border: 1px solid rgba(0, 229, 255, 0.3);
+    }
+
+    .tfBadgeTag {
+        background: rgba(255, 214, 0, 0.12);
+        color: #ffd600;
+        border: 1px solid rgba(255, 214, 0, 0.3);
+    }
+}
+
+/* Image Warning Banner */
+.warningBanner {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+/* Indicator Dropdown & Sub-panes Styling */
+.indicatorsDropdownMenu {
+    min-width: 210px;
+    padding: 8px 0;
+    background: #000000 !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
+
+    .dropdownCategoryHeader {
+        padding: 6px 12px 4px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        color: #94a3b8 !important;
+        text-transform: uppercase;
+    }
+
+    .indicatorToggleRow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 12px;
+        cursor: pointer;
+        transition: background 0.15s ease;
+
+        &:hover {
+            background: rgba(41, 121, 255, 0.18) !important;
+        }
+
+        input[type="checkbox"] {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            width: 15px !important;
+            height: 15px !important;
+            background: transparent !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.5) !important;
+            border-radius: 3px !important;
+            cursor: pointer;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.15s ease;
+
+            &:hover {
+                border-color: rgba(255, 255, 255, 0.9) !important;
+            }
+
+            &:checked {
+                background: #2979ff !important;
+                border-color: #2979ff !important;
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    width: 4px;
+                    height: 8px;
+                    border: solid #ffffff;
+                    border-width: 0 2px 2px 0;
+                    transform: rotate(45deg) translate(-1px, -1px);
+                }
+            }
+        }
+
+        .indicatorLabel {
+            font-size: 0.85rem;
+            color: #ffffff !important;
+            font-weight: 600;
+        }
+    }
+}
+
+/* Chart Canvas Area & Sub-panes Layout */
+.chartCanvasArea {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #08090c;
+}
+
+.mainChartContainer {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    transition: all 0.2s ease;
+
+    &.hasSubPanes {
+        flex: 1 1 65%;
+    }
+}
+
+.subPanesWrapper {
+    width: 100%;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    background: #08090c;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.subPaneItem {
+    position: relative;
+    width: 100%;
+    height: 125px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.subPaneHeader {
+    position: absolute;
+    top: 6px;
+    left: 12px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.subPaneTitle {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.subPaneCanvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* TradingView Style Floating Indicator Widget Legend Pills */
+.indicatorWidgetsContainer {
+    position: absolute;
+    top: 84px;
+    left: 12px;
+    z-index: 45;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    pointer-events: auto;
+}
+
+.indicatorWidgetPill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #e2e8f0;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+    user-select: none;
+    transition: all 0.15s ease;
+
+    &:hover {
+        border-color: rgba(41, 121, 255, 0.5);
+        background: #000000;
+    }
+}
+
+.indicatorDot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.indicatorWidgetTitle {
+    letter-spacing: 0.2px;
+    color: #f1f5f9;
+    font-size: 11.5px;
+}
+
+.indicatorActionBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.15s ease;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #2979ff;
+    }
+
+    &.dimmed {
+        color: #64748b;
+        opacity: 0.6;
+    }
+
+    &.trashBtn:hover {
+        color: #ef5350;
+        background: rgba(239, 83, 80, 0.15);
+    }
+}
+
+.subPaneActions {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    pointer-events: auto;
+}
+
+/* Comprehensive Light Theme Override for Chart Pane & Floating UI Elements */
+.lightThemePane {
+    background: #ffffff !important;
+    color: #0f172a !important;
+
+    .chartHeaderControls {
+        background: rgba(255, 255, 255, 0.95) !important;
+        border-bottom-color: #cbd5e1 !important;
+        color: #0f172a !important;
+
+        .livePriceText {
+            color: #0f172a !important;
+        }
+
+        .iconControlBtn {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+
+            &:hover,
+            &.activeControl {
+                background: #f1f5f9 !important;
+                color: #2563eb !important;
+            }
+        }
+    }
+
+    .insideChartControlPill {
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+        color: #0f172a !important;
+
+        .pillSelect,
+        .pillSelectIcon,
+        .headerTitleBtn,
+        .pillTimeframeBtn,
+        .pillChartTypeBtn,
+        .pillIconBtn {
+            color: #0f172a !important;
+
+            &:hover,
+            &.activeControl {
+                background: rgba(0, 0, 0, 0.06) !important;
+                color: #2563eb !important;
+            }
+        }
+
+        .pillDivider {
+            background: #cbd5e1 !important;
+        }
+
+        .selectArrow {
+            color: #64748b !important;
+        }
+    }
+
+    .dropdownMenuFloating {
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15) !important;
+        color: #0f172a !important;
+
+        .dropdownMenuItem {
+            color: #0f172a !important;
+
+            &:hover {
+                background: #f1f5f9 !important;
+                color: #2563eb !important;
+            }
+
+            &.activeItem {
+                background: #e2e8f0 !important;
+                color: #2563eb !important;
+                font-weight: 700;
+            }
+
+            svg {
+                color: #64748b !important;
+            }
+        }
+    }
+
+    .tickerSearchDropdownMenu {
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15) !important;
+        color: #0f172a !important;
+
+        .searchIcon {
+            color: #64748b !important;
+        }
+
+        .tickerSearchInput {
+            background: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+
+            &::placeholder {
+                color: #94a3b8 !important;
+            }
+
+            &:focus {
+                border-color: #2563eb !important;
+            }
+        }
+
+        .categoryTabBtn {
+            color: #64748b !important;
+
+            &:hover {
+                background: #f1f5f9 !important;
+                color: #0f172a !important;
+            }
+
+            &.activeTab {
+                background: #2563eb !important;
+                color: #ffffff !important;
+            }
+        }
+
+        .tickerItemRow {
+            color: #0f172a !important;
+
+            &:hover {
+                background: #f1f5f9 !important;
+            }
+
+            .tickerSymbolName {
+                color: #0f172a !important;
+            }
+
+            .tickerSubName {
+                color: #64748b !important;
+            }
+        }
+    }
+
+    .indicatorWidgetPill {
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #0f172a !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+
+        .indicatorWidgetTitle {
+            color: #0f172a !important;
+        }
+
+        .indicatorActionBtn {
+            color: #64748b !important;
+
+            &:hover {
+                background: rgba(0, 0, 0, 0.06) !important;
+                color: #2563eb !important;
+            }
+        }
+
+        &:hover {
+            border-color: #2563eb !important;
+            background: #ffffff !important;
+        }
+    }
+
+    .timeframeBar {
+        background: #ffffff !important;
+        border-top-color: #e2e8f0 !important;
+    }
+
+    .tfBtn {
+        color: #64748b !important;
+
+        &:hover {
+            color: #0f172a !important;
+            background: #f1f5f9 !important;
+        }
+
+        &.activeTf {
+            background: #2563eb !important;
+            color: #ffffff !important;
+        }
+    }
+}
+
+/* TradingView Style Indicator Settings Modal */
+.indicatorModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+}
+
+.indicatorModalCard {
+    width: 380px;
+    max-width: 92vw;
+    background: #000000;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.indicatorModalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    h3 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: 0.3px;
+    }
+
+    .closeBtn {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px;
+        border-radius: 4px;
+        transition: color 0.15s;
+
+        &:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+    }
+}
+
+.indicatorModalTabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: #08090c;
+}
+
+.indicatorTabBtn {
+    background: transparent;
+    border: none;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #94a3b8;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s ease;
+
+    &:hover {
+        color: #ffffff;
+    }
+
+    &.activeTab {
+        color: #2979ff;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #2979ff;
+        }
+    }
+}
+
+.indicatorModalBody {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+.settingFieldRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #cbd5e1;
+    }
+
+    .settingInput,
+    .settingSelect {
+        background: #131722;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: #ffffff;
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 13px;
+        width: 120px;
+        outline: none;
+        transition: border-color 0.15s ease;
+
+        &:focus {
+            border-color: #2979ff;
+        }
+    }
+
+    .colorInputWrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            cursor: pointer;
+            background: transparent;
+        }
+    }
+}
+
+.indicatorModalFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: #08090c;
+}
+
+/* ==========================================================================
+   TradingView-style Indicators Dialog Modal (Popup with Search & Categories)
+   ========================================================================== */
+.indicatorsModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.indicatorsModalCard {
+    width: 680px;
+    max-width: 95vw;
+    height: 540px;
+    max-height: 85vh;
+    background: #000000;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.95);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+    &.lightModal {
+        background: #ffffff;
+        border-color: #e2e8f0;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
+
+        .indicatorsModalHeader {
+            border-bottom-color: #f1f5f9;
+            background: #ffffff;
+
+            .headerTitleGroup h3 {
+                color: #0f172a;
+            }
+
+            .headerIcon {
+                color: #2563eb;
+            }
+
+            .closeBtn {
+                color: #64748b;
+                &:hover {
+                    background: #f1f5f9;
+                    color: #0f172a;
+                }
+            }
+        }
+
+        .indicatorsSearchBarArea {
+            background: #f8fafc;
+            border-bottom-color: #e2e8f0;
+
+            .searchIcon {
+                color: #94a3b8;
+            }
+
+            .indicatorsSearchInput {
+                color: #0f172a;
+                &::placeholder {
+                    color: #94a3b8;
+                }
+            }
+
+            .clearSearchBtn {
+                color: #64748b;
+                &:hover {
+                    color: #0f172a;
+                }
+            }
+        }
+
+        .indicatorsSidebar {
+            background: #f8fafc;
+            border-right-color: #e2e8f0;
+
+            .sidebarTabBtn {
+                color: #64748b;
+
+                .tabCountBadge {
+                    background: #e2e8f0;
+                    color: #475569;
+                }
+
+                &:hover {
+                    background: #eff6ff;
+                    color: #2563eb;
+                }
+
+                &.activeTab {
+                    background: #2563eb;
+                    color: #ffffff;
+
+                    .tabCountBadge {
+                        background: rgba(255, 255, 255, 0.25);
+                        color: #ffffff;
+                    }
+                }
+            }
+        }
+
+        .indicatorsListArea {
+            background: #ffffff;
+
+            .noIndicatorsFound {
+                color: #64748b;
+                h4 { color: #0f172a; }
+                p { color: #64748b; }
+            }
+        }
+
+        .indicatorListItemRow {
+            border-bottom-color: #f1f5f9;
+
+            .indicatorRowName {
+                color: #0f172a;
+            }
+
+            .indicatorCategoryTag {
+                color: #94a3b8;
+            }
+
+            .indicatorActiveDot {
+                background: #2563eb;
+                box-shadow: 0 0 6px rgba(37, 99, 235, 0.6);
+            }
+
+            &:hover {
+                background: #eff6ff;
+
+                .indicatorRowName {
+                    color: #2563eb;
+                }
+            }
+
+            &.indicatorRowActive {
+                background: #f0f7ff;
+            }
+        }
+
+        .indicatorsModalFooter {
+            background: #f8fafc;
+            border-top-color: #e2e8f0;
+
+            .footerLeftStatus {
+                color: #64748b;
+            }
+
+            .footerDoneBtn {
+                background: #2563eb;
+                color: #ffffff;
+
+                &:hover {
+                    background: #1d4ed8;
+                }
+            }
+        }
+    }
+}
+
+.indicatorsModalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: #000000;
+
+    .headerTitleGroup {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .headerIcon {
+            color: #2979ff;
+            flex-shrink: 0;
+        }
+
+        h3 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+    }
+
+    .closeBtn {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+    }
+}
+
+.indicatorsSearchBarArea {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 10px 18px;
+    background: #0a0d14;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    .searchIcon {
+        position: absolute;
+        left: 30px;
+        color: #94a3b8;
+        pointer-events: none;
+    }
+
+    .indicatorsSearchInput {
+        width: 100%;
+        height: 38px;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 6px;
+        padding: 0 36px 0 38px;
+        color: #ffffff;
+        font-size: 13.5px;
+        outline: none;
+        transition: border-color 0.15s ease, background 0.15s ease;
+
+        &:focus {
+            border-color: #2979ff;
+            background: rgba(41, 121, 255, 0.05);
+        }
+
+        &::placeholder {
+            color: #64748b;
+        }
+    }
+
+    .clearSearchBtn {
+        position: absolute;
+        right: 28px;
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        font-size: 14px;
+        cursor: pointer;
+        padding: 4px;
+
+        &:hover {
+            color: #ffffff;
+        }
+    }
+}
+
+.indicatorsModalBody {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.indicatorsSidebar {
+    width: 200px;
+    background: #05070a;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    padding: 10px 8px;
+    gap: 4px;
+    flex-shrink: 0;
+
+    .sidebarTabBtn {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 9px 12px;
+        background: transparent;
+        border: none;
+        border-radius: 6px;
+        color: #94a3b8;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        text-align: left;
+        transition: all 0.15s ease;
+
+        .tabCountBadge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+        }
+
+        &:hover {
+            background: rgba(41, 121, 255, 0.12);
+            color: #ffffff;
+        }
+
+        &.activeTab {
+            background: #2979ff;
+            color: #ffffff;
+            font-weight: 600;
+
+            .tabCountBadge {
+                background: rgba(255, 255, 255, 0.25);
+                color: #ffffff;
+            }
+        }
+    }
+}
+
+.indicatorsListArea {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    background: #000000;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(41, 121, 255, 0.3);
+        border-radius: 4px;
+    }
+}
+
+.indicatorsFlatList {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.indicatorListItemRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    user-select: none;
+
+    &:hover {
+        background: rgba(41, 121, 255, 0.12);
+
+        .indicatorRowName {
+            color: #2979ff;
+        }
+    }
+
+    &.indicatorRowActive {
+        background: rgba(41, 121, 255, 0.07);
+    }
+
+    .rowLeftContent {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .indicatorRowName {
+        font-size: 13.5px;
+        font-weight: 500;
+        color: #ffffff;
+        letter-spacing: -0.01em;
+        transition: color 0.12s ease;
+    }
+
+    &.indicatorRowActive {
+        background: rgba(41, 121, 255, 0.22) !important;
+        border-left: 3px solid #2979ff;
+        padding-left: 17px;
+
+        .indicatorRowName {
+            color: #2979ff !important;
+            font-weight: 700 !important;
+        }
+
+        .indicatorCategoryTag {
+            color: #60a5fa !important;
+        }
+    }
+
+    .rowLeftContent {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .rowRightContent {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .indicatorCategoryTag {
+        font-size: 11.5px;
+        color: #64748b;
+        font-weight: 400;
+    }
+
+    .indicatorActiveBadge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #2979ff;
+        color: #ffffff;
+        box-shadow: 0 0 8px rgba(41, 121, 255, 0.8);
+        flex-shrink: 0;
+    }
+}
+
+.indicatorsModalFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: #05070a;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+    .footerLeftStatus {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12.5px;
+        color: #94a3b8;
+        font-weight: 500;
+
+        .activePillDot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+        }
+    }
+
+    .footerDoneBtn {
+        padding: 7px 18px;
+        background: #2979ff;
+        border: none;
+        border-radius: 4px;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+
+        &:hover {
+            background: #1e60d4;
+        }
+    }
+}
+
+/* 6 Clarification Option Buttons */
+.clarificationOptionsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+    width: 100%;
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 6 Clarification Option Buttons */
+.clarificationOptionsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+    width: 100%;
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.clarificationOptionBtn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #0f172a;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+
+    &:hover {
+        background: #f0f7ff;
+        border-color: #3b82f6;
+        box-shadow: 0 4px 16px rgba(15, 92, 242, 0.15);
+        transform: translateY(-1px);
+
+        .clarificationOptionLabel {
+            color: #0f5cf2;
+        }
+
+        .clarificationOptionIcon {
+            background: rgba(15, 92, 242, 0.16);
+            border-color: rgba(15, 92, 242, 0.4);
+            color: #0f5cf2;
+            transform: scale(1.05);
+        }
+    }
+}
+
+.clarificationOptionIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(15, 92, 242, 0.08);
+    border: 1px solid rgba(15, 92, 242, 0.2);
+    color: #0f5cf2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.clarificationOptionText {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.clarificationOptionLabel {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    transition: color 0.2s ease;
+}
+
+.clarificationOptionSub {
+    font-size: 11px;
+    font-weight: 400;
+    color: #64748b;
+    line-height: 1.25;
+    transition: color 0.2s ease;
+}
+
+/* Download Full Report Button Row */
+.downloadReportRow {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.downloadFullReportBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 10px;
+    background: #0f5cf2;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(15, 92, 242, 0.3);
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: #0c4ac2;
+        box-shadow: 0 4px 14px rgba(15, 92, 242, 0.45);
+        transform: translateY(-1px);
+    }
+}
+
+/* Chat Markdown Global Typography in Assistant Message */
+.chatMarkdown {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #1e293b;
+
+    h1, h2, h3 {
+        font-size: 15px;
+        font-weight: 700;
+        color: #0f5cf2;
+        margin: 14px 0 8px 0;
+        letter-spacing: -0.2px;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
+    h4, h5, h6 {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 12px 0 6px 0;
+    }
+
+    p {
+        margin: 0 0 10px 0;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    ul, ol {
+        margin: 0 0 10px 0;
+        padding-left: 20px;
+
+        li {
+            margin-bottom: 4px;
+            color: #1e293b;
+
+            &::marker {
+                color: #0f5cf2;
+            }
+        }
+    }
+
+    strong, b {
+        color: #0f172a;
+        font-weight: 700;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 14px 0;
+        font-size: 13px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        th {
+            background: #f1f5f9;
+            color: #0f5cf2;
+            font-weight: 700;
+        }
+
+        td {
+            color: #1e293b;
+            background: #ffffff;
+        }
+    }
+
+    hr {
+        border: 0;
+        height: 1px;
+        background: #e2e8f0;
+        margin: 14px 0;
+    }
+
+    code {
+        padding: 2px 6px;
+        border-radius: 6px;
+        background: #f1f5f9;
+        color: #0f5cf2;
+        font-size: 12.5px;
+        font-family: monospace;
+    }
+}
+
+/* Deep Analysis Composite Card Layout */
+.deepAnalysisCardWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+}
+
+.executiveSummaryCard {
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.analysisCenterCard {
+    padding: 18px 20px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.analysisCenterHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e2e8f0;
+
+    .analysisCenterIcon {
+        font-size: 16px;
+        line-height: 1;
+    }
+
+    .analysisCenterTitle {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+        letter-spacing: -0.2px;
+    }
+}
+
+/* Inline Dynamic Widgets (Candlestick & Sentiment Radar) */
+.inlineWidgetCard {
+    margin: 16px 0;
+    padding: 16px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.inlineWidgetHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.inlineWidgetTitle {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: 0.2px;
+}
+
+.srToggleBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 8px;
+    background: rgba(15, 92, 242, 0.08);
+    color: #0f5cf2;
+    border: 1px solid rgba(15, 92, 242, 0.2);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: rgba(15, 92, 242, 0.16);
+        color: #0f5cf2;
+    }
+
+    &.srToggleActive {
+        background: rgba(16, 185, 129, 0.15);
+        color: #059669;
+        border-color: rgba(16, 185, 129, 0.4);
+    }
+}
+
+/* Dark Theme Overrides for Components */
+:global(.dark),
+.aiAssistant.dark,
+.aiAssistant.isDark {
+    .clarificationOptionBtn {
+        background: #000000;
+        border-color: rgba(255, 255, 255, 0.12);
+        color: #f1f5f9;
+
+        &:hover {
+            background: rgba(15, 92, 242, 0.12);
+            border-color: rgba(96, 165, 250, 0.5);
+
+            .clarificationOptionLabel {
+                color: #93c5fd;
+            }
+
+            .clarificationOptionIcon {
+                background: rgba(15, 92, 242, 0.3);
+                border-color: rgba(96, 165, 250, 0.5);
+                color: #93c5fd;
+            }
+        }
+
+        .clarificationOptionIcon {
+            background: rgba(15, 92, 242, 0.15);
+            border-color: rgba(15, 92, 242, 0.3);
+            color: #60a5fa;
+        }
+
+        .clarificationOptionLabel {
+            color: #f1f5f9;
+        }
+
+        .clarificationOptionSub {
+            color: #94a3b8;
+        }
+    }
+
+    .downloadReportRow {
+        border-top-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .downloadFullReportBtn {
+        background: #0f5cf2;
+        color: #ffffff;
+        box-shadow: 0 2px 10px rgba(15, 92, 242, 0.4);
+
+        &:hover {
+            background: #0c4ac2;
+        }
+    }
+
+    .chatMarkdown {
+        color: #f1f5f9 !important;
+
+        h1, h2, h3 {
+            color: #60a5fa !important;
+        }
+
+        h4, h5, h6 {
+            color: #93c5fd !important;
+        }
+
+        p, li {
+            color: #f1f5f9 !important;
+
+            &::marker {
+                color: #60a5fa !important;
+            }
+        }
+
+        strong, b {
+            color: #ffffff !important;
+        }
+
+        table {
+            border-color: rgba(255, 255, 255, 0.15) !important;
+
+            th, td {
+                border-color: rgba(255, 255, 255, 0.15) !important;
+            }
+
+            th {
+                background: #121318 !important;
+                color: #60a5fa !important;
+            }
+
+            td {
+                color: #f1f5f9 !important;
+                background: #000000 !important;
+            }
+        }
+
+        hr {
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        code {
+            background: rgba(15, 92, 242, 0.2) !important;
+            color: #93c5fd !important;
+        }
+    }
+
+    .executiveSummaryCard {
+        background: #000000 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    .analysisCenterCard {
+        background: #000000 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    .analysisCenterHeader {
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+
+        .analysisCenterTitle {
+            color: #ffffff !important;
+        }
+    }
+
+    .inlineWidgetCard {
+        background: #000000 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    .inlineWidgetHeader {
+        border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .inlineWidgetTitle {
+        color: #93c5fd !important;
+    }
+
+    .srToggleBtn {
+        background: rgba(255, 255, 255, 0.06);
+        color: #94a3b8;
+        border-color: rgba(255, 255, 255, 0.1);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        &.srToggleActive {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+    }
+}
+
+/* Vision AI Accordion Cards */
+.visionAnalysisContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin: 8px 0;
+}
+
+.visionWarningCard {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #f59e0b;
+    font-size: 12.5px;
+    font-weight: 500;
+}
+
+.visionSummaryCard {
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.visionAccordionList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.visionAccordionCard {
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+    &.visionAccordionOpen {
+        border-color: #3b82f6;
+    }
+}
+
+.visionAccordionHeader {
+    width: 100%;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s ease;
+
+    &:hover {
+        background: #f8fafc;
+    }
+}
+
+.visionHeaderLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.visionSectionIcon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.visionSectionTitle {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.visionTrendBadges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 6px;
+}
+
+.visionTrendType {
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border-radius: 6px;
+    background: rgba(15, 92, 242, 0.1);
+    color: #0f5cf2;
+    border: 1px solid rgba(15, 92, 242, 0.25);
+
+    &.badgeBullish {
+        background: rgba(16, 185, 129, 0.12);
+        color: #059669;
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    &.badgeBearish {
+        background: rgba(239, 68, 68, 0.12);
+        color: #dc2626;
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+}
+
+.visionTrendStrength {
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+.visionChevron {
+    font-size: 10px;
+    color: #94a3b8;
+    transition: transform 0.2s ease;
+
+    &.visionChevronOpen {
+        transform: rotate(180deg);
+        color: #0f5cf2;
+    }
+}
+
+.visionAccordionBody {
+    padding: 12px 16px 16px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #1e293b;
+    background: #fafbff;
+}
+
+.visionSectionDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.visionDescText {
+    margin: 0;
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.visionSummaryText {
+    margin: 0;
+    color: #334155;
+    font-size: 13px;
+    font-style: italic;
+}
+
+.visionObservationText {
+    margin: 0;
+    color: #0369a1;
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.visionOverviewCard {
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.03);
+    border: 1px solid #e2e8f0;
+}
+
+.visionOverviewText {
+    margin: 0;
+    color: #475569;
+    font-size: 12.5px;
+    line-height: 1.6;
+}
+
+/* Badges */
+.visionBadgesRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.visionBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+    border: 1px solid transparent;
+}
+
+.badgeGreen {
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.badgeRed {
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.badgeAmber {
+    background: rgba(245, 158, 11, 0.12);
+    color: #d97706;
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.badgeBlue {
+    background: rgba(15, 92, 242, 0.1);
+    color: #0f5cf2;
+    border-color: rgba(15, 92, 242, 0.25);
+}
+
+.badgeSlate {
+    background: #f1f5f9;
+    color: #475569;
+    border-color: #e2e8f0;
+    text-transform: none;
+    font-weight: 600;
+}
+
+/* Market Structure Swing Grid */
+.visionSwingGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+}
+
+.visionSwingBox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.visionSwingLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.visionPatternText {
+    margin: 0;
+    font-size: 12.5px;
+    color: #0284c7;
+    line-height: 1.5;
+}
+
+/* Support & Resistance Groups */
+.visionLevelsGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.visionGroupTitleGreen {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #059669;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.visionGroupTitleRed {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #dc2626;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.visionCardsCol {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.visionLevelCardGreen {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.visionLevelCardRed {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.visionLevelInfo {
+    margin: 0;
+    font-size: 12px;
+    color: #0369a1;
+    line-height: 1.4;
+
+    strong {
+        color: #0f172a;
+    }
+}
+
+/* Supply & Demand Zones */
+.visionZoneCardGreen {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.visionZoneCardRed {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.visionZoneText {
+    margin: 0;
+    font-size: 12px;
+    color: #334155;
+    line-height: 1.4;
+
+    strong {
+        color: #0284c7;
+    }
+}
+
+.visionCountBadge {
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+/* Actionable Zones */
+.visionActionCardGreen {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.visionActionTitleGreen {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #059669;
+}
+
+.visionActionCardRed {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.visionActionTitleRed {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #dc2626;
+}
+
+.visionActionText {
+    margin: 0;
+    font-size: 12px;
+    color: #334155;
+    line-height: 1.4;
+}
+
+.visionActionSub {
+    margin: 0;
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+.visionFieldRow {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.visionFieldKey {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 12.5px;
+}
+
+.visionFieldValue {
+    color: #334155;
+    font-size: 12.5px;
+}
+
+.visionFieldBlock {
+    margin-top: 4px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+
+.visionBlockHeading {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #0f5cf2;
+    margin-bottom: 4px;
+    text-transform: capitalize;
+}
+
+.visionBlockContent {
+    font-size: 12.5px;
+}
+
+.visionList {
+    margin: 4px 0 0;
+    padding-left: 18px;
+
+    li {
+        color: #334155;
+        margin-bottom: 2px;
+    }
+}
+
+.visionObjectGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Dark Theme Overrides for Vision AI */
+:global(.dark),
+.aiAssistant.dark,
+.aiAssistant.isDark {
+    .visionSummaryCard {
+        background: #000000 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    .visionOverviewCard {
+        background: #000000 !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .visionOverviewText {
+        color: #94a3b8 !important;
+    }
+
+    .visionAccordionCard {
+        background: #000000 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+
+        &.visionAccordionOpen {
+            border-color: rgba(96, 165, 250, 0.5) !important;
+        }
+    }
+
+    .visionAccordionHeader {
+        &:hover {
+            background: rgba(15, 92, 242, 0.08) !important;
+        }
+    }
+
+    .visionSectionTitle {
+        color: #ffffff !important;
+    }
+
+    .visionChevron {
+        color: #94a3b8 !important;
+
+        &.visionChevronOpen {
+            color: #60a5fa !important;
+        }
+    }
+
+    .visionAccordionBody {
+        border-top-color: rgba(255, 255, 255, 0.08) !important;
+        background: #000000 !important;
+        color: #f1f5f9 !important;
+    }
+
+    .visionDescText,
+    .visionSummaryText {
+        color: #f1f5f9 !important;
+    }
+
+    .visionObservationText {
+        color: #7dd3fc !important;
+    }
+
+    .badgeSlate {
+        background: #14161d !important;
+        color: #94a3b8 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    .visionSwingBox {
+        background: #08090c !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .visionSwingLabel {
+        color: #94a3b8 !important;
+    }
+
+    .visionPatternText {
+        color: #38bdf8 !important;
+    }
+
+    .visionGroupTitleGreen {
+        color: #34d399 !important;
+    }
+
+    .visionGroupTitleRed {
+        color: #f87171 !important;
+    }
+
+    .visionLevelCardGreen,
+    .visionZoneCardGreen,
+    .visionActionCardGreen {
+        background: rgba(16, 185, 129, 0.08) !important;
+        border-color: rgba(16, 185, 129, 0.3) !important;
+    }
+
+    .visionLevelCardRed,
+    .visionZoneCardRed,
+    .visionActionCardRed {
+        background: rgba(239, 68, 68, 0.08) !important;
+        border-color: rgba(239, 68, 68, 0.3) !important;
+    }
+
+    .visionLevelInfo {
+        color: #7dd3fc !important;
+
+        strong {
+            color: #ffffff !important;
+        }
+    }
+
+    .visionZoneText {
+        color: #e2e8f0 !important;
+
+        strong {
+            color: #38bdf8 !important;
+        }
+    }
+
+    .visionActionTitleGreen {
+        color: #34d399 !important;
+    }
+
+    .visionActionTitleRed {
+        color: #f87171 !important;
+    }
+
+    .visionActionText {
+        color: #e2e8f0 !important;
+    }
+
+    .visionActionSub {
+        color: #94a3b8 !important;
+    }
+
+    .visionCountBadge {
+        background: #14161d !important;
+        color: #94a3b8 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    .visionFieldKey {
+        color: #93c5fd !important;
+    }
+
+    .visionFieldValue {
+        color: #f1f5f9 !important;
+    }
+
+    .visionFieldBlock {
+        background: #0a0b0e !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .visionBlockHeading {
+        color: #60a5fa !important;
+    }
+
+    .visionList li {
+        color: #f1f5f9 !important;
+    }
+}
+

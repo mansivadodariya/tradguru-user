@@ -8,15 +8,57 @@ import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
 import SymbolIcon from '@/components/SymbolIcon';
 import TickerSearchDropdown from '@/components/TickerSearchDropdown';
-import { getSymbolPrecision, fetchChartCandlesOnce, subscribeLiveCandles } from '@/lib/chartStore';
+import { getSymbolPrecision, applySymbolPrecision, fetchChartCandlesOnce, subscribeLiveCandles } from '@/lib/chartStore';
 import ChartLoaderOverlay from './components/ChartLoaderOverlay';
 import ChartSettingsModal from './components/ChartSettingsModal';
+import IndicatorSettingsModal from './IndicatorSettingsModal';
+import IndicatorsModal from './components/IndicatorsModal';
 
-export { getSymbolPrecision };
+export { getSymbolPrecision, applySymbolPrecision };
 export const fetchChartDataOnce = fetchChartCandlesOnce;
+
+export const DEFAULT_INDICATOR_CONFIGS = {
+    ema10: { length: 10, source: 'close', color: '#00E5FF', lineWidth: 1.5 },
+    ema20: { length: 20, source: 'close', color: '#FFD600', lineWidth: 1.5 },
+    ema50: { length: 50, source: 'close', color: '#AA00FF', lineWidth: 1.5 },
+    bollinger: { length: 20, stdDev: 2, source: 'close', color: 'rgba(41, 121, 255, 0.7)', lineWidth: 1 },
+    pivot: { type: 'Standard', pColor: '#FFD600', rColor: '#EF5350', sColor: '#26A69A', lineWidth: 1 },
+    rsi: { length: 14, overbought: 70, oversold: 30, color: '#AA00FF', lineWidth: 1.8 },
+    macd: { fast: 12, slow: 26, signal: 9, macdColor: '#00E5FF', signalColor: '#FFD600', lineWidth: 1.8 },
+    stochastic: { kPeriod: 14, dPeriod: 3, smooth: 3, kColor: '#00E5FF', dColor: '#FFD600', lineWidth: 1.8 },
+};
+
+const EyeIcon = () => (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+        <circle cx="12" cy="12" r="3" />
+    </svg>
+);
+
+const EyeOffIcon = () => (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+        <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+);
+
+const GearIcon = () => (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+);
+
+const TrashIcon = () => (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="3 6 5 6 21 6" />
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </svg>
+);
 
 // Symbol Database with Names & Categories (TradingView Ticker Search Style)
 export const SYMBOL_DATABASE = [
+    { symbol: 'No Pair', name: 'No Specific Currency Pair', category: 'all' },
     // Forex
     { symbol: 'EUR/USD', name: 'Euro / US Dollar', category: 'forex' },
     { symbol: 'GBP/USD', name: 'British Pound / US Dollar', category: 'forex' },
@@ -63,12 +105,12 @@ export const PAIR_GROUPS = [
         pairs: ['CHF/JPY', 'CAD/JPY', 'AUD/JPY', 'NZD/JPY'],
     },
     {
-        label: 'OTHER CROSSES',
-        pairs: ['AUD/CHF', 'AUD/CAD', 'AUD/NZD', 'CAD/CHF', 'NZD/CHF'],
+        label: 'COMMODITIES & CRYPTO',
+        pairs: ['BTC/USD', 'ETH/USD', 'SOL/USD', 'XRP/USD', 'XAU/USD', 'XAG/USD', 'WTI/USD'],
     },
 ];
 
-export const ALL_PAIRS = PAIR_GROUPS.flatMap((g) => g.pairs);
+export const ALL_PAIRS = ['No Pair', ...PAIR_GROUPS.flatMap((g) => g.pairs)];
 
 export const TIMEFRAMES = [
     { label: '1m', value: '1m' },
@@ -87,8 +129,8 @@ export const CHART_TYPES = [
 ];
 
 // Helper to normalize symbol string (e.g. "XAU/USD" -> "XAUUSD")
-export function normalizeSymbol(sym) {
-    if (!sym) return 'XAUUSD';
+export function normalizeSymbol(sym, defaultFallback = '') {
+    if (!sym || sym === 'No Pair' || sym === 'NO_PAIR' || String(sym).toUpperCase().includes('NO PAIR')) return defaultFallback;
     return sym.toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
@@ -189,6 +231,206 @@ function generateMockCandles(count = 600, basePrice = 2700, tf = '15m', symbolSt
     return candles;
 }
 
+// 1-Year Analysis Standard Moving Average Presets
+export const DEFAULT_MAIN_OVERLAYS = [
+    // EMA Presets
+    { id: 'ema_20',  name: 'EMA 20',  type: 'EMA', length: 20,  period: 20,  color: '#FFD600', source: 'close', lineWidth: 1.5, visible: true },
+    { id: 'ema_50',  name: 'EMA 50',  type: 'EMA', length: 50,  period: 50,  color: '#AA00FF', source: 'close', lineWidth: 1.5, visible: false },
+    { id: 'ema_200', name: 'EMA 200', type: 'EMA', length: 200, period: 200, color: '#FF1744', source: 'close', lineWidth: 1.5, visible: true },
+    // SMA Presets
+    { id: 'sma_20',  name: 'SMA 20',  type: 'SMA', length: 20,  period: 20,  color: '#00E5FF', source: 'close', lineWidth: 1.5, visible: false },
+    { id: 'sma_50',  name: 'SMA 50',  type: 'SMA', length: 50,  period: 50,  color: '#FF9100', source: 'close', lineWidth: 1.5, visible: false },
+    { id: 'sma_200', name: 'SMA 200', type: 'SMA', length: 200, period: 200, color: '#00E676', source: 'close', lineWidth: 1.5, visible: false },
+];
+
+export function calculateEMA(candles, period = 20, source = 'close') {
+    if (!candles || candles.length < period) return [];
+    const getVal = (c) => (c && c[source] !== undefined) ? Number(c[source]) : (c && c.close !== undefined ? Number(c.close) : 0);
+    const k = 2 / (period + 1);
+
+    let sum = 0;
+    for (let i = 0; i < period; i++) {
+        sum += getVal(candles[i]);
+    }
+    let ema = sum / period;
+    const result = [{ time: candles[period - 1].time, value: Number(ema.toFixed(5)) }];
+
+    for (let i = period; i < candles.length; i++) {
+        const val = getVal(candles[i]);
+        ema = (val * k) + (ema * (1 - k));
+        result.push({ time: candles[i].time, value: Number(ema.toFixed(5)) });
+    }
+    return result;
+}
+
+export function calculateSMA(candles, period = 20, source = 'close') {
+    if (!candles || candles.length < period) return [];
+    const getVal = (c) => (c && c[source] !== undefined) ? Number(c[source]) : (c && c.close !== undefined ? Number(c.close) : 0);
+    const result = [];
+    for (let i = period - 1; i < candles.length; i++) {
+        let sum = 0;
+        for (let j = 0; j < period; j++) {
+            sum += getVal(candles[i - j]);
+        }
+        result.push({ time: candles[i].time, value: Number((sum / period).toFixed(5)) });
+    }
+    return result;
+}
+
+export function getIndicatorData(candles, type, period = 20, source = 'close') {
+    if (type === 'SMA') return calculateSMA(candles, period, source);
+    return calculateEMA(candles, period, source);
+}
+
+export const MA_COLOR_PALETTE = ['#FFD600', '#00E5FF', '#AA00FF', '#FF9100', '#FF1744', '#00E676', '#26A69A', '#E91E63', '#2979FF'];
+
+function calculateBollingerBands(candles, period = 20, stdDevMult = 2, source = 'close') {
+    const upper = [];
+    const lower = [];
+    const middle = [];
+    if (!candles || candles.length < period) return { upper, lower, middle };
+    const getVal = (c) => (c && c[source] !== undefined) ? c[source] : c.close;
+
+    for (let i = period - 1; i < candles.length; i++) {
+        const slice = candles.slice(i - period + 1, i + 1);
+        const mean = slice.reduce((sum, c) => sum + getVal(c), 0) / period;
+        const variance = slice.reduce((sum, c) => sum + Math.pow(getVal(c) - mean, 2), 0) / period;
+        const stdDev = Math.sqrt(variance);
+        const time = candles[i].time;
+        middle.push({ time, value: mean });
+        upper.push({ time, value: mean + stdDevMult * stdDev });
+        lower.push({ time, value: mean - stdDevMult * stdDev });
+    }
+    return { upper, lower, middle };
+}
+
+function calculatePivotPoints(candles) {
+    if (!candles || candles.length === 0) return { P: [], R1: [], S1: [], R2: [], S2: [] };
+    const lastBar = candles[candles.length - 1];
+    const H = lastBar.high;
+    const L = lastBar.low;
+    const C = lastBar.close;
+
+    const P_val = (H + L + C) / 3;
+    const R1_val = 2 * P_val - L;
+    const S1_val = 2 * P_val - H;
+    const R2_val = P_val + (H - L);
+    const S2_val = P_val - (H - L);
+
+    const firstTime = candles[0].time;
+    const lastTime = candles[candles.length - 1].time;
+
+    return {
+        P: [{ time: firstTime, value: P_val }, { time: lastTime, value: P_val }],
+        R1: [{ time: firstTime, value: R1_val }, { time: lastTime, value: R1_val }],
+        S1: [{ time: firstTime, value: S1_val }, { time: lastTime, value: S1_val }],
+        R2: [{ time: firstTime, value: R2_val }, { time: lastTime, value: R2_val }],
+        S2: [{ time: firstTime, value: S2_val }, { time: lastTime, value: S2_val }],
+    };
+}
+
+function calculateRSI(candles, period = 14) {
+    if (!candles || candles.length <= period) return [];
+    let gains = 0;
+    let losses = 0;
+
+    for (let i = 1; i <= period; i++) {
+        const change = candles[i].close - candles[i - 1].close;
+        if (change >= 0) gains += change;
+        else losses -= change;
+    }
+
+    let avgGain = gains / period;
+    let avgLoss = losses / period;
+    const result = [];
+    const firstRs = avgLoss === 0 ? 100 : avgGain / avgLoss;
+    result.push({ time: candles[period].time, value: 100 - 100 / (1 + firstRs) });
+
+    for (let i = period + 1; i < candles.length; i++) {
+        const change = candles[i].close - candles[i - 1].close;
+        const gain = change >= 0 ? change : 0;
+        const loss = change < 0 ? -change : 0;
+
+        avgGain = (avgGain * (period - 1) + gain) / period;
+        avgLoss = (avgLoss * (period - 1) + loss) / period;
+
+        const rs = avgLoss === 0 ? 100 : avgGain / avgLoss;
+        result.push({ time: candles[i].time, value: 100 - 100 / (1 + rs) });
+    }
+    return result;
+}
+
+function calculateMACD(candles, fastPeriod = 12, slowPeriod = 26, signalPeriod = 9) {
+    const fastEma = calculateEMA(candles, fastPeriod);
+    const slowEma = calculateEMA(candles, slowPeriod);
+    const slowMap = new Map(slowEma.map(item => [item.time, item.value]));
+    const macdLine = [];
+
+    for (const f of fastEma) {
+        if (slowMap.has(f.time)) {
+            macdLine.push({ time: f.time, value: f.value - slowMap.get(f.time) });
+        }
+    }
+
+    if (macdLine.length < signalPeriod) return { macd: [], signal: [], histogram: [] };
+    const k = 2 / (signalPeriod + 1);
+    let signalEma = macdLine.slice(0, signalPeriod).reduce((sum, item) => sum + item.value, 0) / signalPeriod;
+    const signalLine = [{ time: macdLine[signalPeriod - 1].time, value: signalEma }];
+    const histogram = [{
+        time: macdLine[signalPeriod - 1].time,
+        value: macdLine[signalPeriod - 1].value - signalEma,
+        color: (macdLine[signalPeriod - 1].value - signalEma) >= 0 ? '#26a69a' : '#ef5350'
+    }];
+
+    for (let i = signalPeriod; i < macdLine.length; i++) {
+        const item = macdLine[i];
+        signalEma = (item.value - signalEma) * k + signalEma;
+        const histVal = item.value - signalEma;
+        signalLine.push({ time: item.time, value: signalEma });
+        histogram.push({
+            time: item.time,
+            value: histVal,
+            color: histVal >= 0 ? '#26a69a' : '#ef5350'
+        });
+    }
+
+    return { macd: macdLine, signal: signalLine, histogram };
+}
+
+function calculateStochastic(candles, period = 14, kSmooth = 3, dSmooth = 3) {
+    if (!candles || candles.length < period) return { k: [], d: [] };
+    const rawK = [];
+
+    for (let i = period - 1; i < candles.length; i++) {
+        const slice = candles.slice(i - period + 1, i + 1);
+        let lowMin = Infinity;
+        let highMax = -Infinity;
+        for (const c of slice) {
+            if (c.low < lowMin) lowMin = c.low;
+            if (c.high > highMax) highMax = c.high;
+        }
+        const currentClose = candles[i].close;
+        const kVal = highMax === lowMin ? 50 : ((currentClose - lowMin) / (highMax - lowMin)) * 100;
+        rawK.push({ time: candles[i].time, value: kVal });
+    }
+
+    const smoothedK = [];
+    for (let i = kSmooth - 1; i < rawK.length; i++) {
+        const slice = rawK.slice(i - kSmooth + 1, i + 1);
+        const avg = slice.reduce((sum, item) => sum + item.value, 0) / kSmooth;
+        smoothedK.push({ time: rawK[i].time, value: avg });
+    }
+
+    const smoothedD = [];
+    for (let i = dSmooth - 1; i < smoothedK.length; i++) {
+        const slice = smoothedK.slice(i - dSmooth + 1, i + 1);
+        const avg = slice.reduce((sum, item) => sum + item.value, 0) / dSmooth;
+        smoothedD.push({ time: smoothedK[i].time, value: avg });
+    }
+
+    return { k: smoothedK, d: smoothedD };
+}
+
 const TradingViewChartPane = forwardRef(function TradingViewChartPane(
     { symbol = 'XAU/USD', onSymbolChange, onAttachScreenshot },
     ref
@@ -196,6 +438,10 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
     const { theme } = useTheme();
     const { t } = useLanguage();
     const isDark = theme === 'dark';
+
+    const isChartNoPair = !symbol || symbol === 'No Pair' || symbol === 'NO_PAIR' || String(symbol).toUpperCase().includes('NO PAIR') || String(symbol).toLowerCase() === 'none';
+    const chartSymbol = isChartNoPair ? 'XAU/USD' : symbol;
+    const activeSymbolClean = normalizeSymbol(chartSymbol);
 
     const containerRef = useRef(null);
     const chartRef = useRef(null);
@@ -207,8 +453,29 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
     const cameraDropdownRef = useRef(null);
     const chartTypeDropdownRef = useRef(null);
     const timeframeDropdownRef = useRef(null);
+    const indicatorsDropdownRef = useRef(null);
 
-    // Chart Settings State
+    // Dynamic Moving Averages (EMA / SMA) State & Series Tracking
+    const [movingAverages, setMovingAverages] = useState([]);
+    const maSeriesRefs = useRef(new Map());
+    const currentChartTypeRef = useRef(null);
+
+    // Other Indicator Overlay Series Refs
+    const bbUpperSeriesRef = useRef(null);
+    const bbMiddleSeriesRef = useRef(null);
+    const bbLowerSeriesRef = useRef(null);
+    const pivotSeriesRefs = useRef([]);
+    const candlesDataRef = useRef([]);
+
+    // Sub-Pane Canvas Container Refs & Sub-Pane Chart Instances
+    const rsiContainerRef = useRef(null);
+    const macdContainerRef = useRef(null);
+    const stochContainerRef = useRef(null);
+    const rsiChartObjRef = useRef(null);
+    const macdChartObjRef = useRef(null);
+    const stochChartObjRef = useRef(null);
+
+    // Chart Settings & Indicators State
     const [currentTimeframe, setCurrentTimeframe] = useState('15m');
     const [chartType, setChartType] = useState('candlestick');
     const [symbolDropdownOpen, setSymbolDropdownOpen] = useState(false);
@@ -216,7 +483,18 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
     const [cameraDropdownOpen, setCameraDropdownOpen] = useState(false);
     const [chartTypeDropdownOpen, setChartTypeDropdownOpen] = useState(false);
     const [timeframeDropdownOpen, setTimeframeDropdownOpen] = useState(false);
+    const [indicatorsDropdownOpen, setIndicatorsDropdownOpen] = useState(false);
+    const [indicatorsModalOpen, setIndicatorsModalOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+
+    // Active Indicator Toggles (Overlays & Sub-panes)
+    const [activeIndicators, setActiveIndicators] = useState({
+        bollinger: false,
+        pivot: false,
+        rsi: false,
+        macd: false,
+        stochastic: false,
+    });
 
     // Ticker Search & Category Filter State
     const [tickerSearch, setTickerSearch] = useState('');
@@ -244,6 +522,13 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
         setCameraDropdownOpen(false);
         setChartTypeDropdownOpen(false);
         setTimeframeDropdownOpen(false);
+        setIndicatorsDropdownOpen(false);
+    };
+
+    const toggleIndicatorsDropdown = () => {
+        const nextState = !indicatorsDropdownOpen;
+        closeAllDropdowns();
+        if (nextState) setIndicatorsDropdownOpen(true);
     };
 
     const toggleSymbolDropdown = () => {
@@ -292,7 +577,6 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
         setBearishColor(draftBearishColor);
         setBackgroundColor(draftBackgroundColor);
         setSettingsOpen(false);
-        toast('Chart settings applied!');
     };
 
     const handleResetSettings = () => {
@@ -306,14 +590,157 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
         setBearishColor(defaultBear);
         setBackgroundColor(defaultBg);
         setSettingsOpen(false);
-        toast('Chart settings reset to default!');
     };
 
     // Live price tracking state
     const [latestCandle, setLatestCandle] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const activeSymbolClean = normalizeSymbol(symbol);
+    // Indicator Configs & Visibility States
+    const [indicatorConfigs, setIndicatorConfigs] = useState(DEFAULT_INDICATOR_CONFIGS);
+    const [indicatorVisibility, setIndicatorVisibility] = useState({
+        ema10: true,
+        ema20: true,
+        ema50: true,
+        bollinger: true,
+        pivot: true,
+        rsi: true,
+        macd: true,
+        stochastic: true,
+    });
+    const [editingIndicator, setEditingIndicator] = useState(null);
+
+    const toggleIndicatorVisibility = (key) => {
+        setIndicatorVisibility(prev => ({ ...prev, [key]: !prev[key] }));
+    };
+
+    const removeIndicator = (key) => {
+        setActiveIndicators(prev => ({ ...prev, [key]: false }));
+    };
+
+    const openIndicatorSettings = (key) => {
+        setEditingIndicator(key);
+    };
+
+    // Moving Averages Handlers
+    const addMovingAverage = (type = 'EMA', suggestedLength = null) => {
+        if (type === 'EMA_TOGGLE') {
+            setMovingAverages(prev => prev.filter(m => m.type !== 'EMA'));
+            return;
+        }
+        if (type === 'SMA_TOGGLE') {
+            setMovingAverages(prev => prev.filter(m => m.type !== 'SMA'));
+            return;
+        }
+
+        const activeOverlayCount = Object.keys(activeIndicators || {}).filter(k => activeIndicators[k]).length;
+        const activeMACount = movingAverages ? movingAverages.filter(m => m.visible).length : 0;
+        if (activeOverlayCount + activeMACount >= 3) {
+            toast('Maximum 3 indicators can be selected at a time');
+            return;
+        }
+
+        // Check if a disabled preset exists for this type
+        const disabledPreset = movingAverages.find(m => m.type === type && !m.visible);
+        if (disabledPreset && !suggestedLength) {
+            setMovingAverages(prev => prev.map(m => m.id === disabledPreset.id ? { ...m, visible: true } : m));
+            return;
+        }
+
+        let nextLength = suggestedLength;
+        if (!nextLength) {
+            const existingLengths = movingAverages.filter(m => m.type === type && m.visible).map(m => m.length || m.period);
+            const standardLengths = [20, 50, 200, 10, 9, 21, 55, 89, 100];
+            nextLength = standardLengths.find(l => !existingLengths.includes(l)) || (20 + (existingLengths.length * 10));
+        }
+        const defaultColors = type === 'EMA' ? ['#FFD600', '#AA00FF', '#FF1744'] : ['#00E5FF', '#FF9100', '#00E676'];
+        const colorIndex = movingAverages.filter(m => m.type === type).length % defaultColors.length;
+        const newMA = {
+            id: `ma_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+            name: `${type} ${nextLength}`,
+            type,
+            length: nextLength,
+            period: nextLength,
+            source: 'close',
+            color: defaultColors[colorIndex],
+            lineWidth: 1.5,
+            visible: true,
+        };
+        setMovingAverages(prev => [...prev, newMA]);
+    };
+
+    const toggleMAVisibility = (id) => {
+        setMovingAverages(prev => {
+            const target = prev.find(m => m.id === id);
+            if (target && !target.visible) {
+                const activeOverlayCount = Object.keys(activeIndicators || {}).filter(k => activeIndicators[k]).length;
+                const activeMACount = prev.filter(m => m.visible).length;
+                if (activeOverlayCount + activeMACount >= 3) {
+                    toast('Maximum 3 indicators can be selected at a time');
+                    return prev;
+                }
+            }
+            return prev.map(m => m.id === id ? { ...m, visible: !m.visible } : m);
+        });
+    };
+
+    const removeMovingAverage = (id) => {
+        setMovingAverages(prev => prev.filter(m => m.id !== id));
+        const s = maSeriesRefs.current.get(id);
+        if (s && chartRef.current) {
+            try { chartRef.current.removeSeries(s); } catch {}
+            maSeriesRefs.current.delete(id);
+        }
+    };
+
+    const saveIndicatorConfig = (newCfg) => {
+        if (!editingIndicator) return;
+        if (editingIndicator.startsWith('ma_')) {
+            setMovingAverages(prev => prev.map(m => {
+                if (m.id === editingIndicator) {
+                    const finalType = newCfg.type || m.type || 'EMA';
+                    const finalLength = newCfg.length !== undefined ? Number(newCfg.length) : (m.length || 20);
+                    return {
+                        ...m,
+                        ...newCfg,
+                        type: finalType,
+                        length: finalLength,
+                        period: finalLength,
+                        name: `${finalType} ${finalLength}`,
+                    };
+                }
+                return m;
+            }));
+        } else {
+            setIndicatorConfigs(prev => ({ ...prev, [editingIndicator]: newCfg }));
+        }
+    };
+
+    const resetIndicatorDefaults = () => {
+        if (!editingIndicator) return;
+        if (editingIndicator.startsWith('ma_')) {
+            setMovingAverages(prev => prev.map(m => {
+                if (m.id === editingIndicator) {
+                    const defaultLen = 20;
+                    const finalType = m.type || 'EMA';
+                    return {
+                        ...m,
+                        length: defaultLen,
+                        period: defaultLen,
+                        name: `${finalType} ${defaultLen}`,
+                        source: 'close',
+                        lineWidth: 1.5,
+                    };
+                }
+                return m;
+            }));
+        } else {
+            setIndicatorConfigs(prev => ({
+                ...prev,
+                [editingIndicator]: { ...DEFAULT_INDICATOR_CONFIGS[editingIndicator] }
+            }));
+        }
+    };
 
     // Expose capture functionality to parent via ref
     useImperativeHandle(ref, () => ({
@@ -345,21 +772,29 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
             if (timeframeDropdownRef.current && !timeframeDropdownRef.current.contains(e.target)) {
                 setTimeframeDropdownOpen(false);
             }
+            if (indicatorsDropdownRef.current && !indicatorsDropdownRef.current.contains(e.target)) {
+                setIndicatorsDropdownOpen(false);
+            }
         };
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener('touchstart', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        };
     }, []);
 
     // Render unified Ticker Search Dropdown Menu (TradingView Style)
     const renderSymbolDropdownMenu = (closeMenu) => (
         <TickerSearchDropdown
-            selectedSymbol={symbol}
+            selectedSymbol={chartSymbol}
             onSelectSymbol={(newSym) => {
                 if (onSymbolChange) onSymbolChange(newSym);
             }}
             onClose={closeMenu}
             position="bottom"
             isDark={!isChartLight}
+            allowNoPair={false}
         />
     );
 
@@ -494,75 +929,6 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 wsRef.current = null;
             }
 
-            // Remove previous series if exists
-            if (seriesRef.current) {
-                try {
-                    chartRef.current.removeSeries(seriesRef.current);
-                } catch {
-                    /* ignore */
-                }
-                seriesRef.current = null;
-            }
-            if (volumeSeriesRef.current) {
-                try {
-                    chartRef.current.removeSeries(volumeSeriesRef.current);
-                } catch {
-                    /* ignore */
-                }
-                volumeSeriesRef.current = null;
-            }
-
-            // A. Create Volume Histogram Series attached to bottom 20% overlay (TradingView style)
-            const volumeSeries = chartRef.current.addSeries(HistogramSeries, {
-                priceFormat: { type: 'volume' },
-                priceScaleId: 'volume',
-            });
-            chartRef.current.priceScale('volume').applyOptions({
-                scaleMargins: {
-                    top: 0.8,    // Volume starts at 80% height (restricted to bottom 20% area)
-                    bottom: 0,
-                },
-            });
-            volumeSeriesRef.current = volumeSeries;
-
-            // Create main series based on chartType selector
-            let newSeries;
-            if (chartType === 'line') {
-                newSeries = chartRef.current.addSeries(LineSeries, {
-                    color: '#2979FF',
-                    lineWidth: 2,
-                });
-            } else if (chartType === 'area') {
-                newSeries = chartRef.current.addSeries(AreaSeries, {
-                    topColor: 'rgba(41, 121, 255, 0.46)',
-                    bottomColor: 'rgba(41, 121, 255, 0.0)',
-                    lineColor: '#2979FF',
-                    lineWidth: 2,
-                });
-            } else {
-                // Default: Candlestick
-                newSeries = chartRef.current.addSeries(CandlestickSeries, {
-                    upColor: bullishColor,
-                    borderUpColor: bullishColor,
-                    wickUpColor: bullishColor,
-                    downColor: bearishColor,
-                    borderDownColor: bearishColor,
-                    wickDownColor: bearishColor,
-                });
-            }
-
-            // Apply Dynamic Symbol Precision (5 decimals for Forex, 3 for JPY, 2 for Gold/Crypto)
-            const { precision, minMove } = getSymbolPrecision(activeSymbolClean);
-            newSeries.applyOptions({
-                priceFormat: {
-                    type: 'price',
-                    precision: precision,
-                    minMove: minMove,
-                },
-            });
-
-            seriesRef.current = newSeries;
-
             // Fetch historical candle data via HTTP REST API (Deduplicated fetch)
             let rawCandles = [];
             try {
@@ -617,33 +983,88 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 })
                 .filter((c) => !isNaN(c.time) && !isNaN(c.close));
 
-            // Ensure candle data is sorted chronologically in ASCENDING order (oldest to newest)
             formattedCandles.sort((a, b) => a.time - b.time);
+            candlesDataRef.current = formattedCandles;
 
-            if (isMounted && seriesRef.current) {
-                seriesRef.current.setData(formattedCandles);
-                if (volumeSeriesRef.current) {
-                    volumeSeriesRef.current.setData(
-                        formattedCandles.map((c) => ({
-                            time: c.time,
-                            value: c.volume || Math.floor(Math.random() * 2500) + 400,
-                            color: c.volumeColor,
-                        }))
-                    );
-                }
-                const last = formattedCandles[formattedCandles.length - 1];
-                if (last) setLatestCandle(last);
-                chartRef.current.timeScale().applyOptions({
-                    barSpacing: 9,
-                    rightOffset: 8,
+            if (!isMounted || !chartRef.current) return;
+
+            // Ensure volume series is initialized
+            if (!volumeSeriesRef.current) {
+                const volumeSeries = chartRef.current.addSeries(HistogramSeries, {
+                    priceFormat: { type: 'volume' },
+                    priceScaleId: 'volume',
                 });
-                chartRef.current.timeScale().scrollToRealtime();
-                // Immediately turn off loading overlay as soon as series data is set
-                setLoading(false);
+                chartRef.current.priceScale('volume').applyOptions({
+                    scaleMargins: {
+                        top: 0.8,
+                        bottom: 0,
+                    },
+                });
+                volumeSeriesRef.current = volumeSeries;
             }
 
-            // Guarantee loading overlay is hidden once chart series data is loaded
-            if (isMounted) setLoading(false);
+            // Create or update main price series only when data is ready
+            if (!seriesRef.current || currentChartTypeRef.current !== chartType) {
+                if (seriesRef.current) {
+                    try { chartRef.current.removeSeries(seriesRef.current); } catch {}
+                }
+                if (chartType === 'line') {
+                    seriesRef.current = chartRef.current.addSeries(LineSeries, {
+                        color: '#2979FF',
+                        lineWidth: 2,
+                    });
+                } else if (chartType === 'area') {
+                    seriesRef.current = chartRef.current.addSeries(AreaSeries, {
+                        topColor: 'rgba(41, 121, 255, 0.46)',
+                        bottomColor: 'rgba(41, 121, 255, 0.0)',
+                        lineColor: '#2979FF',
+                        lineWidth: 2,
+                    });
+                } else {
+                    seriesRef.current = chartRef.current.addSeries(CandlestickSeries, {
+                        upColor: bullishColor,
+                        borderUpColor: bullishColor,
+                        wickUpColor: bullishColor,
+                        downColor: bearishColor,
+                        borderDownColor: bearishColor,
+                        wickDownColor: bearishColor,
+                    });
+                }
+                currentChartTypeRef.current = chartType;
+            }
+
+            // Apply Dynamic Symbol Precision (5 decimals for Forex, 3 for JPY, 2 for Gold/Crypto)
+            const { precision, minMove } = getSymbolPrecision(activeSymbolClean);
+            seriesRef.current.applyOptions({
+                priceFormat: {
+                    type: 'price',
+                    precision: precision,
+                    minMove: minMove,
+                },
+            });
+
+            // Set new candle and volume data smoothly
+            seriesRef.current.setData(formattedCandles);
+            if (volumeSeriesRef.current) {
+                volumeSeriesRef.current.setData(
+                    formattedCandles.map((c) => ({
+                        time: c.time,
+                        value: c.volume || Math.floor(Math.random() * 2500) + 400,
+                        color: c.volumeColor,
+                    }))
+                );
+            }
+            updateIndicators(formattedCandles);
+            const last = formattedCandles[formattedCandles.length - 1];
+            if (last) setLatestCandle(last);
+            chartRef.current.timeScale().applyOptions({
+                barSpacing: 9,
+                rightOffset: 8,
+            });
+            chartRef.current.timeScale().scrollToRealtime();
+
+            // Clear loading overlay now that the new currency graph is loaded and rendered
+            setLoading(false);
 
             // 3. Connect Real-Time Updates (Deduplicated WebSocket Store)
             let unsubscribeWS = null;
@@ -742,6 +1163,266 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
         return () => clearInterval(interval);
     };
 
+    // Main Overlay Indicator Manager
+    const updateIndicators = (candles) => {
+        if (!chartRef.current || !candles || candles.length === 0) return;
+
+        // Render and Sync Dynamic Moving Averages (EMA & SMA)
+        const activeMAIds = new Set(movingAverages.map(m => m.id));
+        for (const [id, s] of maSeriesRefs.current.entries()) {
+            if (!activeMAIds.has(id)) {
+                try { chartRef.current.removeSeries(s); } catch {}
+                maSeriesRefs.current.delete(id);
+            }
+        }
+
+        movingAverages.forEach(ma => {
+            let s = maSeriesRefs.current.get(ma.id);
+            const finalType = ma.type || 'EMA';
+            const finalLength = ma.length || ma.period || 20;
+            const maTitle = `${finalType} ${finalLength}`;
+            if (!s) {
+                s = chartRef.current.addSeries(LineSeries, {
+                    title: maTitle,
+                    color: ma.color,
+                    lineWidth: ma.lineWidth,
+                    visible: ma.visible,
+                });
+                maSeriesRefs.current.set(ma.id, s);
+            } else {
+                s.applyOptions({
+                    title: maTitle,
+                    color: ma.color,
+                    lineWidth: ma.lineWidth,
+                    visible: ma.visible,
+                });
+            }
+            const data = ma.type === 'SMA'
+                ? calculateSMA(candles, ma.length, ma.source)
+                : calculateEMA(candles, ma.length, ma.source);
+            s.setData(data);
+        });
+
+        // 4. Bollinger Bands
+        if (activeIndicators.bollinger) {
+            const cfg = indicatorConfigs.bollinger;
+            const isVis = indicatorVisibility.bollinger;
+            const bb = calculateBollingerBands(candles, cfg.length, cfg.stdDev, cfg.source);
+            if (!bbUpperSeriesRef.current) {
+                bbUpperSeriesRef.current = chartRef.current.addSeries(LineSeries, { color: cfg.color, lineWidth: cfg.lineWidth, lineStyle: 2, visible: isVis });
+                bbMiddleSeriesRef.current = chartRef.current.addSeries(LineSeries, { color: cfg.color, lineWidth: cfg.lineWidth, visible: isVis });
+                bbLowerSeriesRef.current = chartRef.current.addSeries(LineSeries, { color: cfg.color, lineWidth: cfg.lineWidth, lineStyle: 2, visible: isVis });
+            } else {
+                bbUpperSeriesRef.current.applyOptions({ color: cfg.color, lineWidth: cfg.lineWidth, visible: isVis });
+                bbMiddleSeriesRef.current.applyOptions({ color: cfg.color, lineWidth: cfg.lineWidth, visible: isVis });
+                bbLowerSeriesRef.current.applyOptions({ color: cfg.color, lineWidth: cfg.lineWidth, visible: isVis });
+            }
+            bbUpperSeriesRef.current.setData(bb.upper);
+            bbMiddleSeriesRef.current.setData(bb.middle);
+            bbLowerSeriesRef.current.setData(bb.lower);
+        } else if (bbUpperSeriesRef.current) {
+            try {
+                chartRef.current.removeSeries(bbUpperSeriesRef.current);
+                chartRef.current.removeSeries(bbMiddleSeriesRef.current);
+                chartRef.current.removeSeries(bbLowerSeriesRef.current);
+            } catch {}
+            bbUpperSeriesRef.current = null;
+            bbMiddleSeriesRef.current = null;
+            bbLowerSeriesRef.current = null;
+        }
+
+        // 5. Pivot Points
+        if (activeIndicators.pivot) {
+            const isVis = indicatorVisibility.pivot;
+            const pivots = calculatePivotPoints(candles);
+            if (pivotSeriesRefs.current.length === 0) {
+                const pLine = chartRef.current.addSeries(LineSeries, { color: '#FFD600', lineWidth: 1, lineStyle: 1, visible: isVis });
+                const r1Line = chartRef.current.addSeries(LineSeries, { color: '#EF5350', lineWidth: 1, lineStyle: 2, visible: isVis });
+                const r2Line = chartRef.current.addSeries(LineSeries, { color: '#D32F2F', lineWidth: 1, lineStyle: 2, visible: isVis });
+                const s1Line = chartRef.current.addSeries(LineSeries, { color: '#26A69A', lineWidth: 1, lineStyle: 2, visible: isVis });
+                const s2Line = chartRef.current.addSeries(LineSeries, { color: '#388E3C', lineWidth: 1, lineStyle: 2, visible: isVis });
+                pivotSeriesRefs.current = [pLine, r1Line, r2Line, s1Line, s2Line];
+            } else {
+                pivotSeriesRefs.current.forEach(s => {
+                    try { s.applyOptions({ visible: isVis }); } catch {}
+                });
+            }
+            pivotSeriesRefs.current[0].setData(pivots.P);
+            pivotSeriesRefs.current[1].setData(pivots.R1);
+            pivotSeriesRefs.current[2].setData(pivots.R2);
+            pivotSeriesRefs.current[3].setData(pivots.S1);
+            pivotSeriesRefs.current[4].setData(pivots.S2);
+        } else if (pivotSeriesRefs.current.length > 0) {
+            pivotSeriesRefs.current.forEach(s => {
+                try { chartRef.current.removeSeries(s); } catch {}
+            });
+            pivotSeriesRefs.current = [];
+        }
+    };
+
+    useEffect(() => {
+        updateIndicators(candlesDataRef.current);
+    }, [activeIndicators, indicatorConfigs, indicatorVisibility, movingAverages]);
+
+    const hasSubPanes = Boolean(activeIndicators.rsi || activeIndicators.macd || activeIndicators.stochastic);
+
+    // Dynamically adjust scaleMargins to lift price and volume graph up when subpanes are active
+    useEffect(() => {
+        if (!chartRef.current) return;
+        chartRef.current.applyOptions({
+            rightPriceScale: {
+                scaleMargins: {
+                    top: 0.08,
+                    bottom: hasSubPanes ? 0.28 : 0.20,
+                },
+            },
+        });
+        try {
+            chartRef.current.priceScale('volume').applyOptions({
+                scaleMargins: {
+                    top: hasSubPanes ? 0.74 : 0.80,
+                    bottom: 0.02,
+                },
+            });
+        } catch {}
+
+        if (containerRef.current) {
+            chartRef.current.applyOptions({
+                width: containerRef.current.clientWidth,
+                height: containerRef.current.clientHeight,
+            });
+        }
+    }, [hasSubPanes]);
+
+    // Sub-Pane Charts Management (RSI, MACD, Stochastic)
+    useEffect(() => {
+        const candles = candlesDataRef.current;
+        if (!candles || candles.length === 0) return;
+
+        const syncTimeWithMain = (subChart) => {
+            if (!chartRef.current || !subChart) return;
+            try {
+                const mainTs = chartRef.current.timeScale();
+                const subTs = subChart.timeScale();
+                mainTs.subscribeVisibleLogicalRangeChange((r) => {
+                    if (r) try { subTs.setVisibleLogicalRange(r); } catch {}
+                });
+                subTs.subscribeVisibleLogicalRangeChange((r) => {
+                    if (r) try { mainTs.setVisibleLogicalRange(r); } catch {}
+                });
+                const curRange = mainTs.getVisibleLogicalRange();
+                if (curRange) subTs.setVisibleLogicalRange(curRange);
+            } catch {}
+        };
+
+        // RSI Sub-pane
+        if (activeIndicators.rsi && rsiContainerRef.current) {
+            const cfg = indicatorConfigs.rsi;
+            const isVis = indicatorVisibility.rsi;
+            if (!rsiChartObjRef.current) {
+                const rChart = createChart(rsiContainerRef.current, {
+                    height: 125,
+                    width: rsiContainerRef.current.clientWidth,
+                    layout: { background: { color: '#08090c' }, textColor: '#94A3B8', fontFamily: 'Inter, sans-serif' },
+                    grid: { vertLines: { color: 'rgba(255, 255, 255, 0.03)' }, horzLines: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    timeScale: { visible: true, borderColor: 'rgba(255, 255, 255, 0.08)' },
+                    rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.08)' }
+                });
+                const rSeries = rChart.addSeries(LineSeries, { color: cfg.color, lineWidth: cfg.lineWidth, visible: isVis });
+                const line70 = rChart.addSeries(LineSeries, { color: 'rgba(239, 83, 80, 0.6)', lineWidth: 1, lineStyle: 2, visible: isVis });
+                const line30 = rChart.addSeries(LineSeries, { color: 'rgba(38, 166, 154, 0.6)', lineWidth: 1, lineStyle: 2, visible: isVis });
+                syncTimeWithMain(rChart);
+                rsiChartObjRef.current = { chart: rChart, series: rSeries, line70, line30 };
+            } else {
+                rsiChartObjRef.current.series.applyOptions({ color: cfg.color, lineWidth: cfg.lineWidth, visible: isVis });
+                rsiChartObjRef.current.line70.applyOptions({ visible: isVis });
+                rsiChartObjRef.current.line30.applyOptions({ visible: isVis });
+            }
+            const rsiData = calculateRSI(candles, cfg.length);
+            rsiChartObjRef.current.series.setData(rsiData);
+            if (rsiData.length > 0) {
+                const first = rsiData[0].time;
+                const last = rsiData[rsiData.length - 1].time;
+                rsiChartObjRef.current.line70.setData([{ time: first, value: cfg.overbought }, { time: last, value: cfg.overbought }]);
+                rsiChartObjRef.current.line30.setData([{ time: first, value: cfg.oversold }, { time: last, value: cfg.oversold }]);
+            }
+        } else if (rsiChartObjRef.current) {
+            try { rsiChartObjRef.current.chart.remove(); } catch {}
+            rsiChartObjRef.current = null;
+        }
+
+        // MACD Sub-pane
+        if (activeIndicators.macd && macdContainerRef.current) {
+            const cfg = indicatorConfigs.macd;
+            const isVis = indicatorVisibility.macd;
+            if (!macdChartObjRef.current) {
+                const mChart = createChart(macdContainerRef.current, {
+                    height: 125,
+                    width: macdContainerRef.current.clientWidth,
+                    layout: { background: { color: '#08090c' }, textColor: '#94A3B8', fontFamily: 'Inter, sans-serif' },
+                    grid: { vertLines: { color: 'rgba(255, 255, 255, 0.03)' }, horzLines: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    timeScale: { visible: true, borderColor: 'rgba(255, 255, 255, 0.08)' },
+                    rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.08)' }
+                });
+                const histSeries = mChart.addSeries(HistogramSeries, { priceFormat: { type: 'volume' }, visible: isVis });
+                const macdSeries = mChart.addSeries(LineSeries, { color: cfg.macdColor, lineWidth: cfg.lineWidth, visible: isVis });
+                const signalSeries = mChart.addSeries(LineSeries, { color: cfg.signalColor, lineWidth: cfg.lineWidth, visible: isVis });
+                syncTimeWithMain(mChart);
+                macdChartObjRef.current = { chart: mChart, histSeries, macdSeries, signalSeries };
+            } else {
+                macdChartObjRef.current.histSeries.applyOptions({ visible: isVis });
+                macdChartObjRef.current.macdSeries.applyOptions({ color: cfg.macdColor, lineWidth: cfg.lineWidth, visible: isVis });
+                macdChartObjRef.current.signalSeries.applyOptions({ color: cfg.signalColor, lineWidth: cfg.lineWidth, visible: isVis });
+            }
+            const { macd, signal, histogram } = calculateMACD(candles, cfg.fast, cfg.slow, cfg.signal);
+            macdChartObjRef.current.histSeries.setData(histogram);
+            macdChartObjRef.current.macdSeries.setData(macd);
+            macdChartObjRef.current.signalSeries.setData(signal);
+        } else if (macdChartObjRef.current) {
+            try { macdChartObjRef.current.chart.remove(); } catch {}
+            macdChartObjRef.current = null;
+        }
+
+        // Stochastic Sub-pane
+        if (activeIndicators.stochastic && stochContainerRef.current) {
+            const cfg = indicatorConfigs.stochastic;
+            const isVis = indicatorVisibility.stochastic;
+            if (!stochChartObjRef.current) {
+                const sChart = createChart(stochContainerRef.current, {
+                    height: 125,
+                    width: stochContainerRef.current.clientWidth,
+                    layout: { background: { color: '#08090c' }, textColor: '#94A3B8', fontFamily: 'Inter, sans-serif' },
+                    grid: { vertLines: { color: 'rgba(255, 255, 255, 0.03)' }, horzLines: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    timeScale: { visible: true, borderColor: 'rgba(255, 255, 255, 0.08)' },
+                    rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.08)' }
+                });
+                const kSeries = sChart.addSeries(LineSeries, { color: cfg.kColor, lineWidth: cfg.lineWidth, visible: isVis });
+                const dSeries = sChart.addSeries(LineSeries, { color: cfg.dColor, lineWidth: cfg.lineWidth, visible: isVis });
+                const line80 = sChart.addSeries(LineSeries, { color: 'rgba(239, 83, 80, 0.6)', lineWidth: 1, lineStyle: 2, visible: isVis });
+                const line20 = sChart.addSeries(LineSeries, { color: 'rgba(38, 166, 154, 0.6)', lineWidth: 1, lineStyle: 2, visible: isVis });
+                syncTimeWithMain(sChart);
+                stochChartObjRef.current = { chart: sChart, kSeries, dSeries, line80, line20 };
+            } else {
+                stochChartObjRef.current.kSeries.applyOptions({ color: cfg.kColor, lineWidth: cfg.lineWidth, visible: isVis });
+                stochChartObjRef.current.dSeries.applyOptions({ color: cfg.dColor, lineWidth: cfg.lineWidth, visible: isVis });
+                stochChartObjRef.current.line80.applyOptions({ visible: isVis });
+                stochChartObjRef.current.line20.applyOptions({ visible: isVis });
+            }
+            const { k, d } = calculateStochastic(candles, cfg.kPeriod, cfg.dPeriod, cfg.smooth);
+            stochChartObjRef.current.kSeries.setData(k);
+            stochChartObjRef.current.dSeries.setData(d);
+            if (k.length > 0) {
+                const first = k[0].time;
+                const last = k[k.length - 1].time;
+                stochChartObjRef.current.line80.setData([{ time: first, value: 80 }, { time: last, value: 80 }]);
+                stochChartObjRef.current.line20.setData([{ time: first, value: 20 }, { time: last, value: 20 }]);
+            }
+        } else if (stochChartObjRef.current) {
+            try { stochChartObjRef.current.chart.remove(); } catch {}
+            stochChartObjRef.current = null;
+        }
+    }, [activeIndicators, indicatorConfigs, indicatorVisibility, currentTimeframe, activeSymbolClean]);
+
     // Update Series colors when bullish/bearish picker changes in Settings Modal
     useEffect(() => {
         if (seriesRef.current && chartType === 'candlestick') {
@@ -821,13 +1502,7 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
             {/* Darker Chart Header Controls Bar */}
             <div className={styles.chartHeaderControls}>
                 <div className={styles.leftControlsGroup}>
-                    <button type="button" className={styles.headerIconButton} title="Chart View">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="18" y1="20" x2="18" y2="10" />
-                            <line x1="12" y1="20" x2="12" y2="4" />
-                            <line x1="6" y1="20" x2="6" y2="14" />
-                        </svg>
-                    </button>
+
 
                     {/* Live Real-time Price Display (Moved to Top Left Header, No BG) */}
                     {latestCandle && (
@@ -894,128 +1569,373 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
             </div>
 
             {/* Live Chart Container */}
-            <div className={styles.chartCanvasArea} ref={containerRef}>
+            <div className={styles.chartCanvasArea}>
                 {loading && (
                     <ChartLoaderOverlay
                         activeSymbol={activeSymbolClean}
                         currentTimeframe={currentTimeframe}
                     />
                 )}
-                {/* Inside Chart Floating Control Bar (Red box in user's image) */}
-                <div className={styles.insideChartControlPill}>
-                    {/* Place 2: Inside Chart Control Pill Symbol Dropdown */}
-                    <div className={styles.controlDropdownWrapper} ref={symbolDropdownRef}>
+
+                {/* Main Candlestick / Price Chart Container */}
+                <div
+                    ref={containerRef}
+                    className={`${styles.mainChartContainer} ${hasSubPanes ? styles.hasSubPanes : ''} ${loading ? styles.isChartLoading : ''}`}
+                >
+                    {/* Inside Chart Floating Control Bar (Top Left) */}
+                    <div className={styles.insideChartControlPill}>
+                        {/* 1. Inside Chart Control Pill Symbol Dropdown */}
+                        <div className={styles.controlDropdownWrapper} ref={symbolDropdownRef}>
+                            <button
+                                type="button"
+                                className={styles.pillSymbolBtn}
+                                onClick={toggleSymbolDropdown}
+                            >
+                                <SymbolIcon symbol={chartSymbol} size={18} />
+                                <span className={styles.pillSymbolName}>{activeSymbolClean}</span>
+                                <span className={styles.statusDot} />
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                            </button>
+
+                            {symbolDropdownOpen && renderSymbolDropdownMenu(() => setSymbolDropdownOpen(false))}
+                        </div>
+
+                        {/* 2. Timeframe Selector Dropdown (TradingView Custom Style) */}
+                        <div className={styles.controlDropdownWrapper} ref={timeframeDropdownRef}>
+                            <button
+                                type="button"
+                                className={styles.pillTimeframeBtn}
+                                onClick={toggleTimeframeDropdown}
+                                title="Timeframe"
+                            >
+                                <span className={styles.pillTimeframeLabel}>{currentTimeframe}</span>
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                            </button>
+
+                            {timeframeDropdownOpen && (
+                                <div className={`${styles.dropdownMenuFloating} ${styles.timeframeDropdownMenu}`}>
+                                    {TIMEFRAMES.map((tf) => {
+                                        const isActive = currentTimeframe === tf.value;
+                                        return (
+                                            <button
+                                                key={tf.value}
+                                                type="button"
+                                                className={`${styles.dropdownMenuItem} ${isActive ? styles.activeItem : ''}`}
+                                                onClick={() => {
+                                                    setCurrentTimeframe(tf.value);
+                                                    setTimeframeDropdownOpen(false);
+                                                }}
+                                            >
+                                                <span className={styles.timeframeItemLabel}>{tf.label}</span>
+                                                {isActive && <span className={styles.pairCheck}>✓</span>}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className={styles.pillDivider} />
+
+                        {/* 3. Chart Type Selector Dropdown (TradingView SVG Style) */}
+                        <div className={styles.controlDropdownWrapper} ref={chartTypeDropdownRef}>
+                            <button
+                                type="button"
+                                className={styles.pillChartTypeBtn}
+                                onClick={toggleChartTypeDropdown}
+                                title="Chart Type"
+                            >
+                                {renderChartTypeIcon(chartType)}
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                            </button>
+
+                            {chartTypeDropdownOpen && (
+                                <div className={`${styles.dropdownMenuFloating} ${styles.chartTypeDropdownMenu}`}>
+                                    {CHART_TYPES.map((ct) => {
+                                        const isActive = chartType === ct.value;
+                                        const translatedLabel = ct.value === 'candlestick'
+                                            ? t('aiAssistant.candlestick', ct.label)
+                                            : ct.value === 'line'
+                                            ? t('aiAssistant.line', ct.label)
+                                            : ct.value === 'area'
+                                            ? t('aiAssistant.area', ct.label)
+                                            : ct.label;
+                                        return (
+                                            <button
+                                                key={ct.value}
+                                                type="button"
+                                                className={`${styles.dropdownMenuItem} ${isActive ? styles.activeItem : ''}`}
+                                                onClick={() => {
+                                                    setChartType(ct.value);
+                                                    setChartTypeDropdownOpen(false);
+                                                }}
+                                            >
+                                                <div className={styles.chartTypeItemInfo}>
+                                                    {renderChartTypeIcon(ct.value)}
+                                                    <span>{translatedLabel}</span>
+                                                </div>
+                                                {isActive && <span className={styles.pairCheck}>✓</span>}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className={styles.pillDivider} />
+
+                        {/* 4. Indicator Toggle Modal Trigger (TradingView Style Popup) */}
+                        <div className={styles.controlDropdownWrapper}>
+                            <button
+                                type="button"
+                                className={`${styles.pillTimeframeBtn} ${indicatorsModalOpen ? styles.activeControl : ''}`}
+                                onClick={() => {
+                                    closeAllDropdowns();
+                                    setIndicatorsModalOpen(true);
+                                }}
+                                title="Indicators, Metrics & Strategies"
+                            >
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                                </svg>
+                                <span className={styles.pillTimeframeLabel}>Indicators</span>
+                            </button>
+                        </div>
+
+                        <div className={styles.pillDivider} />
+
+                        {/* 5. Settings Cog Icon Button */}
                         <button
                             type="button"
-                            className={styles.pillSymbolBtn}
-                            onClick={toggleSymbolDropdown}
+                            className={`${styles.pillIconBtn} ${settingsOpen ? styles.activeControl : ''}`}
+                            title="Chart Settings"
+                            onClick={openSettingsModal}
                         >
-                            <SymbolIcon symbol={symbol || 'XAU/USD'} size={18} />
-                            <span className={styles.pillSymbolName}>{activeSymbolClean}</span>
-                            <span className={styles.statusDot} />
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <polyline points="6 9 12 15 18 9" />
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="3" />
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                             </svg>
                         </button>
-
-                        {symbolDropdownOpen && renderSymbolDropdownMenu(() => setSymbolDropdownOpen(false))}
                     </div>
-
-                    {/* 2. Timeframe Selector Dropdown (TradingView Custom Style) */}
-                    <div className={styles.controlDropdownWrapper} ref={timeframeDropdownRef}>
-                        <button
-                            type="button"
-                            className={styles.pillTimeframeBtn}
-                            onClick={toggleTimeframeDropdown}
-                            title="Timeframe"
-                        >
-                            <span className={styles.pillTimeframeLabel}>{currentTimeframe}</span>
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <polyline points="6 9 12 15 18 9" />
-                            </svg>
-                        </button>
-
-                        {timeframeDropdownOpen && (
-                            <div className={`${styles.dropdownMenuFloating} ${styles.timeframeDropdownMenu}`}>
-                                {TIMEFRAMES.map((tf) => {
-                                    const isActive = currentTimeframe === tf.value;
-                                    return (
-                                        <button
-                                            key={tf.value}
-                                            type="button"
-                                            className={`${styles.dropdownMenuItem} ${isActive ? styles.activeItem : ''}`}
-                                            onClick={() => {
-                                                setCurrentTimeframe(tf.value);
-                                                setTimeframeDropdownOpen(false);
-                                            }}
-                                        >
-                                            <span className={styles.timeframeItemLabel}>{tf.label}</span>
-                                            {isActive && <span className={styles.pairCheck}>✓</span>}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </div>
-
-                    <div className={styles.pillDivider} />
-
-                    {/* 3. Chart Type Selector Dropdown (TradingView SVG Style) */}
-                    <div className={styles.controlDropdownWrapper} ref={chartTypeDropdownRef}>
-                        <button
-                            type="button"
-                            className={styles.pillChartTypeBtn}
-                            onClick={toggleChartTypeDropdown}
-                            title="Chart Type"
-                        >
-                            {renderChartTypeIcon(chartType)}
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <polyline points="6 9 12 15 18 9" />
-                            </svg>
-                        </button>
-
-                        {chartTypeDropdownOpen && (
-                            <div className={`${styles.dropdownMenuFloating} ${styles.chartTypeDropdownMenu}`}>
-                                {CHART_TYPES.map((ct) => {
-                                    const isActive = chartType === ct.value;
-                                    return (
-                                        <button
-                                            key={ct.value}
-                                            type="button"
-                                            className={`${styles.dropdownMenuItem} ${isActive ? styles.activeItem : ''}`}
-                                            onClick={() => {
-                                                setChartType(ct.value);
-                                                setChartTypeDropdownOpen(false);
-                                            }}
-                                        >
-                                            <div className={styles.chartTypeItemInfo}>
-                                                {renderChartTypeIcon(ct.value)}
-                                                <span>{ct.label}</span>
-                                            </div>
-                                            {isActive && <span className={styles.pairCheck}>✓</span>}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </div>
-
-                    <div className={styles.pillDivider} />
-
-                    {/* 4. Settings Cog Icon Button */}
-                    <button
-                        type="button"
-                        className={`${styles.pillIconBtn} ${settingsOpen ? styles.activeControl : ''}`}
-                        title="Chart Settings"
-                        onClick={openSettingsModal}
-                    >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="3" />
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                        </svg>
-                    </button>
                 </div>
+
+                {/* TradingView Style Floating Indicator Widget Legend Pills */}
+                {(movingAverages.length > 0 || activeIndicators.bollinger || activeIndicators.pivot) && (
+                    <div className={styles.indicatorWidgetsContainer}>
+                        {/* Dynamic Moving Average Pills (EMA & SMA) */}
+                        {movingAverages.map(ma => (
+                            <div key={ma.id} className={styles.indicatorWidgetPill}>
+                                <span className={styles.indicatorDot} style={{ background: ma.color }} />
+                                <span className={styles.indicatorWidgetTitle}>
+                                    {ma.type} {ma.length} {ma.source}
+                                </span>
+                                <button
+                                    type="button"
+                                    className={`${styles.indicatorActionBtn} ${!ma.visible ? styles.dimmed : ''}`}
+                                    onClick={() => toggleMAVisibility(ma.id)}
+                                    title={ma.visible ? "Hide" : "Show"}
+                                >
+                                    {ma.visible ? <EyeIcon /> : <EyeOffIcon />}
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles.indicatorActionBtn}
+                                    onClick={() => openIndicatorSettings(ma.id)}
+                                    title="Settings"
+                                >
+                                    <GearIcon />
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`${styles.indicatorActionBtn} ${styles.trashBtn}`}
+                                    onClick={() => removeMovingAverage(ma.id)}
+                                    title="Remove"
+                                >
+                                    <TrashIcon />
+                                </button>
+                            </div>
+                        ))}
+
+                        {activeIndicators.bollinger && (
+                            <div className={styles.indicatorWidgetPill}>
+                                <span className={styles.indicatorDot} style={{ background: indicatorConfigs.bollinger.color }} />
+                                <span className={styles.indicatorWidgetTitle}>BB {indicatorConfigs.bollinger.length} {indicatorConfigs.bollinger.stdDev}</span>
+                                <button
+                                    type="button"
+                                    className={`${styles.indicatorActionBtn} ${!indicatorVisibility.bollinger ? styles.dimmed : ''}`}
+                                    onClick={() => toggleIndicatorVisibility('bollinger')}
+                                    title={indicatorVisibility.bollinger ? "Hide" : "Show"}
+                                >
+                                    {indicatorVisibility.bollinger ? <EyeIcon /> : <EyeOffIcon />}
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles.indicatorActionBtn}
+                                    onClick={() => openIndicatorSettings('bollinger')}
+                                    title="Settings"
+                                >
+                                    <GearIcon />
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`${styles.indicatorActionBtn} ${styles.trashBtn}`}
+                                    onClick={() => removeIndicator('bollinger')}
+                                    title="Remove"
+                                >
+                                    <TrashIcon />
+                                </button>
+                            </div>
+                        )}
+                        {activeIndicators.pivot && (
+                            <div className={styles.indicatorWidgetPill}>
+                                <span className={styles.indicatorDot} style={{ background: '#FFD600' }} />
+                                <span className={styles.indicatorWidgetTitle}>Pivot ({indicatorConfigs.pivot.type})</span>
+                                <button
+                                    type="button"
+                                    className={`${styles.indicatorActionBtn} ${!indicatorVisibility.pivot ? styles.dimmed : ''}`}
+                                    onClick={() => toggleIndicatorVisibility('pivot')}
+                                    title={indicatorVisibility.pivot ? "Hide" : "Show"}
+                                >
+                                    {indicatorVisibility.pivot ? <EyeIcon /> : <EyeOffIcon />}
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles.indicatorActionBtn}
+                                    onClick={() => openIndicatorSettings('pivot')}
+                                    title="Settings"
+                                >
+                                    <GearIcon />
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`${styles.indicatorActionBtn} ${styles.trashBtn}`}
+                                    onClick={() => removeIndicator('pivot')}
+                                    title="Remove"
+                                >
+                                    <TrashIcon />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
+
+            {/* Sub-Pane Canvas Containers (Positioned Below Main Chart) */}
+            {hasSubPanes && (
+                <div className={styles.subPanesWrapper}>
+                    {activeIndicators.rsi && (
+                        <div className={styles.subPaneItem}>
+                            <div className={styles.subPaneHeader}>
+                                <span className={styles.indicatorDot} style={{ background: indicatorConfigs.rsi.color }} />
+                                <span className={styles.subPaneTitle}>RSI ({indicatorConfigs.rsi.length})</span>
+                                <div className={styles.subPaneActions}>
+                                    <button
+                                        type="button"
+                                        className={`${styles.indicatorActionBtn} ${!indicatorVisibility.rsi ? styles.dimmed : ''}`}
+                                        onClick={() => toggleIndicatorVisibility('rsi')}
+                                        title={indicatorVisibility.rsi ? "Hide" : "Show"}
+                                    >
+                                        {indicatorVisibility.rsi ? <EyeIcon /> : <EyeOffIcon />}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={styles.indicatorActionBtn}
+                                        onClick={() => openIndicatorSettings('rsi')}
+                                        title="Settings"
+                                    >
+                                        <GearIcon />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`${styles.indicatorActionBtn} ${styles.trashBtn}`}
+                                        onClick={() => removeIndicator('rsi')}
+                                        title="Remove"
+                                    >
+                                        <TrashIcon />
+                                    </button>
+                                </div>
+                            </div>
+                            <div ref={rsiContainerRef} className={styles.subPaneCanvas} />
+                        </div>
+                    )}
+                    {activeIndicators.macd && (
+                        <div className={styles.subPaneItem}>
+                            <div className={styles.subPaneHeader}>
+                                <span className={styles.indicatorDot} style={{ background: indicatorConfigs.macd.macdColor }} />
+                                <span className={styles.subPaneTitle}>MACD ({indicatorConfigs.macd.fast}, {indicatorConfigs.macd.slow}, {indicatorConfigs.macd.signal})</span>
+                                <div className={styles.subPaneActions}>
+                                    <button
+                                        type="button"
+                                        className={`${styles.indicatorActionBtn} ${!indicatorVisibility.macd ? styles.dimmed : ''}`}
+                                        onClick={() => toggleIndicatorVisibility('macd')}
+                                        title={indicatorVisibility.macd ? "Hide" : "Show"}
+                                    >
+                                        {indicatorVisibility.macd ? <EyeIcon /> : <EyeOffIcon />}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={styles.indicatorActionBtn}
+                                        onClick={() => openIndicatorSettings('macd')}
+                                        title="Settings"
+                                    >
+                                        <GearIcon />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`${styles.indicatorActionBtn} ${styles.trashBtn}`}
+                                        onClick={() => removeIndicator('macd')}
+                                        title="Remove"
+                                    >
+                                        <TrashIcon />
+                                    </button>
+                                </div>
+                            </div>
+                            <div ref={macdContainerRef} className={styles.subPaneCanvas} />
+                        </div>
+                    )}
+                    {activeIndicators.stochastic && (
+                        <div className={styles.subPaneItem}>
+                            <div className={styles.subPaneHeader}>
+                                <span className={styles.indicatorDot} style={{ background: indicatorConfigs.stochastic.kColor }} />
+                                <span className={styles.subPaneTitle}>Stochastic ({indicatorConfigs.stochastic.kPeriod}, {indicatorConfigs.stochastic.dPeriod})</span>
+                                <div className={styles.subPaneActions}>
+                                    <button
+                                        type="button"
+                                        className={`${styles.indicatorActionBtn} ${!indicatorVisibility.stochastic ? styles.dimmed : ''}`}
+                                        onClick={() => toggleIndicatorVisibility('stochastic')}
+                                        title={indicatorVisibility.stochastic ? "Hide" : "Show"}
+                                    >
+                                        {indicatorVisibility.stochastic ? <EyeIcon /> : <EyeOffIcon />}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={styles.indicatorActionBtn}
+                                        onClick={() => openIndicatorSettings('stochastic')}
+                                        title="Settings"
+                                    >
+                                        <GearIcon />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`${styles.indicatorActionBtn} ${styles.trashBtn}`}
+                                        onClick={() => removeIndicator('stochastic')}
+                                        title="Remove"
+                                    >
+                                        <TrashIcon />
+                                    </button>
+                                </div>
+                            </div>
+                            <div ref={stochContainerRef} className={styles.subPaneCanvas} />
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Settings Panel Modal (TradingView Style) */}
             <ChartSettingsModal
@@ -1029,6 +1949,33 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 setDraftBackgroundColor={setDraftBackgroundColor}
                 onReset={handleResetSettings}
                 onApply={handleApplySettings}
+            />
+
+            {/* Indicator Settings Modal (TradingView Style with Inputs, Style, Defaults, Ok) */}
+            <IndicatorSettingsModal
+                isOpen={Boolean(editingIndicator)}
+                indicatorKey={editingIndicator}
+                config={
+                    editingIndicator?.startsWith('ma_')
+                        ? movingAverages.find(m => m.id === editingIndicator)
+                        : (editingIndicator ? indicatorConfigs[editingIndicator] : null)
+                }
+                onClose={() => setEditingIndicator(null)}
+                onSave={saveIndicatorConfig}
+                onResetDefaults={resetIndicatorDefaults}
+            />
+
+            {/* Indicators & Metrics Modal (TradingView Style Dialog) */}
+            <IndicatorsModal
+                isOpen={indicatorsModalOpen}
+                onClose={() => setIndicatorsModalOpen(false)}
+                activeIndicators={activeIndicators}
+                movingAverages={movingAverages}
+                onAddMA={addMovingAverage}
+                onToggleIndicator={(key) => {
+                    setActiveIndicators(prev => ({ ...prev, [key]: !prev[key] }));
+                }}
+                isDark={!isChartLight}
             />
         </div>
     );

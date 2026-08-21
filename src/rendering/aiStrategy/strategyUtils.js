@@ -155,3 +155,16 @@ export const MOCK_SCANNER_DATA = {
         "volume_scanners": [{ detail: "High Relative Volume Spike" }]
     }
 };
+
+/**
+ * Calculates milliseconds until 1 second after the next hour (:00:01)
+ * to schedule fresh candle polling.
+ */
+export function getMsUntilNextHourOOne() {
+    const now = new Date();
+    const nextHour = new Date(now);
+    nextHour.setHours(now.getHours() + 1, 0, 1, 0);
+    const diff = nextHour.getTime() - now.getTime();
+    return diff > 0 ? diff : 60000;
+}
+

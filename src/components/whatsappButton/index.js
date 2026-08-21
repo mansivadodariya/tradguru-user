@@ -14,7 +14,6 @@ export default function WhatsappButton() {
         '/trade-snap',
         '/ai-assistant',
         '/ai-strategy',
-        '/crm',
         '/economic-calendar',
         '/profile',
         '/settings',

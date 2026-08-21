@@ -10,7 +10,8 @@ export default function AuthGuard({ children }) {
 
     useEffect(() => {
         const handleUnauthorized = () => {
-            router.replace('/login');
+            const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+            router.replace('/login' + (currentPath && currentPath !== '/' ? `?redirect=${encodeURIComponent(currentPath)}` : ''));
         };
         window.addEventListener('auth:unauthorized', handleUnauthorized);
 
@@ -54,7 +55,8 @@ export default function AuthGuard({ children }) {
                     // Only users with verified phone numbers (is_phone_verified === true) can navigate to dashboard
                     if (!data.phone_number || data.is_phone_verified !== true) {
                         console.log('AuthGuard: Phone number missing or not verified (is_phone_verified is false), redirecting to verification popup flow');
-                        router.replace(`/login?need_phone=true&uid=${uid}`);
+                        const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+                        router.replace(`/login?need_phone=true&uid=${uid}${currentPath && currentPath !== '/' ? `&redirect=${encodeURIComponent(currentPath)}` : ''}`);
                         return;
                     }
 

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import styles from './TickerSearchDropdown.module.scss';
 import { SYMBOL_DATABASE, normalizeSymbol } from '@/rendering/aiAssistant/TradingViewChartPane';
-
+import SymbolIcon from '@/components/SymbolIcon';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function TickerSearchDropdown({
@@ -12,15 +12,28 @@ export default function TickerSearchDropdown({
   onClose,
   position = 'bottom', // 'bottom' or 'top'
   isDark = true,
+  allowNoPair = false,
 }) {
   const { t } = useLanguage();
   const [tickerSearch, setTickerSearch] = useState('');
   const [activeCategoryTab, setActiveCategoryTab] = useState('all');
 
   const filteredSymbols = SYMBOL_DATABASE.filter((item) => {
+    if (!allowNoPair && (item.symbol === 'No Pair' || item.symbol.toLowerCase().includes('no pair'))) {
+      return false;
+    }
     const matchesCategory = activeCategoryTab === 'all' || item.category === activeCategoryTab;
-    const query = tickerSearch.trim().toLowerCase();
-    const matchesQuery = !query || item.symbol.toLowerCase().includes(query) || item.name.toLowerCase().includes(query);
+    const rawQuery = tickerSearch.trim().toLowerCase();
+    const cleanQuery = rawQuery.replace(/[^a-z0-9]/g, '');
+    const cleanSymbol = (item.symbol || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const cleanName = (item.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    const matchesQuery =
+      !rawQuery ||
+      item.symbol.toLowerCase().includes(rawQuery) ||
+      (item.name && item.name.toLowerCase().includes(rawQuery)) ||
+      (cleanQuery && (cleanSymbol.includes(cleanQuery) || cleanName.includes(cleanQuery)));
+
     return matchesCategory && matchesQuery;
   });
 
@@ -70,7 +83,7 @@ export default function TickerSearchDropdown({
       {/* Ticker Item List */}
       <div className={styles.tickerListScrollArea}>
         {filteredSymbols.length === 0 ? (
-          <div className={styles.noSymbolsFound}>No tickers matching "{tickerSearch}"</div>
+          <div className={styles.noSymbolsFound}>{t('aiAssistant.noTickersFound', 'No tickers matching')} "{tickerSearch}"</div>
         ) : (
           filteredSymbols.map((item) => {
             const isActive = selectedSymbol === item.symbol || normalizeSymbol(selectedSymbol) === normalizeSymbol(item.symbol);
@@ -85,6 +98,7 @@ export default function TickerSearchDropdown({
                 }}
               >
                 <div className={styles.symbolItemLeft}>
+                  <SymbolIcon symbol={item.symbol} size={18} />
                   <span className={styles.tickerSymbolTitle}>{item.symbol}</span>
                 </div>
                 {isActive && <span className={styles.tickerCheckmark}>✓</span>}

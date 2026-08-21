@@ -5,8 +5,9 @@ import { createChart, CandlestickSeries, HistogramSeries, LineSeries } from 'lig
 import styles from './aiStrategy.module.scss';
 import { useTheme } from '@/context/ThemeContext';
 import { getSymbolPrecision, fetchChartCandlesOnce } from '@/lib/chartStore';
+import { formatPairCurrency, getMsUntilNextHourOOne } from './strategyUtils';
 
-export { getSymbolPrecision };
+export { getSymbolPrecision, getMsUntilNextHourOOne };
 export const fetchChartDataOnce = fetchChartCandlesOnce;
 
 export default function ChartPanel({ symbol, strategyId, timeframe = '1H', nearestSupport, nearestResistance, onRefreshNeeded, livePriceInfo }) {

@@ -15,6 +15,14 @@ export function getSymbolPrecision(symbol) {
     }
 }
 
+export function applySymbolPrecision(series, symbol) {
+    if (!series || !symbol) return;
+    const sym = symbol.replace('/', '').toUpperCase();
+    const precision = sym.includes('JPY') ? 3 : ((sym.includes('XAU') || sym.includes('BTC')) ? 2 : 5);
+    const minMove = sym.includes('JPY') ? 0.001 : ((sym.includes('XAU') || sym.includes('BTC')) ? 0.01 : 0.00001);
+    series.applyOptions({ priceFormat: { type: 'price', precision, minMove } });
+}
+
 // 1. Single HTTP REST API Fetch Cache & Deduplication
 const activeFetches = new Map();
 
