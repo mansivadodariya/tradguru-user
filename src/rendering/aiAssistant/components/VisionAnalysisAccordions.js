@@ -4,8 +4,23 @@ import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+import { useLanguage } from '@/context/LanguageContext';
 import styles from '../aiAssistant.module.scss';
 import { bidiMarkdownComponents } from '@/lib/bidi';
+import {
+    TrendIcon,
+    StructureIcon,
+    LevelsIcon,
+    ZonesIcon,
+    TargetIcon,
+    VolatilityIcon,
+    ClockIcon,
+    SentimentIcon,
+    CandlestickIcon,
+    PatternsIcon,
+    WarningIcon,
+    ChevronDownIcon
+} from './VisionIcons';
 
 /**
  * Interface definition for AnalysisReportJSON
@@ -23,7 +38,6 @@ export function parseAnalysisReport(rawText) {
     if (typeof rawText === 'object') return rawText;
     try {
         if (typeof rawText === 'string') {
-            // Find json block between disclaimer header and footer
             const jsonMatch = rawText.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
                 return JSON.parse(jsonMatch[0]);
@@ -52,27 +66,42 @@ function Badge({ text, color = "amber" }) {
     );
 }
 
-// 10 Collapsible Accordion Sections Configuration
+// 10 Collapsible Accordion Sections Configuration with pure SVG icons
 export const ACCORDION_SECTIONS = [
-    { key: "overall_trend", title: "Overall Trend", icon: "📈" },
-    { key: "market_structure", title: "Market Structure", icon: "🧱" },
-    { key: "support_and_resistance", title: "Support & Resistance Levels", icon: "📊" },
-    { key: "supply_and_demand_zones", title: "Supply & Demand Zones", icon: "⚡" },
-    { key: "trader_actionable_zones", title: "Trader Actionable Zones", icon: "🎯" },
-    { key: "volatility_and_price_behavior", title: "Volatility & Price Behavior", icon: "📉" },
-    { key: "session_behavior", title: "Session Behavior", icon: "🕒" },
-    { key: "market_mood", title: "Market Mood", icon: "😃" },
-    { key: "candlestick_behavior", title: "Candlestick Behavior", icon: "🕯️" },
-    { key: "chart_patterns", title: "Chart Patterns", icon: "📐" }
+    { key: "overall_trend", translationKey: "overallTrend", title: "Overall Trend", Icon: TrendIcon },
+    { key: "market_structure", translationKey: "marketStructure", title: "Market Structure", Icon: StructureIcon },
+    { key: "support_and_resistance", translationKey: "supportResistance", title: "Support & Resistance Levels", Icon: LevelsIcon },
+    { key: "supply_and_demand_zones", translationKey: "supplyDemand", title: "Supply & Demand Zones", Icon: ZonesIcon },
+    { key: "trader_actionable_zones", translationKey: "actionableZones", title: "Trader Actionable Zones", Icon: TargetIcon },
+    { key: "volatility_and_price_behavior", translationKey: "volatilityBehavior", title: "Volatility & Price Behavior", Icon: VolatilityIcon },
+    { key: "session_behavior", translationKey: "sessionBehavior", title: "Session Behavior", Icon: ClockIcon },
+    { key: "market_mood", translationKey: "marketMood", title: "Market Mood", Icon: SentimentIcon },
+    { key: "candlestick_behavior", translationKey: "candlestickBehavior", title: "Candlestick Behavior", Icon: CandlestickIcon },
+    { key: "chart_patterns", translationKey: "chartPatterns", title: "Chart Patterns", Icon: PatternsIcon }
 ];
 
-export default function VisionAnalysisAccordions({ chartSections, textSummary, imageWarning, rawReportText }) {
-    // If rawReportText is provided, parse it
-    const data = chartSections || (rawReportText ? parseAnalysisReport(rawReportText) : null);
-    const sections = data?.chart_sections || data;
+export default function VisionAnalysisAccordions({ chartSections, textSummary, imageWarning, rawReportText, data, disclaimerHeader, disclaimerFooter }) {
+    const { t } = useLanguage();
+    // If data or rawReportText is provided, parse it
+    const rawData = data || chartSections || (rawReportText ? parseAnalysisReport(rawReportText) : null);
+    const sections = rawData?.chart_sections || rawData;
 
-    // Keep first available accordion open by default
-    const [openKey, setOpenKey] = useState("overall_trend");
+    // Keep ALL available accordions open by default as requested
+    const [openKeys, setOpenKeys] = useState(() => new Set(ACCORDION_SECTIONS.map(s => s.key)));
+
+    // Clean summary text to guarantee NO JSON leaks into the UI
+    let cleanSummary = textSummary;
+    if (typeof cleanSummary === 'string') {
+        if (/^\s*\{|\"is_valid_chart\"|\"detected_pair\"|\"overall_trend\"/i.test(cleanSummary)) {
+            cleanSummary = '';
+        } else {
+            cleanSummary = cleanSummary.replace(/```(?:json)?[\s\S]*?```/gi, '').replace(/\{[\s\S]*/g, '').trim();
+        }
+    }
+    // If cleanSummary is identical to overall_summary, suppress duplicate box
+    if (cleanSummary && sections?.overall_summary && cleanSummary.trim() === sections.overall_summary.trim()) {
+        cleanSummary = '';
+    }
 
     if (!sections || typeof sections !== "object") {
         if (rawReportText) {
@@ -88,7 +117,15 @@ export default function VisionAnalysisAccordions({ chartSections, textSummary, i
     }
 
     const toggleAccordion = (key) => {
-        setOpenKey(prev => (prev === key ? null : key));
+        setOpenKeys(prev => {
+            const next = new Set(prev);
+            if (next.has(key)) {
+                next.delete(key);
+            } else {
+                next.add(key);
+            }
+            return next;
+        });
     };
 
     const renderFormattedValue = (val) => {
@@ -148,7 +185,7 @@ export default function VisionAnalysisAccordions({ chartSections, textSummary, i
             // 1. Overall Trend
             case 'overall_trend': {
                 const trendStr = String(sectionData.trend_type || "").toLowerCase();
-                const trendColor = trendStr.includes('bull') ? 'green' : trendStr.includes('bear') ? 'red' : 'amber';
+                const trendColor = trendStr.includes('bull') ? 'green' : trendStr.includes('bear') || trendStr.includes('down') ? 'red' : 'amber';
                 return (
                     <div className={styles.visionSectionDetails}>
                         <div className={styles.visionBadgesRow}>
@@ -212,7 +249,7 @@ export default function VisionAnalysisAccordions({ chartSections, textSummary, i
                         {/* Support Levels (Green) */}
                         {supports.length > 0 && (
                             <div className={styles.visionLevelsGroup}>
-                                <h5 className={styles.visionGroupTitleGreen}>● Support Levels</h5>
+                                <h5 className={styles.visionGroupTitleGreen}>Support Levels</h5>
                                 <div className={styles.visionCardsCol}>
                                     {supports.map((sup, idx) => (
                                         <div key={idx} className={styles.visionLevelCardGreen}>
@@ -235,7 +272,7 @@ export default function VisionAnalysisAccordions({ chartSections, textSummary, i
                         {/* Resistance Levels (Red) */}
                         {resistances.length > 0 && (
                             <div className={styles.visionLevelsGroup}>
-                                <h5 className={styles.visionGroupTitleRed}>● Resistance Levels</h5>
+                                <h5 className={styles.visionGroupTitleRed}>Resistance Levels</h5>
                                 <div className={styles.visionCardsCol}>
                                     {resistances.map((res, idx) => (
                                         <div key={idx} className={styles.visionLevelCardRed}>
@@ -272,7 +309,7 @@ export default function VisionAnalysisAccordions({ chartSections, textSummary, i
                         {/* Demand Zones (Green) */}
                         {demands.length > 0 && (
                             <div className={styles.visionLevelsGroup}>
-                                <h5 className={styles.visionGroupTitleGreen}>● Demand Zones</h5>
+                                <h5 className={styles.visionGroupTitleGreen}>Demand Zones</h5>
                                 <div className={styles.visionCardsCol}>
                                     {demands.map((dz, idx) => (
                                         <div key={idx} className={styles.visionZoneCardGreen}>
@@ -295,7 +332,7 @@ export default function VisionAnalysisAccordions({ chartSections, textSummary, i
                         {/* Supply Zones (Red) */}
                         {supplies.length > 0 && (
                             <div className={styles.visionLevelsGroup}>
-                                <h5 className={styles.visionGroupTitleRed}>● Supply Zones</h5>
+                                <h5 className={styles.visionGroupTitleRed}>Supply Zones</h5>
                                 <div className={styles.visionCardsCol}>
                                     {supplies.map((sz, idx) => (
                                         <div key={idx} className={styles.visionZoneCardRed}>
@@ -318,7 +355,9 @@ export default function VisionAnalysisAccordions({ chartSections, textSummary, i
                         {/* Fair Value Gaps */}
                         {fvgs.length > 0 && (
                             <div className={styles.visionLevelsGroup}>
-                                <h5 className={styles.visionGroupTitleBlue || styles.visionGroupTitleGreen}>⚡ Fair Value Gaps (FVG)</h5>
+                                <h5 className={styles.visionGroupTitleGreen} style={{ color: '#0284c7', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <ZonesIcon size={14} /> Fair Value Gaps (FVG)
+                                </h5>
                                 <div className={styles.visionCardsCol}>
                                     {fvgs.map((fvg, idx) => (
                                         <div key={idx} className={styles.visionLevelCardGreen}>
@@ -349,7 +388,7 @@ export default function VisionAnalysisAccordions({ chartSections, textSummary, i
                     <div className={styles.visionSectionDetails}>
                         {entry.level_range && (
                             <div className={styles.visionActionCardGreen}>
-                                <h5 className={styles.visionActionTitleGreen}>● Entry Zone: {entry.level_range}</h5>
+                                <h5 className={styles.visionActionTitleGreen}>Entry Zone: {entry.level_range}</h5>
                                 {entry.trigger_condition && (
                                     <p className={styles.visionActionText}><strong>Trigger Condition:</strong> {entry.trigger_condition}</p>
                                 )}
@@ -360,7 +399,7 @@ export default function VisionAnalysisAccordions({ chartSections, textSummary, i
                         )}
                         {stopLoss.level && (
                             <div className={styles.visionActionCardRed}>
-                                <h5 className={styles.visionActionTitleRed}>● Stop Loss: {stopLoss.level}</h5>
+                                <h5 className={styles.visionActionTitleRed}>Stop Loss: {stopLoss.level}</h5>
                                 {stopLoss.invalidation_reason && (
                                     <p className={styles.visionActionText}><strong>Invalidation Reason:</strong> {stopLoss.invalidation_reason}</p>
                                 )}
@@ -368,7 +407,7 @@ export default function VisionAnalysisAccordions({ chartSections, textSummary, i
                         )}
                         {target.level_range && (
                             <div className={styles.visionActionCardGreen} style={{ borderColor: 'rgba(59, 130, 246, 0.3)', background: 'rgba(59, 130, 246, 0.05)' }}>
-                                <h5 className={styles.visionActionTitleGreen} style={{ color: '#2563eb' }}>● Target Zone: {target.level_range}</h5>
+                                <h5 className={styles.visionActionTitleGreen} style={{ color: '#2563eb' }}>Target Zone: {target.level_range}</h5>
                                 {target.target_type && (
                                     <p className={styles.visionActionText}><strong>Target Type:</strong> {target.target_type}</p>
                                 )}
@@ -527,20 +566,35 @@ export default function VisionAnalysisAccordions({ chartSections, textSummary, i
 
     return (
         <div className={styles.visionAnalysisContainer}>
-            {/* OPTIONAL IMAGE WARNING */}
-            {imageWarning && (
+            {/* OPTIONAL DISCLAIMER HEADER */}
+            {disclaimerHeader && (
                 <div className={styles.visionWarningCard}>
-                    <span className={styles.visionWarningIcon}>⚠️</span>
-                    <span>{imageWarning}</span>
+                    <span className={styles.visionWarningIcon}>
+                        <WarningIcon size={16} />
+                    </span>
+                    <div className={styles.chatMarkdown}>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>
+                            {disclaimerHeader.replace(/^[>⚠️\s*]+/, '').replace(/^⚠️\s*/, '')}
+                        </ReactMarkdown>
+                    </div>
                 </div>
             )}
 
-            {/* 1. TOP SHORT EXECUTIVE SUMMARY (BULLETS) */}
-            {textSummary && (
+            {imageWarning && !disclaimerHeader && (
+                <div className={styles.visionWarningCard}>
+                    <span className={styles.visionWarningIcon}>
+                        <WarningIcon size={16} />
+                    </span>
+                    <span>{imageWarning.replace(/^[⚠️\s*]+/, '')}</span>
+                </div>
+            )}
+
+            {/* 1. TOP SHORT EXECUTIVE SUMMARY (BULLETS) - Only rendered if valid clean text exists */}
+            {cleanSummary && (
                 <div className={styles.visionSummaryCard}>
                     <div className={styles.chatMarkdown}>
                         <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>
-                            {textSummary}
+                            {cleanSummary}
                         </ReactMarkdown>
                     </div>
                 </div>
@@ -553,13 +607,13 @@ export default function VisionAnalysisAccordions({ chartSections, textSummary, i
                 </div>
             )}
 
-            {/* 10 COLLAPSIBLE ACCORDION CARDS */}
+            {/* 10 COLLAPSIBLE ACCORDION CARDS WITH PURE SVG ICONS */}
             <div className={styles.visionAccordionList}>
-                {ACCORDION_SECTIONS.map(({ key, title, icon }) => {
+                {ACCORDION_SECTIONS.map(({ key, translationKey, title, Icon }) => {
                     const sectionData = sections[key];
                     if (!sectionData) return null;
 
-                    const isOpen = openKey === key;
+                    const isOpen = openKeys.has(key);
 
                     return (
                         <div
@@ -573,15 +627,19 @@ export default function VisionAnalysisAccordions({ chartSections, textSummary, i
                                 className={styles.visionAccordionHeader}
                             >
                                 <div className={styles.visionHeaderLeft}>
-                                    <span className={styles.visionSectionIcon}>{icon}</span>
-                                    <span className={styles.visionSectionTitle}>{title}</span>
+                                    <span className={styles.visionSectionIcon}>
+                                        <Icon size={18} />
+                                    </span>
+                                    <span className={styles.visionSectionTitle}>
+                                        {t(`aiAssistant.${translationKey || 'overallTrend'}`, title)}
+                                    </span>
 
                                     {/* STATUS BADGES FOR OVERALL TREND IN HEADER */}
                                     {key === "overall_trend" && sectionData.trend_type && (
                                         <div className={styles.visionTrendBadges}>
                                             <Badge 
                                                 text={sectionData.trend_type} 
-                                                color={String(sectionData.trend_type).toLowerCase().includes('bull') ? 'green' : String(sectionData.trend_type).toLowerCase().includes('bear') ? 'red' : 'amber'} 
+                                                color={String(sectionData.trend_type).toLowerCase().includes('bull') ? 'green' : String(sectionData.trend_type).toLowerCase().includes('bear') || String(sectionData.trend_type).toLowerCase().includes('down') ? 'red' : 'amber'} 
                                             />
                                             {sectionData.trend_strength && (
                                                 <Badge text={`Strength: ${sectionData.trend_strength}`} color="slate" />
@@ -590,22 +648,35 @@ export default function VisionAnalysisAccordions({ chartSections, textSummary, i
                                     )}
                                 </div>
 
-                                {/* EXPAND / COLLAPSE ARROW ICON */}
+                                {/* EXPAND / COLLAPSE ARROW SVG ICON */}
                                 <span className={`${styles.visionChevron} ${isOpen ? styles.visionChevronOpen : ''}`}>
-                                    ▼
+                                    <ChevronDownIcon size={15} />
                                 </span>
                             </button>
 
-                            {/* ACCORDION CONTENT BODY */}
-                            {isOpen && (
-                                <div className={styles.visionAccordionBody}>
-                                    {renderSectionContent(key, sectionData)}
+                            {/* SMOOTH COLLAPSIBLE ACCORDION BODY */}
+                            <div className={`${styles.visionAccordionCollapse} ${isOpen ? styles.visionAccordionCollapseOpen : ''}`}>
+                                <div className={styles.visionAccordionCollapseInner}>
+                                    <div className={styles.visionAccordionBody}>
+                                        {renderSectionContent(key, sectionData)}
+                                    </div>
                                 </div>
-                            )}
+                            </div>
                         </div>
                     );
                 })}
             </div>
+
+            {/* OPTIONAL DISCLAIMER FOOTER */}
+            {disclaimerFooter && (
+                <div className={styles.visionOverviewCard} style={{ opacity: 0.85, fontSize: '11.5px', fontStyle: 'italic' }}>
+                    <div className={styles.chatMarkdown}>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={bidiMarkdownComponents}>
+                            {disclaimerFooter.replace(/^⚠️\s*/, '')}
+                        </ReactMarkdown>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
