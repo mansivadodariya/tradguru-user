@@ -33,7 +33,7 @@ import {
     CompleteProIcon
 } from './components/ClarificationIcons';
 import RenderMarkdownWithWidgets from './components/MarkdownWidgetRenderer';
-import VisionAnalysisAccordions from './components/VisionAnalysisAccordions';
+import VisionAnalysisAccordions, { parseAnalysisReport } from './components/VisionAnalysisAccordions';
 
 const UploadIcon = '/assets/icons/upload-xs.svg';
 const Logo = '/assets/icons/AIChat.svg';
@@ -53,67 +53,84 @@ const parseAssistantResponse = (raw) => {
     const imageUrl = chatItem?.image_url || envelope?.image_url || null;
     const chatType = chatItem?.chat_type || envelope?.chat_type || null;
 
+    // Attempt to extract chart analysis report JSON from payload if it's a string
     if (typeof payload === 'string') {
-        try {
-            payload = JSON.parse(payload);
-        } catch {
-            // Keep as string
+        const parsedReport = parseAnalysisReport(payload);
+        if (parsedReport && typeof parsedReport === 'object') {
+            payload = parsedReport;
+        } else {
+            try {
+                payload = JSON.parse(payload);
+            } catch {
+                // Keep as string
+            }
         }
     }
 
     const isObjectPayload = payload && typeof payload === 'object' && !Array.isArray(payload);
-    if (!isObjectPayload) {
-        const text = typeof payload === 'string' ? payload : String(payload || '');
-        return {
-            shortContent: text,
-            fullReport: null,
-            visualData: null,
-            detected_pair: null,
-            detected_timeframe: null,
-            is_valid_chart: true,
-            image_warning: null,
-            chart_sections: null,
-            response_format: null,
-            image_url: imageUrl,
-            chat_type: chatType
-        };
+    let shortContent = isObjectPayload
+        ? (payload.short_response || payload.shortResponse || payload.text || payload.response || '')
+        : (typeof payload === 'string' ? payload : String(payload || ''));
+
+    let fullReport = isObjectPayload
+        ? (payload.full_report || payload.fullReport || envelope?.full_report || null)
+        : (envelope?.full_report || null);
+
+    const visualData = isObjectPayload ? (payload.visual_data || payload.visualData || envelope?.visual_data || null) : null;
+    let detected_pair = isObjectPayload ? (payload.detected_pair || payload.detectedPair || envelope?.detected_pair || null) : null;
+    let detected_timeframe = isObjectPayload ? (payload.detected_timeframe || payload.detectedTimeframe || envelope?.detected_timeframe || null) : null;
+    let is_valid_chart = isObjectPayload ? (payload.is_valid_chart ?? payload.isValidChart ?? envelope?.is_valid_chart ?? true) : true;
+    let image_warning = isObjectPayload ? (payload.image_warning || envelope?.image_warning || null) : null;
+    let chart_sections = isObjectPayload ? (payload.chart_sections || payload.chartSections || envelope?.chart_sections || null) : null;
+    let response_format = isObjectPayload ? (payload.response_format || payload.responseFormat || envelope?.response_format || null) : null;
+
+    // Check if payload itself is the chart report object (has overall_trend, market_structure, etc.)
+    if (isObjectPayload && !chart_sections && (payload.overall_trend || payload.market_structure || payload.support_and_resistance || payload.supply_and_demand_zones || payload.trader_actionable_zones)) {
+        chart_sections = payload;
+        response_format = 'vision_analysis';
     }
 
-    const shortContent = payload.short_response || payload.shortResponse || payload.text || payload.response || '';
-    let fullReport = payload.full_report || payload.fullReport || envelope?.full_report || null;
-    const visualData = payload.visual_data || payload.visualData || envelope?.visual_data || null;
-
-    let detected_pair = payload.detected_pair || payload.detectedPair || envelope?.detected_pair || null;
-    let detected_timeframe = payload.detected_timeframe || payload.detectedTimeframe || envelope?.detected_timeframe || null;
-    let is_valid_chart = payload.is_valid_chart ?? payload.isValidChart ?? envelope?.is_valid_chart ?? true;
-    let image_warning = payload.image_warning || envelope?.image_warning || null;
-    let chart_sections = payload.chart_sections || payload.chartSections || envelope?.chart_sections || null;
-    let response_format = payload.response_format || payload.responseFormat || envelope?.response_format || (chatType === 'With_Image' ? 'vision_analysis' : null);
-
-    // If full_report is a JSON string, parse it to extract chart_sections, detected_pair, etc.
+    // If full_report is a string with disclaimer header/footer and embedded JSON, parse it
     if (typeof fullReport === 'string') {
-        try {
-            const parsedFull = JSON.parse(fullReport);
-            if (parsedFull && typeof parsedFull === 'object') {
-                if (!chart_sections && parsedFull.chart_sections) {
-                    chart_sections = parsedFull.chart_sections;
-                }
-                if (!detected_pair && parsedFull.detected_pair) {
-                    detected_pair = parsedFull.detected_pair;
-                }
-                if (!detected_timeframe && parsedFull.detected_timeframe) {
-                    detected_timeframe = parsedFull.detected_timeframe;
-                }
-                if (parsedFull.is_valid_chart !== undefined) {
-                    is_valid_chart = parsedFull.is_valid_chart;
-                }
-                if (!image_warning && parsedFull.image_warning) {
-                    image_warning = parsedFull.image_warning;
+        const parsedFull = parseAnalysisReport(fullReport);
+        if (parsedFull && typeof parsedFull === 'object') {
+            const extractedSections = parsedFull.chart_sections || (
+                (parsedFull.overall_trend || parsedFull.market_structure || parsedFull.support_and_resistance || parsedFull.supply_and_demand_zones || parsedFull.trader_actionable_zones) ? parsedFull : null
+            );
+            if (extractedSections) {
+                chart_sections = extractedSections;
+                response_format = 'vision_analysis';
+            }
+            if (!detected_pair && parsedFull.detected_pair) detected_pair = parsedFull.detected_pair;
+            if (!detected_timeframe && parsedFull.detected_timeframe) detected_timeframe = parsedFull.detected_timeframe;
+            if (parsedFull.is_valid_chart !== undefined) is_valid_chart = parsedFull.is_valid_chart;
+            if (!image_warning && parsedFull.image_warning) image_warning = parsedFull.image_warning;
+        }
+    }
+
+    // Also check if shortContent contains embedded JSON report
+    if (typeof shortContent === 'string' && !chart_sections) {
+        const parsedShort = parseAnalysisReport(shortContent);
+        if (parsedShort && typeof parsedShort === 'object') {
+            const extractedSections = parsedShort.chart_sections || (
+                (parsedShort.overall_trend || parsedShort.market_structure || parsedShort.support_and_resistance || parsedShort.supply_and_demand_zones || parsedShort.trader_actionable_zones) ? parsedShort : null
+            );
+            if (extractedSections) {
+                chart_sections = extractedSections;
+                response_format = 'vision_analysis';
+                // Remove raw JSON from shortContent so it doesn't display raw JSON code block
+                const cleanedText = shortContent.replace(/\{[\s\S]*\}/, '').trim();
+                if (cleanedText) {
+                    shortContent = cleanedText;
+                } else if (parsedShort.overall_summary) {
+                    shortContent = parsedShort.overall_summary;
                 }
             }
-        } catch {
-            // fullReport is markdown text, keep as is
         }
+    }
+
+    if (chatType === 'With_Image' && !response_format) {
+        response_format = 'vision_analysis';
     }
 
     if (!image_warning && is_valid_chart === false) {
@@ -1130,16 +1147,25 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                                         )}
                                                         {msg.content}
                                                     </>
-                                                ) : (
-                                                    <>
-                                                        {msg.chart_sections ? (
+                                                ) : (() => {
+                                                    const inlineReport = msg.chart_sections || parseAnalysisReport(msg.fullReport) || parseAnalysisReport(msg.content);
+                                                    if (inlineReport) {
+                                                        const sections = inlineReport.chart_sections || inlineReport;
+                                                        const cleanSummary = (typeof msg.content === 'string' && msg.content.includes('{'))
+                                                            ? msg.content.replace(/\{[\s\S]*\}/, '').trim()
+                                                            : (msg.content || sections.overall_summary);
+                                                        return (
                                                             <VisionAnalysisAccordions
-                                                                chartSections={msg.chart_sections}
-                                                                textSummary={msg.content}
+                                                                chartSections={sections}
+                                                                textSummary={cleanSummary}
                                                                 imageWarning={msg.image_warning}
                                                             />
-                                                        ) : (msg.response_format === "deep_analysis" || isDeepAnalysis) && msg.fullReport ? (
-                                                            <div className={styles.deepAnalysisCardWrapper}>
+                                                        );
+                                                    }
+                                                    return (
+                                                        <>
+                                                            {(msg.response_format === "deep_analysis" || isDeepAnalysis) && msg.fullReport ? (
+                                                                <div className={styles.deepAnalysisCardWrapper}>
                                                                 {/* 1. TOP SECTION: SHORT EXECUTIVE BULLETS */}
                                                                 {msg.content && (
                                                                     <div className={styles.executiveSummaryCard}>
@@ -1189,7 +1215,8 @@ const AiAssistant = ({ initialTab, initialOpenId } = {}) => {
                                                             <ClarificationOptionButtons onSelect={handleOptionClick} />
                                                         )}
                                                     </>
-                                                )}
+                                                    );
+                                                })()}
                                             </div>
                                         </div>
                                     );
