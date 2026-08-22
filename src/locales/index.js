@@ -1,11 +1,23 @@
 import en from './en.json';
 import ar from './ar.json';
 import ph from './ph.json';
+import ma from './ma.json';
+import es from './es.json';
+import ru from './ru.json';
+import zh from './zh.json';
+import vi from './vi.json';
+import id from './id.json';
 
 export const translations = {
   en,
   ar,
   ph,
+  ma,
+  es,
+  ru,
+  zh,
+  vi,
+  id,
 };
 
 export const getTranslation = (lang, key, fallback = '') => {
