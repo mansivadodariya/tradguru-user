@@ -6,7 +6,7 @@
     box-sizing: border-box;
     border-bottom: 1px solid #E4E4E4;
     background: #FFF;
-    padding: 0 16px;
+    padding: 0 24px 0 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -15,6 +15,15 @@
     z-index: 9999;
 
     .left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding-left: 12px;
+
+        :global([dir="rtl"]) & {
+            padding-left: 0;
+            padding-right: 12px;
+        }
 
         .menuBtn {
             display: none;
@@ -24,12 +33,25 @@
             color: #1A1A1A;
             padding: 8px;
             margin-left: -8px;
-            margin-right: 8px;
+            margin-right: 0;
 
             @include respond-to('lg') {
                 display: flex;
                 align-items: center;
                 justify-content: center;
+            }
+        }
+
+        .pageTitle {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+            letter-spacing: -0.4px;
+            white-space: nowrap;
+
+            @include respond-to('sm') {
+                font-size: 16px;
             }
         }
     }
@@ -438,6 +460,10 @@
 
         .left .menuBtn {
             color: #f3f4f6;
+        }
+
+        .left .pageTitle {
+            color: #f9fafb;
         }
 
         .themeToggle {

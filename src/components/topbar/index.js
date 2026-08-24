@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import styles from './topbar.module.scss';
 import { dashboardApi } from '@/lib/api';
 import { getStoredUser, getStoredUserId, clearAuthSession, hydrateUserFromProfile } from '@/lib/authSession';
@@ -10,8 +10,27 @@ import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
 import LanguageToggle from '@/components/languageToggle';
 
+const ROUTE_TITLE_MAP = {
+    '/dashboard': 'Dashboard',
+    '/trade-snap': 'AI Trade',
+    '/tradesnap': 'AI Trade',
+    '/ai-assistant': 'AI Chat',
+    '/ai-chat': 'AI Chat',
+    '/ai-strategy': 'AI Strategy',
+    '/ai-strategy/live': 'AI Strategy Live',
+    '/ai-strategy/strategy': 'AI Strategy',
+    '/economic-calendar': 'Economic Calendar',
+    '/credit-history': 'Credit History',
+    '/plans': 'Subscription Plans',
+    '/broker': 'Broker',
+    '/brokers': 'Broker',
+    '/profile': 'Profile',
+    '/settings': 'Settings',
+};
+
 const Topbar = ({ onMenuClick }) => {
     const router = useRouter();
+    const pathname = usePathname();
     const { theme, toggleTheme } = useTheme();
     const { t } = useLanguage();
     const [user, setUser] = useState(null);
@@ -20,6 +39,11 @@ const Topbar = ({ onMenuClick }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const dropdownRef = useRef(null);
+
+    const currentEntry = Object.entries(ROUTE_TITLE_MAP).find(([route]) =>
+        pathname === route || pathname?.startsWith(`${route}/`)
+    );
+    const pageTitle = currentEntry ? currentEntry[1] : '';
 
     const fetchCredits = async (userId) => {
         if (!userId) return;
@@ -30,8 +54,6 @@ const Topbar = ({ onMenuClick }) => {
             if (!err?.message?.includes('Session expired')) { /* skip */ }
         }
     };
-
-
 
     useEffect(() => {
         const init = async () => {
@@ -102,6 +124,7 @@ const Topbar = ({ onMenuClick }) => {
                             <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
                     </button>
+                    {pageTitle && <h1 className={styles.pageTitle}>{pageTitle}</h1>}
                 </div>
                 <div className={styles.right}>
                     <div className={styles.skeletonCredits} />
@@ -121,6 +144,7 @@ const Topbar = ({ onMenuClick }) => {
                             <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
                     </button>
+                    {pageTitle && <h1 className={styles.pageTitle}>{pageTitle}</h1>}
                 </div>
                 <div className={styles.right}>
                     <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle Theme" type="button">

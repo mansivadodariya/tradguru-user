@@ -41,37 +41,47 @@ $success: #10b981;
         display: none;
     }
 
-    .tabSwitcher {
-        display: grid;
-        grid-template-columns: 1fr 1fr ;
-        gap: 4px;
-        padding: 6px;
-        background: #F1F5FC;
-        max-width: 720px;
-        margin-bottom: 24px;
+    .tabSwitcherRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
 
-        button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border: none;
-            background: transparent;
-            color: $muted;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        .tabSwitcher {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            padding: 5px;
+            background: #F1F5FC;
+            width: 100%;
+            max-width: 480px;
+            margin-bottom: 0;
 
-            svg {
-                flex-shrink: 0;
-            }
+            button {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                padding: 9px 18px;
+                border: none;
+                background: transparent;
+                color: $muted;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
 
-            &.tabActive {
-                background: $primary;
-                color: #fff;
-                box-shadow: 0 4px 12px rgba(11, 86, 219, 0.25);
+                svg {
+                    flex-shrink: 0;
+                }
+
+                &.tabActive {
+                    background: $primary;
+                    color: #fff;
+                    box-shadow: 0 4px 12px rgba(11, 86, 219, 0.25);
+                }
             }
         }
     }
@@ -507,6 +517,13 @@ $success: #10b981;
         font-size: 20px;
         font-weight: 600;
         text-transform: capitalize;
+
+        .miniSignalImg {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            vertical-align: middle;
+        }
     }
 
     .signalBuy {

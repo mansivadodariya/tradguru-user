@@ -161,6 +161,9 @@ export async function analyzeTradeScreenshots(fileBlobs, userId, _isRetry = fals
     fileBlobs.forEach((blob, index) => {
         const name = fileBlobs.length > 1 ? `screenshot${index + 1}.png` : 'screenshot.png';
         formData.append('files', blob, name);
+        if (index === 0) {
+            formData.append('image', blob, name);
+        }
     });
 
     const storedId =
@@ -170,15 +173,28 @@ export async function analyzeTradeScreenshots(fileBlobs, userId, _isRetry = fals
         formData.append('user_id', storedId);
     }
 
-    const res = await fetch(`${TRADE_SNAP_BASE}/api/v1/analyze`, {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${token}`,
-            'ngrok-skip-browser-warning': 'true',
-        },
-        body: formData,
-    });
+    let res;
+    try {
+        res = await fetch(`${TRADE_SNAP_BASE}/api/v1/ai-snap`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                Authorization: `Bearer ${token}`,
+                'ngrok-skip-browser-warning': 'true',
+            },
+            body: formData,
+        });
+    } catch {
+        res = await fetch(`${TRADE_SNAP_BASE}/api/v1/analyze`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                Authorization: `Bearer ${token}`,
+                'ngrok-skip-browser-warning': 'true',
+            },
+            body: formData,
+        });
+    }
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {

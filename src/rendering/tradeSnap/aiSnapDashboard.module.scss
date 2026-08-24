@@ -1,0 +1,1686 @@
+// AI Snap Ultra-Premium Trading Dashboard Styles with Complete Light & Dark Theme Support
+
+.dashboardWrapper {
+    // Theme Variables - Default: LIGHT MODE
+    --card-bg: #FFFFFF;
+    --card-border: #E2E8F0;
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    --box-bg: #F8FAFC;
+    --box-border: #E2E8F0;
+    --title-color: #0F172A;
+    --text-primary: #1E293B;
+    --text-muted: #64748B;
+    --text-faint: #94A3B8;
+    --wrapper-bg: #F1F5F9;
+    --wrapper-border: #E2E8F0;
+    --pill-bg: rgba(37, 99, 235, 0.08);
+    --pill-border: rgba(37, 99, 235, 0.2);
+    --pill-color: #2563EB;
+    --stat-card-bg: #FFFFFF;
+    --code-bg: #E2E8F0;
+    --code-color: #334155;
+    --bull-hero-bg: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, #FFFFFF 100%);
+    --bear-hero-bg: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, #FFFFFF 100%);
+    --neutral-hero-bg: #FFFFFF;
+    --tp-card-bg: #FFFFFF;
+    --tp-card-border: rgba(16, 185, 129, 0.3);
+
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: var(--wrapper-bg);
+    color: var(--text-primary);
+    padding: 20px;
+    border-radius: 0 !important;
+    border: 1px solid var(--wrapper-border);
+    box-sizing: border-box;
+
+    @media (max-width: 768px) {
+        padding: 12px;
+        gap: 16px;
+    }
+}
+
+:global(.dark) {
+    .dashboardWrapper {
+        // Theme Variables - DARK MODE
+        --card-bg: #111827;
+        --card-border: rgba(255, 255, 255, 0.1);
+        --card-shadow: none;
+        --box-bg: #1F2937;
+        --box-border: rgba(255, 255, 255, 0.08);
+        --title-color: #FFFFFF;
+        --text-primary: #F9FAFB;
+        --text-muted: #9CA3AF;
+        --text-faint: #6B7280;
+        --wrapper-bg: #0B0F19;
+        --wrapper-border: rgba(255, 255, 255, 0.1);
+        --pill-bg: rgba(37, 99, 235, 0.15);
+        --pill-border: rgba(37, 99, 235, 0.3);
+        --pill-color: #60A5FA;
+        --stat-card-bg: rgba(17, 24, 39, 0.85);
+        --code-bg: #1F2937;
+        --code-color: #9CA3AF;
+        --bull-hero-bg: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(17, 24, 39, 0.95) 100%);
+        --bear-hero-bg: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(17, 24, 39, 0.95) 100%);
+        --neutral-hero-bg: #111827;
+        --tp-card-bg: #111827;
+        --tp-card-border: rgba(16, 185, 129, 0.25);
+    }
+}
+
+// Top Split Layout (Section D Summary + Section A Technical Score Gauge)
+.topSplitRow {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+
+    @media (max-width: 1024px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+// Section D: Summary Header Grid
+.summaryHeaderGrid {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    border-radius: 0 !important;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.symbolBadgeWrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    .symbolTitle {
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        margin: 0;
+        color: var(--title-color);
+    }
+
+    .timeframePill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--pill-bg);
+        border: 1px solid var(--pill-border);
+        color: var(--pill-color);
+        padding: 4px 10px;
+        border-radius: 0 !important;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .validChartBadge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        border-radius: 0 !important;
+
+        &.validGreen {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        &.validRed {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+    }
+}
+
+.priceHeroBlock {
+    background: var(--box-bg);
+    border: 1px solid var(--box-border);
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .priceHeroLabel {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text-muted);
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
+
+    .priceHeroValueRow {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+
+        .priceHeroMainVal {
+            font-size: 26px;
+            font-weight: 900;
+            color: #10B981;
+            letter-spacing: -0.5px;
+        }
+
+        .liveStatusTag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #10B981;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 2px 8px;
+
+            .livePulseDot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: #10B981;
+                box-shadow: 0 0 8px #10B981;
+            }
+        }
+    }
+}
+
+.summaryMetricsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.metricBox {
+    background: var(--box-bg);
+    border: 1px solid var(--box-border);
+    padding: 10px 14px;
+    border-radius: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .metricLabel {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+    }
+
+    .metricVal {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .changeBadge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        font-weight: 700;
+
+        &.changeGreen {
+            color: #10B981;
+        }
+
+        &.changeRed {
+            color: #EF4444;
+        }
+    }
+}
+
+// Section A: Technical Score Speedometer Gauge
+.scoreGaugeCard {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    border-radius: 0 !important;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.cardHeaderSmall {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    width: 100%;
+    margin-bottom: 8px;
+
+    .headerIcon {
+        color: var(--pill-color);
+    }
+}
+
+.gaugeContainer {
+    position: relative;
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 4px;
+}
+
+.gaugeSvg {
+    width: 280px;
+    height: 155px;
+    overflow: visible;
+}
+
+.gaugeCenterText {
+    position: relative;
+    margin-top: 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+
+    .verdictBigTitle {
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: -0.2px;
+        margin: 0;
+        text-transform: capitalize;
+    }
+
+    .scoreDetailRow {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+        margin-top: 3px;
+
+        .bigScoreVal {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--title-color);
+        }
+
+        .scoreDenom {
+            font-size: 11px;
+            color: var(--text-faint);
+            font-weight: 600;
+        }
+
+        .confidenceMiniTag {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: 6px;
+
+            strong {
+                color: var(--pill-color);
+            }
+        }
+    }
+}
+
+.formulaFooter {
+    font-size: 10px;
+    color: var(--text-faint);
+    margin-top: 8px;
+    text-align: center;
+
+    code {
+        background: var(--code-bg);
+        padding: 2px 6px;
+        color: var(--code-color);
+    }
+}
+
+// Section B: Dynamic Bull & Bear Hero Banner
+.heroBanner {
+    position: relative;
+    border-radius: 0 !important;
+    padding: 20px 24px;
+    overflow: hidden;
+    border: 1px solid;
+
+    &.bullishHero {
+        background: var(--bull-hero-bg);
+        border-color: rgba(16, 185, 129, 0.4);
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.12);
+    }
+
+    &.bearishHero {
+        background: var(--bear-hero-bg);
+        border-color: rgba(239, 68, 68, 0.4);
+        box-shadow: 0 0 30px rgba(239, 68, 68, 0.12);
+    }
+
+    &.neutralHero {
+        background: var(--neutral-hero-bg);
+        border-color: rgba(245, 158, 11, 0.3);
+    }
+}
+
+.bannerWaveGlow {
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    width: 140%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.bannerWaveGlowBear {
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    width: 140%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.bannerContent {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.bannerLeft {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.bannerImageContainer {
+    position: relative;
+    width: 220px;
+    height: 170px;
+    min-width: 220px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (max-width: 768px) {
+        width: 140px;
+        height: 110px;
+        min-width: 140px;
+    }
+}
+
+.bullBannerImg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 28px rgba(16, 185, 129, 0.85));
+}
+
+.bearBannerImg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 28px rgba(239, 68, 68, 0.85));
+}
+
+.bullGlowAura {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.45) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.bearGlowAura {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.45) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.neutralBannerImages {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.neutralBullImg {
+    width: 100px;
+    height: 90px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 18px rgba(16, 185, 129, 0.7));
+
+    @media (max-width: 640px) {
+        width: 65px;
+        height: 58px;
+    }
+}
+
+.neutralBearImg {
+    width: 100px;
+    height: 90px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 18px rgba(239, 68, 68, 0.7));
+
+    @media (max-width: 640px) {
+        width: 65px;
+        height: 58px;
+    }
+}
+
+.neutralVsBadge {
+    font-size: 11px;
+    font-weight: 900;
+    color: #F59E0B;
+    background: rgba(245, 158, 11, 0.18);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    padding: 3px 7px;
+    border-radius: 2px;
+}
+
+.bannerTextCol {
+    display: flex;
+    flex-direction: column;
+}
+
+.bannerTagRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+
+    .pulseDot {
+        width: 8px;
+        height: 8px;
+        background: #10B981;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #10B981;
+    }
+
+    .bannerTagText {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #10B981;
+    }
+}
+
+.bannerTagRowRed {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+
+    .pulseDotRed {
+        width: 8px;
+        height: 8px;
+        background: #EF4444;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #EF4444;
+    }
+
+    .bannerTagText {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #EF4444;
+    }
+}
+
+.bannerTagRowAmber {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+
+    .pulseDotAmber {
+        width: 8px;
+        height: 8px;
+        background: #F59E0B;
+        border-radius: 50%;
+    }
+
+    .bannerTagText {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #F59E0B;
+    }
+}
+
+.bannerTitle {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--title-color);
+    margin: 0;
+}
+
+.bannerSubtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 4px 0 0 0;
+}
+
+.bannerRight {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+    min-width: 140px;
+    flex-shrink: 0;
+
+    @media (max-width: 768px) {
+        width: 100%;
+        flex-direction: row;
+
+        .bannerStatCard, .bannerStatCardRed, .bannerStatCardAmber {
+            flex: 1;
+        }
+    }
+}
+
+.bannerStatCard {
+    background: var(--stat-card-bg);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    border-radius: 0 !important;
+    padding: 8px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    box-sizing: border-box;
+
+    .bannerStatLabel {
+        font-size: 10px;
+        color: var(--text-muted);
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        width: 100%;
+        text-align: left;
+    }
+
+    .bannerStatValue {
+        font-size: 17px;
+        font-weight: 800;
+        color: #10B981;
+    }
+
+    .bannerStatBadge {
+        font-size: 13px;
+        font-weight: 800;
+        color: #10B981;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 0;
+    }
+}
+
+.bannerStatCardRed {
+    background: var(--stat-card-bg);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: 0 !important;
+    padding: 8px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    box-sizing: border-box;
+
+    .bannerStatLabel {
+        font-size: 10px;
+        color: var(--text-muted);
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        width: 100%;
+        text-align: left;
+    }
+
+    .bannerStatValueRed {
+        font-size: 17px;
+        font-weight: 800;
+        color: #EF4444;
+    }
+
+    .bannerStatBadgeRed {
+        font-size: 13px;
+        font-weight: 800;
+        color: #EF4444;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 0;
+    }
+}
+
+.bannerStatCardAmber {
+    background: var(--stat-card-bg);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    border-radius: 0 !important;
+    padding: 8px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    box-sizing: border-box;
+
+    .bannerStatLabel {
+        font-size: 10px;
+        color: var(--text-muted);
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        width: 100%;
+        text-align: left;
+    }
+
+    .bannerStatValueAmber {
+        font-size: 15px;
+        font-weight: 800;
+        color: #F59E0B;
+    }
+
+    .bannerStatBadgeAmber {
+        font-size: 12px;
+        font-weight: 800;
+        color: #F59E0B;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 0;
+    }
+}
+
+.convictionCircleRow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 0;
+}
+
+.convictionCircleBox {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.convictionCircleSvg {
+    transform: rotate(-90deg);
+    display: block;
+}
+
+.convictionTextOverlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.convictionValText {
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: -0.3px;
+    line-height: 1;
+}
+
+.actionThumbImg {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    vertical-align: middle;
+}
+
+// Section C: Actionable Buy/Sell Trade Signal Setup Card
+.tradeSetupCard {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    border-radius: 0 !important;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.tradeSetupHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 14px;
+}
+
+.actionBadgeWrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.actionMainBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    border-radius: 0 !important;
+
+    &.actionBuy {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10B981;
+        border: 1px solid #10B981;
+        box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
+    }
+
+    &.actionSell {
+        background: rgba(239, 68, 68, 0.2);
+        color: #EF4444;
+        border: 1px solid #EF4444;
+        box-shadow: 0 0 16px rgba(239, 68, 68, 0.25);
+    }
+
+    &.actionNeutral {
+        background: rgba(245, 158, 11, 0.2);
+        color: #F59E0B;
+        border: 1px solid #F59E0B;
+    }
+}
+
+.signalTypeTag {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: var(--box-bg);
+    padding: 4px 10px;
+    border: 1px solid var(--box-border);
+}
+
+.rrBadge {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+
+    .rrLabel {
+        font-size: 10px;
+        color: var(--text-faint);
+        font-weight: 700;
+    }
+
+    .rrValue {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--pill-color);
+    }
+}
+
+.setupGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.setupBox {
+    background: var(--box-bg);
+    border: 1px solid var(--box-border);
+    padding: 14px;
+    border-radius: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    &.slBox {
+        border-color: rgba(239, 68, 68, 0.3);
+        background: rgba(239, 68, 68, 0.05);
+    }
+}
+
+.boxTitleRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+
+    .slTextTitle {
+        color: #EF4444;
+    }
+}
+
+.copyBtn {
+    background: transparent;
+    border: none;
+    color: var(--text-faint);
+    cursor: pointer;
+    position: relative;
+
+    &:hover {
+        color: var(--pill-color);
+    }
+}
+
+.copiedPopup {
+    position: absolute;
+    top: -22px;
+    right: 0;
+    background: #10B981;
+    color: #FFFFFF;
+    font-size: 9px;
+    padding: 2px 4px;
+}
+
+.boxPrimaryValue {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--title-color);
+}
+
+.boxSubInfo {
+    font-size: 11px;
+    color: var(--text-faint);
+}
+
+.slPrimaryValue {
+    font-size: 20px;
+    font-weight: 800;
+    color: #EF4444;
+}
+
+.slReasonInfo {
+    font-size: 11px;
+    color: #F87171;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tpSection {
+    background: var(--box-bg);
+    border: 1px solid var(--box-border);
+    padding: 14px;
+    border-radius: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tpSectionHeader {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 700;
+    color: #10B981;
+
+    .tpHintBadge {
+        color: var(--text-faint);
+        font-weight: 500;
+    }
+}
+
+.tpGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tpPillCard {
+    background: var(--tp-card-bg);
+    border: 1px solid var(--tp-card-border);
+    padding: 10px;
+    border-radius: 0 !important;
+
+    .tpPillTop {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 10px;
+        color: var(--text-muted);
+
+        .tpIcon {
+            color: #10B981;
+        }
+    }
+
+    .tpPillVal {
+        font-size: 16px;
+        font-weight: 800;
+        color: #10B981;
+        margin-top: 4px;
+    }
+}
+
+.rationaleBox {
+    background: var(--pill-bg);
+    border: 1px solid var(--pill-border);
+    padding: 14px;
+    border-radius: 0 !important;
+
+    .rationaleTitle {
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--pill-color);
+        margin-bottom: 6px;
+    }
+
+    .rationaleText {
+        font-size: 13px;
+        color: var(--text-primary);
+        line-height: 1.5;
+        margin: 0;
+    }
+}
+
+// Section E: Live Indicators
+.liveIndicatorsSection {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    padding: 20px;
+    border-radius: 0 !important;
+}
+
+.sectionHeaderRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    h3 {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0;
+        color: var(--title-color);
+    }
+}
+
+.sectionTitleWrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .sectionTitleIcon {
+        color: var(--pill-color);
+    }
+}
+
+.strengthBadge {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--box-bg);
+    padding: 4px 10px;
+    border: 1px solid var(--box-border);
+
+    strong {
+        color: #10B981;
+    }
+}
+
+.indicatorsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+
+    @media (max-width: 1024px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.indicatorCard {
+    background: var(--box-bg);
+    border: 1px solid var(--box-border);
+    padding: 14px;
+    border-radius: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.indicatorCardTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .indicatorName {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-muted);
+    }
+}
+
+.statusBadge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 0 !important;
+
+    &.badgeGreen {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10B981;
+    }
+
+    &.badgeRed {
+        background: rgba(239, 68, 68, 0.15);
+        color: #EF4444;
+    }
+
+    &.badgeAmber {
+        background: rgba(245, 158, 11, 0.15);
+        color: #F59E0B;
+    }
+}
+
+.indicatorValue {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--title-color);
+}
+
+.indicatorBarTrack {
+    width: 100%;
+    height: 4px;
+    background: var(--box-border);
+    border-radius: 0 !important;
+    overflow: hidden;
+}
+
+.indicatorBarFill {
+    height: 100%;
+    transition: width 0.4s ease;
+}
+
+.indicatorSubLabel {
+    font-size: 10px;
+    color: var(--text-faint);
+}
+
+// Section F: Patterns & Key Levels Card
+.patternsKeyLevelsCard {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    padding: 20px;
+    border-radius: 0 !important;
+}
+
+.cardHeaderRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    h3 {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0;
+        color: var(--title-color);
+    }
+
+    .patternCountBadge {
+        font-size: 11px;
+        font-weight: 700;
+        background: var(--pill-bg);
+        border: 1px solid var(--pill-border);
+        color: var(--pill-color);
+        padding: 4px 8px;
+    }
+}
+
+.patternsLevelsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+
+    @media (max-width: 868px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.levelsColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.levelGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.levelGroupHeader {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+
+    .supportDot {
+        width: 8px;
+        height: 8px;
+        background: #10B981;
+        border-radius: 50%;
+    }
+
+    .resistanceDot {
+        width: 8px;
+        height: 8px;
+        background: #EF4444;
+        border-radius: 50%;
+    }
+
+    .flameIcon {
+        color: #F59E0B;
+    }
+}
+
+.pillsList {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.levelPill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--box-bg);
+    border: 1px solid var(--box-border);
+    border-radius: 0 !important;
+
+    .pillIndex {
+        font-size: 10px;
+        font-weight: 800;
+        color: #10B981;
+    }
+
+    .pillIndexRes {
+        font-size: 10px;
+        font-weight: 800;
+        color: #EF4444;
+    }
+
+    .pillPrice {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--title-color);
+    }
+
+    .pillCopyBtn {
+        background: transparent;
+        border: none;
+        color: var(--text-faint);
+        cursor: pointer;
+
+        &:hover {
+            color: var(--pill-color);
+        }
+    }
+}
+
+.patternsColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.patternsList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.patternItemCard {
+    background: var(--box-bg);
+    padding: 12px;
+    border: 1px solid var(--box-border);
+}
+
+.patternItemHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+
+    .patternName {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .patternConfVal {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--pill-color);
+    }
+}
+
+.patternTrack {
+    width: 100%;
+    height: 6px;
+    background: var(--box-border);
+    border-radius: 0 !important;
+    overflow: hidden;
+}
+
+.patternFill {
+    height: 100%;
+    background: linear-gradient(90deg, #2563EB 0%, #60A5FA 100%);
+}
+
+// Section G: Risk Flags Stack
+.riskFlagsSection {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    padding: 20px;
+    border-radius: 0 !important;
+}
+
+.riskSectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+
+    h3 {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0;
+        color: var(--title-color);
+    }
+
+    .riskSectionIcon {
+        color: #EF4444;
+    }
+}
+
+.riskStackList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.riskCard {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 0 !important;
+    border: 1px solid;
+
+    &.riskDangerCard {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    &.riskWarningCard {
+        background: rgba(245, 158, 11, 0.08);
+        border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    &.riskInfoCard {
+        background: rgba(59, 130, 246, 0.08);
+        border-color: rgba(59, 130, 246, 0.3);
+    }
+}
+
+.riskIconWrap {
+    margin-top: 2px;
+}
+
+.riskMessageText {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.4;
+
+    strong {
+        letter-spacing: 0.5px;
+    }
+}
+
+// Section H: Multi-Indicator & Pivot Breakdown
+.indicatorPivotSection {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    padding: 20px;
+    border-radius: 0 !important;
+}
+
+.tabNavRow {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 16px;
+    overflow-x: auto;
+}
+
+.tabNavBtn {
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+
+    &:hover {
+        color: var(--title-color);
+    }
+
+    &.tabNavActive {
+        color: var(--pill-color);
+        border-bottom-color: #3B82F6;
+    }
+}
+
+.tabContentCard {
+    background: var(--box-bg);
+    border: 1px solid var(--box-border);
+    border-radius: 0 !important;
+    overflow: hidden;
+}
+
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.breakdownTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+
+    th {
+        background: var(--box-bg);
+        padding: 10px 14px;
+        color: var(--text-muted);
+        font-weight: 700;
+        font-size: 11px;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--box-border);
+
+        &.pivotMainHeader {
+            color: var(--pill-color);
+        }
+    }
+
+    td {
+        padding: 10px 14px;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--box-border);
+    }
+
+    .tableNameCell {
+        font-weight: 700;
+        color: var(--title-color);
+    }
+
+    .tableValCell {
+        font-family: monospace, sans-serif;
+        color: var(--pill-color);
+    }
+
+    .supportCell {
+        color: #10B981;
+        font-family: monospace, sans-serif;
+    }
+
+    .resistanceCell {
+        color: #EF4444;
+        font-family: monospace, sans-serif;
+    }
+
+    .pivotMainCell {
+        color: #F59E0B;
+        font-weight: 700;
+        font-family: monospace, sans-serif;
+    }
+}
+
+.actionTableBadge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 6px;
+}
+
+// Timeframe Selection Popup Modal Styles
+.timeframeModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(12px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.timeframeModalBox {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+    border-radius: 0 !important;
+    max-width: 680px;
+    width: 100%;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.timeframeModalHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    position: relative;
+}
+
+.timeframeHeaderIconWrap {
+    width: 44px;
+    height: 44px;
+    background: var(--pill-bg);
+    border: 1px solid var(--pill-border);
+    color: var(--pill-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 0 !important;
+}
+
+.timeframeHeaderTitle {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--title-color);
+    margin: 0 0 4px 0;
+}
+
+.timeframeHeaderSub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.timeframeModalClose {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: transparent;
+    border: none;
+    color: var(--text-faint);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
+
+    &:hover {
+        color: var(--title-color);
+    }
+}
+
+.timeframeCardsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.timeframeOptionCard {
+    background: var(--box-bg);
+    border: 1px solid var(--box-border);
+    border-radius: 0 !important;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: var(--pill-bg);
+        border-color: #3B82F6;
+        transform: translateY(-2px);
+
+        .tfArrow {
+            transform: translateX(4px);
+            color: var(--pill-color);
+        }
+    }
+}
+
+.tfCardTopRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.tfCardEmoji {
+    font-size: 24px;
+}
+
+.tfBadge {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--pill-color);
+    background: var(--pill-bg);
+    border: 1px solid var(--pill-border);
+    padding: 2px 8px;
+    border-radius: 0 !important;
+}
+
+.tfCardLabel {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--title-color);
+    margin: 0 0 6px 0;
+}
+
+.tfCardDesc {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin: 0 0 14px 0;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.tfCardActionRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #3B82F6;
+    margin-top: auto;
+}
+
+.tfArrow {
+    transition: transform 0.2s ease;
+}
+
+.timeframeModalFooter {
+    display: flex;
+    justify-content: flex-end;
+
+    .btnGhostModal {
+        background: transparent;
+        border: 1px solid var(--box-border);
+        color: var(--text-muted);
+        padding: 8px 16px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+
+        &:hover {
+            color: var(--title-color);
+            background: var(--box-bg);
+        }
+    }
+}
+
