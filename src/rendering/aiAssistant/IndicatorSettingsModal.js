@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useTheme } from '@/context/ThemeContext';
 import styles from './aiAssistant.module.scss';
 
 export default function IndicatorSettingsModal({
@@ -11,6 +12,8 @@ export default function IndicatorSettingsModal({
     onResetDefaults,
 }) {
     const { t } = useLanguage();
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const [activeTab, setActiveTab] = useState('inputs');
     const [draft, setDraft] = useState(config || {});
 
@@ -52,7 +55,7 @@ export default function IndicatorSettingsModal({
 
     return (
         <div className={styles.indicatorModalOverlay} onClick={onClose}>
-            <div className={styles.indicatorModalCard} onClick={(e) => e.stopPropagation()}>
+            <div className={`${styles.indicatorModalCard} ${!isDark ? styles.lightIndicatorModal : ''}`} onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
                 <div className={styles.indicatorModalHeader}>
                     <h3>{getTitle()}</h3>

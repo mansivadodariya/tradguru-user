@@ -13,33 +13,25 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: #FFF;
+  background: #FFFFFF;
   border: 1px solid #0B56DB;
   color: #0B56DB;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   user-select: none;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 8px rgba(11, 86, 219, 0.08);
 
   &:hover {
     background: #0B56DB;
-    color: #FFF;
+    color: #FFFFFF;
     box-shadow: 0 4px 14px rgba(11, 86, 219, 0.25);
 
-    .globeIcon, .chevronIcon {
-      color: #FFF;
+    .chevronIcon {
+      color: #FFFFFF;
     }
   }
-}
-
-.globeIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #0B56DB;
-  transition: color 0.25s ease;
 }
 
 .activeFlagIcon {
@@ -50,10 +42,10 @@
 }
 
 .flagSvg {
-  border-radius: 2px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
   display: block;
+  object-fit: cover;
 }
 
 .chevronIcon {
@@ -61,140 +53,298 @@
   align-items: center;
   justify-content: center;
   color: #0B56DB;
-  transition: color 0.25s ease;
+  transition: color 0.2s ease;
 }
 
 .label {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .dropdownMenu {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   right: 0;
-  min-width: 150px;
+  width: 440px;
+  max-width: calc(100vw - 24px);
   background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  padding: 6px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  padding: 12px;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14), 0 4px 12px rgba(0, 0, 0, 0.04);
   z-index: 10001;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
+  backdrop-filter: blur(16px);
 
   :global([dir="rtl"]) & {
     right: auto;
     left: 0;
   }
+
+  @media (max-width: 480px) {
+    width: 330px;
+    right: -20px;
+
+    :global([dir="rtl"]) & {
+      right: auto;
+      left: -20px;
+    }
+  }
+}
+
+.dropdownHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px 8px 6px;
+  border-bottom: 1px solid #F1F5F9;
+  margin-bottom: 2px;
+}
+
+.dropdownHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  svg {
+    color: #0B56DB;
+  }
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  background: #EFF6FF;
+  color: #0B56DB;
+  border: 1px solid rgba(11, 86, 219, 0.15);
+}
+
+.dropdownGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+
+  @media (max-width: 360px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .dropdownOption {
   width: 100%;
-  padding: 10px 14px;
+  padding: 8px 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
+  background: #F8FAFC;
+  border: 1px solid transparent;
   color: #1E293B;
-  font-size: 14px;
-  font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  text-align: left;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+
+  :global([dir="rtl"]) & {
+    text-align: right;
+  }
 
   &:hover {
-    background: #F1F5FC;
-    color: #0B56DB;
+    background: #EFF6FF;
+    border-color: rgba(11, 86, 219, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(11, 86, 219, 0.08);
+
+    .nativeLabel {
+      color: #0B56DB;
+    }
   }
 
   &.activeOption {
-    color: #0B56DB;
-    font-weight: 600;
-    background: #F1F5FC;
+    background: #EFF6FF;
+    border-color: #0B56DB;
+    box-shadow: 0 0 0 1px #0B56DB, 0 4px 12px rgba(11, 86, 219, 0.12);
+
+    .countryLabel {
+      color: #0B56DB;
+      font-weight: 600;
+    }
+
+    .nativeLabel {
+      color: #0B56DB;
+      font-weight: 700;
+    }
   }
 }
 
 .optionContent {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
+  min-width: 0;
 }
 
-.mapIcon {
-  color: #0B56DB;
+.flagWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  opacity: 0.85;
+}
+
+.textGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.countryLabel {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748B;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nativeLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1E293B;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.18s ease;
+}
+
+.checkIconWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 4px;
+
+  :global([dir="rtl"]) & {
+    margin-left: 0;
+    margin-right: 4px;
+  }
 }
 
 .checkIcon {
   color: #0B56DB;
-  flex-shrink: 0;
 }
 
+/* Dark Mode Styles */
 :global(html.dark) {
   .toggleButton {
-    background: rgba(15, 23, 42, 0.8);
-    border-color: rgba(64, 134, 255, 0.5);
-    color: #a8c8ff;
+    background: rgba(15, 23, 42, 0.85);
+    border-color: rgba(64, 134, 255, 0.4);
+    color: #A8C8FF;
 
-    .globeIcon, .chevronIcon {
-      color: #a8c8ff;
+    .chevronIcon {
+      color: #A8C8FF;
     }
 
     &:hover {
       background: #0B56DB;
-      color: #FFF;
+      color: #FFFFFF;
 
-      .globeIcon, .chevronIcon {
-        color: #FFF;
+      .chevronIcon {
+        color: #FFFFFF;
       }
     }
   }
 
   .dropdownMenu {
-    background: #18181B;
+    background: rgba(24, 24, 27, 0.95);
     border-color: #27272A;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
   }
 
-  .dropdownOption {
-    color: #E2E8F0;
+  .dropdownHeader {
+    border-bottom-color: #27272A;
+  }
 
-    &:hover, &.activeOption {
-      background: rgba(11, 86, 219, 0.15);
+  .dropdownHeaderLeft {
+    color: #94A3B8;
+
+    svg {
       color: #60A5FA;
     }
   }
 
-  .checkIcon, .mapIcon {
+  .badge {
+    background: rgba(11, 86, 219, 0.2);
+    color: #93C5FD;
+    border-color: rgba(11, 86, 219, 0.4);
+  }
+
+  .dropdownOption {
+    background: rgba(39, 39, 42, 0.6);
+    color: #E2E8F0;
+
+    .countryLabel {
+      color: #94A3B8;
+    }
+
+    .nativeLabel {
+      color: #F1F5F9;
+    }
+
+    &:hover {
+      background: rgba(11, 86, 219, 0.22);
+      border-color: rgba(96, 165, 250, 0.4);
+
+      .nativeLabel {
+        color: #93C5FD;
+      }
+    }
+
+    &.activeOption {
+      background: rgba(11, 86, 219, 0.28);
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 1px #3B82F6, 0 4px 14px rgba(59, 130, 246, 0.25);
+
+      .countryLabel {
+        color: #93C5FD;
+      }
+
+      .nativeLabel {
+        color: #FFFFFF;
+      }
+    }
+  }
+
+  .checkIcon {
     color: #60A5FA;
   }
 }
 
-/* Light mode styling / header light mode */
+/* Light header override */
 .toggleButtonLight,
 :global(html:not(.dark)) .toggleButtonLight {
   background: #F1F5FC;
   border: 1px solid #0B56DB;
   color: #0B56DB;
 
-  .globeIcon, .chevronIcon {
+  .chevronIcon {
     color: #0B56DB;
   }
 
   &:hover {
     background: #0B56DB;
-    color: #FFF;
+    color: #FFFFFF;
 
-    .globeIcon, .chevronIcon {
-      color: #FFF;
+    .chevronIcon {
+      color: #FFFFFF;
     }
   }
 }
-
-
-

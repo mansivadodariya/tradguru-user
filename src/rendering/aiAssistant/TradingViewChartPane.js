@@ -804,6 +804,8 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
         const txt = isDark ? '#94A3B8' : '#334155';
         const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.06)';
         const borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.1)';
+        const subGridVert = isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.04)';
+        const subGridHorz = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.06)';
 
         setBackgroundColor(bg);
 
@@ -820,6 +822,29 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 timeScale: { borderColor },
                 rightPriceScale: { borderColor },
             });
+        }
+
+        const subOptions = {
+            layout: {
+                background: { color: bg },
+                textColor: txt,
+            },
+            grid: {
+                vertLines: { color: subGridVert },
+                horzLines: { color: subGridHorz },
+            },
+            timeScale: { borderColor },
+            rightPriceScale: { borderColor },
+        };
+
+        if (rsiChartObjRef.current?.chart) {
+            try { rsiChartObjRef.current.chart.applyOptions(subOptions); } catch {}
+        }
+        if (macdChartObjRef.current?.chart) {
+            try { macdChartObjRef.current.chart.applyOptions(subOptions); } catch {}
+        }
+        if (stochChartObjRef.current?.chart) {
+            try { stochChartObjRef.current.chart.applyOptions(subOptions); } catch {}
         }
     }, [theme, isDark]);
 
@@ -1315,6 +1340,12 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
             } catch {}
         };
 
+        const subBg = isDark ? '#08090c' : '#FFFFFF';
+        const subTxt = isDark ? '#94A3B8' : '#334155';
+        const subGridVert = isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.04)';
+        const subGridHorz = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.06)';
+        const subBorder = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
+
         // RSI Sub-pane
         if (activeIndicators.rsi && rsiContainerRef.current) {
             const cfg = indicatorConfigs.rsi;
@@ -1323,10 +1354,10 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 const rChart = createChart(rsiContainerRef.current, {
                     height: 125,
                     width: rsiContainerRef.current.clientWidth,
-                    layout: { background: { color: '#08090c' }, textColor: '#94A3B8', fontFamily: 'Inter, sans-serif' },
-                    grid: { vertLines: { color: 'rgba(255, 255, 255, 0.03)' }, horzLines: { color: 'rgba(255, 255, 255, 0.05)' } },
-                    timeScale: { visible: true, borderColor: 'rgba(255, 255, 255, 0.08)' },
-                    rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.08)' }
+                    layout: { background: { color: subBg }, textColor: subTxt, fontFamily: 'Inter, sans-serif' },
+                    grid: { vertLines: { color: subGridVert }, horzLines: { color: subGridHorz } },
+                    timeScale: { visible: true, borderColor: subBorder },
+                    rightPriceScale: { borderColor: subBorder }
                 });
                 const rSeries = rChart.addSeries(LineSeries, { color: cfg.color, lineWidth: cfg.lineWidth, visible: isVis });
                 const line70 = rChart.addSeries(LineSeries, { color: 'rgba(239, 83, 80, 0.6)', lineWidth: 1, lineStyle: 2, visible: isVis });
@@ -1334,6 +1365,12 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 syncTimeWithMain(rChart);
                 rsiChartObjRef.current = { chart: rChart, series: rSeries, line70, line30 };
             } else {
+                rsiChartObjRef.current.chart.applyOptions({
+                    layout: { background: { color: subBg }, textColor: subTxt },
+                    grid: { vertLines: { color: subGridVert }, horzLines: { color: subGridHorz } },
+                    timeScale: { borderColor: subBorder },
+                    rightPriceScale: { borderColor: subBorder }
+                });
                 rsiChartObjRef.current.series.applyOptions({ color: cfg.color, lineWidth: cfg.lineWidth, visible: isVis });
                 rsiChartObjRef.current.line70.applyOptions({ visible: isVis });
                 rsiChartObjRef.current.line30.applyOptions({ visible: isVis });
@@ -1359,10 +1396,10 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 const mChart = createChart(macdContainerRef.current, {
                     height: 125,
                     width: macdContainerRef.current.clientWidth,
-                    layout: { background: { color: '#08090c' }, textColor: '#94A3B8', fontFamily: 'Inter, sans-serif' },
-                    grid: { vertLines: { color: 'rgba(255, 255, 255, 0.03)' }, horzLines: { color: 'rgba(255, 255, 255, 0.05)' } },
-                    timeScale: { visible: true, borderColor: 'rgba(255, 255, 255, 0.08)' },
-                    rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.08)' }
+                    layout: { background: { color: subBg }, textColor: subTxt, fontFamily: 'Inter, sans-serif' },
+                    grid: { vertLines: { color: subGridVert }, horzLines: { color: subGridHorz } },
+                    timeScale: { visible: true, borderColor: subBorder },
+                    rightPriceScale: { borderColor: subBorder }
                 });
                 const histSeries = mChart.addSeries(HistogramSeries, { priceFormat: { type: 'volume' }, visible: isVis });
                 const macdSeries = mChart.addSeries(LineSeries, { color: cfg.macdColor, lineWidth: cfg.lineWidth, visible: isVis });
@@ -1370,6 +1407,12 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 syncTimeWithMain(mChart);
                 macdChartObjRef.current = { chart: mChart, histSeries, macdSeries, signalSeries };
             } else {
+                macdChartObjRef.current.chart.applyOptions({
+                    layout: { background: { color: subBg }, textColor: subTxt },
+                    grid: { vertLines: { color: subGridVert }, horzLines: { color: subGridHorz } },
+                    timeScale: { borderColor: subBorder },
+                    rightPriceScale: { borderColor: subBorder }
+                });
                 macdChartObjRef.current.histSeries.applyOptions({ visible: isVis });
                 macdChartObjRef.current.macdSeries.applyOptions({ color: cfg.macdColor, lineWidth: cfg.lineWidth, visible: isVis });
                 macdChartObjRef.current.signalSeries.applyOptions({ color: cfg.signalColor, lineWidth: cfg.lineWidth, visible: isVis });
@@ -1391,10 +1434,10 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 const sChart = createChart(stochContainerRef.current, {
                     height: 125,
                     width: stochContainerRef.current.clientWidth,
-                    layout: { background: { color: '#08090c' }, textColor: '#94A3B8', fontFamily: 'Inter, sans-serif' },
-                    grid: { vertLines: { color: 'rgba(255, 255, 255, 0.03)' }, horzLines: { color: 'rgba(255, 255, 255, 0.05)' } },
-                    timeScale: { visible: true, borderColor: 'rgba(255, 255, 255, 0.08)' },
-                    rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.08)' }
+                    layout: { background: { color: subBg }, textColor: subTxt, fontFamily: 'Inter, sans-serif' },
+                    grid: { vertLines: { color: subGridVert }, horzLines: { color: subGridHorz } },
+                    timeScale: { visible: true, borderColor: subBorder },
+                    rightPriceScale: { borderColor: subBorder }
                 });
                 const kSeries = sChart.addSeries(LineSeries, { color: cfg.kColor, lineWidth: cfg.lineWidth, visible: isVis });
                 const dSeries = sChart.addSeries(LineSeries, { color: cfg.dColor, lineWidth: cfg.lineWidth, visible: isVis });
@@ -1403,6 +1446,12 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
                 syncTimeWithMain(sChart);
                 stochChartObjRef.current = { chart: sChart, kSeries, dSeries, line80, line20 };
             } else {
+                stochChartObjRef.current.chart.applyOptions({
+                    layout: { background: { color: subBg }, textColor: subTxt },
+                    grid: { vertLines: { color: subGridVert }, horzLines: { color: subGridHorz } },
+                    timeScale: { borderColor: subBorder },
+                    rightPriceScale: { borderColor: subBorder }
+                });
                 stochChartObjRef.current.kSeries.applyOptions({ color: cfg.kColor, lineWidth: cfg.lineWidth, visible: isVis });
                 stochChartObjRef.current.dSeries.applyOptions({ color: cfg.dColor, lineWidth: cfg.lineWidth, visible: isVis });
                 stochChartObjRef.current.line80.applyOptions({ visible: isVis });
@@ -1421,7 +1470,7 @@ const TradingViewChartPane = forwardRef(function TradingViewChartPane(
             try { stochChartObjRef.current.chart.remove(); } catch {}
             stochChartObjRef.current = null;
         }
-    }, [activeIndicators, indicatorConfigs, indicatorVisibility, currentTimeframe, activeSymbolClean]);
+    }, [activeIndicators, indicatorConfigs, indicatorVisibility, currentTimeframe, activeSymbolClean, isDark, theme]);
 
     // Update Series colors when bullish/bearish picker changes in Settings Modal
     useEffect(() => {

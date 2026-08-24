@@ -101,13 +101,26 @@ export default function SubscriptionPlansView() {
         try {
             const payload = {
                 plan_id: plan.id,
-                amount: plan.price,
-                currency: plan.currency || '$',
+                amount: Number(plan.price),
+                currency: (plan.currency && plan.currency !== '$' && plan.currency !== 'USD') ? plan.currency : 'USDT',
+                chain: plan.chain || 'SOLANA',
                 user_id: user?.id || user?.user_id || userId,
                 email: user?.email,
             };
             const res = await depositApi.createDeposit(payload);
-            const redirectUrl = res?.data?.payment_url || res?.data?.url || res?.data?.redirect_url || res?.payment_url || res?.url || res?.redirect_url;
+            const redirectUrl =
+                res?.data?.payment_info?.data?.checkout_url ||
+                res?.data?.payment_info?.checkout_url ||
+                res?.data?.checkout_url ||
+                res?.data?.payment_url ||
+                res?.data?.url ||
+                res?.data?.redirect_url ||
+                res?.payment_info?.data?.checkout_url ||
+                res?.payment_info?.checkout_url ||
+                res?.checkout_url ||
+                res?.payment_url ||
+                res?.url ||
+                res?.redirect_url;
             if (redirectUrl) {
                 window.location.href = redirectUrl;
                 return;

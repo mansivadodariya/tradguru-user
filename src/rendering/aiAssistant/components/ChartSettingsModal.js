@@ -1,7 +1,6 @@
-'use client';
-
 import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useTheme } from '@/context/ThemeContext';
 import styles from '../aiAssistant.module.scss';
 
 export default function ChartSettingsModal({
@@ -17,12 +16,14 @@ export default function ChartSettingsModal({
     onApply,
 }) {
     const { t } = useLanguage();
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     if (!isOpen) return null;
 
     return (
         <div className={styles.settingsModalOverlay} onClick={onClose}>
-            <div className={styles.settingsModalCard} onClick={(e) => e.stopPropagation()}>
+            <div className={`${styles.settingsModalCard} ${!isDark ? styles.lightSettingsModal : ''}`} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.settingsHeader}>
                     <h3>{t('aiAssistant.chartSettings', 'Chart Settings')}</h3>
                     <button type="button" className={styles.closeBtn} onClick={onClose}>✕</button>

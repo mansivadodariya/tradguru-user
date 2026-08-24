@@ -2279,7 +2279,8 @@
                             }
                         }
 
-                        .attachFloatingMenu {
+                        .attachFloatingMenu,
+                        .attachDropdownMenu {
                             position: absolute;
                             bottom: calc(100% + 10px);
                             left: 0;
@@ -2288,12 +2289,20 @@
                             border-radius: 0;
                             box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.15), 0 4px 12px rgba(15, 23, 42, 0.08);
                             padding: 6px;
-                            min-width: 170px;
+                            min-width: 220px;
+                            max-width: calc(100vw - 32px);
+                            white-space: nowrap;
                             display: flex;
                             flex-direction: column;
                             gap: 2px;
                             z-index: 1000;
                             animation: attachMenuPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+                            :global([dir="rtl"]) &,
+                            :global(html[dir="rtl"]) & {
+                                left: auto !important;
+                                right: 0 !important;
+                            }
 
                             .attachMenuItem {
                                 display: flex;
@@ -2310,6 +2319,12 @@
                                 transition: all 0.15s ease;
                                 text-align: left;
                                 width: 100%;
+                                white-space: nowrap;
+
+                                :global([dir="rtl"]) &,
+                                :global(html[dir="rtl"]) & {
+                                    text-align: right !important;
+                                }
 
                                 svg {
                                     color: #2563eb;
@@ -2378,6 +2393,12 @@
                         bottom: 125%;
                         left: 0;
                         background: #ffffff;
+
+                        :global([dir="rtl"]) &,
+                        :global(html[dir="rtl"]) & {
+                            left: auto !important;
+                            right: 0 !important;
+                        }
                         border: 1px solid #e2e8f0;
                         border-radius: 0;
                         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
@@ -4250,7 +4271,8 @@
                             }
                         }
 
-                        .attachFloatingMenu {
+                        .attachFloatingMenu,
+                        .attachDropdownMenu {
                             background: #000000;
                             border: 1px solid rgba(255, 255, 255, 0.18);
                             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
@@ -4819,19 +4841,29 @@
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
-    background: #08090c;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+    background: #FFFFFF;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: none;
+
+    :global(html.dark) & {
+        background: #08090c;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
 }
 
 .subPaneItem {
     position: relative;
     width: 100%;
     height: 125px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 
     &:last-child {
         border-bottom: none;
+    }
+
+    :global(html.dark) & {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 }
 
@@ -4849,9 +4881,38 @@
 .subPaneTitle {
     font-size: 0.72rem;
     font-weight: 700;
-    color: #94a3b8;
+    color: #1E293B;
     letter-spacing: 0.03em;
     text-transform: uppercase;
+
+    :global(html.dark) & {
+        color: #94a3b8;
+    }
+}
+
+.subPaneActions {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .indicatorActionBtn {
+        color: #64748b;
+
+        &:hover {
+            background: rgba(0, 0, 0, 0.06);
+            color: #0f5cf2;
+        }
+
+        :global(html.dark) & {
+            color: #94a3b8;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.12);
+                color: #2979ff;
+            }
+        }
+    }
 }
 
 .subPaneCanvas {
@@ -5126,30 +5187,35 @@
     }
 }
 
-/* TradingView Style Indicator Settings Modal */
+/* ==========================================================================
+   TradingView Style Indicator Settings Modal (Dark & Light Theme)
+   ========================================================================== */
 .indicatorModalOverlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 99999;
+    padding: 16px;
 }
 
 .indicatorModalCard {
-    width: 380px;
-    max-width: 92vw;
-    background: #000000;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+    width: 400px;
+    max-width: 95vw;
+    background: #0f1218;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0 !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    color: #ffffff;
 }
 
 .indicatorModalHeader {
@@ -5158,6 +5224,7 @@
     justify-content: space-between;
     padding: 14px 18px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: #0f1218;
 
     h3 {
         margin: 0;
@@ -5172,13 +5239,13 @@
         border: none;
         color: #94a3b8;
         cursor: pointer;
-        font-size: 18px;
+        font-size: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 4px;
-        border-radius: 4px;
-        transition: color 0.15s;
+        border-radius: 0;
+        transition: color 0.15s ease, background 0.15s ease;
 
         &:hover {
             color: #ffffff;
@@ -5193,7 +5260,7 @@
     gap: 8px;
     padding: 0 18px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    background: #08090c;
+    background: #0a0c10;
 }
 
 .indicatorTabBtn {
@@ -5205,6 +5272,7 @@
     color: #94a3b8;
     cursor: pointer;
     position: relative;
+    border-radius: 0;
     transition: all 0.15s ease;
 
     &:hover {
@@ -5233,6 +5301,7 @@
     gap: 14px;
     max-height: 380px;
     overflow-y: auto;
+    background: #0f1218;
 }
 
 .settingFieldRow {
@@ -5249,18 +5318,23 @@
 
     .settingInput,
     .settingSelect {
-        background: #131722;
+        background: #181d27;
         border: 1px solid rgba(255, 255, 255, 0.18);
         color: #ffffff;
         padding: 6px 10px;
-        border-radius: 4px;
+        border-radius: 0;
         font-size: 13px;
         width: 120px;
         outline: none;
-        transition: border-color 0.15s ease;
+        transition: border-color 0.15s ease, background 0.15s ease;
 
         &:focus {
             border-color: #2979ff;
+        }
+
+        option {
+            background: #181d27;
+            color: #ffffff;
         }
     }
 
@@ -5274,7 +5348,7 @@
             border: none;
             width: 28px;
             height: 28px;
-            border-radius: 4px;
+            border-radius: 0;
             cursor: pointer;
             background: transparent;
         }
@@ -5287,7 +5361,223 @@
     justify-content: space-between;
     padding: 12px 18px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    background: #08090c;
+    background: #0a0c10;
+
+    .resetBtn {
+        padding: 6px 14px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #cbd5e1;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 0;
+        cursor: pointer;
+        transition: all 0.15s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+    }
+
+    .doneBtn,
+    .applyBtn {
+        padding: 6px 18px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #ffffff;
+        background: #2563eb;
+        border: 1px solid #2563eb;
+        border-radius: 0;
+        cursor: pointer;
+        transition: all 0.15s ease;
+
+        &:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+    }
+}
+
+/* ==========================================================================
+   Indicator Settings Modal — Light Theme Override
+   ========================================================================== */
+.lightIndicatorModal,
+:global(html:not(.dark)) .indicatorModalCard {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
+    color: #0f172a !important;
+
+    .indicatorModalHeader {
+        background: #ffffff !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+
+        h3 {
+            color: #0f172a !important;
+            font-weight: 700;
+        }
+
+        .closeBtn {
+            color: #64748b !important;
+
+            &:hover {
+                color: #0f172a !important;
+                background: #f1f5f9 !important;
+            }
+        }
+    }
+
+    .indicatorModalTabs {
+        background: #f8fafc !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+
+        .indicatorTabBtn {
+            color: #64748b !important;
+
+            &:hover {
+                color: #0f172a !important;
+            }
+
+            &.activeTab {
+                color: #0f5cf2 !important;
+
+                &::after {
+                    background: #0f5cf2 !important;
+                }
+            }
+        }
+    }
+
+    .indicatorModalBody {
+        background: #ffffff !important;
+
+        .settingFieldRow {
+            label {
+                color: #334155 !important;
+                font-weight: 500;
+            }
+
+            .settingInput,
+            .settingSelect {
+                background: #f8fafc !important;
+                border: 1px solid #cbd5e1 !important;
+                color: #0f172a !important;
+
+                &:focus {
+                    border-color: #0f5cf2 !important;
+                    background: #ffffff !important;
+                }
+
+                option {
+                    background: #ffffff !important;
+                    color: #0f172a !important;
+                }
+            }
+        }
+    }
+
+    .indicatorModalFooter {
+        background: #f8fafc !important;
+        border-top: 1px solid #e2e8f0 !important;
+
+        .resetBtn {
+            background: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #334155 !important;
+
+            &:hover {
+                background: #f1f5f9 !important;
+                border-color: #94a3b8 !important;
+                color: #0f172a !important;
+            }
+        }
+
+        .doneBtn,
+        .applyBtn {
+            background: #0f5cf2 !important;
+            color: #ffffff !important;
+            border: 1px solid #0f5cf2 !important;
+
+            &:hover {
+                background: #0b4bc7 !important;
+            }
+        }
+    }
+}
+
+/* ==========================================================================
+   Chart Settings Modal — Light Theme Override
+   ========================================================================== */
+.lightSettingsModal,
+:global(html:not(.dark)) .settingsModalCard {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
+    color: #0f172a !important;
+
+    .settingsHeader {
+        background: #ffffff !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+
+        h3 {
+            color: #0f172a !important;
+        }
+
+        .closeBtn {
+            color: #64748b !important;
+
+            &:hover {
+                color: #0f172a !important;
+                background: #f1f5f9 !important;
+            }
+        }
+    }
+
+    .settingsBody {
+        background: #ffffff !important;
+
+        .settingSection {
+            h4 {
+                color: #64748b !important;
+                border-bottom: 1px solid #e2e8f0 !important;
+            }
+
+            .settingRow {
+                label {
+                    color: #334155 !important;
+                }
+            }
+        }
+    }
+
+    .settingsFooter {
+        background: #f8fafc !important;
+        border-top: 1px solid #e2e8f0 !important;
+
+        .resetBtn {
+            background: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #334155 !important;
+
+            &:hover {
+                background: #f1f5f9 !important;
+                border-color: #94a3b8 !important;
+                color: #0f172a !important;
+            }
+        }
+
+        .applyBtn {
+            background: #0f5cf2 !important;
+            color: #ffffff !important;
+            border: 1px solid #0f5cf2 !important;
+
+            &:hover {
+                background: #0b4bc7 !important;
+            }
+        }
+    }
 }
 
 /* ==========================================================================
@@ -6243,11 +6533,11 @@
     }
 }
 
-/* Vision AI Accordion Cards */
+/* Vision AI Accordion Cards (Modern Sharp UI - 0 Border Radius) */
 .visionAnalysisContainer {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     width: 100%;
     margin: 8px 0;
 }
@@ -6257,19 +6547,57 @@
     align-items: center;
     gap: 8px;
     padding: 10px 14px;
-    border-radius: 10px;
-    background: rgba(245, 158, 11, 0.1);
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    color: #f59e0b;
+    border-radius: 0 !important;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    border-left: 3px solid #f59e0b;
+    color: #d97706;
     font-size: 12.5px;
     font-weight: 500;
+
+    :global(html.dark) & {
+        background: rgba(245, 158, 11, 0.12);
+        color: #fbbf24;
+    }
 }
 
 .visionSummaryCard {
     padding: 14px 16px;
-    border-radius: 12px;
+    border-radius: 0 !important;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
+    border-left: 3px solid #0f5cf2;
+
+    :global(html.dark) & {
+        background: #111318;
+        border-color: rgba(255, 255, 255, 0.1);
+        border-left-color: #3b82f6;
+    }
+}
+
+.visionOverviewCard {
+    padding: 12px 16px;
+    border-radius: 0 !important;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-left: 3px solid #64748b;
+
+    :global(html.dark) & {
+        background: #111318;
+        border-color: rgba(255, 255, 255, 0.1);
+        border-left-color: #94a3b8;
+    }
+}
+
+.visionOverviewText {
+    margin: 0;
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.6;
+
+    :global(html.dark) & {
+        color: #cbd5e1;
+    }
 }
 
 .visionAccordionList {
@@ -6279,15 +6607,27 @@
 }
 
 .visionAccordionCard {
-    border-radius: 12px;
+    border-radius: 0 !important;
     background: #ffffff;
     border: 1px solid #e2e8f0;
     overflow: hidden;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: all 0.18s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 
     &.visionAccordionOpen {
-        border-color: #3b82f6;
+        border-color: #0f5cf2;
+        border-left: 3px solid #0f5cf2;
+    }
+
+    :global(html.dark) & {
+        background: #111318;
+        border-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+
+        &.visionAccordionOpen {
+            border-color: #3b82f6;
+            border-left: 3px solid #3b82f6;
+        }
     }
 }
 
@@ -6299,6 +6639,7 @@
     justify-content: space-between;
     background: transparent;
     border: none;
+    border-radius: 0 !important;
     cursor: pointer;
     text-align: left;
     transition: background 0.15s ease;
@@ -6306,24 +6647,42 @@
     &:hover {
         background: #f8fafc;
     }
+
+    :global(html.dark) & {
+        &:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+    }
 }
 
 .visionHeaderLeft {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
 .visionSectionIcon {
-    font-size: 16px;
-    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #0f5cf2;
+    flex-shrink: 0;
+
+    :global(html.dark) & {
+        color: #60a5fa;
+    }
 }
 
 .visionSectionTitle {
     font-size: 13.5px;
     font-weight: 600;
     color: #0f172a;
+    letter-spacing: -0.01em;
+
+    :global(html.dark) & {
+        color: #f8fafc;
+    }
 }
 
 .visionTrendBadges {
@@ -6339,19 +6698,19 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    border-radius: 6px;
-    background: rgba(15, 92, 242, 0.1);
+    border-radius: 0 !important;
+    background: rgba(15, 92, 242, 0.08);
     color: #0f5cf2;
     border: 1px solid rgba(15, 92, 242, 0.25);
 
     &.badgeBullish {
-        background: rgba(16, 185, 129, 0.12);
+        background: rgba(16, 185, 129, 0.1);
         color: #059669;
         border-color: rgba(16, 185, 129, 0.3);
     }
 
     &.badgeBearish {
-        background: rgba(239, 68, 68, 0.12);
+        background: rgba(239, 68, 68, 0.1);
         color: #dc2626;
         border-color: rgba(239, 68, 68, 0.3);
     }
@@ -6361,30 +6720,75 @@
     padding: 2px 7px;
     font-size: 10px;
     font-weight: 600;
-    border-radius: 6px;
+    border-radius: 0 !important;
     background: #f1f5f9;
     color: #475569;
     border: 1px solid #e2e8f0;
+
+    :global(html.dark) & {
+        background: #1e222d;
+        color: #94a3b8;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
 }
 
 .visionChevron {
-    font-size: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     color: #94a3b8;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, color 0.15s ease;
 
     &.visionChevronOpen {
         transform: rotate(180deg);
         color: #0f5cf2;
     }
+
+    :global(html.dark) & {
+        &.visionChevronOpen {
+            color: #60a5fa;
+        }
+    }
+}
+
+.visionAccordionCollapse {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+
+    &.visionAccordionCollapseOpen {
+        grid-template-rows: 1fr;
+
+        .visionAccordionBody {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+.visionAccordionCollapseInner {
+    min-height: 0;
+    overflow: hidden;
 }
 
 .visionAccordionBody {
-    padding: 12px 16px 16px;
+    padding: 14px 16px 18px;
     border-top: 1px solid #f1f5f9;
     font-size: 13px;
     line-height: 1.6;
     color: #1e293b;
     background: #fafbff;
+    border-radius: 0 !important;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.22s ease 0.06s, transform 0.22s ease 0.06s;
+
+    :global(html.dark) & {
+        background: #0d0f15;
+        border-top-color: rgba(255, 255, 255, 0.06);
+        color: #e2e8f0;
+    }
 }
 
 .visionSectionDetails {
@@ -6397,7 +6801,11 @@
     margin: 0;
     color: #334155;
     font-size: 13px;
-    line-height: 1.5;
+    line-height: 1.55;
+
+    :global(html.dark) & {
+        color: #cbd5e1;
+    }
 }
 
 .visionSummaryText {
@@ -6405,6 +6813,10 @@
     color: #334155;
     font-size: 13px;
     font-style: italic;
+
+    :global(html.dark) & {
+        color: #94a3b8;
+    }
 }
 
 .visionObservationText {
@@ -6412,23 +6824,21 @@
     color: #0369a1;
     font-size: 12.5px;
     line-height: 1.5;
+
+    strong {
+        color: #0c4a6e;
+    }
+
+    :global(html.dark) & {
+        color: #38bdf8;
+
+        strong {
+            color: #7dd3fc;
+        }
+    }
 }
 
-.visionOverviewCard {
-    padding: 12px 16px;
-    border-radius: 12px;
-    background: rgba(15, 23, 42, 0.03);
-    border: 1px solid #e2e8f0;
-}
-
-.visionOverviewText {
-    margin: 0;
-    color: #475569;
-    font-size: 12.5px;
-    line-height: 1.6;
-}
-
-/* Badges */
+/* Badges (0 Border Radius) */
 .visionBadgesRow {
     display: flex;
     align-items: center;
@@ -6442,7 +6852,7 @@
     padding: 3px 8px;
     font-size: 11px;
     font-weight: 700;
-    border-radius: 6px;
+    border-radius: 0 !important;
     text-transform: uppercase;
     letter-spacing: 0.3px;
     line-height: 1.2;
@@ -6450,27 +6860,51 @@
 }
 
 .badgeGreen {
-    background: rgba(16, 185, 129, 0.12);
+    background: rgba(16, 185, 129, 0.1);
     color: #059669;
     border-color: rgba(16, 185, 129, 0.3);
+
+    :global(html.dark) & {
+        background: rgba(16, 185, 129, 0.18);
+        color: #34d399;
+        border-color: rgba(16, 185, 129, 0.4);
+    }
 }
 
 .badgeRed {
-    background: rgba(239, 68, 68, 0.12);
+    background: rgba(239, 68, 68, 0.1);
     color: #dc2626;
     border-color: rgba(239, 68, 68, 0.3);
+
+    :global(html.dark) & {
+        background: rgba(239, 68, 68, 0.18);
+        color: #f87171;
+        border-color: rgba(239, 68, 68, 0.4);
+    }
 }
 
 .badgeAmber {
-    background: rgba(245, 158, 11, 0.12);
+    background: rgba(245, 158, 11, 0.1);
     color: #d97706;
     border-color: rgba(245, 158, 11, 0.3);
+
+    :global(html.dark) & {
+        background: rgba(245, 158, 11, 0.18);
+        color: #fbbf24;
+        border-color: rgba(245, 158, 11, 0.4);
+    }
 }
 
 .badgeBlue {
-    background: rgba(15, 92, 242, 0.1);
+    background: rgba(15, 92, 242, 0.08);
     color: #0f5cf2;
     border-color: rgba(15, 92, 242, 0.25);
+
+    :global(html.dark) & {
+        background: rgba(59, 130, 246, 0.18);
+        color: #60a5fa;
+        border-color: rgba(59, 130, 246, 0.4);
+    }
 }
 
 .badgeSlate {
@@ -6479,9 +6913,15 @@
     border-color: #e2e8f0;
     text-transform: none;
     font-weight: 600;
+
+    :global(html.dark) & {
+        background: #1e222d;
+        color: #94a3b8;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
 }
 
-/* Market Structure Swing Grid */
+/* Market Structure Swing Grid (0 Border Radius) */
 .visionSwingGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -6493,15 +6933,24 @@
     align-items: center;
     justify-content: space-between;
     padding: 8px 12px;
-    border-radius: 8px;
-    background: #f8fafc;
+    border-radius: 0 !important;
+    background: #ffffff;
     border: 1px solid #e2e8f0;
+
+    :global(html.dark) & {
+        background: #141720;
+        border-color: rgba(255, 255, 255, 0.08);
+    }
 }
 
 .visionSwingLabel {
     font-size: 12px;
     font-weight: 600;
     color: #64748b;
+
+    :global(html.dark) & {
+        color: #94a3b8;
+    }
 }
 
 .visionPatternText {
@@ -6509,9 +6958,21 @@
     font-size: 12.5px;
     color: #0284c7;
     line-height: 1.5;
+
+    strong {
+        color: #0369a1;
+    }
+
+    :global(html.dark) & {
+        color: #38bdf8;
+
+        strong {
+            color: #7dd3fc;
+        }
+    }
 }
 
-/* Support & Resistance Groups */
+/* Support & Resistance Groups (0 Border Radius) */
 .visionLevelsGroup {
     display: flex;
     flex-direction: column;
@@ -6526,6 +6987,10 @@
     display: flex;
     align-items: center;
     gap: 4px;
+
+    :global(html.dark) & {
+        color: #34d399;
+    }
 }
 
 .visionGroupTitleRed {
@@ -6536,6 +7001,10 @@
     display: flex;
     align-items: center;
     gap: 4px;
+
+    :global(html.dark) & {
+        color: #f87171;
+    }
 }
 
 .visionCardsCol {
@@ -6546,54 +7015,90 @@
 
 .visionLevelCardGreen {
     padding: 10px 12px;
-    border-radius: 10px;
-    background: rgba(16, 185, 129, 0.05);
+    border-radius: 0 !important;
+    background: rgba(16, 185, 129, 0.04);
     border: 1px solid rgba(16, 185, 129, 0.25);
+    border-left: 3px solid #10b981;
     display: flex;
     flex-direction: column;
     gap: 6px;
+
+    :global(html.dark) & {
+        background: rgba(16, 185, 129, 0.08);
+        border-color: rgba(16, 185, 129, 0.35);
+        border-left-color: #34d399;
+    }
 }
 
 .visionLevelCardRed {
     padding: 10px 12px;
-    border-radius: 10px;
-    background: rgba(239, 68, 68, 0.05);
+    border-radius: 0 !important;
+    background: rgba(239, 68, 68, 0.04);
     border: 1px solid rgba(239, 68, 68, 0.25);
+    border-left: 3px solid #ef4444;
     display: flex;
     flex-direction: column;
     gap: 6px;
+
+    :global(html.dark) & {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.35);
+        border-left-color: #f87171;
+    }
 }
 
 .visionLevelInfo {
     margin: 0;
     font-size: 12px;
-    color: #0369a1;
+    color: #334155;
     line-height: 1.4;
 
     strong {
         color: #0f172a;
     }
+
+    :global(html.dark) & {
+        color: #cbd5e1;
+
+        strong {
+            color: #f8fafc;
+        }
+    }
 }
 
-/* Supply & Demand Zones */
+/* Supply & Demand Zones (0 Border Radius) */
 .visionZoneCardGreen {
     padding: 12px 14px;
-    border-radius: 10px;
-    background: rgba(16, 185, 129, 0.05);
+    border-radius: 0 !important;
+    background: rgba(16, 185, 129, 0.04);
     border: 1px solid rgba(16, 185, 129, 0.25);
+    border-left: 3px solid #10b981;
     display: flex;
     flex-direction: column;
     gap: 6px;
+
+    :global(html.dark) & {
+        background: rgba(16, 185, 129, 0.08);
+        border-color: rgba(16, 185, 129, 0.35);
+        border-left-color: #34d399;
+    }
 }
 
 .visionZoneCardRed {
     padding: 12px 14px;
-    border-radius: 10px;
-    background: rgba(239, 68, 68, 0.05);
+    border-radius: 0 !important;
+    background: rgba(239, 68, 68, 0.04);
     border: 1px solid rgba(239, 68, 68, 0.25);
+    border-left: 3px solid #ef4444;
     display: flex;
     flex-direction: column;
     gap: 6px;
+
+    :global(html.dark) & {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.35);
+        border-left-color: #f87171;
+    }
 }
 
 .visionZoneText {
@@ -6603,7 +7108,15 @@
     line-height: 1.4;
 
     strong {
-        color: #0284c7;
+        color: #0f172a;
+    }
+
+    :global(html.dark) & {
+        color: #cbd5e1;
+
+        strong {
+            color: #f8fafc;
+        }
     }
 }
 
@@ -6611,21 +7124,34 @@
     padding: 2px 7px;
     font-size: 10px;
     font-weight: 600;
-    border-radius: 6px;
+    border-radius: 0 !important;
     background: #f1f5f9;
     color: #475569;
     border: 1px solid #e2e8f0;
+
+    :global(html.dark) & {
+        background: #1e222d;
+        color: #94a3b8;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
 }
 
-/* Actionable Zones */
+/* Actionable Zones (0 Border Radius) */
 .visionActionCardGreen {
     padding: 12px 14px;
-    border-radius: 10px;
-    background: rgba(16, 185, 129, 0.05);
+    border-radius: 0 !important;
+    background: rgba(16, 185, 129, 0.04);
     border: 1px solid rgba(16, 185, 129, 0.25);
+    border-left: 3px solid #10b981;
     display: flex;
     flex-direction: column;
     gap: 4px;
+
+    :global(html.dark) & {
+        background: rgba(16, 185, 129, 0.08);
+        border-color: rgba(16, 185, 129, 0.35);
+        border-left-color: #34d399;
+    }
 }
 
 .visionActionTitleGreen {
@@ -6633,16 +7159,27 @@
     font-size: 13px;
     font-weight: 700;
     color: #059669;
+
+    :global(html.dark) & {
+        color: #34d399;
+    }
 }
 
 .visionActionCardRed {
     padding: 12px 14px;
-    border-radius: 10px;
-    background: rgba(239, 68, 68, 0.05);
+    border-radius: 0 !important;
+    background: rgba(239, 68, 68, 0.04);
     border: 1px solid rgba(239, 68, 68, 0.25);
+    border-left: 3px solid #ef4444;
     display: flex;
     flex-direction: column;
     gap: 4px;
+
+    :global(html.dark) & {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.35);
+        border-left-color: #f87171;
+    }
 }
 
 .visionActionTitleRed {
@@ -6650,6 +7187,10 @@
     font-size: 13px;
     font-weight: 700;
     color: #dc2626;
+
+    :global(html.dark) & {
+        color: #f87171;
+    }
 }
 
 .visionActionText {
@@ -6657,6 +7198,10 @@
     font-size: 12px;
     color: #334155;
     line-height: 1.4;
+
+    :global(html.dark) & {
+        color: #cbd5e1;
+    }
 }
 
 .visionActionSub {
@@ -6664,6 +7209,10 @@
     font-size: 12px;
     color: #64748b;
     line-height: 1.4;
+
+    :global(html.dark) & {
+        color: #94a3b8;
+    }
 }
 
 .visionFieldRow {
@@ -6676,19 +7225,32 @@
     font-weight: 600;
     color: #0f172a;
     font-size: 12.5px;
+
+    :global(html.dark) & {
+        color: #f8fafc;
+    }
 }
 
 .visionFieldValue {
     color: #334155;
     font-size: 12.5px;
+
+    :global(html.dark) & {
+        color: #cbd5e1;
+    }
 }
 
 .visionFieldBlock {
     margin-top: 4px;
     padding: 8px 10px;
-    border-radius: 8px;
+    border-radius: 0 !important;
     background: #ffffff;
     border: 1px solid #e2e8f0;
+
+    :global(html.dark) & {
+        background: #141720;
+        border-color: rgba(255, 255, 255, 0.08);
+    }
 }
 
 .visionBlockHeading {
@@ -6698,6 +7260,10 @@
     color: #0f5cf2;
     margin-bottom: 4px;
     text-transform: capitalize;
+
+    :global(html.dark) & {
+        color: #60a5fa;
+    }
 }
 
 .visionBlockContent {
@@ -6709,8 +7275,12 @@
     padding-left: 18px;
 
     li {
-        color: #334155;
         margin-bottom: 2px;
+        color: #334155;
+
+        :global(html.dark) & {
+            color: #cbd5e1;
+        }
     }
 }
 
@@ -6880,4 +7450,177 @@
         color: #f1f5f9 !important;
     }
 }
+
+/* Active Analysis Mode Tab in Chat Input */
+.activeModeTab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border-radius: 0 !important;
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.4px;
+    user-select: none;
+    cursor: default;
+    border: 1px solid transparent;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    position: relative;
+
+    &.mode_deep {
+        background: linear-gradient(135deg, rgba(15, 92, 242, 0.08) 0%, rgba(37, 99, 235, 0.14) 100%);
+        border-color: rgba(15, 92, 242, 0.35);
+        border-left: 3px solid #0f5cf2;
+        color: #0f5cf2;
+        box-shadow: 0 2px 8px rgba(15, 92, 242, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+
+        .activeModeIcon {
+            color: #0f5cf2;
+            filter: drop-shadow(0 0 4px rgba(15, 92, 242, 0.35));
+        }
+
+        :global(html.dark) & {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.25) 100%);
+            border-color: rgba(59, 130, 246, 0.45);
+            border-left: 3px solid #3b82f6;
+            color: #60a5fa;
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+            .activeModeIcon {
+                color: #60a5fa;
+                filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.5));
+            }
+        }
+    }
+
+    &.mode_news {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(217, 119, 6, 0.14) 100%);
+        border-color: rgba(245, 158, 11, 0.35);
+        border-left: 3px solid #d97706;
+        color: #d97706;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+
+        .activeModeIcon {
+            color: #d97706;
+            filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.35));
+        }
+
+        :global(html.dark) & {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.25) 100%);
+            border-color: rgba(245, 158, 11, 0.45);
+            border-left: 3px solid #f59e0b;
+            color: #fbbf24;
+            box-shadow: 0 2px 10px rgba(245, 158, 11, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+            .activeModeIcon {
+                color: #fbbf24;
+                filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.5));
+            }
+        }
+    }
+
+    &.mode_image {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.14) 100%);
+        border-color: rgba(16, 185, 129, 0.35);
+        border-left: 3px solid #059669;
+        color: #059669;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+
+        .activeModeIcon {
+            color: #059669;
+            filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.35));
+        }
+
+        :global(html.dark) & {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.25) 100%);
+            border-color: rgba(16, 185, 129, 0.45);
+            border-left: 3px solid #10b981;
+            color: #34d399;
+            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+            .activeModeIcon {
+                color: #34d399;
+                filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.5));
+            }
+        }
+    }
+
+    &:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.04);
+    }
+}
+
+.activeModeIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.activeModeLabel {
+    white-space: nowrap;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    display: inline-block;
+}
+
+.activeModeCloseBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    padding: 3px;
+    margin-left: 2px;
+    border-radius: 2px;
+    cursor: pointer;
+    color: currentColor;
+    opacity: 0.65;
+    transition: all 0.2s ease;
+
+    &:hover {
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.08);
+        transform: scale(1.15) rotate(90deg);
+
+        :global(html.dark) & {
+            background: rgba(255, 255, 255, 0.12);
+        }
+    }
+}
+
+.attachMenuItem {
+    &.attachMenuItemActive {
+        background: rgba(15, 92, 242, 0.08) !important;
+        color: #0f5cf2 !important;
+        font-weight: 600;
+
+        :global(html.dark) & {
+            background: rgba(59, 130, 246, 0.16) !important;
+            color: #60a5fa !important;
+        }
+    }
+}
+
+.activeModeDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #0f5cf2;
+    margin-left: auto;
+    flex-shrink: 0;
+
+    :global(html.dark) & {
+        background: #60a5fa;
+    }
+}
+
 

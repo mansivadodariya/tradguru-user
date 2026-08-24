@@ -15,6 +15,7 @@ import Modal from './Modal';
 import Loader from '@/components/loader';
 import { useLanguage } from '@/context/LanguageContext';
 import { getBidiProps } from '@/lib/bidi';
+import AiSnapDashboard from './components/AiSnapDashboard';
 import {
     MonitorIcon,
     MonitorOffIcon,
@@ -676,41 +677,31 @@ export default function TradeSnap() {
 
     return (
         <div className={styles.tradeSnap}>
-            <div className={styles.title}>
-                <div className={styles.titleRow}>
-                    <div>
-                        <h2>{t('nav.aiTrade', 'AI Trade')}</h2>
-                        <p>
-                            {t('tradeSnap.subtitle', 'Capture your screen, analyze chart movements, and get AI trade insights with single or multi-timeframe views.')}
-                        </p>
-                    </div>
-                    <HistoryButton
-                        text={t('tradeSnap.history', 'History')}
-                        onClick={openHistory}
-                    />
-                </div>
-            </div>
-
             <canvas ref={canvasRef} className={styles.hiddenCanvas} aria-hidden="true" />
 
-            <div className={styles.tabSwitcher}>
-                <button
-                    type="button"
-                    className={activeTab === 'single' ? styles.tabActive : ''}
-                    onClick={() => requestTabSwitch('single')}
-                >
-                    <MonitorIcon />
-                    {t('tradeSnap.singleTimeframe', 'Single Timeframe')}
-                </button>
-                <button
-                    type="button"
-                    className={activeTab === 'multi' ? styles.tabActive : ''}
-                    onClick={() => requestTabSwitch('multi')}
-                >
-                    <ChartIcon />
-                    {t('tradeSnap.multiTimeframe', 'Multi Timeframe')}
-                </button>
-
+            <div className={styles.tabSwitcherRow}>
+                <div className={styles.tabSwitcher}>
+                    <button
+                        type="button"
+                        className={activeTab === 'single' ? styles.tabActive : ''}
+                        onClick={() => requestTabSwitch('single')}
+                    >
+                        <MonitorIcon />
+                        {t('tradeSnap.singleTimeframe', 'Single Timeframe')}
+                    </button>
+                    <button
+                        type="button"
+                        className={activeTab === 'multi' ? styles.tabActive : ''}
+                        onClick={() => requestTabSwitch('multi')}
+                    >
+                        <ChartIcon />
+                        {t('tradeSnap.multiTimeframe', 'Multi Timeframe')}
+                    </button>
+                </div>
+                <HistoryButton
+                    text={t('tradeSnap.history', 'History')}
+                    onClick={openHistory}
+                />
             </div>
 
             <div className={`${styles.workspace} ${activeTab === 'multi' ? styles.workspaceMulti : ''}`}>
@@ -993,14 +984,9 @@ export default function TradeSnap() {
                                                 Analysis at {formatted}
                                             </div>
                                             {analysis.data.map((trade, tradeIndex) => (
-                                                <AnalysisResultItem
+                                                <AiSnapDashboard
                                                     key={`trade-${analysisIndex}-${tradeIndex}`}
-                                                    trade={trade}
-                                                    index={tradeIndex}
-                                                    onViewDetails={(t) => {
-                                                        setSelectedAnalysis(t);
-                                                        setIsDetailModalOpen(true);
-                                                    }}
+                                                    rawData={trade}
                                                 />
                                             ))}
                                         </div>
@@ -1015,23 +1001,11 @@ export default function TradeSnap() {
             <Modal
                 open={isDetailModalOpen}
                 onClose={() => setIsDetailModalOpen(false)}
-                title="Analysis Details"
-                description="Detailed analysis of the selected trade"
+                title="AI Snap Technical Analysis Dashboard"
+                description="State-of-the-art AI market diagnosis and trade signal setup"
             >
-                {selectedAnalysis?.risk_reward && selectedAnalysis.risk_reward !== 'N/A' && (
-                    <div className={styles.riskReward}>
-                        <span>Risk/Reward</span>
-                        <strong>{selectedAnalysis.risk_reward}</strong>
-                    </div>
-                )}
-                {selectedAnalysis?.rationale && (
-                    <div className={styles.rationale}>
-                        <h4>Analysis</h4>
-                        <p>{selectedAnalysis.rationale}</p>
-                    </div>
-                )}
-                {selectedAnalysis?.entry?.includes('(') && (
-                    <p className={styles.entryNote}>{selectedAnalysis.entry.match(/\(([^)]+)\)/)?.[1]}</p>
+                {selectedAnalysis && (
+                    <AiSnapDashboard rawData={selectedAnalysis} />
                 )}
             </Modal>
 

@@ -10,8 +10,16 @@ function formatSymbol(symbol) {
 }
 
 function formatValue(val) {
-    if (!val || String(val).toLowerCase() === 'null' || String(val).toLowerCase() === 'n/a' || String(val).toLowerCase() === 'nan') return '-';
-    return val;
+    if (val === null || val === undefined) return '-';
+    if (typeof val === 'object') {
+        if (val.price !== undefined) return String(val.price);
+        if (val.value !== undefined) return String(val.value);
+        if (val.label !== undefined) return String(val.label);
+        return String(val.price || val.value || JSON.stringify(val));
+    }
+    const str = String(val).trim();
+    if (!str || str.toLowerCase() === 'null' || str.toLowerCase() === 'n/a' || str.toLowerCase() === 'nan') return '-';
+    return str;
 }
 
 /** e.g. future_sell → Future Sell, no_trade → No Trade */
@@ -64,8 +72,8 @@ export default function AnalysisResultItem({ trade, index, onViewDetails }) {
                     <div
                         className={`${styles.signalPill} ${isBuy ? styles.signalBuy : isSell ? styles.signalSell : styles.signalNeutral}`}
                     >
-                        {isBuy && <TrendUpIcon />}
-                        {isSell && <TrendDownIcon />}
+                        {isBuy && <img src="/assets/images/bull.png" alt="Bull" className={styles.miniSignalImg} />}
+                        {isSell && <img src="/assets/images/bear.png" alt="Bear" className={styles.miniSignalImg} />}
                         {isNoTrade && <ChartIcon />}
                         <span>{formatTradeCall(trade?.trade_call)}</span>
                     </div>
